@@ -245,15 +245,126 @@
 
   const biomeById = Object.fromEntries(DATA.biomes.map((b) => [b.id, b]));
 
+  // Cache de texturas reales 192x192 (3x3 bloques de 64px) idéntico a assets.js
+  const biomeTileCache = {};
+  const atlasExtraImgs = {};
+  let atlasTilesReady = false;
+
+  function makeBiomeSheet(srcImg, sx, sy, sw, sh, overlayColor) {
+    if (!srcImg || !srcImg.complete || srcImg.naturalWidth <= 0) return null;
+    const c = document.createElement('canvas');
+    c.width = sw;
+    c.height = sh;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(srcImg, sx, sy, sw, sh, 0, 0, sw, sh);
+    if (overlayColor) {
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle = overlayColor;
+      ctx.fillRect(0, 0, sw, sh);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    return c;
+  }
+
+  function loadAtlasTextures() {
+    const sources = {
+      tile_1: 'assets/tiles/Tilemap_color1.png',
+      tile_2: 'assets/tiles/Tilemap_color2.png',
+      tile_5: 'assets/tiles/Tilemap_color5.png',
+      tile_flat: 'assets/tiles/Tilemap_Flat.png',
+      compass: 'assets/ui/rpg_compass.png',
+      core: 'assets/icons/balaclava_core.png',
+      archipielago_coral: 'assets/sprites_v13/biomes/archipielago_coral.png',
+      selva_esmeralda: 'assets/sprites_v13/biomes/selva_esmeralda.png',
+      cavernas_cristal: 'assets/sprites_v13/biomes/cavernas_cristal.png',
+      caldera_ceniza: 'assets/sprites_v13/biomes/caldera_ceniza.png',
+      cienaga_putrida: 'assets/sprites_v13/biomes/cienaga_putrida.png',
+      dinastia_arena: 'assets/sprites_v13/biomes/dinastia_arena.png',
+      glaciar_profundo: 'assets/sprites_v13/biomes/glaciar_profundo.png',
+      necropolis_osea: 'assets/sprites_v13/biomes/necropolis_osea.png',
+      tierras_malditas: 'assets/sprites_v13/biomes/tierras_malditas.png'
+    };
+
+    const imgs = {};
+    let pending = Object.keys(sources).length;
+    const onOneDone = () => {
+      pending -= 1;
+      if (pending > 0) return;
+      biomeTileCache.pradera = makeBiomeSheet(imgs.tile_1, 0, 0, 192, 192, null);
+      biomeTileCache.desierto = makeBiomeSheet(imgs.tile_flat, 320, 0, 192, 192, null);
+      biomeTileCache.bosque_oscuro = makeBiomeSheet(imgs.tile_5 || imgs.tile_1, 0, 0, 192, 192, 'rgba(38, 24, 72, 0.36)');
+      biomeTileCache.montanas_heladas = makeBiomeSheet(imgs.tile_5 || imgs.tile_1, 0, 0, 192, 192, 'rgba(218, 245, 255, 0.65)');
+      biomeTileCache.tierras_volcanicas = makeBiomeSheet(imgs.tile_2 || imgs.tile_1, 0, 0, 192, 192, 'rgba(42, 18, 22, 0.66)');
+
+      [
+        'archipielago_coral', 'selva_esmeralda', 'cavernas_cristal', 'caldera_ceniza',
+        'cienaga_putrida', 'dinastia_arena', 'glaciar_profundo', 'necropolis_osea', 'tierras_malditas'
+      ].forEach((bId) => {
+        biomeTileCache[bId] = makeBiomeSheet(imgs[bId], 0, 0, 192, 192, null);
+      });
+
+      atlasExtraImgs.compass = imgs.compass;
+      atlasExtraImgs.core = imgs.core;
+      atlasTilesReady = true;
+      drawAtlasMap();
+      renderBiomeInspector();
+    };
+
+    Object.entries(sources).forEach(([k, src]) => {
+      const im = new Image();
+      im.onload = onOneDone;
+      im.onerror = onOneDone;
+      im.src = src;
+      imgs[k] = im;
+    });
+  }
+
+  // Máscara orgánica determinista 7x7 por cada isla (imita el trazado de world.js)
+  const SUB = 7;
+  const islandMasks = [];
+  for (let gy = 0; gy < 19; gy++) {
+    const row = [];
+    for (let gx = 0; gx < 19; gx++) {
+      const isCenter = gx === 9 && gy === 9;
+      const rot = hash2D(gx + 3, gy + 7, 901) * Math.PI * 2;
+      const stretchX = 0.86 + hash2D(gx + 5, gy + 11, 942) * 0.28;
+      const stretchY = 0.86 + hash2D(gx + 17, gy + 23, 968) * 0.28;
+      const mask = Array.from({ length: SUB }, () => new Uint8Array(SUB));
+      for (let ly = 0; ly < SUB; ly++) {
+        for (let lx = 0; lx < SUB; lx++) {
+          if (isCenter) {
+            mask[ly][lx] = (lx >= 1 && lx <= 5 && ly >= 1 && ly <= 5) ? 1 : 0;
+            continue;
+          }
+          const dx = (lx - 3) / stretchX;
+          const dy = (ly - 3) / stretchY;
+          const ang = Math.atan2(dy, dx);
+          const n = (hash2D(gx * SUB + lx, gy * SUB + ly, 777) - 0.5) * 0.85;
+          const lobe = 2.35 + 0.36 * Math.sin(ang * 2 + rot) + 0.24 * Math.cos(ang * 3 - rot) + n;
+          const edge = lx === 0 || ly === 0 || lx === SUB - 1 || ly === SUB - 1;
+          mask[ly][lx] = (!edge && Math.hypot(dx, dy) <= lobe) || (lx >= 2 && lx <= 4 && ly >= 2 && ly <= 4) ? 1 : 0;
+        }
+      }
+      row.push(mask);
+    }
+    islandMasks.push(row);
+  }
+
   function drawAtlasMap() {
     const canvas = document.getElementById('atlas-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const size = 380;
-    const cell = size / 19;
+    const size = 532; // 19 plots * 28px (SUB=7 * 4px)
+    const cell = 28;
+    const tilePx = 4;
 
-    ctx.clearRect(0, 0, size, size);
-    ctx.fillStyle = '#091121';
+    ctx.imageSmoothingEnabled = false;
+    const oceanGrad = ctx.createRadialGradient(size * 0.48, size * 0.46, 30, size * 0.5, size * 0.5, size * 0.72);
+    oceanGrad.addColorStop(0, '#19577a');
+    oceanGrad.addColorStop(0.58, '#103b57');
+    oceanGrad.addColorStop(1, '#081b2c');
+    ctx.fillStyle = oceanGrad;
     ctx.fillRect(0, 0, size, size);
 
     for (let gy = 0; gy < 19; gy++) {
@@ -263,37 +374,86 @@
         if (!b) continue;
         const zoneMatch = state.activeZone === 'all' || String(b.zone) === state.activeZone;
         const isSelected = bId === state.selectedBiomeId;
-        const x = gx * cell;
-        const y = gy * cell;
+        const px0 = gx * cell;
+        const py0 = gy * cell;
+        const mask = islandMasks[gy][gx];
+        const sheet = atlasTilesReady ? biomeTileCache[bId] : null;
+
+        const isLand = (lx, ly) => lx >= 0 && ly >= 0 && lx < SUB && ly < SUB && mask[ly][lx] === 1;
 
         ctx.save();
-        ctx.globalAlpha = zoneMatch ? (isSelected ? 1.0 : 0.78) : 0.2;
-        ctx.fillStyle = b.color;
-        ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+        ctx.globalAlpha = zoneMatch ? (isSelected ? 1.0 : 0.86) : 0.24;
 
-        ctx.fillStyle = b.accent;
-        ctx.globalAlpha = zoneMatch ? (isSelected ? 0.55 : 0.22) : 0.08;
-        ctx.fillRect(x + 2, y + 2, cell - 4, 3);
+        for (let ly = 0; ly < SUB; ly++) {
+          for (let lx = 0; lx < SUB; lx++) {
+            const rx = px0 + lx * tilePx;
+            const ry = py0 + ly * tilePx;
 
-        if (isSelected) {
-          ctx.globalAlpha = 1;
-          ctx.strokeStyle = '#ffd54f';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(x + 1.5, y + 1.5, cell - 3, cell - 3);
+            if (!isLand(lx, ly)) {
+              const nearLand = isLand(lx, ly - 1) || isLand(lx, ly + 1) || isLand(lx - 1, ly) || isLand(lx + 1, ly);
+              if (nearLand) {
+                ctx.fillStyle = 'rgba(135, 218, 240, 0.22)';
+                ctx.fillRect(rx, ry, tilePx, tilePx);
+                if (isLand(lx, ly - 1)) {
+                  ctx.fillStyle = 'rgba(220, 246, 255, 0.45)';
+                  ctx.fillRect(rx, ry, tilePx, 1);
+                }
+              }
+              continue;
+            }
+
+            const up = isLand(lx, ly - 1);
+            const dn = isLand(lx, ly + 1);
+            const lt = isLand(lx - 1, ly);
+            const rt = isLand(lx + 1, ly);
+
+            if (!dn) {
+              ctx.fillStyle = '#1c1828';
+              ctx.fillRect(rx, ry + tilePx - 1, tilePx, 2);
+            }
+
+            if (sheet) {
+              const sx = !lt ? 0 : !rt ? 128 : 64;
+              const sy = !up ? 0 : !dn ? 128 : 64;
+              ctx.drawImage(sheet, sx, sy, 64, 64, rx, ry, tilePx, tilePx);
+            } else {
+              ctx.fillStyle = b.color;
+              ctx.fillRect(rx, ry, tilePx, tilePx);
+            }
+          }
         }
 
+        if (isSelected && zoneMatch) {
+          ctx.globalAlpha = 0.85;
+          ctx.strokeStyle = '#ffd54f';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px0 + 1.5, py0 + 1.5, cell - 3, cell - 3);
+        }
+
+        // Marcador del núcleo inicial (9,9) y Ciudadela Carmesí (0,9)
         if (gx === 9 && gy === 9) {
           ctx.globalAlpha = 1;
-          ctx.fillStyle = '#ffd54f';
-          ctx.fillRect(x + 7, y + 7, 6, 6);
+          if (atlasExtraImgs.core && atlasExtraImgs.core.complete) {
+            ctx.drawImage(atlasExtraImgs.core, px0 + 7, py0 + 7, 14, 14);
+          } else {
+            ctx.fillStyle = '#ffd54f';
+            ctx.fillRect(px0 + 11, py0 + 11, 6, 6);
+          }
         }
         if (gx === 0 && gy === 9) {
           ctx.globalAlpha = 1;
           ctx.fillStyle = '#ff1744';
-          ctx.fillRect(x + 6, y + 6, 8, 8);
+          ctx.fillRect(px0 + 10, py0 + 10, 8, 8);
+          ctx.strokeStyle = '#ffd54f';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px0 + 9.5, py0 + 9.5, 9, 9);
         }
         ctx.restore();
       }
+    }
+
+    if (atlasExtraImgs.compass && atlasExtraImgs.compass.complete && atlasExtraImgs.compass.naturalWidth > 0) {
+      ctx.drawImage(atlasExtraImgs.compass, size - 52, size - 52, 44, 44);
     }
 
     if (state.hoverGrid) {
@@ -349,12 +509,25 @@
         onclick: () => selectBiome(b.id),
         onmouseenter: () => selectBiome(b.id)
       }, [
-        el('span', { class: 'biome-pill-dot', style: `background:${b.color};border-color:${b.accent}` }),
+        el('img', { src: b.icon, alt: '', class: 'pixel-img biome-pill-icon', width: 20, height: 20 }),
         el('span', {}, pickLang(b.nameEs, b.nameEn)),
         el('span', { class: 'biome-pill-count' }, `${b.islands}`)
       ]);
       grid.appendChild(btn);
     });
+  }
+
+  function buildBiomeSwatchCanvas(biomeId) {
+    const sheet = biomeTileCache[biomeId];
+    if (!sheet) return null;
+    const c = document.createElement('canvas');
+    c.width = 54;
+    c.height = 54;
+    c.className = 'pixel-img inspector-swatch';
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sheet, 0, 0, 192, 192, 0, 0, 54, 54);
+    return c;
   }
 
   function renderBiomeInspector() {
@@ -389,20 +562,21 @@
       ])
     ]));
 
-    if (b.gate || b.swatch) {
-      const stripItems = [];
-      if (b.gate) {
-        stripItems.push(el('img', { src: b.gate, alt: 'Portal', class: 'pixel-img', width: 46, height: 46 }));
-      }
-      if (b.swatch) {
-        stripItems.push(el('img', { src: b.swatch, alt: 'Terreno', class: 'pixel-img inspector-swatch' }));
-      }
-      stripItems.push(el('div', {}, [
-        el('strong', { class: 'mech-title' }, pickLang('Portal y Terreno del Bioma', 'Biome Gate & Terrain')),
-        el('span', { class: 'mech-sub' }, pickLang('Gráficos extraídos directamente del juego.', 'Sprites extracted directly from the game.'))
-      ]));
-      box.appendChild(el('div', { class: 'inspector-preview-strip' }, stripItems));
+    const stripItems = [];
+    if (b.gate) {
+      stripItems.push(el('img', { src: b.gate, alt: 'Portal', class: 'pixel-img', width: 48, height: 48 }));
     }
+    const swatchCanvas = buildBiomeSwatchCanvas(b.id);
+    if (swatchCanvas) {
+      stripItems.push(swatchCanvas);
+    } else if (b.swatch) {
+      stripItems.push(el('img', { src: b.swatch, alt: 'Terreno', class: 'pixel-img inspector-swatch' }));
+    }
+    stripItems.push(el('div', {}, [
+      el('strong', { class: 'mech-title' }, pickLang('Portal y Terreno del Bioma', 'Biome Gate & Terrain')),
+      el('span', { class: 'mech-sub' }, pickLang('Texturas reales extraídas del juego.', 'Real terrain tiles extracted from the game.'))
+    ]));
+    box.appendChild(el('div', { class: 'inspector-preview-strip' }, stripItems));
 
     box.appendChild(el('div', {}, [
       el('h4', { class: 'inspector-block-title' }, t('inspectorResources')),
@@ -443,63 +617,6 @@
       const coords = getCoords(evt);
       selectBiome(atlasGrid[coords.gy][coords.gx]);
     });
-  }
-
-  /* ========================================================================
-   *  JEFE FINAL (RETRATO ESTÁTICO) & EQUIPO OMEGA
-   * ======================================================================== */
-  function drawStaticBossPortrait() {
-    const canvas = document.getElementById('boss-portrait');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = 'rgba(255, 23, 68, 0.22)';
-      ctx.beginPath();
-      ctx.ellipse(canvas.width / 2, 118, 56, 11, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Fotograma estático centrado del Espadachín Carmesí (fila 0, col 1: recorte 26x25 -> 104x100)
-      ctx.drawImage(img, 128 + 14, 26, 26, 25, 88, 16, 104, 100);
-    };
-    img.src = 'assets/sprites_v13/bosses/boss_espadachin_carmesi_full.png';
-  }
-
-  function renderBossSection() {
-    const attacksEl = document.getElementById('boss-attacks-list');
-    if (attacksEl) {
-      attacksEl.innerHTML = '';
-      DATA.bossAttacks.forEach((atk) => {
-        attacksEl.appendChild(el('span', { class: 'rpg-tag tag-enemy' }, pickLang(atk.nameEs, atk.nameEn)));
-      });
-    }
-
-    const mechGrid = document.getElementById('boss-mechanics-grid');
-    if (mechGrid) {
-      mechGrid.innerHTML = '';
-      DATA.bossHighlights.forEach((h) => {
-        mechGrid.appendChild(el('div', { class: 'hud-slate-card mini-mech-card' }, [
-          el('img', { src: h.icon, alt: '', class: 'pixel-img', width: 28, height: 28 }),
-          el('div', {}, [
-            el('strong', { class: 'mech-title' }, pickLang(h.titleEs, h.titleEn)),
-            el('span', { class: 'mech-sub' }, pickLang(h.descEs, h.descEn))
-          ])
-        ]));
-      });
-    }
-
-    const gearGrid = document.getElementById('omega-gear-grid');
-    if (gearGrid) {
-      gearGrid.innerHTML = '';
-      DATA.omegaGear.forEach((item) => {
-        const name = pickLang(item.nameEs, item.nameEn);
-        gearGrid.appendChild(el('div', { class: `omega-item-cell rarity-${item.rarity}`, title: name }, [
-          el('img', { src: item.icon, alt: name, class: 'pixel-img', width: 32, height: 32 }),
-          el('span', { class: 'omega-item-name' }, name)
-        ]));
-      });
-    }
   }
 
   /* ========================================================================
@@ -733,7 +850,6 @@
     renderBiomePills();
     renderBiomeInspector();
     drawAtlasMap();
-    renderBossSection();
     renderSystems();
     renderPatchNotes();
     renderInstallAndFaq();
@@ -770,8 +886,8 @@
     bindDownloadTriggers();
     bindAtlasCanvasEvents();
     bindNavAndLang();
+    loadAtlasTextures();
     applyLanguage();
-    drawStaticBossPortrait();
   }
 
   if (document.readyState === 'loading') {

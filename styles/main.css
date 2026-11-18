@@ -740,13 +740,13 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
-  background: #070b15;
+  padding: 8px;
+  background: #061422;
   border: 2px solid #2b385a;
 }
 
 #atlas-canvas {
-  width: min(100%, 360px);
+  width: min(100%, 490px);
   height: auto;
   aspect-ratio: 1 / 1;
   cursor: pointer;
@@ -795,11 +795,11 @@ section {
   opacity: 0.35;
 }
 
-.biome-pill-dot {
-  width: 10px;
-  height: 10px;
+.biome-pill-icon {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  border: 1px solid #060810;
+  object-fit: contain;
 }
 
 .biome-pill-count {

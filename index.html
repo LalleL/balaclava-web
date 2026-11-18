@@ -35,7 +35,6 @@
       <nav class="nav-links" id="nav-main" aria-label="Navegación principal">
         <a href="#caracteristicas" class="nav-link" data-i18n="navFeatures">Características</a>
         <a href="#mundo" class="nav-link" data-i18n="navWorld">Mundo y Biomas</a>
-        <a href="#jefe-final" class="nav-link" data-i18n="navBoss">Jefe Final</a>
         <a href="#sistemas" class="nav-link" data-i18n="navSystems">Sistemas</a>
         <a href="#parche" class="nav-link" data-i18n="navPatch">Notas del Parche</a>
         <a href="#descargar" class="nav-link" data-i18n="navDownload">Descargar</a>
@@ -64,7 +63,6 @@
     <div id="mobile-drawer" class="mobile-drawer hidden">
       <a href="#caracteristicas" class="mobile-nav-link" data-i18n="navFeatures">Características</a>
       <a href="#mundo" class="mobile-nav-link" data-i18n="navWorld">Mundo y Biomas</a>
-      <a href="#jefe-final" class="mobile-nav-link" data-i18n="navBoss">Jefe Final</a>
       <a href="#sistemas" class="mobile-nav-link" data-i18n="navSystems">Sistemas</a>
       <a href="#parche" class="mobile-nav-link" data-i18n="navPatch">Notas del Parche</a>
       <a href="#descargar" class="mobile-nav-link" data-i18n="navDownload">Descargar</a>
@@ -164,7 +162,7 @@
             </div>
 
             <div class="atlas-canvas-wrap">
-              <canvas id="atlas-canvas" width="380" height="380"></canvas>
+              <canvas id="atlas-canvas" width="532" height="532"></canvas>
             </div>
 
             <p class="map-hint-text" data-i18n="mapHint">
@@ -175,65 +173,6 @@
           </div>
 
           <aside class="rpg-panel-slate biome-inspector-card" id="biome-inspector" aria-live="polite"></aside>
-        </div>
-      </div>
-    </section>
-
-    <!-- Jefe Final (#75) y Equipo Omega R16 (Estático, sin animaciones) -->
-    <section id="jefe-final" class="boss-section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-kicker kicker-crimson" data-i18n="bossTag">JEFE FINAL · MAZMORRA #75 · CLÍMAX ABISAL</span>
-          <h2 class="section-title" data-i18n="bossTitle">El Jefe Final y las 75 Mazmorras</h2>
-        </div>
-
-        <div class="boss-spotlight-card">
-          <div class="boss-card-inner">
-            <div class="boss-visual-col">
-              <div class="boss-stage">
-                <div class="boss-eclipse-aura" aria-hidden="true"></div>
-                <canvas id="boss-portrait" width="280" height="140"></canvas>
-                <div class="boss-hp-hud">
-                  <div class="boss-hp-label">
-                    <span data-i18n="bossName">Espadachín Carmesí Abisal</span>
-                    <span data-i18n="bossHpTag">VIDA ×30 · DAÑO ×10</span>
-                  </div>
-                  <div class="boss-hp-track">
-                    <div class="boss-hp-fill"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="boss-attacks-box">
-                <h4 class="inspector-block-title" data-i18n="bossAttacksTitle">Habilidades del Jefe Final</h4>
-                <div id="boss-attacks-list" class="tag-cloud"></div>
-              </div>
-            </div>
-
-            <div class="boss-info-col">
-              <div class="boss-heading-row">
-                <img src="assets/sprites_v13/gates/gate_maldita.png" alt="Ciudadela del Eclipse Carmesí" class="pixel-img boss-gate-icon" width="52" height="52" />
-                <div>
-                  <h3 class="boss-name" data-i18n="bossName">Espadachín Carmesí Abisal</h3>
-                  <p class="boss-location" data-i18n="bossLocation">Eclipse del Espadachín Carmesí · Tierras Malditas (Oeste)</p>
-                </div>
-              </div>
-
-              <p class="boss-summary" data-i18n="bossSummary">
-                75 mazmorras únicas con salas de runas, acertijos secuenciales, llaves de jefe, cofres temáticos, efectos visuales Gigapack y combates por fases (Vida ×30 / Daño ×10).
-              </p>
-
-              <div id="boss-mechanics-grid" class="boss-mechanics-grid"></div>
-
-              <div class="omega-endgame-box hud-slate-card">
-                <div class="omega-box-head">
-                  <h4 data-i18n="bossDropsTitle">Botín Supremo y Conjunto Final Omega R16</h4>
-                  <p data-i18n="bossDropsSub">Culmina tu aventura forjando el conjunto Rango 16 Omega y la Hoja de la Singularidad, o empuña la Espada del Eclipse Carmesí.</p>
-                </div>
-                <div id="omega-gear-grid" class="omega-gear-grid"></div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
