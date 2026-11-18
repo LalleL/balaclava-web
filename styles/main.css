@@ -232,6 +232,17 @@ main,
 }
 .btn-danger:hover:not(:disabled) { border-image-source: url('../assets/ui/ms_btn_red_hover.png'); }
 
+.btn-kofi {
+  border-image-source: url('../assets/ui/ms_btn_red_normal.png');
+  border-image-slice: 5 14 6 14 fill;
+  color: #fff6f7;
+  text-shadow: 0 2px 0 #3d0912;
+}
+.btn-kofi:hover:not(:disabled) {
+  border-image-source: url('../assets/ui/ms_btn_red_hover.png');
+  filter: brightness(1.06);
+}
+
 /* === BOTONES DE DESCARGA LINDOS Y DE ALTO CONTRASTE === */
 .btn-download-main {
   display: inline-flex;
@@ -1718,7 +1729,9 @@ section {
 
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 10px;
 }
 
 /* === MODAL RPG === */

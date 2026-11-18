@@ -28,6 +28,7 @@ window.BALACLAVA_SITE_CONFIG = {
   checksumSha256Es: 'A2C98EB99D80B9CED4754BECCDD3813926DEFF6403EEABDDB70F9D19ACC53C9A',
   checksumSha256En: 'A2C98EB99D80B9CED4754BECCDD3813926DEFF6403EEABDDB70F9D19ACC53C9A',
 
-  // 5. Enlace oficial de comunidad en Discord
-  discordUrl: 'https://discord.gg/8wrsjRSMY2'
+  // 5. Enlaces oficiales de comunidad y apoyo
+  discordUrl: 'https://discord.gg/8wrsjRSMY2',
+  kofiUrl: 'https://ko-fi.com/balaclava'
 };

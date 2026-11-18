@@ -14,17 +14,18 @@
     platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
     checksumSha256Es: 'Se publicará junto al instalador oficial (SHA-256)',
     checksumSha256En: 'Published alongside the official installer (SHA-256)',
-    discordUrl: 'https://discord.gg/8wrsjRSMY2'
+    discordUrl: 'https://discord.gg/8wrsjRSMY2',
+    kofiUrl: 'https://ko-fi.com/balaclava'
   }, window.BALACLAVA_SITE_CONFIG || {});
 
   const DATA = window.BALACLAVA_DATA;
   const state = {
     lang: (function () {
       try {
-        const saved = window.localStorage.getItem('balaclava_web_lang');
-        return saved === 'en' ? 'en' : 'es';
+        const saved = window.localStorage.getItem('balaclava_web_lang_v2');
+        return saved === 'es' ? 'es' : 'en';
       } catch (_) {
-        return 'es';
+        return 'en';
       }
     })(),
     activeZone: 'all',
@@ -76,6 +77,10 @@
 
     document.querySelectorAll('.js-discord-link').forEach((a) => {
       a.setAttribute('href', cfg.discordUrl || 'https://discord.gg/8wrsjRSMY2');
+    });
+
+    document.querySelectorAll('.js-kofi-link').forEach((a) => {
+      a.setAttribute('href', cfg.kofiUrl || 'https://ko-fi.com/balaclava');
     });
 
     const isPlaceholder = isPlaceholderUrl(cfg.downloadUrl);
@@ -868,7 +873,7 @@
     if (langBtn) {
       langBtn.addEventListener('click', () => {
         state.lang = state.lang === 'es' ? 'en' : 'es';
-        try { window.localStorage.setItem('balaclava_web_lang', state.lang); } catch (_) {}
+        try { window.localStorage.setItem('balaclava_web_lang_v2', state.lang); } catch (_) {}
         applyLanguage();
       });
     }
