@@ -1772,6 +1772,12 @@ section {
 }
 
 /* === RESPONSIVE (CERO DESBORDAMIENTO EN MÓVIL Y ESCRITORIO) === */
+@media (min-width: 1121px) {
+  .mobile-drawer {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1120px) {
   .nav-links { display: none; }
   .nav-burger { display: inline-flex; }
