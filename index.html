@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BALACLAVA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 1.3.0)</title>
+  <meta name="description" content="Página oficial de Balaclava Beta 1.3.0: RPG pixel-art 2D de exploración en 361 islas, 14 biomas, 75 mazmorras, 92 reliquias y automatización Omega." />
+  <meta property="og:title" content="BALACLAVA — Beta 1.3.0 | Pixel Action RPG & Automation" />
+  <meta property="og:description" content="361 islas, 14 biomas, 75 mazmorras únicas, 92 reliquias permanentes y automatización Omega para Windows (Tauri 2)." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/media/bg-balaclava-banner.jpg" />
+  <link rel="icon" type="image/png" href="assets/icons/balaclava_core.png" />
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/boldpixels_web/boldpixels.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/ttf" href="assets/fonts/m6x11plus.ttf" crossorigin />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <!-- Fondo ambiental: Foto 5 difuminada visible tras el contenido -->
+  <div class="site-bg-backdrop" aria-hidden="true">
+    <div class="site-bg-image"></div>
+    <div class="site-bg-vignette"></div>
+  </div>
+
+  <!-- Navbar Fija Pixel-RPG -->
+  <header class="site-navbar" role="banner">
+    <div class="nav-inner">
+      <a href="#inicio" class="nav-brand" id="nav-brand-link" aria-label="Balaclava Inicio">
+        <img src="assets/icons/balaclava_core.png" alt="Balaclava" class="pixel-img nav-logo-img" width="32" height="32" />
+        <span class="nav-brand-text">
+          <span class="nav-title">BALACLAVA</span>
+          <span class="nav-ver-pill js-version-text">Beta 1.3.0</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" id="nav-main" aria-label="Navegación principal">
+        <a href="#caracteristicas" class="nav-link" data-i18n="navFeatures">Características</a>
+        <a href="#mundo" class="nav-link" data-i18n="navWorld">Mundo y Biomas</a>
+        <a href="#jefe-final" class="nav-link" data-i18n="navBoss">Jefe Final</a>
+        <a href="#sistemas" class="nav-link" data-i18n="navSystems">Sistemas</a>
+        <a href="#parche" class="nav-link" data-i18n="navPatch">Notas del Parche</a>
+        <a href="#descargar" class="nav-link" data-i18n="navDownload">Descargar</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="btn-lang-toggle" type="button" class="btn btn-stone btn-sm nav-lang-btn" aria-label="Cambiar idioma Español / Inglés">
+          <span class="lang-flag-dot" aria-hidden="true"></span>
+          <span id="lang-toggle-label">ES / EN</span>
+        </button>
+        <a href="https://discord.gg/8wrsjRSMY2" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm nav-discord-btn js-discord-link" title="Discord">
+          <img src="assets/ui/ico_discord.png" alt="Discord" class="pixel-img" width="16" height="16" />
+          <span class="hide-sm">Discord</span>
+        </a>
+        <a href="#descargar" class="btn-download-nav nav-download-btn">
+          <img src="assets/icons/balaclava_sword.png" alt="" class="pixel-img" width="16" height="16" />
+          <span data-i18n="navDownload">Descargar</span>
+        </a>
+        <button id="btn-mobile-menu" type="button" class="btn btn-stone btn-sm nav-burger" aria-expanded="false" aria-controls="mobile-drawer" aria-label="Abrir menú">
+          ☰
+        </button>
+      </div>
+    </div>
+
+    <!-- Menú Móvil Desplegable -->
+    <div id="mobile-drawer" class="mobile-drawer hidden">
+      <a href="#caracteristicas" class="mobile-nav-link" data-i18n="navFeatures">Características</a>
+      <a href="#mundo" class="mobile-nav-link" data-i18n="navWorld">Mundo y Biomas</a>
+      <a href="#jefe-final" class="mobile-nav-link" data-i18n="navBoss">Jefe Final</a>
+      <a href="#sistemas" class="mobile-nav-link" data-i18n="navSystems">Sistemas</a>
+      <a href="#parche" class="mobile-nav-link" data-i18n="navPatch">Notas del Parche</a>
+      <a href="#descargar" class="mobile-nav-link" data-i18n="navDownload">Descargar</a>
+      <div class="mobile-drawer-actions">
+        <a href="https://discord.gg/8wrsjRSMY2" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm js-discord-link">
+          <img src="assets/ui/ico_discord.png" alt="" class="pixel-img" width="16" height="16" />
+          <span>Discord</span>
+        </a>
+        <a href="#descargar" class="btn-download-nav mobile-dl-btn">
+          <img src="assets/icons/balaclava_sword.png" alt="" class="pixel-img" width="16" height="16" />
+          <span data-i18n="navDownload">Descargar</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <!-- Hero Principal Minimalista sobre el fondo difuminado -->
+    <section class="hero-section">
+      <div class="container hero-center">
+        <div class="hero-badges-row">
+          <span class="hero-ribbon-badge">
+            <img src="assets/ui/ico_star.png" alt="" class="pixel-img" width="16" height="16" />
+            <span class="js-version-badge">BETA 1.3.0</span>
+          </span>
+          <span class="hero-genre-chip" data-i18n="heroRibbon">RPG DE ACCIÓN · AUTOMATIZACIÓN · MAZMORRAS</span>
+        </div>
+
+        <div class="hero-title-block">
+          <h1 class="hero-wordmark">BALACLAVA</h1>
+          <div class="hero-logo-rule" aria-hidden="true">
+            <span class="logo-line left"></span>
+            <span class="logo-diamond"></span>
+            <span class="logo-line right"></span>
+          </div>
+        </div>
+
+        <p class="hero-subtitle" data-i18n="heroSubtitle">
+          Explora un archipiélago direccional de 361 islas, domina 75 mazmorras, automatiza maquinaria Omega y enfrenta al Espadachín Carmesí Abisal.
+        </p>
+
+        <!-- Botones Protagonistas sobre el Fondo -->
+        <div class="hero-cta-row">
+          <a href="#descargar" id="hero-download-btn" class="btn-download-main js-download-trigger">
+            <img src="assets/icons/chest.png" alt="" class="pixel-img" width="24" height="24" />
+            <span class="btn-dl-text" data-i18n="heroBtnDownload">Descargar para Windows</span>
+            <span class="btn-dl-badge js-version-text">Beta 1.3.0</span>
+          </a>
+
+          <a href="https://discord.gg/8wrsjRSMY2" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-hero-sec js-discord-link">
+            <img src="assets/ui/ico_discord.png" alt="" class="pixel-img" width="20" height="20" />
+            <span data-i18n="heroBtnDiscord">Unirse a Discord</span>
+          </a>
+
+          <a href="#parche" class="btn btn-stone btn-hero-sec">
+            <img src="assets/icons/scroll_map.png" alt="" class="pixel-img" width="18" height="18" />
+            <span data-i18n="heroBtnPatch">Notas Beta 1.3.0</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra de Cifras Clave del Juego -->
+    <section id="caracteristicas" class="stats-section">
+      <div class="container">
+        <div class="section-head-compact">
+          <div class="title-banner-carved">
+            <img src="assets/ui/ff_gem_orange.png" alt="" class="pixel-img" width="18" height="18" />
+            <h2 class="section-banner-title" data-i18n="statsTitle">Todo el Contenido de Beta 1.3.0</h2>
+            <img src="assets/ui/coin_gold.png" alt="" class="pixel-img" width="18" height="18" />
+          </div>
+        </div>
+        <div id="stats-grid" class="stats-grid"></div>
+      </div>
+    </section>
+
+    <!-- Explora las 4 Zonas y 14 Biomas (Interactivo 19x19) -->
+    <section id="mundo" class="world-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker" data-i18n="worldTag">MUNDO ABIERTO · 19×19 DIRECCIONAL</span>
+          <h2 class="section-title" data-i18n="worldTitle">Explora las 4 Zonas y 14 Biomas</h2>
+          <p class="section-sub" data-i18n="worldSub">
+            Progresión secuencial Zona I → II → III → IV con distribución climática coherente: la nieve al Este nunca toca la lava del Oeste.
+          </p>
+        </div>
+
+        <div class="zone-filter-bar" id="zone-filters" role="group"></div>
+
+        <div class="world-interactive-layout">
+          <div class="rpg-panel-slate world-map-card">
+            <div class="compass-ring-labels">
+              <span class="compass-dir north" data-i18n="mapNorth">N · Arena y Coral</span>
+              <span class="compass-dir south" data-i18n="mapSouth">S · Bosque, Selva y Necrópolis</span>
+              <span class="compass-dir west" data-i18n="mapWest">O · Volcán, Ceniza y Maldito</span>
+              <span class="compass-dir east" data-i18n="mapEast">E · Hielo y Cristal</span>
+            </div>
+
+            <div class="atlas-canvas-wrap">
+              <canvas id="atlas-canvas" width="380" height="380"></canvas>
+            </div>
+
+            <p class="map-hint-text" data-i18n="mapHint">
+              Haz clic o pasa el cursor sobre cualquier isla del Atlas 19×19 o en los botones de bioma para inspeccionar recursos, monstruos y dificultad.
+            </p>
+
+            <div id="biome-pills-grid" class="biome-pills-grid"></div>
+          </div>
+
+          <aside class="rpg-panel-slate biome-inspector-card" id="biome-inspector" aria-live="polite"></aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jefe Final (#75) y Equipo Omega R16 (Estático, sin animaciones) -->
+    <section id="jefe-final" class="boss-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker kicker-crimson" data-i18n="bossTag">JEFE FINAL · MAZMORRA #75 · CLÍMAX ABISAL</span>
+          <h2 class="section-title" data-i18n="bossTitle">El Jefe Final y las 75 Mazmorras</h2>
+        </div>
+
+        <div class="boss-spotlight-card">
+          <div class="boss-card-inner">
+            <div class="boss-visual-col">
+              <div class="boss-stage">
+                <div class="boss-eclipse-aura" aria-hidden="true"></div>
+                <canvas id="boss-portrait" width="280" height="140"></canvas>
+                <div class="boss-hp-hud">
+                  <div class="boss-hp-label">
+                    <span data-i18n="bossName">Espadachín Carmesí Abisal</span>
+                    <span data-i18n="bossHpTag">VIDA ×30 · DAÑO ×10</span>
+                  </div>
+                  <div class="boss-hp-track">
+                    <div class="boss-hp-fill"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="boss-attacks-box">
+                <h4 class="inspector-block-title" data-i18n="bossAttacksTitle">Habilidades del Jefe Final</h4>
+                <div id="boss-attacks-list" class="tag-cloud"></div>
+              </div>
+            </div>
+
+            <div class="boss-info-col">
+              <div class="boss-heading-row">
+                <img src="assets/sprites_v13/gates/gate_maldita.png" alt="Ciudadela del Eclipse Carmesí" class="pixel-img boss-gate-icon" width="52" height="52" />
+                <div>
+                  <h3 class="boss-name" data-i18n="bossName">Espadachín Carmesí Abisal</h3>
+                  <p class="boss-location" data-i18n="bossLocation">Eclipse del Espadachín Carmesí · Tierras Malditas (Oeste)</p>
+                </div>
+              </div>
+
+              <p class="boss-summary" data-i18n="bossSummary">
+                75 mazmorras únicas con salas de runas, acertijos secuenciales, llaves de jefe, cofres temáticos, efectos visuales Gigapack y combates por fases (Vida ×30 / Daño ×10).
+              </p>
+
+              <div id="boss-mechanics-grid" class="boss-mechanics-grid"></div>
+
+              <div class="omega-endgame-box hud-slate-card">
+                <div class="omega-box-head">
+                  <h4 data-i18n="bossDropsTitle">Botín Supremo y Conjunto Final Omega R16</h4>
+                  <p data-i18n="bossDropsSub">Culmina tu aventura forjando el conjunto Rango 16 Omega y la Hoja de la Singularidad, o empuña la Espada del Eclipse Carmesí.</p>
+                </div>
+                <div id="omega-gear-grid" class="omega-gear-grid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sistemas de Juego -->
+    <section id="sistemas" class="systems-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker" data-i18n="systemsTag">PROFUNDIDAD RPG Y AUTOMATIZACIÓN</span>
+          <h2 class="section-title" data-i18n="systemsTitle">Sistemas de Balaclava</h2>
+          <p class="section-sub" data-i18n="systemsSub">
+            Alterna entre combate arcano, red eléctrica Omega, constelaciones astrales, bóveda de 92 reliquias y vida isleña.
+          </p>
+        </div>
+
+        <div id="systems-tabs" class="systems-tabs" role="tablist"></div>
+        <div id="systems-panel" class="rpg-panel-slate systems-panel" role="tabpanel"></div>
+      </div>
+    </section>
+
+    <!-- Notas de la Versión -->
+    <section id="parche" class="patch-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker" data-i18n="patchTag">HISTORIAL OFICIAL DE VERSIONES</span>
+          <h2 class="section-title" data-i18n="patchTitle">Notas de la Versión</h2>
+          <p class="section-sub" data-i18n="patchSub">
+            Selector idéntico al menú principal del juego: consulta todas las novedades de Beta 1.3.0 o el historial de Beta 1.2.1.
+          </p>
+        </div>
+
+        <div class="rpg-panel-slate patch-notes-shell">
+          <div id="patch-version-tabs" class="patch-version-tabs" role="tablist"></div>
+          <div id="patch-notes-content" class="patch-notes-wrap"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Descarga e Instalación + Requisitos (Windows) + Preguntas Frecuentes -->
+    <section id="descargar" class="download-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-kicker" data-i18n="downloadTag">DESCARGA OFICIAL PARA ESCRITORIO</span>
+          <h2 class="section-title" data-i18n="downloadTitle">Descarga e Instalación</h2>
+          <p class="section-sub" data-i18n="downloadSub">
+            Construido para Windows mediante Tauri 2. Descarga directa y sencilla para escritorio.
+          </p>
+        </div>
+
+        <div class="download-grid">
+          <div class="rpg-panel-slate download-main-card">
+            <div class="dl-card-head">
+              <img src="assets/icons/balaclava_core.png" alt="Balaclava" class="pixel-img" width="52" height="52" />
+              <div>
+                <div class="dl-title-row">
+                  <h3 class="dl-game-name">BALACLAVA</h3>
+                  <span class="patch-version-pill js-version-badge">Beta 1.3.0</span>
+                </div>
+                <p class="dl-file-name js-filename-text">Balaclava_Beta_1.3.0_Setup_x64.exe</p>
+              </div>
+            </div>
+
+            <div class="dl-meta-grid">
+              <div class="hud-slate-card dl-meta-item">
+                <span class="dl-meta-label" data-i18n="downloadMetaVersion">Versión</span>
+                <strong class="dl-meta-val js-version-text">Beta 1.3.0</strong>
+              </div>
+              <div class="hud-slate-card dl-meta-item">
+                <span class="dl-meta-label" data-i18n="downloadMetaSize">Peso</span>
+                <strong class="dl-meta-val js-filesize-text">Por definir (~140 MB)</strong>
+              </div>
+              <div class="hud-slate-card dl-meta-item">
+                <span class="dl-meta-label" data-i18n="downloadMetaDate">Fecha</span>
+                <strong class="dl-meta-val js-releasedate-text">Noviembre 2026</strong>
+              </div>
+              <div class="hud-slate-card dl-meta-item">
+                <span class="dl-meta-label" data-i18n="downloadMetaPlatform">Plataforma</span>
+                <strong class="dl-meta-val js-platform-text">Windows 10 / 11 (64-bit · Tauri 2)</strong>
+              </div>
+            </div>
+
+            <div class="dl-actions-row">
+              <a href="#pon-tu-link-de-descarga-aqui" id="main-download-btn" class="btn-download-main dl-big-btn js-download-trigger">
+                <img src="assets/icons/balaclava_sword.png" alt="" class="pixel-img" width="24" height="24" />
+                <span class="btn-dl-text" data-i18n="downloadBtnPrimary">Descargar Balaclava</span>
+              </a>
+
+              <a href="#" id="mirror-download-btn" class="btn btn-primary hidden" target="_blank" rel="noopener noreferrer">
+                <img src="assets/icons/scroll_map.png" alt="" class="pixel-img" width="18" height="18" />
+                <span data-i18n="downloadBtnMirror">Enlace Alternativo</span>
+              </a>
+            </div>
+
+            <div class="dl-checksum-row">
+              <span class="checksum-label" data-i18n="downloadChecksumLabel">SHA-256:</span>
+              <code id="checksum-code" class="checksum-code">Se publicará junto al instalador oficial (SHA-256)</code>
+              <button type="button" id="btn-copy-checksum" class="btn btn-stone btn-xs" data-i18n="copyBtn">Copiar</button>
+            </div>
+          </div>
+
+          <div class="download-side-col">
+            <div class="rpg-panel-slate install-card">
+              <h3 class="card-heading">
+                <img src="assets/ui/ico_check.png" alt="" class="pixel-img" width="20" height="20" />
+                <span data-i18n="installTitle">Pasos de Instalación</span>
+              </h3>
+              <div id="install-steps-list" class="install-steps-list"></div>
+            </div>
+
+            <div class="rpg-panel-slate reqs-card">
+              <h3 class="card-heading">
+                <img src="assets/ui/ico_gear.png" alt="" class="pixel-img" width="20" height="20" />
+                <span data-i18n="reqsTitle">Requisitos de Sistema (Windows)</span>
+              </h3>
+              <div class="reqs-table-wrap">
+                <table class="reqs-table">
+                  <thead>
+                    <tr>
+                      <th data-i18n="reqsColSpec">Componente</th>
+                      <th data-i18n="reqsColMin">Mínimo</th>
+                      <th data-i18n="reqsColRec">Recomendado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reqs-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-wrapper">
+          <div class="section-header faq-header">
+            <span class="section-kicker" data-i18n="faqTag">PREGUNTAS FRECUENTES</span>
+            <h2 class="section-title" data-i18n="faqTitle">Preguntas Frecuentes</h2>
+          </div>
+          <div id="faq-list" class="faq-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer Minimalista -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo-row">
+          <img src="assets/icons/balaclava_core.png" alt="Balaclava" class="pixel-img" width="32" height="32" />
+          <span class="footer-title">BALACLAVA</span>
+          <span class="patch-version-pill js-version-badge">Beta 1.3.0</span>
+        </div>
+        <p class="footer-desc" data-i18n="footerDesc">
+          RPG pixel-art 2D cenital de exploración isleña, mazmorras, automatización Omega y combate de acción para Windows (Tauri 2).
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <a href="https://discord.gg/8wrsjRSMY2" target="_blank" rel="noopener noreferrer" class="btn btn-primary js-discord-link">
+          <img src="assets/ui/ico_discord.png" alt="" class="pixel-img" width="18" height="18" />
+          <span data-i18n="footerDiscord">Comunidad Oficial en Discord</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal RPG -->
+  <div id="rpg-modal" class="rpg-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="rpg-modal-title">
+    <div class="rpg-panel-slate rpg-modal-box">
+      <div class="rpg-modal-head">
+        <div class="title-banner-carved">
+          <img src="assets/ui/ff_gem_orange.png" alt="" class="pixel-img" width="16" height="16" />
+          <h3 id="rpg-modal-title" class="rpg-modal-title">Aviso</h3>
+        </div>
+        <button id="rpg-modal-close" type="button" class="btn btn-danger btn-sm" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="rpg-modal-body" class="rpg-modal-body"></div>
+    </div>
+  </div>
+
+  <script src="site-config.js"></script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>
