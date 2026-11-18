@@ -85,9 +85,17 @@
         btn.removeAttribute('target');
         btn.removeAttribute('rel');
       } else {
+        const isDirectFile = /\.(exe|msi|zip|7z|rar|tar\.gz)(\?|#|$)/i.test(cfg.downloadUrl);
         btn.setAttribute('href', cfg.downloadUrl);
-        btn.setAttribute('target', '_blank');
-        btn.setAttribute('rel', 'noopener noreferrer');
+        if (isDirectFile) {
+          btn.setAttribute('download', cfg.fileName || '');
+          btn.removeAttribute('target');
+          btn.removeAttribute('rel');
+        } else {
+          btn.removeAttribute('download');
+          btn.setAttribute('target', '_blank');
+          btn.setAttribute('rel', 'noopener noreferrer');
+        }
       }
     });
 

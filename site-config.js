@@ -8,10 +8,8 @@
  * ============================================================================
  */
 window.BALACLAVA_SITE_CONFIG = {
-  // 1. Enlace principal de descarga (ej. GitHub Releases, itch.io, Cloudflare R2, Drive...)
-  //    Mientras mantenga '#pon-tu-link-de-descarga-aqui' o empiece por '#',
-  //    la web mostrará el aviso configurable en lugar de lanzar una descarga rota.
-  downloadUrl: '#pon-tu-link-de-descarga-aqui',
+  // 1. Enlace principal de descarga directa (GitHub Releases)
+  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v1.3.0-beta/Balaclava.exe',
 
   // 2. Enlace alternativo / mirror opcional (déjalo vacío '' si no usas mirror)
   mirrorUrl: '',
@@ -20,15 +18,15 @@ window.BALACLAVA_SITE_CONFIG = {
   version: 'Beta 1.3.0',
   versionLabel: 'Beta 1.3.0',
 
-  // 4. Datos técnicos del archivo descargable (edítalos con los valores reales de tu build)
-  fileName: 'Balaclava_Beta_1.3.0_Setup_x64.exe',
-  fileSizeEs: 'Por definir (~140 MB)',
-  fileSizeEn: 'TBD (~140 MB)',
-  releaseDateEs: 'Noviembre 2026',
-  releaseDateEn: 'November 2026',
+  // 4. Datos técnicos del archivo descargable
+  fileName: 'Balaclava.exe',
+  fileSizeEs: '32.85 MB',
+  fileSizeEn: '32.85 MB',
+  releaseDateEs: '18 Nov 2026',
+  releaseDateEn: 'Nov 18, 2026',
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
-  checksumSha256Es: 'Se publicará junto al instalador oficial (SHA-256)',
-  checksumSha256En: 'Published alongside the official installer (SHA-256)',
+  checksumSha256Es: 'A2C98EB99D80B9CED4754BECCDD3813926DEFF6403EEABDDB70F9D19ACC53C9A',
+  checksumSha256En: 'A2C98EB99D80B9CED4754BECCDD3813926DEFF6403EEABDDB70F9D19ACC53C9A',
 
   // 5. Enlace oficial de comunidad en Discord
   discordUrl: 'https://discord.gg/8wrsjRSMY2'
