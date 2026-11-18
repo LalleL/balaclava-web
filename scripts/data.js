@@ -910,14 +910,12 @@ window.BALACLAVA_DATA = {
 
   installSteps: {
     es: [
-      { step: '01', title: 'Descarga el paquete oficial', desc: 'Pulsa el botón dorado de descarga para obtener el instalador o archivo comprimido de Balaclava Beta 1.3.0 para Windows.' },
-      { step: '02', title: 'Ejecuta o descomprime', desc: 'Si descargas el instalador (.exe), ejecútalo; si es un ZIP portable, extráelo en una carpeta limpia (por ejemplo C:\\Juegos\\Balaclava).' },
-      { step: '03', title: 'Inicia tu aventura en Tauri 2', desc: 'Abre Balaclava.exe (Windows SmartScreen puede pedir confirmación la primera vez al ser una Beta independiente) y elige Español o Inglés.' }
+      { step: '01', title: 'Descarga el juego', desc: 'Pulsa el botón dorado de descarga para bajar Balaclava.exe directamente.' },
+      { step: '02', title: 'Abre y juega', desc: 'Haz doble clic en Balaclava.exe y empieza a jugar al instante. No necesita instalación.' }
     ],
     en: [
-      { step: '01', title: 'Download the official build', desc: 'Click the golden download button to get the Windows installer or archive for Balaclava Beta 1.3.0.' },
-      { step: '02', title: 'Install or extract', desc: 'Run the .exe installer or extract the portable ZIP into a clean folder (e.g., C:\\Games\\Balaclava).' },
-      { step: '03', title: 'Launch via Tauri 2', desc: 'Run Balaclava.exe (Windows SmartScreen may ask once on first launch for indie builds) and select English or Spanish.' }
+      { step: '01', title: 'Download the game', desc: 'Click the golden download button to download Balaclava.exe directly.' },
+      { step: '02', title: 'Open & play', desc: 'Double-click Balaclava.exe to launch right away. No installation required.' }
     ]
   },
 
@@ -925,18 +923,18 @@ window.BALACLAVA_DATA = {
     es: [
       { label: 'Sistema Operativo', min: 'Windows 10 / 11 (64-bit)', rec: 'Windows 11 (64-bit)' },
       { label: 'Motor de Escritorio', min: 'WebView2 (incluido en Win10/11)', rec: 'WebView2 actualizado' },
-      { label: 'Procesador', min: 'Doble núcleo 2.0 GHz (i3 / Ryzen 3)', rec: 'Cuatro núcleos 2.8 GHz+' },
-      { label: 'Memoria RAM', min: '4 GB de RAM', rec: '8 GB de RAM' },
+      { label: 'Procesador', min: 'Arranca hasta en una tostadora', rec: 'Cualquier CPU moderno' },
+      { label: 'Memoria RAM', min: '1 GB de RAM', rec: '4 GB de RAM' },
       { label: 'Gráficos', min: 'Integrados con WebGL2 / DirectX 11', rec: 'Cualquier GPU moderna' },
-      { label: 'Almacenamiento', min: '350 MB libres', rec: '500 MB libres (SSD)' }
+      { label: 'Almacenamiento', min: 'Al menos 50 MB libres', rec: '100 MB libres' }
     ],
     en: [
       { label: 'Operating System', min: 'Windows 10 / 11 (64-bit)', rec: 'Windows 11 (64-bit)' },
       { label: 'Desktop Runtime', min: 'Microsoft WebView2 (built into Win10/11)', rec: 'Updated WebView2' },
-      { label: 'Processor', min: 'Dual-Core 2.0 GHz (Intel i3 / Ryzen 3)', rec: 'Quad-Core 2.8 GHz+' },
-      { label: 'Memory (RAM)', min: '4 GB RAM', rec: '8 GB RAM' },
+      { label: 'Processor', min: 'Runs even on a toaster', rec: 'Any modern CPU' },
+      { label: 'Memory (RAM)', min: '1 GB RAM', rec: '4 GB RAM' },
       { label: 'Graphics', min: 'Integrated GPU with WebGL2 / DX11', rec: 'Any modern GPU' },
-      { label: 'Storage', min: '350 MB available space', rec: '500 MB available (SSD)' }
+      { label: 'Storage', min: 'At least 50 MB available space', rec: '100 MB available' }
     ]
   },
 
@@ -1047,7 +1045,6 @@ window.BALACLAVA_DATA = {
       downloadMetaSize: 'Peso',
       downloadMetaDate: 'Fecha',
       downloadMetaPlatform: 'Plataforma',
-      downloadChecksumLabel: 'SHA-256:',
       installTitle: 'Pasos de Instalación',
       reqsTitle: 'Requisitos de Sistema (Windows)',
       reqsColSpec: 'Componente',
@@ -1059,9 +1056,7 @@ window.BALACLAVA_DATA = {
       footerDiscord: 'Comunidad Oficial en Discord',
       footerKofi: 'Apoyar en Ko-fi',
       modalPlaceholderTitle: 'Enlace de Descarga Pendiente de Configurar',
-      modalPlaceholderBody: 'El enlace de descarga de esta versión aún no se ha publicado. Cuando lo añadas en site-config.js, este botón iniciará la descarga directa para Windows.',
-      modalCopyOk: 'Copiado',
-      copyBtn: 'Copiar'
+      modalPlaceholderBody: 'El enlace de descarga de esta versión aún no se ha publicado. Cuando lo añadas en site-config.js, este botón iniciará la descarga directa para Windows.'
     },
     en: {
       pageTitle: 'BALACLAVA — Pixel Action RPG, Automation & Dungeons (Beta 1.3.0)',
@@ -1122,7 +1117,6 @@ window.BALACLAVA_DATA = {
       downloadMetaSize: 'Size',
       downloadMetaDate: 'Release',
       downloadMetaPlatform: 'Platform',
-      downloadChecksumLabel: 'SHA-256:',
       installTitle: 'Installation Steps',
       reqsTitle: 'System Requirements (Windows)',
       reqsColSpec: 'Component',
@@ -1134,9 +1128,7 @@ window.BALACLAVA_DATA = {
       footerDiscord: 'Official Discord Community',
       footerKofi: 'Support on Ko-fi',
       modalPlaceholderTitle: 'Download Link Not Configured Yet',
-      modalPlaceholderBody: 'The release download link for this version has not been linked yet. Once you add your installer URL in site-config.js, this button will trigger the Windows download directly.',
-      modalCopyOk: 'Copied',
-      copyBtn: 'Copy'
+      modalPlaceholderBody: 'The release download link for this version has not been linked yet. Once you add your installer URL in site-config.js, this button will trigger the Windows download directly.'
     }
   }
 };

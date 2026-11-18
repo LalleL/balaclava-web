@@ -12,8 +12,6 @@
     releaseDateEs: 'Noviembre 2026',
     releaseDateEn: 'November 2026',
     platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
-    checksumSha256Es: 'Se publicará junto al instalador oficial (SHA-256)',
-    checksumSha256En: 'Published alongside the official installer (SHA-256)',
     discordUrl: 'https://discord.gg/8wrsjRSMY2',
     kofiUrl: 'https://ko-fi.com/balaclava'
   }, window.BALACLAVA_SITE_CONFIG || {});
@@ -63,7 +61,6 @@
     const ver = cfg.versionLabel || cfg.version || 'Beta 1.3.0';
     const fileSize = pickLang(cfg.fileSizeEs || cfg.fileSize, cfg.fileSizeEn || cfg.fileSize) || '';
     const releaseDate = pickLang(cfg.releaseDateEs || cfg.releaseDate, cfg.releaseDateEn || cfg.releaseDate) || '';
-    const checksum = pickLang(cfg.checksumSha256Es || cfg.checksumSha256, cfg.checksumSha256En || cfg.checksumSha256) || 'N/A';
 
     document.querySelectorAll('.js-version-text').forEach((n) => { n.textContent = ver; });
     document.querySelectorAll('.js-version-badge').forEach((n) => { n.textContent = ver.toUpperCase(); });
@@ -71,9 +68,6 @@
     document.querySelectorAll('.js-releasedate-text').forEach((n) => { n.textContent = releaseDate; });
     document.querySelectorAll('.js-platform-text').forEach((n) => { n.textContent = cfg.platformLabel; });
     document.querySelectorAll('.js-filename-text').forEach((n) => { n.textContent = cfg.fileName; });
-
-    const checksumEl = document.getElementById('checksum-code');
-    if (checksumEl) checksumEl.textContent = checksum;
 
     document.querySelectorAll('.js-discord-link').forEach((a) => {
       a.setAttribute('href', cfg.discordUrl || 'https://discord.gg/8wrsjRSMY2');
@@ -132,22 +126,6 @@
         }
       });
     });
-
-    const copyBtn = document.getElementById('btn-copy-checksum');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        const text = pickLang(cfg.checksumSha256Es || cfg.checksumSha256, cfg.checksumSha256En || cfg.checksumSha256) || '';
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(text);
-          }
-          copyBtn.textContent = t('modalCopyOk');
-          setTimeout(() => { copyBtn.textContent = t('copyBtn'); }, 1500);
-        } catch (_) {
-          copyBtn.textContent = t('copyBtn');
-        }
-      });
-    }
   }
 
   /* ========================================================================
