@@ -81,24 +81,24 @@
 
     // === ECONOMÍA ===
     mercado: {
-      id: 'mercado', name: 'Mercado', category: 'economia', size: 1, placeOn: 'land',
+      id: 'mercado', name: 'Mercado', category: 'economia', size: 2, placeOn: 'land',
       cost: { madera: 12, piedra: 6 },
       desc: 'Estructura obligatoria para abrir el Mercado rotativo, ofertas raras y venta rápida.',
-      sprite: 'Mercado_Stall', badge: 'market',
+      sprite: 'Mercado_Stall', badge: 'market', visualScale: 1.15,
       opensPanel: 'market'
     },
     banco: {
-      id: 'banco', name: 'Banco', category: 'economia', size: 1, placeOn: 'land',
+      id: 'banco', name: 'Banco', category: 'economia', size: 2, placeOn: 'land',
       cost: { ladrillo: 10, lingote_oro: 4, lingote_hierro: 4 },
       desc: 'Genera monedas de oro pasivamente cada ciclo en su bóveda. Mejorable hasta Nv.3.',
-      sprite: 'bld_banco', badge: 'bank',
+      sprite: 'bld_banco', badge: 'bank', visualScale: 1.18,
       autoCycle: 10, autoCoins: 14, capacity: 500
     },
     casa_comercio: {
-      id: 'casa_comercio', name: 'Casa de Comercio', category: 'economia', size: 1, placeOn: 'land',
+      id: 'casa_comercio', name: 'Casa de Comercio', category: 'economia', size: 2, placeOn: 'land',
       cost: { tablon: 14, lingote_cobre: 6, tela: 4 },
       desc: 'Envía caravanas automáticas que generan oro y materiales poco comunes.',
-      sprite: 'bld_casa_comercio', badge: 'trade',
+      sprite: 'bld_casa_comercio', badge: 'trade', visualScale: 1.18,
       autoCycle: 15, autoCoins: 22, autoProduce: { semillas_zanahoria: 1 }, capacity: 400
     },
     tesoreria: {
@@ -139,10 +139,10 @@
       autoCycle: 12, autoProduce: { trigo: 2, huevo: 1, leche: 1 }, capacity: 50
     },
     estanque: {
-      id: 'estanque', name: 'Estanque de Pesca', category: 'agricultura', size: 1, placeOn: 'land',
+      id: 'estanque', name: 'Estanque de Pesca', category: 'agricultura', size: 2, placeOn: 'land',
       cost: { piedra: 12, madera: 10, fibra_vegetal: 6 },
       desc: 'Captura peces automáticamente con redes y permite pescar desde tierra firme.',
-      sprite: 'Fish_Pond', badge: 'fish',
+      sprite: 'Fish_Pond', badge: 'fish', visualScale: 1.10,
       autoCycle: 14, autoFish: true, capacity: 30
     },
 
@@ -156,10 +156,10 @@
       machineSpeedBonus: 0.15, station: 'laboratorio', capacity: 30
     },
     biblioteca: {
-      id: 'biblioteca', name: 'Biblioteca', category: 'tecnologia', size: 1, placeOn: 'land',
+      id: 'biblioteca', name: 'Biblioteca', category: 'tecnologia', size: 2, placeOn: 'land',
       cost: { tablon: 16, tela: 6, cuero: 4 },
       desc: 'Otorga +25% de experiencia en todas tus acciones y genera pergaminos de conocimiento (experiencia pasiva).',
-      sprite: 'station_library', visualScale: 1.22, badge: 'book',
+      sprite: 'station_library', visualScale: 1.18, badge: 'book',
       xpBonus: 0.25, autoCycle: 15, autoXp: 18
     },
     taller_mecanico: {
@@ -181,10 +181,10 @@
 
     // === CONSTRUCCIONES ESPECIALES ===
     torre_magica: {
-      id: 'torre_magica', name: 'Torre Mágica', category: 'especiales', size: 1, placeOn: 'land',
+      id: 'torre_magica', name: 'Torre Mágica', category: 'especiales', size: 2, placeOn: 'land',
       cost: { piedra: 18, cristales: 4, cristales_magicos: 2 },
       desc: 'Dispara rayos arcanos automáticamente contra enemigos cercanos e ilumina la oscuridad.',
-      sprite: 'bld_torre_magica', badge: 'magic',
+      sprite: 'bld_torre_magica', badge: 'magic', visualScale: 1.15,
       turretRange: 280, turretDmg: 22, turretCooldown: 1.1
     },
     portal: {
@@ -218,17 +218,17 @@
 
     // === AUTOMATIZACI�N E INFRAESTRUCTURA ===
     taladro: {
-      id: 'taladro', name: 'Taladro Automático', category: 'automatizacion', size: 1, placeOn: 'land',
+      id: 'taladro', name: 'Taladro Automático', category: 'automatizacion', size: 2, placeOn: 'land',
       cost: { lingote_hierro: 8, lingote_cobre: 6, engrane: 3 },
       desc: 'Extrae minerales automáticamente según el bioma donde se coloque (carbón, hierro, oro, cristales, diamantes...).',
-      sprite: 'bld_taladro', badge: 'drill',
+      sprite: 'bld_taladro', badge: 'drill', visualScale: 1.12,
       autoCycle: 8, autoDrill: true, usesFuel: true, capacity: 60
     },
     recolector: {
-      id: 'recolector', name: 'Torre Recolectora', category: 'automatizacion', size: 1, placeOn: 'land',
+      id: 'recolector', name: 'Torre Recolectora', category: 'automatizacion', size: 2, placeOn: 'land',
       cost: { lingote_hierro: 6, engrane: 4, cristales: 2 },
       desc: 'Recoge automáticamente objetos caídos y vacía la producción de máquinas cercanas en un radio de 6 casillas.',
-      sprite: 'bld_recolector', badge: 'magnet',
+      sprite: 'bld_recolector', badge: 'magnet', visualScale: 1.12,
       autoCycle: 3, collectRadius: 6, capacity: 120
     },
     puente: {
@@ -275,7 +275,7 @@
       id: 'basurero', name: 'Basurero', category: 'produccion', altCategory: 'economia', size: 1, placeOn: 'land',
       cost: { madera: 4, piedra: 4 },
       desc: 'Incinerador de objetos: deposita dentro cualquier objeto sobrante para eliminarlo de forma permanente.',
-      sprite: 'bld_basurero', opensPanel: 'basurero'
+      sprite: 'bld_basurero', visualScale: 0.65, opensPanel: 'basurero'
     }
   };
 
@@ -347,7 +347,7 @@
   // === NUEVAS ESTRUCTURAS PRODUCTIVAS Y DEFENSIVAS ===
   BUILDINGS.aspersor = {
     id: 'aspersor', name: 'Aspersor Agrícola', category: 'agricultura', placeOn: 'land', size: 1,
-    sprite: 'bld_aspersor', badge: 'drop',
+    sprite: 'bld_aspersor', visualScale: 0.68, badge: 'drop',
     cost: { hierro: 4, cobre: 4, piedra: 6 }, xp: 20,
     autoCycle: 4.5, autoWaterRadius: 230, cropBoost: 0.45,
     desc: 'Riega automáticamente los cultivos cercanos y acelera su crecimiento +45%.'
@@ -362,14 +362,14 @@
   };
   BUILDINGS.colmena = {
     id: 'colmena', name: 'Colmena de Miel', category: 'agricultura', placeOn: 'land', size: 1,
-    sprite: 'bld_colmena', badge: 'honey',
+    sprite: 'bld_colmena', visualScale: 0.82, badge: 'honey',
     cost: { tablon: 6, fibra_vegetal: 4, hierba: 6 }, xp: 22,
     autoCycle: 14, autoProduce: { miel: 1, cera_abeja: 1, miel_ambar: 1 }, capacity: 36,
     desc: 'Las abejas polinizan tus flores y producen Miel, Cera de Abeja y Miel de Ámbar automáticamente.'
   };
   BUILDINGS.ahumador = {
     id: 'ahumador', name: 'Ahumador Gourmet', category: 'produccion', placeOn: 'land', size: 1,
-    sprite: 'bld_ahumador', badge: 'flame',
+    sprite: 'bld_ahumador', visualScale: 0.85, badge: 'flame',
     cost: { ladrillo: 6, lingote_hierro: 4, carbon: 4 }, xp: 28,
     autoCycle: 15, autoProduce: { queso: 1, filete: 1 }, station: 'cocina', capacity: 36,
     desc: 'Prepara manjares curados y funciona como estación culinaria auxiliar.'
@@ -396,8 +396,8 @@
     desc: 'Artillería automática de largo alcance que perfora monstruos que se acerquen a tu isla.'
   };
   BUILDINGS.faro_costero = {
-    id: 'faro_costero', name: 'Faro Costero', category: 'especiales', placeOn: 'land', size: 1,
-    sprite: 'bld_faro_costero', badge: 'sun',
+    id: 'faro_costero', name: 'Faro Costero', category: 'especiales', placeOn: 'land', size: 2,
+    sprite: 'bld_faro_costero', visualScale: 1.15, badge: 'sun',
     cost: { ladrillo: 8, vidrio: 6, topacio: 1, carbon: 4 }, xp: 45,
     lightRadius: 290, auraLuck: 0.16,
     desc: 'Ilumina una amplia zona nocturna con radio de luz amplio y bendice la costa con +16% Suerte de pesca y botín.'
@@ -457,7 +457,7 @@
   };
   BUILDINGS.maceta_flores = {
     id: 'maceta_flores', name: 'Jardinera Floral', category: 'fortificacion', placeOn: 'land', size: 1,
-    sprite: 'village_planter_wood', visualScale: 0.95, cost: { madera: 3, hierba: 2 }, xp: 4,
+    sprite: 'village_planter_wood', visualScale: 0.70, cost: { madera: 3, hierba: 2 }, xp: 4,
     desc: 'Hermoso cajón de madera con flores para embellecer plazas, muelles y portales.'
   };
   BUILDINGS.puesto_mercado = {
@@ -472,12 +472,12 @@
   };
   BUILDINGS.farola_pueblo = {
     id: 'farola_pueblo', name: 'Farola Urbana', category: 'fortificacion', placeOn: 'land', size: 1,
-    sprite: 'prop_lamppost', visualScale: 0.96, lightRadius: 175, cost: { hierro: 3, vidrio: 1, carbon: 1 }, xp: 10,
+    sprite: 'prop_lamppost', visualScale: 0.82, lightRadius: 175, cost: { hierro: 3, vidrio: 1, carbon: 1 }, xp: 10,
     desc: 'Farola de hierro que ilumina tus calles durante la noche.'
   };
   BUILDINGS.brasero_eterno = {
     id: 'brasero_eterno', name: 'Brasero Eterno', category: 'fortificacion', placeOn: 'land', size: 1,
-    sprite: 'prop_fireplace', visualScale: 0.98, lightRadius: 200, warmRegenRadius: 95, cost: { ladrillo: 4, carbon: 3, hierro: 2 }, xp: 16,
+    sprite: 'prop_fireplace', visualScale: 0.80, lightRadius: 200, warmRegenRadius: 95, cost: { ladrillo: 4, carbon: 3, hierro: 2 }, xp: 16,
     desc: 'Hogar ardiente decorativo con halo de luz y calor curativo.'
   };
   BUILDINGS.estatua_caballero = {
@@ -498,7 +498,7 @@
   };
   BUILDINGS.banco_madera = {
     id: 'banco_madera', name: 'Banco de Descanso', category: 'fortificacion', placeOn: 'land', size: 1,
-    sprite: 'prop_bench', visualScale: 0.94, warmRegenRadius: 75, cost: { madera: 4, tablon: 2 }, xp: 6,
+    sprite: 'prop_bench', visualScale: 0.75, warmRegenRadius: 75, cost: { madera: 4, tablon: 2 }, xp: 6,
     desc: 'Banco artesanal para descansar y recuperar vigor.'
   };
   BUILDINGS.roble_milenario = {
@@ -509,7 +509,7 @@
   };
   BUILDINGS.brasero_magma = {
     id: 'brasero_magma', name: 'Brasero de Magma', category: 'fortificacion', placeOn: 'land', size: 1,
-    sprite: 'fire_brazier', visualScale: 0.98, lightRadius: 230, warmRegenRadius: 110, auraDmg: 0.10,
+    sprite: 'fire_brazier', visualScale: 0.80, lightRadius: 230, warmRegenRadius: 110, auraDmg: 0.10,
     cost: { piedra: 6, carbon: 4, material_volcanico: 2 }, xp: 24,
     desc: 'Cuenco volcánico encendido que ilumina ampliamente de noche e inspira +10% Daño cercano.'
   };
@@ -547,8 +547,8 @@
     desc: 'Cúpula estelar que irradia +25% Experiencia cercana, +10% Poder Mágico y condensa polvo estelar.'
   };
   BUILDINGS.torre_rayos = {
-    id: 'torre_rayos', name: 'Torre Voltaica Arcana', category: 'especiales', placeOn: 'land', size: 1,
-    sprite: 'bld_torre_rayos', visualScale: 1.08, lightRadius: 170, isLightningTurret: true, turretRange: 285, turretDmg: 36, turretRate: 1.45,
+    id: 'torre_rayos', name: 'Torre Voltaica Arcana', category: 'especiales', placeOn: 'land', size: 2,
+    sprite: 'bld_torre_rayos', visualScale: 1.15, lightRadius: 170, isLightningTurret: true, turretRange: 285, turretDmg: 36, turretRate: 1.45,
     cost: { lingote_acero: 5, cristales_magicos: 4, zafiro: 2 }, xp: 64,
     desc: 'Torre defensiva automática que lanza rayos en cadena contra enemigos que se acerquen a tus islas.'
   };

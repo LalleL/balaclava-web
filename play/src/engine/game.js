@@ -10294,10 +10294,10 @@
           ctx.fillStyle = '#ef6c00'; ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2); ctx.fill();
         }
       } else if (exImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(exImg))) {
-        const baseScale = def.size === 1 ? 1.42 : 1.28;
-        const vScale = Math.max(baseScale, def.visualScale ? def.visualScale * (def.size === 1 ? 1.32 : 1.22) : baseScale);
+        const vScale = def.visualScale ? def.visualScale * (def.size === 1 ? 1.25 : 1.15) : (def.size === 1 ? 1.35 : 1.25);
         ctx.fillStyle = 'rgba(0,0,0,0.28)';
-        ctx.beginPath(); ctx.ellipse(cx, py + h - 2, Math.round(w * (def.size === 1 ? 0.56 : 0.50)), Math.round(h * 0.15), 0, 0, Math.PI * 2); ctx.fill();
+        const shadowScale = (def.visualScale || 1.0);
+        ctx.beginPath(); ctx.ellipse(cx, py + h - 2, Math.round(w * (def.size === 1 ? 0.50 : 0.48) * shadowScale), Math.round(h * 0.15 * shadowScale), 0, 0, Math.PI * 2); ctx.fill();
         if (def.sprite === 'well_health_strip' || def.sprite === 'well_mana_strip') {
           const fw = 32, fh = 64;
           const frames = Math.max(1, Math.floor(exImg.width / fw));
