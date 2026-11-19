@@ -36,7 +36,13 @@
     downloadCount: null
   };
 
-  const t = (key) => (DATA.i18n[state.lang] && DATA.i18n[state.lang][key]) || key;
+  const t = (key, fallback = null) => {
+    const val = DATA.i18n && DATA.i18n[state.lang] && DATA.i18n[state.lang][key];
+    if (val) return val;
+    const alt = DATA.i18n && (DATA.i18n.es[key] || DATA.i18n.en[key]);
+    if (alt) return alt;
+    return fallback !== null ? fallback : key;
+  };
   const pickLang = (es, en) => (state.lang === 'en' ? en : es);
   const isPlaceholderUrl = (url) => !url || String(url).trim() === '' || String(url).trim().startsWith('#');
 
@@ -929,7 +935,10 @@
 
     document.querySelectorAll('[data-i18n]').forEach((node) => {
       const key = node.getAttribute('data-i18n');
-      if (key) node.textContent = t(key);
+      if (key) {
+        const val = t(key, null);
+        if (val) node.textContent = val;
+      }
     });
 
     const langBtnLabel = document.getElementById('lang-toggle-label');
