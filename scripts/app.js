@@ -12,6 +12,7 @@
     releaseDateEs: 'Noviembre 2026',
     releaseDateEn: 'November 2026',
     platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
+    githubRepo: 'LalleL/balaclava-web',
     discordUrl: 'https://discord.gg/8wrsjRSMY2',
     kofiUrl: 'https://ko-fi.com/balaclava'
   }, window.BALACLAVA_SITE_CONFIG || {});
@@ -31,7 +32,8 @@
     hoverGrid: null,
     activeSysTab: 'combat',
     selectedRelicId: DATA.relicsShowcase[0].id,
-    activePatchVer: '1.3.0'
+    activePatchVer: '1.3.0',
+    downloadCount: null
   };
 
   const t = (key) => (DATA.i18n[state.lang] && DATA.i18n[state.lang][key]) || key;
@@ -109,6 +111,104 @@
     }
   }
 
+  const DL_CACHE_KEY = 'balaclava_dl_count_v1';
+  const DL_CLICK_KEY = 'balaclava_dl_clicked_v1';
+  const DL_CACHE_TTL_MS = 120 * 1000;
+  const DL_STALE_MAX_MS = 24 * 60 * 60 * 1000;
+
+  function resolveGithubRepo() {
+    if (cfg.githubRepo && /^[^/\s]+\/[^/\s]+$/.test(String(cfg.githubRepo).trim())) {
+      return String(cfg.githubRepo).trim();
+    }
+    const m = String(cfg.downloadUrl || '').match(/^https?:\/\/github\.com\/([^/]+\/[^/]+)\/releases\//i);
+    return m ? m[1] : '';
+  }
+
+  function readDownloadCache() {
+    try {
+      const raw = window.localStorage.getItem(DL_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed.count !== 'number' || !Number.isFinite(parsed.count)) return null;
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function writeDownloadCache(count, optimisticUntil) {
+    try {
+      window.localStorage.setItem(DL_CACHE_KEY, JSON.stringify({
+        count,
+        ts: Date.now(),
+        optimisticUntil: optimisticUntil || 0
+      }));
+    } catch (_) {}
+  }
+
+  function renderDownloadCount() {
+    const wraps = document.querySelectorAll('.js-dl-counter-wrap');
+    const texts = document.querySelectorAll('.js-dl-counter-text');
+    const count = state.downloadCount;
+    if (typeof count !== 'number' || !Number.isFinite(count) || count < 0) {
+      wraps.forEach((w) => w.classList.add('hidden'));
+      return;
+    }
+    const locale = state.lang === 'en' ? 'en-US' : 'es-ES';
+    const numStr = new Intl.NumberFormat(locale).format(count);
+    const unit = state.lang === 'en'
+      ? (count === 1 ? 'download' : 'downloads')
+      : (count === 1 ? 'descarga' : 'descargas');
+    const label = `${numStr} ${unit}`;
+    texts.forEach((n) => { n.textContent = label; });
+    wraps.forEach((w) => w.classList.remove('hidden'));
+  }
+
+  async function loadDownloadCount() {
+    const repo = resolveGithubRepo();
+    if (!repo || typeof window.fetch !== 'function') return;
+
+    const cached = readDownloadCache();
+    const now = Date.now();
+    if (cached && (now - (cached.ts || 0)) < DL_STALE_MAX_MS) {
+      state.downloadCount = cached.count;
+      renderDownloadCount();
+      if ((now - (cached.ts || 0)) < DL_CACHE_TTL_MS) return;
+    }
+
+    try {
+      const res = await window.fetch(`https://api.github.com/repos/${repo}/releases`, {
+        headers: { Accept: 'application/vnd.github+json' }
+      });
+      if (!res.ok) return;
+      const releases = await res.json();
+      if (!Array.isArray(releases)) return;
+
+      const total = releases.reduce((acc, rel) => {
+        const assets = Array.isArray(rel && rel.assets) ? rel.assets : [];
+        return acc + assets.reduce((sum, asset) => sum + (Number(asset && asset.download_count) || 0), 0);
+      }, 0);
+
+      const optimisticValid = cached && cached.optimisticUntil && Date.now() < cached.optimisticUntil;
+      const nextCount = optimisticValid ? Math.max(total, cached.count) : total;
+      state.downloadCount = nextCount;
+      writeDownloadCache(nextCount, optimisticValid ? cached.optimisticUntil : 0);
+      renderDownloadCount();
+    } catch (_) {}
+  }
+
+  function recordLocalDownloadClick() {
+    try {
+      if (window.sessionStorage.getItem(DL_CLICK_KEY)) return;
+      window.sessionStorage.setItem(DL_CLICK_KEY, '1');
+    } catch (_) {}
+    if (typeof state.downloadCount === 'number' && Number.isFinite(state.downloadCount)) {
+      state.downloadCount += 1;
+      writeDownloadCache(state.downloadCount, Date.now() + DL_CACHE_TTL_MS);
+      renderDownloadCount();
+    }
+  }
+
   function bindDownloadTriggers() {
     document.querySelectorAll('.js-download-trigger').forEach((btn) => {
       btn.addEventListener('click', (e) => {
@@ -123,7 +223,9 @@
               ])
             ]
           );
+          return;
         }
+        recordLocalDownloadClick();
       });
     });
   }
@@ -836,6 +938,7 @@
     }
 
     syncConfigUI();
+    renderDownloadCount();
     renderStats();
     renderZoneFilters();
     renderBiomePills();
@@ -879,6 +982,7 @@
     bindNavAndLang();
     loadAtlasTextures();
     applyLanguage();
+    loadDownloadCount();
   }
 
   if (document.readyState === 'loading') {

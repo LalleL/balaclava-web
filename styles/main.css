@@ -622,6 +622,18 @@ section {
   padding: 11px 16px;
 }
 
+.hero-dl-meta {
+  margin: 14px 0 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: rgba(207, 224, 245, 0.78);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.dl-counter-val {
+  color: var(--gold-bright);
+}
+
 /* === BARRA DE CIFRAS CLAVE === */
 .stats-section {
   padding: 16px 0 42px;
@@ -1496,7 +1508,7 @@ section {
   margin: 3px 0 0;
   font-size: 16px;
   color: var(--ink-dim);
-  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .dl-meta-grid {
