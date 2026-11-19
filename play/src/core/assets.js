@@ -50,7 +50,7 @@
     pawn_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Hammer.png',
     pawn_knife: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Knife.png',
 
-    // Black Pawn (Pícaro Sombrío con herramientas)
+    // Black Pawn (PÃ­caro SombrÃ­o con herramientas)
     pawn_black_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Idle.png',
     pawn_black_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Run.png',
     pawn_black_axe: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Interact Axe.png',
@@ -58,7 +58,7 @@
     pawn_black_knife: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Interact Knife.png',
     pawn_black_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Interact Hammer.png',
 
-    // Yellow Pawn (Nómada del Desierto con herramientas)
+    // Yellow Pawn (NÃ³mada del Desierto con herramientas)
     pawn_yellow_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Idle.png',
     pawn_yellow_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Run.png',
     pawn_yellow_axe: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Interact Axe.png',
@@ -66,7 +66,7 @@
     pawn_yellow_knife: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Interact Knife.png',
     pawn_yellow_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Interact Hammer.png',
 
-    // Red Pawn (Explorador Carmesí con herramientas)
+    // Red Pawn (Explorador CarmesÃ­ con herramientas)
     pawn_red_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Idle.png',
     pawn_red_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Run.png',
     pawn_red_axe: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Interact Axe.png',
@@ -75,7 +75,7 @@
     pawn_red_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Interact Hammer.png',
     archer_red_shoot: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Archer/Archer_Shoot.png',
 
-    // Archer Black (Ranger Sombrío)
+    // Archer Black (Ranger SombrÃ­o)
     archer_black_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Archer/Archer_Idle.png',
     archer_black_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Archer/Archer_Run.png',
     archer_black_shoot: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Archer/Archer_Shoot.png',
@@ -90,7 +90,7 @@
     archer_blue_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Run.png',
     archer_blue_shoot: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Shoot.png',
 
-    // Monk Yellow (Monje Místico)
+    // Monk Yellow (Monje MÃ­stico)
     monk_yellow_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Monk/Idle.png',
     monk_yellow_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Monk/Run.png',
     monk_yellow_heal: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Monk/Heal.png',
@@ -311,6 +311,8 @@
     }
 
     getBuildingImg(spriteKey) {
+      const CHEST_MAP = { chest_wood: 'wood_closed', chest_sapphire: 'sapphire_closed', chest_gold: 'gold_closed' };
+      if (CHEST_MAP[spriteKey] && this.chestImages && this.chestImages[CHEST_MAP[spriteKey]]) return this.chestImages[CHEST_MAP[spriteKey]];
       const mapped = BUILDING_IMG_MAP[spriteKey];
       if (mapped && this.images[mapped]) return this.images[mapped];
       if (this.extraImages && this.extraImages[spriteKey]) return this.extraImages[spriteKey];
@@ -953,7 +955,7 @@
         ring_gold: ['#ffd54f', '#fff9c4', '#ff8f00'],
         amulet: ['#4fc3f7', '#e1f5fe', '#7b1fa2']
       };
-      const fc = fallbackColors[iconType] || ['#90caf9', '#e3f2fd', '#1565c0'];
+      const fc = fallbackColors[iconType] || ['#8d6e63', '#d7ccc8', '#4e342e'];
       simpleBox(fc[0], fc[1], fc[2]);
     }
   }
@@ -965,9 +967,9 @@
       id: 'hana',
       name: 'Hana Caraka',
       name_en: 'Hana Caraka',
-      role: 'Superviviente del Archipiélago',
+      role: 'Superviviente del ArchipiÃ©lago',
       role_en: 'Archipelago Survivor',
-      desc: 'Personaje único con animaciones completas de combate, magia, herramientas, granja, natación y pesca.',
+      desc: 'Personaje Ãºnico con animaciones completas de combate, magia, herramientas, granja, nataciÃ³n y pesca.',
       desc_en: 'Unique character with full animations for combat, magic, tools, farming, swimming, and fishing.',
       idle: 'hana_idle',
       walk: 'hana_walk',

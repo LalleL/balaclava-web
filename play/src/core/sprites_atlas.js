@@ -719,7 +719,7 @@
     spell_llamado_horda: VERARC_BASE + 'Spells/counterspell.png',
     spell_llamado_fauna: VERARC_BASE + 'Spells/summoning_spell.png',
 
-    // === FASE 5: NUEVAS ARMAS, BÁCULOS, VARITAS Y ARQUETIPOS (UNIFICADO 32x32) ===
+    // === FASE 5: NUEVAS ARMAS, BÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚ÂCULOS, VARITAS Y ARQUETIPOS (UNIFICADO 32x32) ===
     dagger_iron: 'assets/icons_extra/dagger_iron.png',
     dagger_steel: 'assets/icons_extra/dagger_steel.png',
     dagger_gold: 'assets/icons_extra/dagger_gold.png',
@@ -1372,14 +1372,14 @@
     bosque_arana:       'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Purple Buildings/Tower.png',
     bosque_pantano:     'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Purple Buildings/Barracks.png',
 
-    // Bioma Montañas Heladas
+    // Bioma MontaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±as Heladas
     montanas_heladas:   'assets/sprites_extra/gate_montanas_heladas.png',
     montanas_glaciar:   'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Monastery.png',
     montanas_mina:      'assets/packs/Tiny Swords/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Active.png',
     montanas_fortaleza: 'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png',
     montanas_cumbre:    'assets/sprites_v13/gates/gate_glaciar.png',
 
-    // Bioma Tierras Volcánicas
+    // Bioma Tierras VolcÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡nicas
     tierras_volcanicas: 'assets/sprites_extra/gate_tierras_volcanicas.png',
     volcan_abismo:      'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Black Buildings/Castle.png',
     volcan_fragua:      'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Black Buildings/Barracks.png',
@@ -1878,6 +1878,7 @@
     station_well_health: 'assets/sprites_extra/station_well_health.png',
     station_well_mana: 'assets/sprites_extra/station_well_mana.png',
     well_health_strip: 'assets/sprites_extra/well_health_strip.png',
+    bld_fuente_plaza: 'assets/sprites_extra/bld_fuente_plaza.png',
     well_mana_strip: 'assets/sprites_extra/well_mana_strip.png',
     waypoint_white_strip: 'assets/sprites_extra/waypoint_white_strip.png',
     waypoint_dark_strip: 'assets/sprites_extra/waypoint_dark_strip.png',
@@ -2273,6 +2274,19 @@
     await Promise.all(tracked);
   };
 
+
+  // ===== TEXTURE OVERHAUL v1.3.1: concordant per-item icons =====
+  (function () {
+    const P = 'assets/icons_extra/', X = '.png'; const M = Balaclava.ITEM_PNG_MAP; const I = Balaclava.ITEMS || {}; const R = Balaclava.PERMANENT_RELICS || {};
+    const items = {'cera_abeja':'cera_abeja','miel':'miel','sashimi_glacial':'sashimi_glacial','brocheta_magma':'brocheta_magma','estofado_marino_supremo':'estofado_marino','pescado_brasa':'pescado_brasa','pez_legendario_kraken':'fish_kraken','pez_abismal':'fish_abismal','anguila_sombras':'fish_eel_shadow','pez_fenix_magma':'fish_phoenix_lava','esturion_glacial':'fish_sturgeon_ice','pez_dorado_solar':'fish_gold_solar','cofre_hundido':'cofre_hundido','viga_madera':'viga_madera','fibra_vegetal':'fibra_vegetal','tela_reforzada':'tela_reforzada','reliquia_vacio':'reliquia_vacio','abono_dorado':'abono_dorado','compost_magico':'compost_magico','cebo_arcano':'cebo_arcano','cebo_volcanico':'cebo_volcanico','gema_vacio':'gema_vacio','lingote_plata':'lingote_plata','lingote_platino':'lingote_platino','lingote_titanio':'lingote_titanio','aleacion_celestial':'aleacion_celestial','lingote_oricalco':'lingote_oricalco','grimorio_escudo_divino':'grimorio_divino','grimorio_paso_etereo':'grimorio_etereo','armadura_coral':'armadura_coral','casco_coral':'casco_coral','armadura_boreal':'armadura_boreal','casco_boreal':'casco_boreal','armadura_selva':'armadura_selva','armadura_caldera':'armadura_caldera','armadura_faraon':'armadura_faraon','armadura_abismal':'armadura_abismal','casco_abismal':'casco_abismal','botas_abismal':'botas_abismal','mochila_astral':'mochila_astral','escudo_celestial':'shield_celestial','armadura_volcanica':'armor_volcanica','casco_balaclava':'helm_balaclava','botas_celestiales':'boots_celestiales','armadura_tela':'armor_cloth_tunic','armadura_oricalco':'armor_oricalco','casco_oricalco':'helm_oricalco','botas_oricalco':'boots_oricalco','casco_solar':'helm_solar','armadura_celestial':'armor_solar','botas_solar':'boots_solar','escudo_solar':'shield_solar','escudo_oricalco':'shield_oricalco','escudo_boreal':'shield_boreal','escudo_glaciar':'shield_glaciar','hoja_singularidad':'hoja_singularidad','arco_omega':'arco_omega','cetro_omega':'cetro_omega','cofre_logistico_item':'cofre_logistico_ico'};
+    const relics = {'tridente_fosa_marina':'rel_tridente_fosa','corona_emperatriz_mar':'rel_corona_emperatriz','perla_sirena_azul':'rel_perla_sirena','espejo_cuarzo_astral':'rel_espejo_cuarzo','nemes_faraon_inmortal':'rel_nemes_faraon','cetro_sol_cenit':'rel_cetro_sol','corona_soverano_huesos':'rel_corona_soverano','caliz_sangre_maldita':'rel_caliz_sangre','caliz_hielo_inmaculado':'rel_caliz_hielo','esquirla_prisma_tierra':'rel_esquirla_prisma','fragmento_obelisco_solar':'rel_fragmento_obelisco','mascara_serpiente_jade':'rel_mascara_serpiente','farol_almas_errantes':'rel_farol_almas','costilla_dragon_oseo':'rel_costilla_dragon','corazon_abominacion_carnica':'rel_corazon_abominacion','corona_senor_caldera':'rel_corona_caldera','fetiche_manglar_negro':'rel_fetiche_manglar','totem_hidra_cienaga':'rel_totem_hidra','talisman_raices_antiguas':'rel_talisman_raices','colmillo_bestia_ceniza':'rel_colmillo_bestia','linterna_cosecha_maldita':'rel_linterna_cosecha','osario_marfil_maldito':'rel_osario_marfil','ojo_tormenta_polar':'rel_ojo_tormenta','yunque_basalto_rojo':'rel_yunque_basalto','pluma_quetzal_dorado':'rel_pluma_quetzal','corazon_celestita_eterno':'rel_corazon_celestita','prisma_geoda_viva':'rel_prisma_geoda','brasa_fumarola_oscura':'rel_brasa_fumarola','escoria_crater_ardiente':'rel_escoria_crater','ambar_reina_esmeralda':'rel_ambar_reina','esquirla_grieta_azul':'rel_esquirla_grieta','corazon_cero_absoluto':'rel_corazon_cero','corazon_eclipse_carmesi':'rel_corazon_eclipse','ojo_abismo_singularity':'rel_ojo_abismo_sing'};
+    for (const [id, f] of Object.entries(items)) { const k = 'ov_' + id; M[k] = P + f + X; M[id] = M[k]; if (I[id]) I[id].icon = k; }
+    for (const [id, f] of Object.entries(relics)) { const k = 'ov_' + id; M[k] = P + f + X; M[id] = M[k]; if (R[id]) R[id].icon = k; }
+    for (const f of ['fragmento_', 'polvo_']) for (const fam of ['cobre','hierro','oro','plata','platino','titanio','adamantita','oricalco','coral','boreal','selvano','escoria','pirita','hueso','maldito']) M[f + fam] = P + f + fam + X;
+    ['armor_solar','helm_solar','boots_solar','shield_solar'].forEach(k => { M[k] = P + k + X; });
+    Balaclava.EXTRA_SPRITE_PATHS = Balaclava.EXTRA_SPRITE_PATHS || {};
+  })();
+
   assets.deferReady = true;
   const origLoadAll = assets.loadAll.bind(assets);
   assets.loadAll = async function () {
@@ -2284,7 +2298,7 @@
 
   // Safe DOM icon helper using real transparent PNG assets (zero dataURL taint!).
   assets.createItemIconEl = function (iconType, size = 28) {
-    const url = Balaclava.ITEM_PNG_MAP[iconType];
+    const url = Balaclava.ITEM_PNG_MAP[iconType] || (Balaclava.ITEMS && Balaclava.ITEMS[iconType] && Balaclava.ITEM_PNG_MAP[Balaclava.ITEMS[iconType].icon]);
     if (url) {
       const img = document.createElement('img');
       img.src = encodeURI(withRoot(url));
