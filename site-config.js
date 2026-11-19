@@ -27,6 +27,7 @@ window.BALACLAVA_SITE_CONFIG = {
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
 
   // 5. Enlaces oficiales de comunidad y apoyo
+  downloadBaseOffset: 15,
   githubRepo: 'LalleL/balaclava-web',
   discordUrl: 'https://discord.gg/8wrsjRSMY2',
   kofiUrl: 'https://ko-fi.com/balaclava'

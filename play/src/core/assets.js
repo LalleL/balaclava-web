@@ -50,7 +50,7 @@
     pawn_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Hammer.png',
     pawn_knife: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Knife.png',
 
-    // Black Pawn (PÃ­caro SombrÃ­o con herramientas)
+    // Black Pawn (Pícaro Sombrío con herramientas)
     pawn_black_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Idle.png',
     pawn_black_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Run.png',
     pawn_black_axe: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Interact Axe.png',
@@ -58,7 +58,7 @@
     pawn_black_knife: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Interact Knife.png',
     pawn_black_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Pawn/Pawn_Interact Hammer.png',
 
-    // Yellow Pawn (NÃ³mada del Desierto con herramientas)
+    // Yellow Pawn (Nómada del Desierto con herramientas)
     pawn_yellow_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Idle.png',
     pawn_yellow_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Run.png',
     pawn_yellow_axe: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Interact Axe.png',
@@ -66,7 +66,7 @@
     pawn_yellow_knife: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Interact Knife.png',
     pawn_yellow_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Pawn/Pawn_Interact Hammer.png',
 
-    // Red Pawn (Explorador CarmesÃ­ con herramientas)
+    // Red Pawn (Explorador Carmesí con herramientas)
     pawn_red_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Idle.png',
     pawn_red_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Run.png',
     pawn_red_axe: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Interact Axe.png',
@@ -75,7 +75,7 @@
     pawn_red_hammer: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Pawn/Pawn_Interact Hammer.png',
     archer_red_shoot: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Red Units/Archer/Archer_Shoot.png',
 
-    // Archer Black (Ranger SombrÃ­o)
+    // Archer Black (Ranger Sombrío)
     archer_black_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Archer/Archer_Idle.png',
     archer_black_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Archer/Archer_Run.png',
     archer_black_shoot: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Black Units/Archer/Archer_Shoot.png',
@@ -90,7 +90,7 @@
     archer_blue_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Run.png',
     archer_blue_shoot: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Shoot.png',
 
-    // Monk Yellow (Monje MÃ­stico)
+    // Monk Yellow (Monje Místico)
     monk_yellow_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Monk/Idle.png',
     monk_yellow_run: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Monk/Run.png',
     monk_yellow_heal: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Units/Yellow Units/Monk/Heal.png',
@@ -967,9 +967,9 @@
       id: 'hana',
       name: 'Hana Caraka',
       name_en: 'Hana Caraka',
-      role: 'Superviviente del ArchipiÃ©lago',
+      role: 'Superviviente del Archipiélago',
       role_en: 'Archipelago Survivor',
-      desc: 'Personaje Ãºnico con animaciones completas de combate, magia, herramientas, granja, nataciÃ³n y pesca.',
+      desc: 'Personaje único con animaciones completas de combate, magia, herramientas, granja, natación y pesca.',
       desc_en: 'Unique character with full animations for combat, magic, tools, farming, swimming, and fishing.',
       idle: 'hana_idle',
       walk: 'hana_walk',

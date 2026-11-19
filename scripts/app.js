@@ -117,8 +117,8 @@
     }
   }
 
-  const DL_CACHE_KEY = 'balaclava_dl_count_v1';
-  const DL_CLICK_KEY = 'balaclava_dl_clicked_v1';
+  const DL_CACHE_KEY = 'balaclava_dl_count_v2';
+  const DL_CLICK_KEY = 'balaclava_dl_clicked_v2';
   const DL_CACHE_TTL_MS = 120 * 1000;
   const DL_STALE_MAX_MS = 24 * 60 * 60 * 1000;
 
@@ -195,8 +195,10 @@
         return acc + assets.reduce((sum, asset) => sum + (Number(asset && asset.download_count) || 0), 0);
       }, 0);
 
+      const baseOffset = (cfg && typeof cfg.downloadBaseOffset === 'number') ? cfg.downloadBaseOffset : 15;
+      const combinedTotal = total + baseOffset;
       const optimisticValid = cached && cached.optimisticUntil && Date.now() < cached.optimisticUntil;
-      const nextCount = optimisticValid ? Math.max(total, cached.count) : total;
+      const nextCount = optimisticValid ? Math.max(combinedTotal, cached.count) : combinedTotal;
       state.downloadCount = nextCount;
       writeDownloadCache(nextCount, optimisticValid ? cached.optimisticUntil : 0);
       renderDownloadCount();
