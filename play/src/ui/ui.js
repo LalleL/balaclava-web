@@ -1171,15 +1171,15 @@
         } else {
           const isEn = Boolean(Balaclava.I18n && ((Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') || Balaclava.I18n.lang === 'en'));
           const tipsEs = [
-            'Construye una Mesa de ArtesanÒ­a para forjar herramientas de mayor rango.',
-            'Explora los bordes del archipiÒ©lago para desbloquear nuevas islas con monedas.',
-            'Los Ò¡rboles y rocas a veces sueltan monedas brillantes adicionales.',
+            'Construye una Mesa de Artesanía para forjar herramientas de mayor rango.',
+            'Explora los bordes del archipiélago para desbloquear nuevas islas con monedas.',
+            'Los árboles y rocas a veces sueltan monedas brillantes adicionales.',
             'Comer bayas o descansar junto a una fogata restaura tu salud y energía.',
             'Cada bioma alberga minerales exclusivos como cobre, hierro, oro y cristales.',
-            'Sube de nivel para ganar Puntos de ConstelaciÒ³n y desbloquear pasivas legendarias.',
+            'Sube de nivel para ganar Puntos de Constelación y desbloquear pasivas legendarias.',
             'Las mazmorras antiguas esconden cofres dorados con reliquias permanentes.',
-            'Usa el esquive (Espacio) para moverte mÒ¡s rÒ¡pido y evadir peligros.',
-            'Crea un Horno de FundiciÒ³n para convertir minerales en lingotes refinados.'
+            'Usa el esquive (Espacio) para moverte más rápido y evadir peligros.',
+            'Crea un Horno de Fundición para convertir minerales en lingotes refinados.'
           ];
           const tipsEn = [
             'Build a Crafting Table to forge higher tier tools and equipment.',
@@ -1346,7 +1346,7 @@
       bossPanel.className = 'st-db-panel';
       const bossTitle = document.createElement('div');
       bossTitle.className = 'st-db-panel-title';
-      bossTitle.textContent = isEn ? 'Chamber Boss' : 'Jefe de la CÒ¡mara';
+      bossTitle.textContent = isEn ? 'Chamber Boss' : 'Jefe de la Cámara';
       bossPanel.appendChild(bossTitle);
 
       const bossBox = document.createElement('div');
@@ -2919,7 +2919,7 @@
       this._hudFrameCount = ((this._hudFrameCount || 0) + 1);
       const throttled = !force && (this._hudFrameCount % 6 !== 0);
       if (throttled) {
-        // Solo actualiza la barra de HP del hoveredTarget sin reconstruir nada mÒ¡s
+        // Solo actualiza la barra de HP del hoveredTarget sin reconstruir nada más
         const ht = g && g.hoveredTarget;
         if (ht && ht.hp != null && ht.maxHp > 0) {
           const hpPct = Math.max(0, Math.min(100, Math.round((ht.hp / ht.maxHp) * 100)));
@@ -2934,7 +2934,7 @@
             }
           }
         } else if (!ht) {
-          // Si no hay target, esconder el card rÒ¡pido
+          // Si no hay target, esconder el card rápido
           if (this._lastTargetKey !== '') {
             this._lastTargetKey = '';
             this._lastTargetHp = null;
@@ -3219,7 +3219,7 @@
         if (g.levelBannerTimer > 0 && g.levelUpSummary) {
           const s = g.levelUpSummary;
           if (s.title) {
-            // Banner de evento o tÒ­tulo personalizado
+            // Banner de evento o título personalizado
             const lKey = `custom:${s.title}:${s.subtitle || ''}`;
             if (this._lastLevelBannerKey !== lKey) {
               this._lastLevelBannerKey = lKey;
@@ -4072,14 +4072,14 @@
       const bpLabel = g.backpackTier === 3 ? 'Mochila Astral (+24 ranuras, +35 stack)'
                     : g.backpackTier === 2 ? 'Mochila Reforzada (+16 ranuras, +20 stack)'
                     : g.backpackTier === 1 ? 'Mochila de Cuero (+8 ranuras, +10 stack)'
-                    : 'BÒ¡sica (Sin Mochila)';
+                    : 'Básica (Sin Mochila)';
 
       const capBar = this.el('div', {
         style: 'display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:rgba(12,18,28,0.78);border-radius:6px;border:1px solid rgba(255,213,79,0.25);margin-bottom:8px;'
       }, [
         this.el('div', { style: 'display:flex;align-items:center;gap:10px;' }, [
           this.el('span', { class: 'inv-cap-pill' }, `${usedSlots} / ${maxSlots} Ranuras`),
-          this.el('span', { style: 'font-size:13px;color:#cbd5e1;' }, `Stack MÒ¡ximo: ${maxStack}`)
+          this.el('span', { style: 'font-size:13px;color:#cbd5e1;' }, `Stack Máximo: ${maxStack}`)
         ]),
         this.el('span', { style: 'font-size:12px;color:#a3e635;font-weight:600;' }, bpLabel)
       ]);
@@ -4296,7 +4296,7 @@
             this.selectedItemId = null;
             this.renderModal();
           }
-        }, 'â⬠ Volver a Equipo / EstadÒ­sticas'));
+        }, '← Volver a Equipo / Estadísticas'));
         rightCol.appendChild(det);
       } else if (sel) {
         const rar = RARITIES[sel.rarity] || RARITIES.comun;
@@ -4459,7 +4459,7 @@
             this.selectedItemId = null;
             this.renderModal();
           }
-        }, 'â⬠ Volver a Equipo / EstadÒ­sticas'));
+        }, '← Volver a Equipo / Estadísticas'));
         rightCol.appendChild(det);
       } else {
         // Character Overview: Equipment Paperdoll + Live Stats (no wrap, NO emojis) + Permanent Relics
@@ -4469,7 +4469,7 @@
         }, [
           this.uiIcon('backpack', 28),
           this.el('div', { style: 'font-size:13px;color:#cbd5e1;line-height:1.4;' },
-            'Selecciona un objeto o herramienta de la mochila para ver sus detalles, equiparlo, consumirlo o asignarlo a la barra rÒ¡pida.')
+            'Selecciona un objeto o herramienta de la mochila para ver sus detalles, equiparlo, consumirlo o asignarlo a la barra rápida.')
         ]));
 
       // 10-Slot Dedicated Equipment Paperdoll with FDA Slot Frames
@@ -4520,7 +4520,7 @@
       // Live Stat Panel (Zero Emojis, Clean Pixel Icons, Single-Line Space-Between Layout)
       const statItems = [
         { icon: 'iconHeart', label: 'Vida', val: `${Math.round(g.player.hp)} / ${Math.round(g.player.maxHp)}`, color: '#ef5350' },
-        { icon: 'manaOrb', label: 'EnergÒ­a', val: `${Math.round(g.player.energy)} / ${Math.round(g.player.maxEnergy)}`, color: '#4fc3f7' },
+        { icon: 'manaOrb', label: 'Energía', val: `${Math.round(g.player.energy)} / ${Math.round(g.player.maxEnergy)}`, color: '#4fc3f7' },
         { icon: 'iconSword', label: 'Daño', val: `+${Math.round((g.mods.dmgBonus || 0) * 100)}%`, color: '#ffb74d' },
         { icon: 'iconBow', label: 'Vel. Ataque', val: `+${Math.round((g.mods.attackSpeed || 0) * 100)}%`, color: '#80deea' },
         { icon: 'iconShield', label: 'Armadura', val: `${Math.round((g.mods.armor || 0) + (g.mods.defense || 0))}`, color: '#81c784' },
@@ -4880,7 +4880,7 @@
       const bpName = g.backpackTier === 3 ? 'Mochila Astral (+24 slots)'
                    : g.backpackTier === 2 ? 'Mochila Reforzada (+16 slots)'
                    : g.backpackTier === 1 ? 'Mochila de Cuero (+8 slots)'
-                   : 'Sin Mochila (BÒ¡sica)';
+                   : 'Sin Mochila (Básica)';
 
       const playerHead = this.el('div', { class: 'chest-section-title' }, [
         this.el('div', { style: 'display:flex;align-items:center;gap:8px;' }, [
@@ -4888,7 +4888,7 @@
           this.el('span', { class: 'inv-cap-pill' }, `${usedPlayerSlots} / ${maxPlayerSlots} Slots`),
           this.el('span', { style: 'font-size:13px;color:#a3e635;font-weight:600;' }, bpName)
         ]),
-        this.el('div', { style: 'font-size:12px;color:#94a3b8;' }, `Stack MÒ¡ximo: ${maxStack}`)
+        this.el('div', { style: 'font-size:12px;color:#94a3b8;' }, `Stack Máximo: ${maxStack}`)
       ]);
       playerBox.appendChild(playerHead);
 
@@ -5126,9 +5126,9 @@
         dmg = wm.dmg || 20;
         cooldown = wm.speed || 0.24;
         rangePx = wm.range || 74;
-        if (wm.critBonus) effects.push(isEn ? `+${Math.round(wm.critBonus * 100)}% Critical Chance` : `+${Math.round(wm.critBonus * 100)}% Prob. CrÒ­tico`);
+        if (wm.critBonus) effects.push(isEn ? `+${Math.round(wm.critBonus * 100)}% Critical Chance` : `+${Math.round(wm.critBonus * 100)}% Prob. Crítico`);
         if (wm.stunChance) effects.push(isEn ? `${Math.round(wm.stunChance * 100)}% Stun Chance` : `${Math.round(wm.stunChance * 100)}% Prob. Aturdir`);
-        if (wm.cleave) effects.push(isEn ? 'Wide Area Cleave' : 'Barrido en Òrea Amplia');
+        if (wm.cleave) effects.push(isEn ? 'Wide Area Cleave' : 'Barrido en Área Amplia');
       } else if (bs) {
         kindLabel = isEn ? 'Elemental Blade' : 'Hoja Elemental';
         dmg = bs.dmg || 60;
@@ -5149,24 +5149,24 @@
         rangePx = rs.range || 420;
         if (rs.pierce) effects.push(isEn ? `Pierces up to ${rs.pierce} targets` : `Perfora hasta ${rs.pierce} objetivos`);
       } else if (ss) {
-        kindLabel = isEn ? 'Arcane Staff / Wand' : 'BÒ¡culo / Varita Arcana';
+        kindLabel = isEn ? 'Arcane Staff / Wand' : 'Báculo / Varita Arcana';
         dmg = ss.dmg || 45;
         cooldown = ss.cooldown || 0.28;
         rangePx = ss.range || 420;
         energyCost = ss.energyCost || 0;
-        effects.push(isEn ? 'Scales with Magic Power' : 'Escala con Poder MÒ¡gico');
+        effects.push(isEn ? 'Scales with Magic Power' : 'Escala con Poder Mágico');
         if (ss.slowDur) effects.push(isEn ? `Slows for ${ss.slowDur}s` : `Ralentiza por ${ss.slowDur}s`);
-        if (ss.burnDmg) effects.push(isEn ? `Burns (+${ss.burnDmg} dmg)` : `Quemadura (+${ss.burnDmg} daÒ±o)`);
+        if (ss.burnDmg) effects.push(isEn ? `Burns (+${ss.burnDmg} dmg)` : `Quemadura (+${ss.burnDmg} daño)`);
         if (ss.pierce) effects.push(isEn ? `Pierces ${ss.pierce} enemy` : `Perfora ${ss.pierce} enemigo`);
-        if (ss.aoeRadius) effects.push(isEn ? `Area Explosion (${ss.aoeRadius}px)` : `ExplosiÒ³n en Òrea (${ss.aoeRadius}px)`);
+        if (ss.aoeRadius) effects.push(isEn ? `Area Explosion (${ss.aoeRadius}px)` : `Explosión en Área (${ss.aoeRadius}px)`);
       } else if (ls) {
-        kindLabel = isEn ? 'Continuous Laser Beam' : 'Arma de Haz LÒ¡ser';
+        kindLabel = isEn ? 'Continuous Laser Beam' : 'Arma de Haz Láser';
         dmg = ls.dmg || 75;
         nodeDmg = ls.nodeDmg || 0;
         cooldown = ls.cooldown || 0.20;
         rangePx = ls.range || 460;
         energyCost = ls.energyCost || 0;
-        if (nodeDmg > 0) effects.push(isEn ? `Mining Beam (${nodeDmg} node dmg)` : `Rayo Minero (${nodeDmg} daÒ±o a vetas)`);
+        if (nodeDmg > 0) effects.push(isEn ? `Mining Beam (${nodeDmg} node dmg)` : `Rayo Minero (${nodeDmg} daño a vetas)`);
       }
 
       const aps = +(1 / Math.max(0.05, cooldown)).toFixed(1);
@@ -5249,7 +5249,7 @@
             }, fmtDiff(w.rangeTiles - baseRef.rangeTiles)) : null
           ]),
           w.energyCost > 0 ? this.el('div', {}, [
-            this.el('span', { style: 'color:#94a3b8;' }, isEn ? 'Energy: ' : 'EnergÒ­a: '),
+            this.el('span', { style: 'color:#94a3b8;' }, isEn ? 'Energy: ' : 'Energía: '),
             this.el('strong', { style: 'color:#67e8f9;' }, `${w.energyCost}`)
           ]) : null
         ])
@@ -5370,8 +5370,8 @@
 
       const fields = [
         { label: isEn ? 'Defense' : 'Defensa', cur: curSt.def || 0, next: nextSt.def || 0, suffix: '' },
-        { label: isEn ? 'Max HP' : 'Vida MÒ¡x.', cur: curSt.maxHp || 0, next: nextSt.maxHp || 0, suffix: '' },
-        { label: isEn ? 'Max Energy' : 'EnergÒ­a', cur: curSt.maxEnergy || 0, next: nextSt.maxEnergy || 0, suffix: '' },
+        { label: isEn ? 'Max HP' : 'Vida Máx.', cur: curSt.maxHp || 0, next: nextSt.maxHp || 0, suffix: '' },
+        { label: isEn ? 'Max Energy' : 'Energía', cur: curSt.maxEnergy || 0, next: nextSt.maxEnergy || 0, suffix: '' },
         {
           label: isEn ? 'Damage' : 'Daño',
           cur: Math.round(((curSt.dmgPct || curSt.dmgBonus) || 0) * 100),
@@ -5674,7 +5674,7 @@
           : (isCoin ? { name: tr('craft.coinName'), icon: 'coin_gold', desc: tr('craft.coinDesc'), category: 'economia' } : Balaclava.ITEMS[rec.out]);
 
         if (!outItem) {
-          inspectorEl.appendChild(this.el('div', { class: 'craft-inspector-empty' }, 'InformaciÒ³n de receta no disponible.'));
+          inspectorEl.appendChild(this.el('div', { class: 'craft-inspector-empty' }, 'Información de receta no disponible.'));
           return;
         }
 
@@ -5740,7 +5740,7 @@
           const stLabel = (Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(rec.station) : rec.station;
           inspectorEl.appendChild(this.el('div', {
             style: 'font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;background:rgba(239,83,80,0.2);border:1px solid #ef5350;color:#ffab91;margin-top:6px;'
-          }, `Requiere estaciÒ³n cercana: ${stLabel}`));
+          }, `Requiere estación cercana: ${stLabel}`));
         }
 
         // Ingredients Checklist
@@ -5951,6 +5951,7 @@
         if (activeFilter === 'aserradero') return ['aserradero', 'molino', 'telar'].includes(s);
         if (activeFilter === 'cocina') return ['cocina', 'alquimia'].includes(s);
         if (activeFilter === 'taller') return ['taller', 'laboratorio', 'investigacion'].includes(s);
+        if (activeFilter === 'mano') return s === 'mano' || s === 'mesa_artesania';
         return s === activeFilter;
       };
 
@@ -6040,7 +6041,7 @@
           const compareBox = this._buildToolUpgradeComparisonBox(tool.id, curTier, nextTier);
           if (compareBox) card.appendChild(compareBox);
           const cost = tool.tierCosts[nextTier];
-          const needsForja = nextTier !== 'mejorada' && !g.hasStationAvailable('forja');
+          const needsForja = (nextTier !== 'mejorada' && nextTier !== 'cobre') && !g.hasStationAvailable('forja');
           const itemsOk = cost && cost.items ? Object.entries(cost.items).every(([id, q]) => (g.inventory[id] || 0) >= q) : true;
           const queuedUp = queue.find(j => j.toolUpgrade === tool.id);
           const cdLeft = (g.toolUpgradeCooldowns && g.toolUpgradeCooldowns[tool.id]) || 0;
@@ -6114,6 +6115,7 @@
             ])
           ]),
           baseItem ? this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.48;' }, this._describeItemExtras(baseItem) || baseItem.desc || '') : null,
+          (!hasSt && rec) ? this.el('div', { style: 'color:#ff8a65;font-size:13px;font-weight:700;' }, `Requiere: ${(Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(rec.station) : rec.station}`) : null,
           costBox,
           this.el('button', {
             class: 'btn btn-green btn-sm',
@@ -6184,7 +6186,10 @@
               `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${q}`)
           ) : [])
         ]);
-        if (!stOk) cDiv.appendChild(this.el('div', { style: 'color:#ff8a65;' }, tr('tools.forjaRequired')));
+        if (!stOk) {
+          const reqStLabel = (mat && mat.station && mat.station !== 'forja' && Balaclava.I18n && Balaclava.I18n.getStationName) ? `Requiere ${Balaclava.I18n.getStationName(mat.station)}` : tr('tools.forjaRequired');
+          cDiv.appendChild(this.el('div', { style: 'color:#ff8a65;' }, reqStLabel));
+        }
         card.appendChild(cDiv);
 
         let upLabel;
@@ -6253,7 +6258,7 @@
       if (this.artesaniaTab === 'otros') {
         const armorBaseIds = ['casco_cuero', 'armadura_cuero', 'escudo_madera', 'botas_cuero'];
         const otherRecs = Balaclava.RECIPES.filter(r => {
-          if (r.station !== 'mano') return false;
+          if (r.station !== 'mano' && r.station !== 'mesa_artesania') return false;
           if (r.toolUnlock) return false;
           if (r.out === '_coin' || r.coinIcon) return false;
           if (armorBaseIds.includes(r.out)) return false;
@@ -7612,7 +7617,7 @@
             isRecSelected
               ? (isEn
                 ? 'This adjacent Meadow island is the ideal first expansion: low cost, rich resources, and safe terrain. Click the gold button below to unlock it!'
-                : 'Esta isla adyacente de Pradera es la primera expansiÒ³n ideal: bajo coste, recursos abundantes y terreno seguro. Pulsa el botÒ³n dorado de abajo para desbloquearla.')
+                : 'Esta isla adyacente de Pradera es la primera expansión ideal: bajo coste, recursos abundantes y terreno seguro. Pulsa el botón dorado de abajo para desbloquearla.')
               : (isEn
                 ? `We recommend starting with adjacent plot (${recPlot[0]}, ${recPlot[1]}). Unlocking islands reveals new mineral veins, timber, NPCs, and dungeons.`
                 : `Te recomendamos empezar por la parcela adyacente (${recPlot[0]}, ${recPlot[1]}). Desbloquear islas revela nuevas vetas minerales, madera, NPCs y mazmorras.`)),
@@ -8391,7 +8396,7 @@
           });
         }
 
-        // Square plot grid overlay (toggled by CuadrÒ­cula button)
+        // Square plot grid overlay (toggled by Cuadrícula button)
         if (this.mapShowGrid) {
           ctx.strokeStyle = 'rgba(129, 212, 250, 0.28)';
           ctx.lineWidth = 1.2 / this.mapZoom;
@@ -8592,13 +8597,13 @@
         this.el('button', {
           class: 'btn ' + (this.mapShowGrid ? 'btn-gold' : 'btn-sm'),
           style: 'padding:3px 8px;font-size:13px;',
-          title: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Toggle plot grid' : 'Alternar cuadrÒ­cula de parcelas',
+          title: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Toggle plot grid' : 'Alternar cuadrícula de parcelas',
           onclick: (e) => {
             this.mapShowGrid = !this.mapShowGrid;
             e.currentTarget.className = 'btn ' + (this.mapShowGrid ? 'btn-gold' : 'btn-sm');
             drawMapCanvas();
           }
-        }, [this.el('span', {}, (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Grid' : 'CuadrÒ­cula')]),
+        }, [this.el('span', {}, (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Grid' : 'Cuadrícula')]),
         this.el('button', {
           class: 'btn ' + (this.showDungeonAtlas ? 'btn-gold' : 'btn-primary') + ' btn-sm',
           onclick: () => { this.showDungeonAtlas = !this.showDungeonAtlas; renderInspector(); }
@@ -10453,7 +10458,7 @@
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:12px;' }, [
         this.el('div', { style: 'font-size:16px;font-weight:700;color:#e040fb;margin-bottom:6px;' }, '¡Has dominado las 24 Mazmorras del Archipiélago!'),
         this.el('div', { style: 'font-size:14px;color:#eceff1;line-height:1.45;' },
-          'Las energías del vacío han corrompido esta mazmorra ancestral. Los enemigos y el jefe poseen 25x vida, daÒ±o abrumador y patrones intensos, pero otorgan Esencias Corruptas, Gemas del VacÒ­o y Reliquias Legendarias.'
+          'Las energías del vacío han corrompido esta mazmorra ancestral. Los enemigos y el jefe poseen 25x vida, daño abrumador y patrones intensos, pero otorgan Esencias Corruptas, Gemas del Vacío y Reliquias Legendarias.'
         )
       ]));
 
@@ -10702,23 +10707,23 @@
 
       if (def.isTurret) {
         const baseDmg = def.turretDmg || 28;
-        rows.push({ lv: 1, text: isEn ? `Base turret (${baseDmg} DMG per shot).` : `Torreta base (${baseDmg} daÒ±o por disparo).` });
-        rows.push({ lv: 2, text: isEn ? `+45% damage (${Math.round(baseDmg * 1.45)}) · +25% fire rate.` : `+45% daÒ±o (${Math.round(baseDmg * 1.45)}) · +25% cadencia de tiro.` });
-        rows.push({ lv: 3, text: isEn ? `+90% damage (${Math.round(baseDmg * 1.90)}) · +50% fire rate.` : `+90% daÒ±o (${Math.round(baseDmg * 1.90)}) · +50% cadencia de tiro.` });
+        rows.push({ lv: 1, text: isEn ? `Base turret (${baseDmg} DMG per shot).` : `Torreta base (${baseDmg} daño por disparo).` });
+        rows.push({ lv: 2, text: isEn ? `+45% damage (${Math.round(baseDmg * 1.45)}) · +25% fire rate.` : `+45% daño (${Math.round(baseDmg * 1.45)}) · +25% cadencia de tiro.` });
+        rows.push({ lv: 3, text: isEn ? `+90% damage (${Math.round(baseDmg * 1.90)}) · +50% fire rate.` : `+90% daño (${Math.round(baseDmg * 1.90)}) · +50% cadencia de tiro.` });
       }
 
       if (def.machineSpeedBonus) {
-        rows.push({ lv: 2, text: isEn ? `+35% machine accelerator efficiency (+${Math.round(def.machineSpeedBonus * 135)}%).` : `+35% eficacia al acelerador de mÒ¡quinas (+${Math.round(def.machineSpeedBonus * 135)}%).` });
-        rows.push({ lv: 3, text: isEn ? `+70% machine accelerator efficiency (+${Math.round(def.machineSpeedBonus * 170)}%).` : `+70% eficacia al acelerador de mÒ¡quinas (+${Math.round(def.machineSpeedBonus * 170)}%).` });
+        rows.push({ lv: 2, text: isEn ? `+35% machine accelerator efficiency (+${Math.round(def.machineSpeedBonus * 135)}%).` : `+35% eficacia al acelerador de máquinas (+${Math.round(def.machineSpeedBonus * 135)}%).` });
+        rows.push({ lv: 3, text: isEn ? `+70% machine accelerator efficiency (+${Math.round(def.machineSpeedBonus * 170)}%).` : `+70% eficacia al acelerador de máquinas (+${Math.round(def.machineSpeedBonus * 170)}%).` });
       }
 
       if (def.autoCycle && !def.autoWaterRadius && !def.cropBoost) {
         if (def.autoCoins || def.autoXp) {
-          rows.push({ lv: 1, text: isEn ? `Auto generation every ${def.autoCycle}s.` : `GeneraciÒ³n automÒ¡tica cada ${def.autoCycle}s.` });
+          rows.push({ lv: 1, text: isEn ? `Auto generation every ${def.autoCycle}s.` : `Generación automática cada ${def.autoCycle}s.` });
           rows.push({ lv: 2, text: isEn ? '+45% speed · +50% coins / +40% XP.' : '+45% velocidad · +50% monedas / +40% EXP.' });
           rows.push({ lv: 3, text: isEn ? '+90% speed · +100% coins / +80% XP.' : '+90% velocidad · +100% monedas / +80% EXP.' });
         } else if (def.autoMine || def.autoProduce) {
-          rows.push({ lv: 1, text: isEn ? `Auto production every ${def.autoCycle}s.` : `ProducciÒ³n automÒ¡tica cada ${def.autoCycle}s.` });
+          rows.push({ lv: 1, text: isEn ? `Auto production every ${def.autoCycle}s.` : `Producción automática cada ${def.autoCycle}s.` });
           rows.push({ lv: 2, text: isEn ? '+35% speed · 35% higher-purity ore chance.' : '+35% velocidad · 35% prob. mineral de mayor pureza.' });
           rows.push({ lv: 3, text: isEn ? '+70% speed · Double output per cycle (x2).' : '+70% velocidad · Doble producción por ciclo (x2).' });
         }
@@ -10726,7 +10731,7 @@
 
       if (def.autoWaterRadius) {
         rows.push({ lv: 1, text: isEn ? `Auto watering in ${def.autoWaterRadius}px radius.` : `Riego automático en radio ${def.autoWaterRadius}px.` });
-        rows.push({ lv: 2, text: isEn ? '+20% range radius and faster cycles.' : '+20% radio de alcance y ciclos mÒ¡s frecuentes.' });
+        rows.push({ lv: 2, text: isEn ? '+20% range radius and faster cycles.' : '+20% radio de alcance y ciclos más frecuentes.' });
         rows.push({ lv: 3, text: isEn ? '+40% range covering the entire garden.' : '+40% radio de alcance sobre toda la huerta.' });
       }
 
@@ -10742,7 +10747,7 @@
       const card = this.el('div', { class: 'bldg-perks-card' }, [
         this.el('div', { class: 'bldg-perks-header' }, [
           this.el('span', { class: 'bldg-perks-title' }, isEn ? 'LEVEL UPGRADE PERKS' : 'BENEFICIOS DE MEJORA POR NIVEL'),
-          this.el('span', { class: 'bldg-perks-badge' }, lvl >= 3 ? (isEn ? 'MAX LEVEL (3/3)' : 'NIVEL MÒXIMO (3/3)') : (isEn ? `CURRENT: Lv.${lvl}/3` : `ACTUAL: Nv.${lvl}/3`))
+          this.el('span', { class: 'bldg-perks-badge' }, lvl >= 3 ? (isEn ? 'MAX LEVEL (3/3)' : 'NIVEL MÁXIMO (3/3)') : (isEn ? `CURRENT: Lv.${lvl}/3` : `ACTUAL: Nv.${lvl}/3`))
         ]),
         this.el('div', { class: 'bldg-perks-list' }, tiers.map(lv => {
           const isUnlocked = lv <= lvl;
@@ -11017,15 +11022,15 @@
         this.el('button', {
           class: 'btn btn-sm ' + (this.omegaNexusTab === 'storage' ? 'btn-gold' : 'btn-stone'),
           onclick: () => { this.omegaNexusTab = 'storage'; this.renderModal(); }
-        }, 'AlmacÒ©n Virtual'),
+        }, 'Almacén Virtual'),
         this.el('button', {
           class: 'btn btn-sm ' + (this.omegaNexusTab === 'energy' ? 'btn-gold' : 'btn-stone'),
           onclick: () => { this.omegaNexusTab = 'energy'; this.renderModal(); }
-        }, 'Red de EnergÒ­a'),
+        }, 'Red de Energía'),
         this.el('button', {
           class: 'btn btn-sm ' + (this.omegaNexusTab === 'research' ? 'btn-gold' : 'btn-stone'),
           onclick: () => { this.omegaNexusTab = 'research'; this.renderModal(); }
-        }, 'InvestigaciÒ³n Omega')
+        }, 'Investigación Omega')
       ]);
       body.appendChild(tabRow);
 
@@ -11037,7 +11042,7 @@
 
         const barCard = this.el('div', { class: 'card', style: 'margin-bottom:10px;padding:10px;' }, [
           this.el('div', { style: 'display:flex;justify-content:space-between;font-size:13px;font-weight:bold;margin-bottom:6px;' }, [
-            this.el('span', { style: 'color:#b8d4ec;' }, `Capacidad de AlmacÒ©n: ${used} / ${cap} unidades`),
+            this.el('span', { style: 'color:#b8d4ec;' }, `Capacidad de Almacén: ${used} / ${cap} unidades`),
             this.el('span', { style: `color:${pct >= 95 ? '#ff5252' : '#80d8ff'};` }, `${pct}%`)
           ]),
           this.el('div', { style: 'width:100%;height:10px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden;border:1px solid rgba(128,216,255,0.3);' }, [
@@ -11065,7 +11070,7 @@
                 g.toast(`Depositados ${count} objetos en el Nexo.`, 'success');
                 this.renderModal();
               } else {
-                g.toast('No tienes recursos vÒ¡lidos para depositar.', 'warn');
+                g.toast('No tienes recursos válidos para depositar.', 'warn');
               }
             }
           }, 'Depositar Recursos Compatibles'),
@@ -11084,7 +11089,7 @@
                 g.toast(`Retirados ${count} objetos al inventario.`, 'info');
                 this.renderModal();
               } else {
-                g.toast('AlmacÒ©n virtual vacío.', 'warn');
+                g.toast('Almacén virtual vacío.', 'warn');
               }
             }
           }, 'Retirar Todo')
@@ -11105,7 +11110,7 @@
         const entries = Object.entries(nData.items || {}).filter(([k, q]) => q > 0);
         if (!entries.length) {
           itemsGrid.appendChild(this.el('div', { style: 'grid-column:1/-1;text-align:center;padding:20px;color:#8ba2b8;font-size:13px;' },
-            'AlmacÒ©n virtual vacío. Los extractores, domos y procesadoras conectadas depositarÒ¡n automáticamente sus productos aquí.'));
+            'Almacén virtual vacío. Los extractores, domos y procesadoras conectadas depositarán automáticamente sus productos aquí.'));
         } else {
           for (const [id, q] of entries) {
             const it = Balaclava.ITEMS[id] || { name: id, icon: 'piedra' };
@@ -11170,7 +11175,7 @@
 
         const statGrid = this.el('div', { style: 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;' }, [
           this.el('div', { class: 'card', style: 'padding:8px;text-align:center;' }, [
-            this.el('div', { style: 'font-size:12px;color:#a5d6a7;' }, 'GeneraciÒ³n'),
+            this.el('div', { style: 'font-size:12px;color:#a5d6a7;' }, 'Generación'),
             this.el('strong', { style: 'font-size:16px;color:#69f0ae;' }, `+${Math.round(totalGen)} W`)
           ]),
           this.el('div', { class: 'card', style: 'padding:8px;text-align:center;' }, [
@@ -11188,7 +11193,7 @@
         const allNodes = [...net.gens, ...net.consumers];
         if (!allNodes.length) {
           listWrap.appendChild(this.el('div', { style: 'text-align:center;padding:16px;color:#8ba2b8;font-size:13px;' },
-            'No hay generadores ni mÒ¡quinas conectadas a este Nexo. Coloca generadores y pilones de enlace para extender la red.'));
+            'No hay generadores ni máquinas conectadas a este Nexo. Coloca generadores y pilones de enlace para extender la red.'));
         } else {
           for (const node of allNodes) {
             const bDef = Balaclava.BUILDINGS[node.b.type];
@@ -11210,7 +11215,7 @@
                 !isGen ? this.el('button', {
                   class: 'btn btn-stone btn-sm',
                   style: 'font-size:11px;padding:2px 6px;',
-                  title: 'Cambiar prioridad energÒ©tica (1: Baja, 2: Media, 3: Alta)',
+                  title: 'Cambiar prioridad energética (1: Baja, 2: Media, 3: Alta)',
                   onclick: () => {
                     node.b.omega.prio = (node.b.omega.prio % 3) + 1;
                     this.renderModal();
@@ -11228,8 +11233,8 @@
         const researchedCount = Object.keys(state.research || {}).length;
 
         const headerCard = this.el('div', { class: 'card', style: 'padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;' }, [
-          this.el('strong', { style: 'color:#e040fb;' }, `TecnologÒ­as Omega: ${researchedCount} / ${R_LIST.length}`),
-          this.el('span', { style: 'font-size:12px;color:#b8d4ec;' }, `Singularidades en almacÒ©n: ${g.omega.nexusCount(plotKey, 'singularidad') + (g.inventory.singularidad || 0)}`)
+          this.el('strong', { style: 'color:#e040fb;' }, `Tecnologías Omega: ${researchedCount} / ${R_LIST.length}`),
+          this.el('span', { style: 'font-size:12px;color:#b8d4ec;' }, `Singularidades en almacén: ${g.omega.nexusCount(plotKey, 'singularidad') + (g.inventory.singularidad || 0)}`)
         ]);
         body.appendChild(headerCard);
 
@@ -11269,7 +11274,7 @@
                   g.toast(res.reason, 'warn');
                 }
               }
-            }, isAvail ? 'Investigar TecnologÒ­a' : (status.reason || 'Bloqueado')) : null
+            }, isAvail ? 'Investigar Tecnología' : (status.reason || 'Bloqueado')) : null
           ]);
           treeGrid.appendChild(rCard);
         }
@@ -11316,7 +11321,7 @@
 
       const compCard = this.el('div', { class: 'card', style: 'padding:12px;margin-bottom:12px;' }, [
         this.el('div', { style: 'display:flex;justify-content:space-between;margin-bottom:6px;' }, [
-          this.el('strong', { style: 'color:#ea80fc;font-size:15px;' }, `CompresiÒ³n de ${currentCat.toUpperCase()}`),
+          this.el('strong', { style: 'color:#ea80fc;font-size:15px;' }, `Compresión de ${currentCat.toUpperCase()}`),
           this.el('span', { style: 'color:#ffd54f;font-weight:bold;' }, `${totalDep} / ${cost} (${pct}%)`)
         ]),
         this.el('div', { style: 'width:100%;height:12px;background:rgba(0,0,0,0.5);border-radius:6px;overflow:hidden;border:1px solid #ba68c8;margin-bottom:10px;' }, [
@@ -11345,7 +11350,7 @@
                 g.toast(`Transferidos ${added} recursos del Nexo a la prensa.`, 'success');
                 this.renderModal();
               } else {
-                g.toast('No hay mÒ¡s recursos compatibles en el Nexo.', 'warn');
+                g.toast('No hay más recursos compatibles en el Nexo.', 'warn');
               }
             }
           }, 'Cargar Recursos del Nexo'),
@@ -11355,7 +11360,7 @@
               const r = g.omega.pressCancel(plotKey, b);
               if (r.ok) {
                 Balaclava.Audio.play('pickup');
-                g.toast('CompresiÒ³n cancelada. Materiales devueltos al Nexo.', 'info');
+                g.toast('Compresión cancelada. Materiales devueltos al Nexo.', 'info');
                 this.renderModal();
               } else {
                 g.toast(r.reason, 'warn');
@@ -11375,7 +11380,7 @@
 
       const statusCard = this.el('div', { class: 'card', style: 'padding:10px;margin-bottom:12px;' }, [
         this.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;' }, [
-          this.el('strong', { style: 'color:#80d8ff;font-size:15px;' }, 'Estado de la SimulaciÒ³n'),
+          this.el('strong', { style: 'color:#80d8ff;font-size:15px;' }, 'Estado de la Simulación'),
           this.el('span', {
             style: `font-size:11px;font-weight:900;padding:2px 6px;border-radius:3px;background:${o.crystal ? '#00c853' : '#37474f'};color:#fff;`
           }, o.crystal ? 'SIMULANDO' : 'INACTIVA')
@@ -11493,7 +11498,7 @@
           this.el('span', { style: 'color:#80d8ff;font-weight:bold;' }, `Bonus Actual: +${curPct}%`)
         ]),
         this.el('div', { style: 'font-size:13px;color:#dce8f5;line-height:1.45;' },
-          `Tipo de Sobrecarga: ${info.cat === 'damage' ? 'Daño Bruto' : (info.cat === 'defense' ? 'Defensa y Salud' : 'Potencia de ExtracciÒ³n')}. Siguiente nivel: +${nextPct}%. Fórmulas de coste exponencial Base × 1.35^Nivel.`)
+          `Tipo de Sobrecarga: ${info.cat === 'damage' ? 'Daño Bruto' : (info.cat === 'defense' ? 'Defensa y Salud' : 'Potencia de Extracción')}. Siguiente nivel: +${nextPct}%. Fórmulas de coste exponencial Base × 1.35^Nivel.`)
       ]);
       body.appendChild(infoCard);
 
@@ -11542,7 +11547,7 @@
           }
         }
       }, [
-        this.el('strong', {}, `MÒ¡ximo Posible (+${maxN})`),
+        this.el('strong', {}, `Máximo Posible (+${maxN})`),
         this.el('span', { style: 'font-size:11px;' }, maxQuote ? g.omega.fmtMap(maxQuote.cost) : 'Sin recursos suficientes')
       ]));
 
@@ -11566,11 +11571,11 @@
         : (o.job && o.job.power ? o.job.power : (def.omega.power || 0));
 
       const energyDesc = isGen
-        ? `+${powerVal} W/s (ProducciÒ³n Energética)`
+        ? `+${powerVal} W/s (Producción Energética)`
         : isBat
         ? `+${(def.omega.capBonus && def.omega.capBonus[lvlIdx]) || 5000} W·s (Reserva de Batería)`
         : isPylon
-        ? `Capacidad de transmisiÒ³n: ${((Balaclava.OMEGA_CONFIG && Balaclava.OMEGA_CONFIG.pylonCapacity) || [60, 180, 540])[lvlIdx]} W/s`
+        ? `Capacidad de transmisión: ${((Balaclava.OMEGA_CONFIG && Balaclava.OMEGA_CONFIG.pylonCapacity) || [60, 180, 540])[lvlIdx]} W/s`
         : `-${powerVal} W/s (Consumo de Red)`;
 
       const card = this.el('div', { class: 'card', style: 'padding:12px;margin-bottom:12px;' }, [
@@ -11614,13 +11619,13 @@
         const recipes = (Balaclava.OmegaSystem.MACHINE_RECIPES && Balaclava.OmegaSystem.MACHINE_RECIPES[mtype]) || [];
         const curRec = o.recipe || 'auto';
         const recBox = this.el('div', { class: 'card', style: 'padding:10px;margin-bottom:10px;' }, [
-          this.el('strong', { style: 'color:#ffe082;display:block;margin-bottom:8px;font-size:14px;' }, 'Receta de Procesamiento (AutomÒ¡tico o Fijo):')
+          this.el('strong', { style: 'color:#ffe082;display:block;margin-bottom:8px;font-size:14px;' }, 'Receta de Procesamiento (Automático o Fijo):')
         ]);
         const btnWrap = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;' });
         btnWrap.appendChild(this.el('button', {
           class: 'btn btn-sm ' + (curRec === 'auto' ? 'btn-gold' : 'btn-stone'),
           onclick: () => { o.recipe = 'auto'; this.renderModal(); }
-        }, 'AutomÒ¡tico (Cualquier Receta Disponible)'));
+        }, 'Automático (Cualquier Receta Disponible)'));
         for (const r of recipes) {
           const unlocked = !r.reqResearch || g.omega.hasResearch(r.reqResearch);
           btnWrap.appendChild(this.el('button', {
@@ -11660,12 +11665,12 @@
         const cyc = (def.omega && def.omega.cycleSec) || 20;
         const pct = Math.min(100, Math.round(((o.progress || 0) / cyc) * 100));
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'padding:10px;font-size:13px;' }, [
-          this.el('strong', { style: 'color:#ea80fc;display:block;margin-bottom:6px;' }, `Progreso de CondensaciÒ³n Pura: ${pct}%`),
+          this.el('strong', { style: 'color:#ea80fc;display:block;margin-bottom:6px;' }, `Progreso de Condensación Pura: ${pct}%`),
           this.el('div', { style: 'width:100%;height:10px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden;border:1px solid #ea80fc;margin-bottom:6px;' }, [
             this.el('div', { style: `width:${pct}%;height:100%;background:linear-gradient(90deg, #7b1fa2, #e040fb);` })
           ]),
           this.el('div', { style: 'color:#dce8f5;line-height:1.4;' },
-            'Cada ciclo de 20s a 500 W/s genera Polvo Estelar x2, Cristales MÒ¡gicos x2 y un 25% de probabilidad de Materia Comprimida directamente en el Nexo.')
+            'Cada ciclo de 20s a 500 W/s genera Polvo Estelar x2, Cristales Mágicos x2 y un 25% de probabilidad de Materia Comprimida directamente en el Nexo.')
         ]));
       }
     }
@@ -11780,12 +11785,12 @@
           this.el('span', { style: 'color:#80deea;font-weight:700;' }, `${totalStored} / ${cap} unidades`)
         ]),
         this.el('div', { style: 'font-size:14px;color:#b0bec5;margin-top:4px;' },
-          'Las mÒ¡quinas conectadas por tuberÒ­as envÒ­an automáticamente su exceso a este cofre cuando se llenan.'
+          'Las máquinas conectadas por tuberías envían automáticamente su exceso a este cofre cuando se llenan.'
         )
       ]));
 
       const filterWrap = this.el('div', { class: 'card', style: 'margin-bottom:12px;' });
-      filterWrap.appendChild(this.el('strong', { style: 'color:#ffb74d;display:block;margin-bottom:6px;' }, 'Filtro de RecepciÒ³n (Objetos aceptados):'));
+      filterWrap.appendChild(this.el('strong', { style: 'color:#ffb74d;display:block;margin-bottom:6px;' }, 'Filtro de Recepción (Objetos aceptados):'));
       const activeFilterText = b.filters.length > 0
         ? b.filters.map(fid => (Balaclava.ITEMS[fid]?.name || fid)).join(', ')
         : 'Todos los objetos permitidos (Sin filtro restrictivo)';
@@ -11797,7 +11802,7 @@
         ['piedra', 'Piedra'],
         ['hierro', 'Hierro'],
         ['oro', 'Oro'],
-        ['carbon', 'CarbÒ³n'],
+        ['carbon', 'Carbón'],
         ['tablon', 'Tablones'],
         ['lingote_hierro', 'L. Hierro']
       ];
@@ -11836,7 +11841,7 @@
       const stKeys = Object.keys(b.storage).filter(k => b.storage[k] > 0);
       body.appendChild(this.el('h4', { style: 'margin:8px 0;color:#80cbc4;' }, 'Contenido del Cofre (Retiro Gradual):'));
       if (stKeys.length === 0) {
-        body.appendChild(this.el('div', { class: 'card', style: 'color:#90a4ae;margin-bottom:12px;' }, 'El cofre logÒ­stico está vacío actualmente.'));
+        body.appendChild(this.el('div', { class: 'card', style: 'color:#90a4ae;margin-bottom:12px;' }, 'El cofre logístico está vacío actualmente.'));
       } else {
         const grid = this.el('div', { style: 'display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto;' });
         stKeys.forEach(k => {
@@ -11910,7 +11915,7 @@
               const curTot = Object.values(b.storage).reduce((s, q) => s + (Number(q) || 0), 0);
               const space = Math.max(0, cap - curTot);
               if (space <= 0) {
-                g.toast('El cofre logÒ­stico está lleno', 'warn');
+                g.toast('El cofre logístico está lleno', 'warn');
                 return;
               }
               const depositQty = Math.min(count, Math.min(10, space));
@@ -12483,22 +12488,22 @@
           '/money <give|set|take> <n>  - Modificar monedas (/coins, /gold)',
           '/xp <give|set> <n>          - Dar o fijar experiencia',
           '/level <set|add> <n>        - Subir o fijar nivel (/lvl)',
-          '/sp <give|set> <n>          - Puntos de ConstelaciÒ³n',
+          '/sp <give|set> <n>          - Puntos de Constelación',
           '/godmode [on|off]           - Inmortalidad y energía infinita (/god)',
-          '/heal                       - Curar HP/EnergÒ­a al máximo y revivir',
+          '/heal                       - Curar HP/Energía al máximo y revivir',
           '/stat <add|set|reset|list> <stat> [val] - Modificar stats (ej. 50% o 200)',
-          '/unlock <plots|skills|spells|all> - Desbloquear islas, Ò¡rbol o hechizos',
-          '/time <dawn|day|dusk|night|0..1>  - Cambiar hora del dÒ­a',
+          '/unlock <plots|skills|spells|all> - Desbloquear islas, árbol o hechizos',
+          '/time <dawn|day|dusk|night|0..1>  - Cambiar hora del día',
           '/tp <camp | tx ty>          - Teletransporte a campamento o tile',
           '/boss <id|next|final|list>  - Ir directo a la arena del jefe (/boss eclipse_carmesi)',
-          '/spawnboss <id>             - Invocar jefe en tu posiciÒ³n actual',
+          '/spawnboss <id>             - Invocar jefe en tu posición actual',
           '/hud [on|off]               - Ocultar/mostrar HUD para capturas (/photo)',
-          '/spectator [on|off]         - CÒ¡mara libre invisible e inmortal (WASD)',
+          '/spectator [on|off]         - Cámara libre invisible e inmortal (WASD)',
           '/freezeai [on|off]          - Congelar/reanudar IA de enemigos y jefes',
-          '/zoom <0.4..2.5|reset>      - Ajustar zoom cinematogrÒ¡fico',
+          '/zoom <0.4..2.5|reset>      - Ajustar zoom cinematográfico',
           '/vfx <key|list>             - Lanzar efecto visual Gigapack sobre ti',
           '/clearmobs                  - Limpiar enemigos menores y proyectiles',
-          '/trailer [eclipse|camp|off] - Preparar escena Ò©pica de trailer al instante',
+          '/trailer [eclipse|camp|off] - Preparar escena épica de trailer al instante',
           '/clear                      - Limpiar pantalla'
         ].forEach(line => this._pushCmdLog(line, 'info'));
         return { ok: true, message: 'help' };
@@ -12526,7 +12531,7 @@
           const allQty = args.length >= 2 && /^\d+$/.test(args[1]) ? qty : 50;
           const ids = Object.keys(ITEMS);
           ids.forEach(id => g.addItem(id, allQty));
-          return succeed(`AÒ±adidos ${ids.length} tipos de items (x${allQty}).`);
+          return succeed(`Añadidos ${ids.length} tipos de items (x${allQty}).`);
         }
 
         if (q === 'kit') {
@@ -12645,7 +12650,7 @@
         const slots = (slotReq === 'all' || slotReq === 'todas' || slotReq === 'todo')
           ? Object.keys(ARMORS)
           : (aliasMap[slotReq] ? [aliasMap[slotReq]] : []);
-        if (!slots.length) return fail('Slot invÒ¡lido. Usa helm, armor, shield, boots o all.');
+        if (!slots.length) return fail('Slot inválido. Usa helm, armor, shield, boots o all.');
         slots.forEach(sl => {
           const chain = ARMORS[sl];
           if (!chain || !chain.tiers.length) return;
@@ -12669,7 +12674,7 @@
           numRaw = args[1];
         }
         const amt = Number(numRaw);
-        if (!Number.isFinite(amt) || amt < 0) return fail('Cantidad invÒ¡lida.');
+        if (!Number.isFinite(amt) || amt < 0) return fail('Cantidad inválida.');
         const val = Math.min(1000000000, Math.floor(amt));
         if (mode === 'set') {
           g.coins = val;
@@ -12694,7 +12699,7 @@
           numRaw = args[1];
         }
         const amt = Number(numRaw);
-        if (!Number.isFinite(amt) || amt < 0) return fail('Cantidad de XP invÒ¡lida.');
+        if (!Number.isFinite(amt) || amt < 0) return fail('Cantidad de XP inválida.');
         const val = Math.floor(amt);
         if (mode === 'set') {
           g.player.xp = val;
@@ -12722,7 +12727,7 @@
           numRaw = args[1];
         }
         const amt = Number(numRaw);
-        if (!Number.isFinite(amt)) return fail('Nivel invÒ¡lido.');
+        if (!Number.isFinite(amt)) return fail('Nivel inválido.');
         const oldLv = g.player.level;
         const target = mode === 'add' || mode === 'give'
           ? oldLv + Math.floor(amt)
@@ -12747,10 +12752,10 @@
           numRaw = args[1];
         }
         const amt = Number(numRaw);
-        if (!Number.isFinite(amt) || amt < 0) return fail('Cantidad invÒ¡lida.');
+        if (!Number.isFinite(amt) || amt < 0) return fail('Cantidad inválida.');
         const val = Math.floor(amt);
         g.player.skillPoints = mode === 'set' ? val : g.player.skillPoints + val;
-        return succeed(`Puntos de ConstelaciÒ³n: ${g.player.skillPoints}.`);
+        return succeed(`Puntos de Constelación: ${g.player.skillPoints}.`);
       }
 
       if (cmd === 'godmode' || cmd === 'god' || cmd === 'inmortal') {
@@ -12781,7 +12786,7 @@
         if (typeof g.addFloatingText === 'function') {
           g.addFloatingText(g.player.x, g.player.y - 28, '+MAX HP/EN', '#81c784');
         }
-        return succeed(`Salud (${g.player.hp}/${g.player.maxHp}) y EnergÒ­a (${g.player.energy}/${g.player.maxEnergy}) restauradas.`);
+        return succeed(`Salud (${g.player.hp}/${g.player.maxHp}) y Energía (${g.player.energy}/${g.player.maxEnergy}) restauradas.`);
       }
 
       if (cmd === 'stat' || cmd === 'stats' || cmd === 'buff') {
@@ -12807,7 +12812,7 @@
           }
           g.player.bonusStats = {};
           g.recomputeModifiers();
-          return succeed('Todos los bonus de estadÒ­sticas reiniciados.');
+          return succeed('Todos los bonus de estadísticas reiniciados.');
         }
 
         if ((sub !== 'add' && sub !== 'set') || args.length < 3) {
@@ -12819,7 +12824,7 @@
         const rawVal = String(args[2]).trim();
         const isPctInput = rawVal.endsWith('%');
         const numParsed = Number(isPctInput ? rawVal.slice(0, -1) : rawVal);
-        if (!Number.isFinite(numParsed)) return fail(`Valor numÒ©rico invÒ¡lido: "${args[2]}"`);
+        if (!Number.isFinite(numParsed)) return fail(`Valor numérico inválido: "${args[2]}"`);
         const delta = isPctInput ? (numParsed / 100) : numParsed;
 
         if (sub === 'set') {
@@ -12899,7 +12904,7 @@
           g.dayTime = preset[tArg];
         } else {
           const num = Number(tArg);
-          if (!Number.isFinite(num)) return fail('Hora invÒ¡lida. Usa dawn, day, dusk, night o un nÒºmero 0..1.');
+          if (!Number.isFinite(num)) return fail('Hora inválida. Usa dawn, day, dusk, night o un número 0..1.');
           g.dayTime = ((num % 1) + 1) % 1;
         }
         return succeed(`Hora ajustada (${g.getDayPhase ? g.getDayPhase().label : g.dayTime}).`);
@@ -12925,7 +12930,7 @@
         if (args.length < 2) return fail('Uso: /tp <camp | tx ty>');
         const tx = Number(args[0]);
         const ty = Number(args[1]);
-        if (!Number.isFinite(tx) || !Number.isFinite(ty)) return fail('Coordenadas de tile invÒ¡lidas.');
+        if (!Number.isFinite(tx) || !Number.isFinite(ty)) return fail('Coordenadas de tile inválidas.');
         const clampedX = Math.max(1, Math.min(WORLD_TILES - 2, tx));
         const clampedY = Math.max(1, Math.min(WORLD_TILES - 2, ty));
         g.player.x = (clampedX + 0.5) * TILE_SIZE;

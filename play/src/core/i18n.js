@@ -2752,7 +2752,48 @@
     return currentLang;
   }
 
+  function getStationName(stationId) {
+    const isEn = currentLang === 'en';
+    const map = isEn ? {
+      mano: 'By Hand / Basic Craft',
+      mesa_artesania: 'Crafting Table',
+      fogata: 'Campfire',
+      horno: 'Furnace',
+      aserradero: 'Sawmill',
+      molino: 'Mill',
+      telar: 'Loom',
+      cocina: 'Kitchen',
+      forja: 'Forge',
+      fundicion: 'Blast Furnace',
+      alquimia: 'Alchemy Table',
+      taller: 'Mechanical Workshop',
+      laboratorio: 'Laboratory',
+      investigacion: 'Research Center',
+      mesa_hechiceria: 'Sorcery Table',
+      yunque_runico: 'Runic Anvil'
+    } : {
+      mano: 'A Mano / Artesanía',
+      mesa_artesania: 'Mesa de Artesanía',
+      fogata: 'Fogata de Campamento',
+      horno: 'Horno',
+      aserradero: 'Aserradero',
+      molino: 'Molino',
+      telar: 'Telar',
+      cocina: 'Cocina',
+      forja: 'Forja',
+      fundicion: 'Fundición Avanzada',
+      alquimia: 'Mesa de Alquimia',
+      taller: 'Taller Mecánico',
+      laboratorio: 'Laboratorio',
+      investigacion: 'Centro de Investigación',
+      mesa_hechiceria: 'Mesa de Hechicería',
+      yunque_runico: 'Yunque Rúnico'
+    };
+    return map[stationId] || stationId;
+  }
+
   Balaclava.I18n = {
+    getStationName,
     DEFAULT_LANG,
     SUPPORTED_LANGS,
     LANG_STORAGE_KEY,

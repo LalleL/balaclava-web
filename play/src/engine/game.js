@@ -1483,8 +1483,8 @@
       for (const b of this.buildings) {
         const def = Balaclava.BUILDINGS && Balaclava.BUILDINGS[b.type];
         if (!def) continue;
-        if (def.station === station || (station === 'investigacion' && def.station === 'forja')) {
-          const matchesPrimary = def.station === station;
+        if (def.station === station || (station === 'mesa_artesania' && b.type === 'mesa_artesania') || (station === 'investigacion' && def.station === 'forja')) {
+          const matchesPrimary = def.station === station || (station === 'mesa_artesania' && b.type === 'mesa_artesania');
           if (matchesPrimary) {
             best = Math.max(best, Number(b.level) || 1);
           } else if (best === 1 && def.station === 'forja' && !this.hasStationAvailable('investigacion')) {
@@ -2144,6 +2144,9 @@
 
     hasStationAvailable(station) {
       if (station === 'mano') return true;
+      if (station === 'mesa_artesania') {
+        return this.buildings.some(b => b.type === 'mesa_artesania' || (Balaclava.BUILDINGS[b.type] && Balaclava.BUILDINGS[b.type].station === 'mesa_artesania'));
+      }
       return this.buildings.some(b => Balaclava.BUILDINGS[b.type] && Balaclava.BUILDINGS[b.type].station === station);
     }
 
@@ -2176,7 +2179,8 @@
       }
 
       // Iron+ tiers require Forja
-      if (nextTier !== 'mejorada' && !this.hasStationAvailable('forja')) {
+      const needsForge = nextTier !== 'mejorada' && nextTier !== 'cobre';
+      if (needsForge && !this.hasStationAvailable('forja')) {
         this.toast(T('toast.needForgeTier'), 'warn');
         Balaclava.Audio.play('error');
         return false;
@@ -2201,7 +2205,7 @@
       for (const [id, q] of Object.entries(cost.items)) {
         this.removeItem(id, q);
       }
-      const upStation = nextTier !== 'mejorada' ? 'forja' : 'mesa';
+      const upStation = (nextTier !== 'mejorada' && nextTier !== 'cobre') ? 'forja' : 'mesa';
       const stLv = this.getBestStationLevel(upStation);
       const dur = this.getToolUpgradeDuration(nextTier, upStation);
       const tierName = Balaclava.TIER_META[nextTier] ? Balaclava.TIER_META[nextTier].name : nextTier;
@@ -2214,7 +2218,7 @@
         targetTier: nextTier,
         qty: 1,
         xp: Math.round(40 * (1 + (this.mods.craftXp || 0) + (stLv - 1) * 0.20)),
-        station: nextTier !== 'mejorada' ? 'forja' : 'mano',
+        station: (nextTier !== 'mejorada' && nextTier !== 'cobre') ? 'forja' : 'mano',
         totalTime: dur,
         elapsed: 0
       });
@@ -2317,7 +2321,12 @@
         ? (this.hasStationAvailable('investigacion') || this.hasStationAvailable('forja'))
         : this.hasStationAvailable(mat.station);
       if (!stOk) {
-        this.toast(T('toast.needForgeTier'), 'warn');
+        const stLabel = (Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(mat.station) : mat.station;
+        if (mat.station && mat.station !== 'forja') {
+          this.toast(T('toast.stationRequiredUpper', { station: stLabel.toUpperCase() }), 'warn');
+        } else {
+          this.toast(T('toast.needForgeTier'), 'warn');
+        }
         Balaclava.Audio.play('error');
         return false;
       }

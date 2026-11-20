@@ -169,10 +169,10 @@
 
   // ==================== generators ====================
   const GENERATORS = {
-    gen_vapor:            { out: 20,   fuels: [{ id: 'carbon', t: 40 }, { id: 'carbon_vegetal', t: 30 }, { id: 'madera', t: 12 }], biome: null },
-    gen_geotermico:       { out: 90,   fuels: [{ id: 'esencia_magma', t: 90 }, { id: 'material_volcanico', t: 45 }, { id: 'escoria_caldera', t: 35 }, { id: 'obsidiana', t: 30 }], biome: { tierras_volcanicas: 1.25, caldera_ceniza: 1.35, tierras_malditas: 1.35 } },
+    gen_vapor:            { out: 20,   fuels: [{ id: 'carbon_eterno', t: 120 }, { id: 'carbon', t: 40 }, { id: 'tablon', t: 20 }, { id: 'madera', t: 12 }], biome: null },
+    gen_geotermico:       { out: 90,   fuels: [{ id: 'esencia_magma', t: 90 }, { id: 'material_volcanico', t: 45 }, { id: 'escoria_caldera', t: 35 }, { id: 'obsidiana_refinada', t: 55 }, { id: 'obsidiana_bruta', t: 30 }], biome: { tierras_volcanicas: 1.25, caldera_ceniza: 1.35, tierras_malditas: 1.35 } },
     nucleo_arcano:        { out: 320,  fuels: [{ id: 'cristales_magicos', t: 120 }, { id: 'polvo_estelar', t: 240 }, { id: 'cristales', t: 60 }, { id: 'tinta_arcana', t: 80 }], biome: null },
-    reactor_singularidad: { out: 4000, fuels: [{ id: 'singularidad', t: 900 }, { id: 'materia_oscura', t: 350 }, { id: 'gema_vacio', t: 450 }], biome: null }
+    reactor_singularidad: { out: 4000, fuels: [{ id: 'singularidad', t: 900 }, { id: 'materia_comprimida', t: 350 }, { id: 'gema_vacio', t: 450 }], biome: null }
   };
   const GEN_LEVEL_MULT = [1, 1.6, 2.4];
 

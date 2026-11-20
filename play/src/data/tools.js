@@ -250,8 +250,11 @@
       platinum_vein: 5, crystal_node: 6, emerald_vein: 6, azurite_vein: 6,
       ruby_node: 7, sapphire_node: 7, amethyst_vein: 7,
       volcanic_rock: 8, diamond_vein: 8, bloodstone_vein: 8, abyssal_crystal_vein: 8, mithril_vein: 8, meteor: 8,
-      titanium_vein: 9, magma_core_vein: 9, adamantite_vein: 10,
-      orichalcum_vein: 11, oricalco_vein: 11, obsidian_vein: 11
+      coral_abisal_node: 8, perla_turquesa_node: 8, cuarzo_boreal_node: 8, celestita_node: 8, jade_ancestral_node: 8, escoria_caldera_node: 8,
+      titanium_vein: 9, magma_core_vein: 9,
+      adamantite_vein: 10, pirita_solar_node: 10, agata_roja_node: 10, resina_toxica_node: 10,
+      orichalcum_vein: 11, oricalco_vein: 11, obsidian_vein: 11,
+      hielo_eterno_node: 11, bismuto_astral_node: 11, hueso_fosil_node: 11, plata_maldita_node: 11, cristal_carmesi_node: 11, marmol_oscuro_node: 11
     };
     return reqs[nodeKind] ?? 0;
   }
@@ -267,7 +270,11 @@
       'sulfur_vein', 'jade_vein', 'amethyst_vein', 'bloodstone_vein', 'crystal_node', 'emerald_vein', 'ruby_node',
       'sapphire_node', 'diamond_vein', 'mithril_vein', 'volcanic_rock', 'ice_crystal', 'meteor', 'ruin_pillar',
       'malachite_vein', 'amber_vein', 'star_sand_vein', 'azurite_vein', 'abyssal_crystal_vein', 'titanium_vein',
-      'orichalcum_vein', 'oricalco_vein', 'obsidian_vein', 'magma_core_vein'
+      'adamantite_vein', 'orichalcum_vein', 'oricalco_vein', 'obsidian_vein', 'magma_core_vein',
+      'coral_abisal_node', 'perla_turquesa_node', 'cuarzo_boreal_node', 'celestita_node',
+      'jade_ancestral_node', 'escoria_caldera_node', 'pirita_solar_node', 'agata_roja_node',
+      'hielo_eterno_node', 'bismuto_astral_node', 'resina_toxica_node', 'hueso_fosil_node',
+      'plata_maldita_node', 'cristal_carmesi_node', 'marmol_oscuro_node'
     ]);
     const woodNodes = new Set(['tree', 'giant_tree', 'cactus']);
     const forageNodes = new Set(['bush', 'herb_patch', 'mushroom_node', 'wild_crop_patch']);
