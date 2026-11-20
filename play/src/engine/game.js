@@ -3441,7 +3441,7 @@
     getSpellLevel(spellId) {
       if (!this.spellLevels) this.spellLevels = {};
       return Math.max(1, Math.min(5, parseInt(this.spellLevels[spellId], 10) || 1));
-    },
+    }
 
     getSpellUpgradeCost(spellId) {
       const cur = this.getSpellLevel(spellId);
@@ -3453,14 +3453,14 @@
         coins: coinCost,
         crystals: crystalCost
       };
-    },
+    }
 
     canUpgradeSpell(spellId) {
       const cost = this.getSpellUpgradeCost(spellId);
       if (!cost) return false;
       const availableCrystals = (this.inventory.cristales_magicos || 0) + (this.inventory.cristales || 0);
       return this.coins >= cost.coins && availableCrystals >= cost.crystals;
-    },
+    }
 
     upgradeSpell(spellId) {
       const cost = this.getSpellUpgradeCost(spellId);
@@ -3491,7 +3491,7 @@
       this.toast(`¡${sName} mejorado a Nivel ${cost.level}! (+25% daño, -8% recarga)`, 'success');
       this.uiDirty = true;
       return true;
-    },
+    }
 
     castSpell(slotIdxOrId, targetWx = null, targetWy = null) {
       if (!this.started || this.paused || this.isPlayerDead()) return false;
