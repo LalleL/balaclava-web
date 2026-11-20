@@ -815,7 +815,7 @@
     const contentEl = document.getElementById('patch-notes-content');
     if (!tabsEl || !contentEl) return;
 
-    const versions = [DATA.patchNotes['1.3.0'], DATA.patchNotes['1.2.1']];
+    const versions = [DATA.patchNotes['1.3.2'], DATA.patchNotes['1.3.1'], DATA.patchNotes['1.3.0'], DATA.patchNotes['1.2.1']].filter(Boolean);
     tabsEl.innerHTML = '';
     versions.forEach((ver) => {
       tabsEl.appendChild(el('button', {
@@ -830,7 +830,7 @@
       }, ver.label));
     });
 
-    const active = DATA.patchNotes[state.activePatchVer] || DATA.patchNotes['1.3.0'];
+    const active = DATA.patchNotes[state.activePatchVer] || DATA.patchNotes['1.3.2'] || DATA.patchNotes['1.3.0'];
     const sections = pickLang(active.sectionsEs, active.sectionsEn);
 
     contentEl.innerHTML = '';

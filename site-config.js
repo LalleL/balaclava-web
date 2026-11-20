@@ -20,8 +20,8 @@ window.BALACLAVA_SITE_CONFIG = {
 
   // 4. Datos técnicos del archivo descargable
   fileName: 'Balaclava.exe',
-  fileSizeEs: '32.85 MB',
-  fileSizeEn: '32.85 MB',
+  fileSizeEs: '31.94 MB',
+  fileSizeEn: '31.94 MB',
   releaseDateEs: '19 Nov 2026',
   releaseDateEn: 'Nov 19, 2026',
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',

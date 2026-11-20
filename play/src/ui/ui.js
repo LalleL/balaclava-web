@@ -10287,8 +10287,46 @@
           sections: sections132
         },
         {
+          id: '1.3.1',
+          label: 'Beta 1.3.1',
+          pill: 'BETA v1.3.1',
+          subtitle: isEn ? 'Spell Leveling, Omega Power & Proportions' : 'Nivel de Hechizos, Red Omega & Escala 2x2',
+          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.1 Release Notes' : 'BALACLAVA — Notas de la Versión Beta 1.3.1',
+          heroSub: isEn
+            ? 'Central Nexus auto-vacuum, Spell Leveling Lv.1-5, Smart Collector Tower, Trash Bin fix and 2x2 grand building proportions.'
+            : 'Nexo Central autónomo, subida de nivel de hechizos (Nv.1-5), Torre Recolectora inteligente, Basurero reparado y edificios grandes 2x2.',
+          sections: [
+            {
+              badge: 'RED OMEGA',
+              color: '#80d8ff',
+              icon: 'energia',
+              title: isEn ? 'Autonomous Nexus & Energy Grid' : 'Nexo Central Autónomo y Energía',
+              items: isEn ? [
+                'Central Nexus passively vacuums nearby fuels and drops on the island.',
+                'Collector Towers refuel adjacent furnaces/generators and deposit surplus into the Nexus.'
+              ] : [
+                'El Nexo Central absorbe automáticamente combustibles y drops en la isla.',
+                'Las Torres Recolectoras abastecen hornos/generadores cercanos y envían excedentes al Nexo.'
+              ]
+            },
+            {
+              badge: 'HECHIZOS & PROPORCIONES',
+              color: '#b388ff',
+              icon: 'libro_hechizos',
+              title: isEn ? 'Spell Leveling (Lv.1-5) & 2x2 Scaling' : 'Niveles de Hechizos y Proporciones 2x2',
+              items: isEn ? [
+                'Upgrade every spell up to Lv.5 in the Grimoire (+25% damage, -8% cooldown per level).',
+                'Banks, Trade Houses and Grand Towers resized to 2x2; Trash Bin properly scaled down.'
+              ] : [
+                'Sube de nivel todos los hechizos hasta Nv.5 en el Grimorio (+25% daño, -8% cooldown).',
+                'Bancos, Casas de Comercio y Torres grandes ampliadas a 2x2; Basurero proporcionado.'
+              ]
+            }
+          ]
+        },
+        {
           id: '1.3.0',
-          label: 'Beta 1.3.2',
+          label: 'Beta 1.3.0',
           pill: 'BETA v1.3.0',
           subtitle: isEn ? '361-Island Expansion & Crimson Abyss' : 'Gran Expansion Beta 1.3.0',
           heroTitle: isEn ? 'BALACLAVA — Beta 1.3.0 Release Notes' : 'BALACLAVA — Notas de la Version Beta 1.3.0',
