@@ -9,7 +9,7 @@
  */
 window.BALACLAVA_SITE_CONFIG = {
   // 1. Enlace principal de descarga directa (GitHub Releases)
-  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v1.3.3-beta/Balaclava.exe',
+  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v1.3.3/balaclava.exe',
 
   // 2. Enlace alternativo / mirror opcional (déjalo vacío '' si no usas mirror)
   mirrorUrl: '',
@@ -19,9 +19,9 @@ window.BALACLAVA_SITE_CONFIG = {
   versionLabel: 'Beta 1.3.3',
 
   // 4. Datos técnicos del archivo descargable
-  fileName: 'Balaclava.exe',
-  fileSizeEs: '31.95 MB',
-  fileSizeEn: '31.95 MB',
+  fileName: 'balaclava.exe',
+  fileSizeEs: '33.59 MB',
+  fileSizeEn: '33.59 MB',
   releaseDateEs: '20 Nov 2026',
   releaseDateEn: 'Nov 20, 2026',
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
