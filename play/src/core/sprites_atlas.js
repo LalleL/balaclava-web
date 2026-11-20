@@ -719,7 +719,7 @@
     spell_llamado_horda: VERARC_BASE + 'Spells/counterspell.png',
     spell_llamado_fauna: VERARC_BASE + 'Spells/summoning_spell.png',
 
-    // === FASE 5: NUEVAS ARMAS, BÒ�� �"Ò⬠â����Ò�â��šÒ�a�CULOS, VARITAS Y ARQUETIPOS (UNIFICADO 32x32) ===
+    // === FASE 5: NUEVAS ARMAS, BÁCULOS, VARITAS Y ARQUETIPOS (UNIFICADO 32x32) ===
     dagger_iron: 'assets/icons_extra/dagger_iron.png',
     dagger_steel: 'assets/icons_extra/dagger_steel.png',
     dagger_gold: 'assets/icons_extra/dagger_gold.png',
@@ -1372,14 +1372,14 @@
     bosque_arana:       'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Purple Buildings/Tower.png',
     bosque_pantano:     'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Purple Buildings/Barracks.png',
 
-    // Bioma MontaÒ�� �"Ò⬠â����Ò�â��šÒ�a�±as Heladas
+    // Bioma Montañas Heladas
     montanas_heladas:   'assets/sprites_extra/gate_montanas_heladas.png',
     montanas_glaciar:   'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Monastery.png',
     montanas_mina:      'assets/packs/Tiny Swords/Tiny Swords (Update 010)/Resources/Gold Mine/GoldMine_Active.png',
     montanas_fortaleza: 'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png',
     montanas_cumbre:    'assets/sprites_v13/gates/gate_glaciar.png',
 
-    // Bioma Tierras VolcÒ�� �"Ò⬠â����Ò�â��šÒ�a�¡nicas
+    // Bioma Tierras Volcánicas
     tierras_volcanicas: 'assets/sprites_extra/gate_tierras_volcanicas.png',
     volcan_abismo:      'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Black Buildings/Castle.png',
     volcan_fragua:      'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Black Buildings/Barracks.png',
@@ -2309,6 +2309,17 @@
       img.style.width = size + 'px';
       img.style.height = size + 'px';
       img.draggable = false;
+      img.onerror = () => {
+        try {
+          const fallbackCanvas = assets.getItemIconCanvas(iconType);
+          if (fallbackCanvas && img.parentNode) {
+            fallbackCanvas.style.width = size + 'px';
+            fallbackCanvas.style.height = size + 'px';
+            fallbackCanvas.className = 'pixel-img';
+            img.parentNode.replaceChild(fallbackCanvas, img);
+          }
+        } catch (_) {}
+      };
       return img;
     }
     const c = assets.getItemIconCanvas(iconType);

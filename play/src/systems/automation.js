@@ -264,7 +264,91 @@
       return remaining < qty;
     }
 
-    collectFromBuilding(game, b) {
+    routeCollectorItem(game, collector, itemId, qty) {
+      if (!itemId || qty <= 0) return true;
+      let remaining = qty;
+      const cx = (collector.tx + 0.5) * TILE_SIZE;
+      const cy = (collector.ty + 0.5) * TILE_SIZE;
+      const radius = (Balaclava.BUILDINGS[collector.type] && Balaclava.BUILDINGS[collector.type].collectRadius) || 6;
+      const maxDist = radius * TILE_SIZE;
+
+      // 1. Try feeding nearby machines that need this item (fuels, ores)
+      for (const b of (game.buildings || [])) {
+        if (b === collector) continue;
+        const bDef = Balaclava.BUILDINGS[b.type];
+        if (!bDef) continue;
+        const bx = (b.tx + 0.5) * TILE_SIZE;
+        const by = (b.ty + 0.5) * TILE_SIZE;
+        if (Balaclava.Utils.dist(cx, cy, bx, by) > maxDist) continue;
+
+        // Fuel consumer that needs fuel (Horno, Forja, etc.)
+        if (bDef.usesFuel && (itemId === 'carbon' || itemId === 'madera')) {
+          if ((b.fuel || 0) < 20) {
+            const addFuel = itemId === 'carbon' ? 5 : 2;
+            const takeQty = Math.min(remaining, Math.ceil((25 - (b.fuel || 0)) / addFuel));
+            if (takeQty > 0) {
+              b.fuel = (b.fuel || 0) + takeQty * addFuel;
+              b.noFuel = false;
+              remaining -= takeQty;
+              if (remaining <= 0) return true;
+            }
+          }
+        }
+
+        // Generator that uses this fuel directly (Gen Vapor, Geotérmico, etc.)
+        const genDef = Balaclava.OmegaSystem && Balaclava.OmegaSystem.GENERATORS && Balaclava.OmegaSystem.GENERATORS[b.type];
+        if (genDef && Array.isArray(genDef.fuels) && genDef.fuels.some(f => f.id === itemId)) {
+          b.storage = b.storage || {};
+          const cur = b.storage[itemId] || 0;
+          if (cur < 20) {
+            const take = Math.min(remaining, 20 - cur);
+            b.storage[itemId] = cur + take;
+            remaining -= take;
+            if (remaining <= 0) return true;
+          }
+        }
+
+        // Smelting/processing machine accepting raw minerals
+        if (bDef.station === 'horno' || bDef.station === 'fundicion' || bDef.station === 'forja') {
+          b.storage = b.storage || {};
+          const cur = b.storage[itemId] || 0;
+          if (cur < 30) {
+            const take = Math.min(remaining, 30 - cur);
+            b.storage[itemId] = cur + take;
+            remaining -= take;
+            if (remaining <= 0) return true;
+          }
+        }
+      }
+
+      // 2. Try depositing directly into the island's Nexo Central
+      const plotKey = (game.omega && typeof game.omega.plotKeyOf === 'function')
+        ? game.omega.plotKeyOf(collector.tx, collector.ty)
+        : (Balaclava.OmegaSystem && typeof Balaclava.OmegaSystem.plotKeyOf === 'function' ? Balaclava.OmegaSystem.plotKeyOf(collector.tx, collector.ty) : null);
+      if (plotKey && game.omega && game.omega.nexusCanAdd && game.omega.nexusCanAdd(plotKey, { [itemId]: remaining })) {
+        game.omega.nexusAdd(plotKey, { [itemId]: remaining });
+        if (typeof game.spawnParticles === 'function') {
+          game.spawnParticles(cx, cy, '#69f0ae', 3);
+        }
+        return true;
+      }
+
+      // 3. Try routing to logistic chests
+      if (this.routeOverflowToLogistics(game, collector, itemId, remaining)) {
+        return true;
+      }
+
+      // 4. Fallback: deposit into player inventory or collector's own storage
+      if (game.canAddItem && game.canAddItem(itemId, remaining)) {
+        game.addItem(itemId, remaining);
+      } else {
+        collector.storage = collector.storage || {};
+        collector.storage[itemId] = (collector.storage[itemId] || 0) + remaining;
+      }
+      return true;
+    }
+
+    collectFromBuilding(game, b, collector) {
       if (!b) return false;
       const bDef = Balaclava.BUILDINGS[b.type];
       if (b.isChest || (bDef && bDef.isChest) || b.type === 'cofre_logistico') {
@@ -280,7 +364,7 @@
       if (b.storage) {
         for (const [id, qty] of Object.entries(b.storage)) {
           if (qty > 0) {
-            game.addItem(id, qty);
+            this.routeCollectorItem(game, collector || b, id, qty);
             b.storage[id] = 0;
             collectedAny = true;
           }
@@ -297,14 +381,15 @@
       const cy = (collector.ty + 0.5) * TILE_SIZE;
       const maxDist = radius * TILE_SIZE;
 
-      // Pull dropped world loot directly to inventory (only if inventory has room)
+      // Pull dropped world loot directly to machines/Nexo/inventory
       for (let i = game.drops.length - 1; i >= 0; i--) {
         const d = game.drops[i];
         if (Balaclava.Utils.dist(cx, cy, d.x, d.y) <= maxDist) {
-          const canPick = d.itemId === '_coin' || (typeof game.canAddItem === 'function' && game.canAddItem(d.itemId, 1));
-          if (!canPick) continue;
-          if (d.itemId === '_coin') game.addCoins(d.qty);
-          else game.addItem(d.itemId, d.qty);
+          if (d.itemId === '_coin') {
+            game.addCoins(d.qty);
+          } else {
+            this.routeCollectorItem(game, collector, d.itemId, d.qty);
+          }
           game.drops.splice(i, 1);
         }
       }
@@ -317,7 +402,7 @@
         const bx = (b.tx + 0.5) * TILE_SIZE;
         const by = (b.ty + 0.5) * TILE_SIZE;
         if (Balaclava.Utils.dist(cx, cy, bx, by) <= maxDist) {
-          this.collectFromBuilding(game, b);
+          this.collectFromBuilding(game, b, collector);
         }
       }
     }

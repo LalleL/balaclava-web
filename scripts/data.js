@@ -730,6 +730,109 @@ window.BALACLAVA_DATA = {
   ],
 
   patchNotes: {
+    '1.3.1': {
+      id: '1.3.1',
+      label: 'Beta 1.3.1',
+      pill: 'BETA v1.3.1',
+      subtitleEs: 'Actualización Beta 1.3.1 — Nivel de Hechizos, Red Omega & Optimización Visual',
+      subtitleEn: 'Beta 1.3.1 Update — Spell Leveling, Omega Power & Visual Overhaul',
+      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.1',
+      heroTitleEn: 'BALACLAVA — Beta 1.3.1 Release Notes',
+      heroSubEs: 'Mejora completa de la red eléctrica, auto-recolección del Nexo Central, subida de nivel de hechizos en el Grimorio, portal directo al Jefe Final, balance de proporciones 2x2 y corrección de texturas.',
+      heroSubEn: 'Complete power grid overhaul, Central Nexus fuel auto-vacuum, spell leveling in the Grimorio, direct Final Boss portal, 2x2 building resizing, and concordant textures.',
+      sectionsEs: [
+        {
+          badge: 'RED OMEGA',
+          color: '#80d8ff',
+          icon: 'assets/icons/energy.png',
+          title: 'Nexo Central Autónomo & Generadores de Energía',
+          items: [
+            'El Nexo Central auto-absorbe periódicamente drops y combustibles en la isla hacia su almacén virtual.',
+            'Los generadores de vapor, geotérmicos, arcanos y de singularidad ahora toman combustible del Nexo, de su almacén interno o del inventario del jugador.',
+            'El Reactor Geotérmico genera calor geotérmico pasivo constante en biomas volcánicos aun sin combustible.'
+          ]
+        },
+        {
+          badge: 'HECHIZOS & GRIMORIO',
+          color: '#b388ff',
+          icon: 'assets/icons_extra/grimorio_divino.png',
+          title: 'Sistema de Nivel de Hechizos (Nv. 1 a 5)',
+          items: [
+            'Sube de nivel todos tus hechizos en el Grimorio usando monedas y cristales mágicos.',
+            'Cada nivel aumenta un +25% el daño, reduce el tiempo de recarga un -8% y reduce el coste de maná.',
+            'Misil Arcano dispara 3 proyectiles a Nv.3+ y 4 a Nv.5; radio explosivo y congelación ampliados.'
+          ]
+        },
+        {
+          badge: 'AUTOMATIZACIÓN',
+          color: '#69f0ae',
+          icon: 'assets/icons_extra/cofre_logistico_ico.png',
+          title: 'Torre Recolectora Inteligente & Basurero',
+          items: [
+            'La Torre Recolectora abastece de combustible a máquinas cercanas y deposita excedentes directamente en el Nexo Central.',
+            'Corrección integral del Basurero: ahora permite eliminar objetos de tu inventario e incinerarlos permanentemente sin bloqueos de barra rápida.'
+          ]
+        },
+        {
+          badge: 'MAZMORRAS & VISUALES',
+          color: '#ff5252',
+          icon: 'assets/icons_extra/rel_corazon_eclipse.png',
+          title: 'Portal Directo al Jefe Final & Texturas Concordantes',
+          items: [
+            'El Santuario de Mazmorras incluye un botón heroico para acceder directamente a la arena del Espadachín Carmesí Abisal.',
+            'Redimensionado a 2x2 de edificios grandes (Bancos, Casas de Comercio, Torres y Observatorios) y escala equilibrada del basurero.',
+            'Nuevos iconos concordantes e independientes para cera de abeja, fibra vegetal, armaduras avanzadas y reliquias.',
+            'Corrección integral de codificación tipográfica UTF-8 en todos los menús y diálogos.'
+          ]
+        }
+      ],
+      sectionsEn: [
+        {
+          badge: 'OMEGA POWER',
+          color: '#80d8ff',
+          icon: 'assets/icons/energy.png',
+          title: 'Autonomous Central Nexus & Energy Generators',
+          items: [
+            'The Central Nexus now passively pulls ground drops and fuels across the island into its virtual buffer.',
+            'Steam, Geothermal, Arcane, and Singularity generators pull fuels from the Nexus, internal storage, or player inventory.',
+            'Geothermal Reactor produces baseline passive energy in volcanic biomes even without fuel.'
+          ]
+        },
+        {
+          badge: 'SPELLS & GRIMOIRE',
+          color: '#b388ff',
+          icon: 'assets/icons_extra/grimorio_divino.png',
+          title: 'Spell Leveling System (Lv. 1 to 5)',
+          items: [
+            'Upgrade all spells in the Grimoire using coins and magic crystals.',
+            'Each level grants +25% damage, -8% cooldown reduction, and mana cost savings.',
+            'Arcane Missile fires 3 projectiles at Lv.3+ and 4 at Lv.5; Fireball and Ice Nova radii enlarged.'
+          ]
+        },
+        {
+          badge: 'AUTOMATION',
+          color: '#69f0ae',
+          icon: 'assets/icons_extra/cofre_logistico_ico.png',
+          title: 'Smart Collector Tower & Trash Bin Fix',
+          items: [
+            'The Collector Tower auto-fuels nearby furnaces/forges and deposits gathered loot directly into the Central Nexus.',
+            'Trash Bin overhaul: freely discard items without hotbar interference and incinerate permanently.'
+          ]
+        },
+        {
+          badge: 'DUNGEONS & VISUALS',
+          color: '#ff5252',
+          icon: 'assets/icons_extra/rel_corazon_eclipse.png',
+          title: 'Direct Final Boss Arena & Concordant Textures',
+          items: [
+            'Dungeon Sanctuary features a direct teleport button straight to the Crimson Swordsman arena.',
+            'Grand buildings resized to 2x2 (Banks, Trade Houses, Towers, Observatories) and balanced trash bin scale.',
+            'Concordant standalone icons for beeswax, plant fiber, endgame armors, and relics.',
+            'Full UTF-8 typographic encoding fix across all menus and interfaces.'
+          ]
+        }
+      ]
+    },
     '1.3.0': {
       id: '1.3.0',
       label: 'Beta 1.3.0',
@@ -1007,9 +1110,9 @@ window.BALACLAVA_DATA = {
       heroBtnDownload: 'Descargar para Windows',
       heroBtnDiscord: 'Unirse a Discord',
       heroBtnKofi: 'Apoyar en Ko-fi',
-      heroBtnPatch: 'Notas Beta 1.3.0',
+      heroBtnPatch: 'Notas Beta 1.3.1',
       heroMetaPrefix: 'Gratis para Windows',
-      statsTitle: 'Todo el Contenido de Beta 1.3.0',
+      statsTitle: 'Todo el Contenido de Beta 1.3.1',
       worldTag: 'MUNDO ABIERTO · 19×19 DIRECCIONAL',
       worldTitle: 'Explora las 4 Zonas y 14 Biomas',
       worldSub: 'Progresión secuencial Zona I → II → III → IV con distribución climática coherente: la nieve al Este nunca toca la lava del Oeste.',
@@ -1083,9 +1186,9 @@ window.BALACLAVA_DATA = {
       heroBtnDownload: 'Download for Windows',
       heroBtnDiscord: 'Join Discord',
       heroBtnKofi: 'Support on Ko-fi',
-      heroBtnPatch: 'Beta 1.3.0 Notes',
+      heroBtnPatch: 'Beta 1.3.1 Notes',
       heroMetaPrefix: 'Free for Windows',
-      statsTitle: 'Everything Inside Beta 1.3.0',
+      statsTitle: 'Everything Inside Beta 1.3.1',
       worldTag: 'OPEN WORLD · 19×19 DIRECTIONAL',
       worldTitle: 'Explore 4 Zones & 14 Biomes',
       worldSub: 'Sequential Zone I → II → III → IV progression with coherent climate borders: Eastern ice never touches Western lava.',

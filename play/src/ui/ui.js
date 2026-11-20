@@ -601,7 +601,7 @@
           : tr('tip.footInv'));
       return {
         title: it.name,
-        sub: parts.join(' �· '),
+        sub: parts.join(' · '),
         rarity: it.rarity || 'comun',
         icon: { kind: 'item', key: it.icon },
         desc: it.desc || '',
@@ -625,7 +625,7 @@
       }
       const enchMap = g && g.toolEnchants && g.toolEnchants[toolId];
       const enchs = enchMap ? Object.entries(enchMap).filter(([, lv]) => lv > 0)
-        .map(([eid, lv]) => `${(Balaclava.TOOL_ENCHANTS[eid] && Balaclava.TOOL_ENCHANTS[eid].name) || eid} ${lv}`).join(' �· ') : '';
+        .map(([eid, lv]) => `${(Balaclava.TOOL_ENCHANTS[eid] && Balaclava.TOOL_ENCHANTS[eid].name) || eid} ${lv}`).join(' · ') : '';
       return {
         title: `${tool.name} (${tierMeta.name})`,
         sub: enchs ? tr('tip.toolSubEnch', { enchs }) : tr('tip.toolSubDefault'),
@@ -965,7 +965,7 @@
                 ? tr('title.deleteAsk', { slot: s })
                 : tr('title.slotTitle', { slot: s })),
               this.el('span', { class: 'title-slot-meta' }, isConfirming
-                ? `${slotLineText} �· ${tr('title.deleteWarn')}`
+                ? `${slotLineText} · ${tr('title.deleteWarn')}`
                 : slotLineText)
             ]),
             this.el('div', { class: 'title-slot-actions' },
@@ -1077,7 +1077,7 @@
         this.el('button', {
           id: 'btn-title-discord',
           class: 'title-nav-btn title-sq-btn discord',
-          'data-tip-text': `${tr('title.discord')} â��⬝ ${tr('title.discordSub')}`,
+          'data-tip-text': `${tr('title.discord')} — ${tr('title.discordSub')}`,
           'aria-label': tr('title.discord'),
           onclick: () => this.openDiscordExternal()
         }, [
@@ -1086,7 +1086,7 @@
         this.el('button', {
           id: 'btn-title-credits',
           class: 'title-nav-btn title-sq-btn',
-          'data-tip-text': `${tr('title.credits')} â��⬝ ${tr('title.creditsSub')}`,
+          'data-tip-text': `${tr('title.credits')} — ${tr('title.creditsSub')}`,
           'aria-label': tr('title.credits'),
           onclick: () => this.openModal('credits')
         }, [
@@ -1174,7 +1174,7 @@
             'Construye una Mesa de ArtesanÒ­a para forjar herramientas de mayor rango.',
             'Explora los bordes del archipiÒ©lago para desbloquear nuevas islas con monedas.',
             'Los Ò¡rboles y rocas a veces sueltan monedas brillantes adicionales.',
-            'Comer bayas o descansar junto a una fogata restaura tu salud y energÒ­a.',
+            'Comer bayas o descansar junto a una fogata restaura tu salud y energía.',
             'Cada bioma alberga minerales exclusivos como cobre, hierro, oro y cristales.',
             'Sube de nivel para ganar Puntos de ConstelaciÒ³n y desbloquear pasivas legendarias.',
             'Las mazmorras antiguas esconden cofres dorados con reliquias permanentes.',
@@ -1280,16 +1280,16 @@
         b.textContent = text;
         badges.appendChild(b);
       };
-      addBadge('', `${meta.biomeName || 'ArchipiÒ©lago'} �· ${isEn ? 'Depth' : 'Nv.'} ${meta.tier || 1}/24`);
+      addBadge('', `${meta.biomeName || 'Archipiélago'} · ${isEn ? 'Depth' : 'Nv.'} ${meta.tier || 1}/24`);
       addBadge('is-rec', `${isEn ? 'Rec. Level' : 'Nivel Rec.'} ${meta.recLevel || 2}+`);
-      addBadge('is-lvl', `${isEn ? 'Mobs Lv.' : 'Mobs Nv.'}${meta.mobLevelMin || 2}+ �· ${isEn ? 'Guardian Lv.' : 'GuardiÒ¡n Nv.'}${meta.miniLevel || 4}`);
+      addBadge('is-lvl', `${isEn ? 'Mobs Lv.' : 'Mobs Nv.'}${meta.mobLevelMin || 2}+ · ${isEn ? 'Guardian Lv.' : 'Guardián Nv.'}${meta.miniLevel || 4}`);
       top.appendChild(badges);
 
       const floors = document.createElement('div');
       floors.className = 'st-db-floors';
       floors.textContent = isEn
-        ? '4 Sectors: Entry Hall �· Rune Wings �· Guardian Chamber �· Boss Sanctum'
-        : (meta.floorsDesc || '4 Sectores: Atrio �· Alas RÒºnicas �· GuardiÒ¡n �· Santuario del Jefe');
+        ? '4 Sectors: Entry Hall · Rune Wings · Guardian Chamber · Boss Sanctum'
+        : (meta.floorsDesc || '4 Sectores: Atrio · Alas Rúnicas · Guardián · Santuario del Jefe');
       top.appendChild(floors);
       container.appendChild(top);
 
@@ -1333,7 +1333,7 @@
         nm.textContent = em.name || em.type;
         const sub = document.createElement('div');
         sub.className = 'st-db-mob-sub';
-        sub.textContent = `${isEn ? 'Lv.' : 'Nv.'}${em.level || meta.mobLevelMin || 2} �· ${em.ranged ? (isEn ? 'Ranged' : 'A distancia') : (isEn ? 'Melee' : 'Cuerpo a cuerpo')}`;
+        sub.textContent = `${isEn ? 'Lv.' : 'Nv.'}${em.level || meta.mobLevelMin || 2} · ${em.ranged ? (isEn ? 'Ranged' : 'A distancia') : (isEn ? 'Melee' : 'Cuerpo a cuerpo')}`;
         info.appendChild(nm);
         info.appendChild(sub);
         chip.appendChild(info);
@@ -1379,11 +1379,11 @@
       bInfo.className = 'st-db-boss-info';
       const bName = document.createElement('div');
       bName.className = 'st-db-boss-name';
-      bName.textContent = (meta.boss && meta.boss.name) || (isEn ? 'Ancient Guardian' : 'GuardiÒ¡n Ancestral');
+      bName.textContent = (meta.boss && meta.boss.name) || (isEn ? 'Ancient Guardian' : 'Guardián Ancestral');
       const bStats = document.createElement('div');
       bStats.className = 'st-db-boss-stats';
       const fmtStat = (v) => (Balaclava.Utils && Balaclava.Utils.formatNum) ? Balaclava.Utils.formatNum(Math.round(v)) : Math.round(v);
-      bStats.textContent = meta.boss ? `HP ${fmtStat(meta.boss.hp)} �· ${isEn ? 'ATK' : 'ATQ'} ${fmtStat(meta.boss.dmg)}` : (isEn ? 'Boss Encounter' : 'DesafÒ­o de Jefe');
+      bStats.textContent = meta.boss ? `HP ${fmtStat(meta.boss.hp)} · ${isEn ? 'ATK' : 'ATQ'} ${fmtStat(meta.boss.dmg)}` : (isEn ? 'Boss Encounter' : 'Desafío de Jefe');
       bInfo.appendChild(bName);
       bInfo.appendChild(bStats);
       if (meta.boss && meta.boss.relicName) {
@@ -3027,7 +3027,7 @@
         const left = Math.max(0, Math.round(dayPhase.phaseLeftSec || 0));
         const mm = String(Math.floor(left / 60)).padStart(2, '0');
         const ss = String(left % 60).padStart(2, '0');
-        dLabel.textContent = `${tr('common.dayShort')} ${g.dayCount || 1} �· ${dayPhase.label} �· ${mm}:${ss}`;
+        dLabel.textContent = `${tr('common.dayShort')} ${g.dayCount || 1} · ${dayPhase.label} · ${mm}:${ss}`;
       }
       if (dFill) {
         const pct = Math.round(((g.dayTime % 1) + 1) % 1 * 100);
@@ -3131,7 +3131,7 @@
                 mapActionBtn.classList.add('hidden');
               }
             }
-            if (minBtn) minBtn.textContent = tut.minimized ? '+' : 'â���S';
+            if (minBtn) minBtn.textContent = tut.minimized ? '+' : '✓';
           }
         }
       }
@@ -3146,7 +3146,7 @@
       if (objProg) {
         if (ch && ch.getProgress) {
           const items = ch.getProgress(g) || [];
-          objProg.textContent = items.map(p => `${p.label}: ${p.cur}/${p.max}`).join(' �· ');
+          objProg.textContent = items.map(p => `${p.label}: ${p.cur}/${p.max}`).join(' · ');
         } else {
           objProg.textContent = g.storyIndex >= (Balaclava.STORY_CHAPTERS || []).length ? tr('hud.mainStoryComplete') : '';
         }
@@ -3156,7 +3156,7 @@
           const rwItems = ch.reward.items
             ? Object.entries(ch.reward.items).filter(([, q]) => q > 0).map(([id, q]) => `${q}x ${(Balaclava.ITEMS[id] && Balaclava.ITEMS[id].name) || id}`).join(', ')
             : '';
-          const parts = `+${ch.reward.coins} ${tr('common.coins')} �· +${ch.reward.xp} ${tr('common.xp')}${rwItems ? ' �· ' + rwItems : ''}`;
+          const parts = `+${ch.reward.coins} ${tr('common.coins')} · +${ch.reward.xp} ${tr('common.xp')}${rwItems ? ' · ' + rwItems : ''}`;
           objRew.textContent = tr('hud.rewardLine', { parts });
         } else {
           objRew.textContent = '';
@@ -3196,8 +3196,8 @@
             const mini2Txt = dung.miniBoss2Defeated ? tr('hud.dungDefeated') : tr('hud.dungPending');
             const shrineTxt = `${dung.shrineProgress || 0}/${dung.shrineTarget || 2}`;
             dObj = isEn
-              ? `Wings: ${wingDone}/2 �· Runes: ${seqTxt} �· Guardian 1: ${miniTxt} �· Guardian 2: ${mini2Txt} �· Shrines: ${shrineTxt} �· Gate: ${gateTxt}${phaseLine}`
-              : `Alas: ${wingDone}/2 �· Runas: ${seqTxt} �· GuardiÒ¡n 1: ${miniTxt} �· GuardiÒ¡n 2: ${mini2Txt} �· Altares: ${shrineTxt} �· Puerta: ${gateTxt}${phaseLine}`;
+              ? `Wings: ${wingDone}/2 · Runes: ${seqTxt} · Guardian 1: ${miniTxt} · Guardian 2: ${mini2Txt} · Shrines: ${shrineTxt} · Gate: ${gateTxt}${phaseLine}`
+              : `Alas: ${wingDone}/2 · Runas: ${seqTxt} · Guardián 1: ${miniTxt} · Guardián 2: ${mini2Txt} · Altares: ${shrineTxt} · Puerta: ${gateTxt}${phaseLine}`;
           } else {
             dObj = tr('hud.dungObjLine', { wings: wingDone, seq: seqTxt, mini: miniTxt, gate: gateTxt, phaseLine });
           }
@@ -3395,7 +3395,7 @@
               const label = buffLabels[k] || k;
               buffBar.appendChild(this.el('div', {
                 class: 'hud-buff-pill',
-                title: tr('hud.buffTitle', { label, pct, src: b.sourceName ? ' �· ' + b.sourceName : '', rem: Math.ceil(b.time) })
+                title: tr('hud.buffTitle', { label, pct, src: b.sourceName ? ' · ' + b.sourceName : '', rem: Math.ceil(b.time) })
               }, [
                 iconUrl ? this.el('img', { class: 'pixel-img', src: iconUrl, width: 18, height: 18, alt: label }) : null,
                 this.el('span', {}, `${label} ${Math.ceil(b.time)}s`)
@@ -3415,7 +3415,7 @@
             tCard.classList.add('hidden');
           }
         } else {
-          // Clave de ESTRUCTURA: solo cambia cuando el tipo/nombre/icono cambia â��⬝ NO incluye HP ni sub dinÒ¡mico
+          // Clave de ESTRUCTURA: solo cambia cuando el tipo/nombre/icono cambia — NO incluye HP ni sub dinámico
           const thumbSig = ht.thumbSpec ? `${ht.thumbSpec.prefix || ''}:${ht.thumbSpec.key || ''}:${ht.thumbSpec.fx || 0}:${ht.thumbSpec.fy || 0}` : '';
           const iconIdentity = ht.iconUrl ? String(ht.iconUrl).slice(0, 64) : (thumbSig || ht.itemIcon || ht.iconKey || '');
           const layoutKey = `${ht.kind}:${ht.name}:${iconIdentity}`;
@@ -3461,7 +3461,7 @@
             tCard.appendChild(iconEl);
             tCard.appendChild(this.el('div', { class: 'hud-target-info' }, infoKids));
           } else if (ht.hp != null && ht.maxHp > 0) {
-            // Solo actualizar barra de HP en DOM existente â��⬝ sin reconstruir nada
+            // Solo actualizar barra de HP en DOM existente — sin reconstruir nada
             const hpPct = Math.max(0, Math.min(100, Math.round((ht.hp / ht.maxHp) * 100)));
             if (hpPct !== this._lastTargetHp) {
               this._lastTargetHp = hpPct;
@@ -3835,8 +3835,8 @@
         credits: tr('credits.title'),
         relics: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Permanent Relics Vault' : 'Cofre de Reliquias',
         patch_notes: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en')
-          ? `Patch Notes â��⬝ Beta ${this._activePatchVer || '1.3.0'}`
-          : `Cambios Recientes â��⬝ Beta ${this._activePatchVer || '1.3.0'}`,
+          ? `Patch Notes — Beta ${this._activePatchVer || '1.3.0'}`
+          : `Cambios Recientes — Beta ${this._activePatchVer || '1.3.0'}`,
         quit_confirm: tr('quit.title'),
         quit_web_fallback: tr('quit.webFallbackTitle'),
         discord_fallback: tr('title.discord'),
@@ -4009,16 +4009,44 @@
         const known = unlocked.includes(sp.id);
         const equippedAt = slots.indexOf(sp.id);
         const card = this.el('div', { class: 'card' + (known ? (equippedAt >= 0 ? ' selected' : '') : ' card-locked') }, [
-          this.el('div', { class: 'card-head' }, [
-            this.itemIcon(sp.icon, 34),
-            this.el('div', {}, [
-              this.el('strong', { style: `color:${known ? sp.color : '#90a4ae'};font-size:16px;` }, sp.name),
-              this.el('div', { style: 'font-size:14px;color:#b0bec5;' }, tr('grim.spellMeta', { tier: sp.tier, cost: sp.cost, cd: sp.cooldown }))
-            ])
-          ]),
+          (() => {
+            const sLvl = g.getSpellLevel ? g.getSpellLevel(sp.id) : 1;
+            return this.el('div', { class: 'card-head' }, [
+              this.itemIcon(sp.icon, 34),
+              this.el('div', {}, [
+                this.el('div', { style: 'display:flex;align-items:center;gap:6px;' }, [
+                  this.el('strong', { style: `color:${known ? sp.color : '#90a4ae'};font-size:16px;` }, sp.name),
+                  this.el('span', { style: 'padding:1px 6px;border-radius:4px;font-size:12px;background:#311b92;color:#b388ff;border:1px solid #7c4dff;font-weight:bold;' }, `Nv. ${sLvl}/5`)
+                ]),
+                this.el('div', { style: 'font-size:14px;color:#b0bec5;' }, tr('grim.spellMeta', { tier: sp.tier, cost: sp.cost, cd: sp.cooldown }))
+              ])
+            ]);
+          })(),
           this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.45;' }, sp.desc)
         ]);
         if (known) {
+          const sLvl = g.getSpellLevel ? g.getSpellLevel(sp.id) : 1;
+          const upgradeRow = this.el('div', { style: 'margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;' });
+          if (sLvl < 5) {
+            const cost = g.getSpellUpgradeCost ? g.getSpellUpgradeCost(sp.id) : null;
+            const canUp = g.canUpgradeSpell ? g.canUpgradeSpell(sp.id) : false;
+            if (cost) {
+              upgradeRow.appendChild(this.el('span', { style: 'font-size:13px;color:#94a3b8;' },
+                `Mejora: ${cost.coins} 💰 + ${cost.crystals} 💎`));
+              upgradeRow.appendChild(this.el('button', {
+                class: canUp ? 'btn btn-gold btn-sm' : 'btn btn-stone btn-sm',
+                onclick: () => {
+                  if (g.upgradeSpell && g.upgradeSpell(sp.id)) {
+                    this.updateHUD(true);
+                    this.renderModal();
+                  }
+                }
+              }, `⚡ Mejorar a Nv. ${cost.level} (+25% Daño)`));
+            }
+          } else {
+            upgradeRow.appendChild(this.el('span', { style: 'font-size:13px;color:#ffd54f;font-weight:bold;' }, '★ Maestría Máxima (Nivel 5)'));
+          }
+          card.appendChild(upgradeRow);
           const btnRow = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;' });
           for (let sIdx = 0; sIdx < 4; sIdx++) {
             const kLbl = this.formatKeyCode(keyCodes[sIdx] || '');
@@ -4493,7 +4521,7 @@
       const statItems = [
         { icon: 'iconHeart', label: 'Vida', val: `${Math.round(g.player.hp)} / ${Math.round(g.player.maxHp)}`, color: '#ef5350' },
         { icon: 'manaOrb', label: 'EnergÒ­a', val: `${Math.round(g.player.energy)} / ${Math.round(g.player.maxEnergy)}`, color: '#4fc3f7' },
-        { icon: 'iconSword', label: 'DaÒ±o', val: `+${Math.round((g.mods.dmgBonus || 0) * 100)}%`, color: '#ffb74d' },
+        { icon: 'iconSword', label: 'Daño', val: `+${Math.round((g.mods.dmgBonus || 0) * 100)}%`, color: '#ffb74d' },
         { icon: 'iconBow', label: 'Vel. Ataque', val: `+${Math.round((g.mods.attackSpeed || 0) * 100)}%`, color: '#80deea' },
         { icon: 'iconShield', label: 'Armadura', val: `${Math.round((g.mods.armor || 0) + (g.mods.defense || 0))}`, color: '#81c784' },
         { icon: 'iconReset', label: 'Vel. Mov.', val: `+${Math.round((g.mods.moveSpeed || 0) * 100)}%`, color: '#ba68c8' },
@@ -4595,7 +4623,7 @@
           this.el('div', { class: 'relic-detail-name' }, dispName),
           this.el('div', { class: 'relic-detail-meta' }, [
             this.el('span', { style: `font-weight:800;color:${owned ? '#86efac' : '#ffab91'};` }, statusBadge),
-            this.el('span', {}, ` �· ${isEn ? 'Source' : 'Origen'}: ${srcText}`)
+            this.el('span', {}, ` · ${isEn ? 'Source' : 'Origen'}: ${srcText}`)
           ]),
           this.el('div', { class: 'relic-detail-desc' }, owned
             ? rel.desc
@@ -4622,7 +4650,7 @@
           }
         }, [
           this.itemIcon(rel.icon, 36),
-          owned ? this.el('span', { class: 'relic-chest-cell-badge' }, 'â��S') : null
+          owned ? this.el('span', { class: 'relic-chest-cell-badge' }, '✓') : null
         ]);
         cellMap.set(rel.id, cell);
         gridEl.appendChild(cell);
@@ -4678,7 +4706,7 @@
       const chestUsedSlots = getChestUsedSlots();
 
       if (titleEl) {
-        titleEl.textContent = `${def.name} (${chestUsedSlots} / ${chestCapacity} Ranuras �· Stacks de 1000)`;
+        titleEl.textContent = `${def.name} (${chestUsedSlots} / ${chestCapacity} Ranuras · Stacks de 1000)`;
       }
 
       const chestSlotNodes = [];
@@ -4711,7 +4739,7 @@
         this.el('div', { style: 'display:flex;align-items:center;gap:8px;' }, [
           this.el('span', { class: 'chest-title-lbl' }, def.name),
           this.el('span', { class: 'inv-cap-pill' }, `${chestUsedSlots} / ${chestCapacity} Slots`),
-          this.el('span', { style: 'font-size:12px;color:#94a3b8;' }, `(Stacks de 1000 �· Click: Mover �· Clic Der: 1 �· Shift+Clic: Todo)`)
+          this.el('span', { style: 'font-size:12px;color:#94a3b8;' }, `(Stacks de 1000 · Click: Mover · Clic Der: 1 · Shift+Clic: Todo)`)
         ]),
         this.el('div', { class: 'chest-actions-row' }, [
           this.el('button', {
@@ -5202,7 +5230,7 @@
         this.el('div', { style: 'font-size:12px;font-weight:800;color:#80deea;text-transform:uppercase;letter-spacing:0.3px;' }, w.kindLabel),
         this.el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:13px;color:#f1f5f9;margin-top:2px;' }, [
           this.el('div', {}, [
-            this.el('span', { style: 'color:#94a3b8;' }, isEn ? 'Damage: ' : 'DaÒ±o: '),
+            this.el('span', { style: 'color:#94a3b8;' }, isEn ? 'Damage: ' : 'Daño: '),
             this.el('strong', { style: 'color:#ffd54f;' }, `${w.dmg}`),
             baseRef ? this.el('span', {
               style: `font-size:12px;color:${w.dmg >= baseRef.dmg ? '#86efac' : '#fca5a5'};`
@@ -5229,7 +5257,7 @@
 
       if (w.effects.length > 0) {
         rows.push(this.el('div', { style: 'font-size:12px;color:#e9d5ff;margin-top:3px;line-height:1.35;' },
-          (isEn ? 'Special: ' : 'Efecto: ') + w.effects.join(' �· ')));
+          (isEn ? 'Special: ' : 'Efecto: ') + w.effects.join(' · ')));
       } else if (w.uses) {
         rows.push(this.el('div', { style: 'font-size:12px;color:#e9d5ff;margin-top:3px;line-height:1.35;' }, w.uses));
       }
@@ -5293,7 +5321,7 @@
 
       const rows = [
         {
-          label: isEn ? 'Power' : 'Poder / DaÒ±o',
+          label: isEn ? 'Power' : 'Poder / Daño',
           cur: curS.power,
           next: nextS.power,
           deltaText: pDiff > 0 ? `+${pDiff}` : '=',
@@ -5326,7 +5354,7 @@
 
       return this._renderUpgradeComparisonPanel({
         title: isEn ? `UPGRADE -> ${nextS.tierName}` : `MEJORA -> ${nextS.tierName}`,
-        subtitle: `${curS.tierName}  �»  ${nextS.tierName}`,
+        subtitle: `${curS.tierName}  »  ${nextS.tierName}`,
         accent: nextS.tierColor || '#ffd54f',
         curColLabel: isEn ? 'Current' : 'Actual',
         nextColLabel: isEn ? 'Next' : 'Mejora',
@@ -5345,7 +5373,7 @@
         { label: isEn ? 'Max HP' : 'Vida MÒ¡x.', cur: curSt.maxHp || 0, next: nextSt.maxHp || 0, suffix: '' },
         { label: isEn ? 'Max Energy' : 'EnergÒ­a', cur: curSt.maxEnergy || 0, next: nextSt.maxEnergy || 0, suffix: '' },
         {
-          label: isEn ? 'Damage' : 'DaÒ±o',
+          label: isEn ? 'Damage' : 'Daño',
           cur: Math.round(((curSt.dmgPct || curSt.dmgBonus) || 0) * 100),
           next: Math.round(((nextSt.dmgPct || nextSt.dmgBonus) || 0) * 100),
           suffix: '%'
@@ -5382,7 +5410,7 @@
         title: customHeader || (curItem
           ? (isEn ? 'EQUIPMENT COMPARISON' : 'COMPARATIVA DE MEJORA')
           : (isEn ? `NEW STATS: ${nextItem.name}` : `ATRIBUTOS: ${nextItem.name}`)),
-        subtitle: curItem ? `${curItem.name}  �»  ${nextItem.name}` : nextItem.name,
+        subtitle: curItem ? `${curItem.name}  »  ${nextItem.name}` : nextItem.name,
         accent: '#86efac',
         curColLabel: curItem ? (isEn ? 'Current' : 'Actual') : null,
         nextColLabel: isEn ? 'Upgraded' : 'Mejorado',
@@ -5403,14 +5431,14 @@
         if (st.dmgPct || st.dmgBonus) sList.push(`+${Math.round((st.dmgPct || st.dmgBonus) * 100)}% ${tr('tooltip.statDmg')}`);
         if (st.speedPct || st.moveSpeed) sList.push(`+${Math.round((st.speedPct || st.moveSpeed) * 100)}% ${tr('tooltip.statSpd')}`);
         if (st.luck) sList.push(`+${Math.round(st.luck * 100)}% Suerte`);
-        if (sList.length) bits.push(tr('craft.bonuses', { list: sList.join(' �· ') }));
+        if (sList.length) bits.push(tr('craft.bonuses', { list: sList.join(' · ') }));
       }
       const w = this._getWeaponAttributes(item);
       if (w) {
-        bits.push(`DaÒ±o: ${w.dmg} �· Cadencia: ${w.aps}/s �· Alcance: ${w.rangeTiles} cas.`);
-        if (w.effects.length) bits.push(w.effects.join(' �· '));
+        bits.push(`Daño: ${w.dmg} · Cadencia: ${w.aps}/s · Alcance: ${w.rangeTiles} cas.`);
+        if (w.effects.length) bits.push(w.effects.join(' · '));
       }
-      return bits.join(' �· ');
+      return bits.join(' · ');
     }
 
     _sortRecipes(recs) {
@@ -5586,7 +5614,7 @@
       if (!sortedRecs.length) {
         body.appendChild(this.el('div', { class: 'parchment-box craft-inspector-empty', style: 'padding:24px;text-align:center;' }, [
           this.uiIcon('backpack', 32),
-          this.el('strong', { style: 'color:#cbd5e1;font-size:16px;' }, isEn ? 'No recipes available in this category' : 'No hay recetas disponibles en esta categorÒ­a.')
+          this.el('strong', { style: 'color:#cbd5e1;font-size:16px;' }, isEn ? 'No recipes available in this category' : 'No hay recetas disponibles en esta categoría.')
         ]));
         return;
       }
@@ -5967,7 +5995,7 @@
             this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.48;' }, tool.desc || tool.role || ''),
             baseStats ? this.el('div', {
               style: 'background:rgba(15,23,42,0.72);border:1px solid rgba(255,213,79,0.28);border-radius:6px;padding:5px 8px;font-size:13px;color:#f8fafc;'
-            }, `${tr('inv.powerTag', { n: baseStats.power })} �· ${tr('inv.speedTag', { n: baseStats.speed })} �· ${tr('inv.reachTag', { n: (baseStats.reach / 48).toFixed(1) })}`) : null,
+            }, `${tr('inv.powerTag', { n: baseStats.power })} · ${tr('inv.speedTag', { n: baseStats.speed })} · ${tr('inv.reachTag', { n: (baseStats.reach / 48).toFixed(1) })}`) : null,
             costBox,
             this.el('button', {
               class: 'btn btn-green btn-sm',
@@ -5989,7 +6017,7 @@
             this.toolIcon(tool.id, curTier, 34),
             this.el('div', {}, [
               this.el('strong', { style: `color:${curStats.tierColor}` }, `${tool.name} (${curStats.tierName})`),
-              this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.45;' }, `${tr('inv.powerTag', { n: curStats.power })} �· ${tr('inv.speedTag', { n: curStats.speed })} �· ${tr('inv.reachTag', { n: (curStats.reach / 48).toFixed(1) })}`)
+              this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.45;' }, `${tr('inv.powerTag', { n: curStats.power })} · ${tr('inv.speedTag', { n: curStats.speed })} · ${tr('inv.reachTag', { n: (curStats.reach / 48).toFixed(1) })}`)
             ])
           ]),
           this.el('div', { style: 'font-size:14px;color:#dde8f4;line-height:1.48;' }, tool.desc || tool.role || '')
@@ -6109,7 +6137,7 @@
         this.el('div', { class: 'card-head' }, [
           curItem ? this.itemIcon(curItem.icon, 34) : null,
           this.el('div', {}, [
-            this.el('div', { style: 'font-size:12px;font-weight:700;color:#ffb74d;text-transform:uppercase;' }, `${slotLabel} �· T${tierIdx + 1}`),
+            this.el('div', { style: 'font-size:12px;font-weight:700;color:#ffb74d;text-transform:uppercase;' }, `${slotLabel} · T${tierIdx + 1}`),
             this.el('strong', { style: `color:${titleColor}` }, curItem ? curItem.name : curId)
           ])
         ]),
@@ -7099,7 +7127,7 @@
           this.el('div', {}, [
             this.el('strong', { style: 'font-size:17px;color:#ffffff;' }, selSk.name),
             this.el('div', { style: `font-size:14px;font-weight:800;color:${br.color || '#fde047'}` },
-              `${br.fullName || br.name} �· ${tr('common.level')} ${selSk.tier}`)
+              `${br.fullName || br.name} · ${tr('common.level')} ${selSk.tier}`)
           ])
         ]));
         inspector.appendChild(this.el('div', { style: 'font-size:15px;line-height:1.48;font-weight:600;color:#eef4fc;' }, selSk.desc));
@@ -7411,7 +7439,7 @@
           'data-skill-node': sk.id,
           'data-skill-branch': sk.branch,
           style: `left:${pos.x.toFixed(1)}px;top:${pos.y.toFixed(1)}px;`,
-          title: `${sk.name} â��⬝ ${sk.desc}`,
+          title: `${sk.name} — ${sk.desc}`,
           onclick: () => {
             if (dragMoved) { dragMoved = false; return; }
             selectSkillNode(sk.id);
@@ -7613,15 +7641,15 @@
               biomeProg ? this.el('div', {
                 style: `font-size:13px;font-weight:800;margin-top:2px;color:${biomeProg.complete ? '#86efac' : '#ffe082'};`
               }, isEn
-                ? `Biome Progress: ${biomeProg.unlocked}/${biomeProg.total} islands �· ${biomeProg.dungeonsDone}/${biomeProg.dungeonsTotal} dungeons`
-                : `Progreso del Bioma: ${biomeProg.unlocked}/${biomeProg.total} islas �· ${biomeProg.dungeonsDone}/${biomeProg.dungeonsTotal} mazmorras`) : null
+                ? `Biome Progress: ${biomeProg.unlocked}/${biomeProg.total} islands · ${biomeProg.dungeonsDone}/${biomeProg.dungeonsTotal} dungeons`
+                : `Progreso del Bioma: ${biomeProg.unlocked}/${biomeProg.total} islas · ${biomeProg.dungeonsDone}/${biomeProg.dungeonsTotal} mazmorras`) : null
             ])
           ]),
           (!unlocked && biomeLock.lockedByBiome) ? this.el('div', {
             style: 'background:rgba(127,29,29,0.28);border:1.5px solid #ef5350;border-radius:6px;padding:8px 10px;font-size:13px;line-height:1.4;color:#fecaca;'
           }, [
             this.el('strong', { style: 'color:#fca5a5;display:block;margin-bottom:3px;' },
-              isEn ? 'BIOME LOCKED BY PROGRESSION' : 'BIOMA BLOQUEADO POR PROGRESIÒ�SN'),
+              isEn ? 'BIOME LOCKED BY PROGRESSION' : 'BIOMA BLOQUEADO POR PROGRESIÓN'),
             this.el('div', {},
               isEn
                 ? `You must unlock all islands (${biomeLock.unlocked}/${biomeLock.total}) and clear all dungeons (${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal}) of ${biomeLock.blockingBiomeName} before purchasing islands in ${biome.name}.`
@@ -7654,8 +7682,8 @@
           const canUnlockHere = adj && !biomeLock.lockedByBiome;
           const btnLabel = biomeLock.lockedByBiome
             ? (isEn
-              ? `Complete ${biomeLock.blockingBiomeName} (${biomeLock.unlocked}/${biomeLock.total} isl. �· ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal} dung.)`
-              : `Completa ${biomeLock.blockingBiomeName} (${biomeLock.unlocked}/${biomeLock.total} isl. �· ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal} maz.)`)
+              ? `Complete ${biomeLock.blockingBiomeName} (${biomeLock.unlocked}/${biomeLock.total} isl. · ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal} dung.)`
+              : `Completa ${biomeLock.blockingBiomeName} (${biomeLock.unlocked}/${biomeLock.total} isl. · ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal} maz.)`)
             : (!adj
               ? tr('map.reqAdjacent')
               : (canAfford ? tr('map.unlockPlot', { coins: price }) : tr('map.lowCoins', { cur: g.coins, req: price })));
@@ -7691,7 +7719,7 @@
               style: 'background:linear-gradient(135deg, rgba(74,20,140,0.5), rgba(136,14,79,0.5));border:1.5px solid #e040fb;border-radius:6px;padding:8px 10px;font-size:13px;color:#f3e5f5;margin-top:6px;box-shadow:0 0 10px rgba(224,64,251,0.25);'
             }, [
               this.el('strong', { style: 'color:#ea80fc;display:block;' }, '[OMEGA] ISLA ASCENDIDA (PRESTIGIO OMEGA)'),
-              this.el('div', {}, 'Enemigos: 10x HP / 10x DaÒ±o (Sueltan Materia Comprimida) �· Extractores: 2x Velocidad')
+              this.el('div', {}, 'Enemigos: 10x HP / 10x Daño (Sueltan Materia Comprimida) · Extractores: 2x Velocidad')
             ]));
           } else if (g.clearedDungeons && g.clearedDungeons.length >= ((g.omega.UNLOCK_THRESHOLDS && g.omega.UNLOCK_THRESHOLDS.ascensionUnlockDungeons) || 55)) {
             card.appendChild(this.el('button', {
@@ -7701,7 +7729,7 @@
                 const res = g.omega.ascendIsland(g, plotKey);
                 if (res.ok) {
                   Balaclava.Audio.play('levelup');
-                  g.toast(`�¡Isla (${sgx}, ${sgy}) ascendida a Rango Omega!`, 'success');
+                  g.toast(`¡Isla (${sgx}, ${sgy}) ascendida a Rango Omega!`, 'success');
                   drawMapCanvas();
                   renderInspector();
                   this.updateHUD(true);
@@ -7736,7 +7764,7 @@
             }, [
               this.el('div', {}, [
                 this.el('strong', { style: `font-size:14px;color:${cleared ? '#86efac' : '#ffd54f'};display:block;` }, dDef.name),
-                this.el('div', { style: 'font-size:14px;color:#b8d4ec;' }, `${dmBiome.name} �· ${tr('common.levelShort')}${(gateEntry && gateEntry.recLevel) || dDef.recLevel || 2}+ �· (${gx},${gy})`)
+                this.el('div', { style: 'font-size:14px;color:#b8d4ec;' }, `${dmBiome.name} · ${tr('common.levelShort')}${(gateEntry && gateEntry.recLevel) || dDef.recLevel || 2}+ · (${gx},${gy})`)
               ]),
               cleared ? this.uiIcon('iconCheck', 16) : this.el('span', { style: 'font-size:14px;color:#ffab91;' }, tr('map.goBtn'))
             ]));
@@ -7997,7 +8025,7 @@
                   const rh = Math.ceil(tilePx) + 0.5;
 
                   if (t === 0) {
-                    // Unified ocean canvas underneath â��⬝ only add crisp coastal shallows foam hugging land
+                    // Unified ocean canvas underneath — only add crisp coastal shallows foam hugging land
                     const isShallow = isLand(tx, ty - 1) || isLand(tx, ty + 1) || isLand(tx - 1, ty) || isLand(tx + 1, ty);
                     if (isShallow) {
                       ctx.fillStyle = 'rgba(135, 218, 240, 0.20)';
@@ -8266,7 +8294,7 @@
                   ctx.fillStyle = '#cbd5e1';
                   ctx.font = '13px BalaclavaPixel, monospace';
                   ctx.textAlign = 'center';
-                  ctx.fillText(`${plotBiomeLock.unlocked}/${plotBiomeLock.total}�·${plotBiomeLock.dungeonsDone}/${plotBiomeLock.dungeonsTotal}`, hcx + 9, hcy + 5);
+                  ctx.fillText(`${plotBiomeLock.unlocked}/${plotBiomeLock.total}·${plotBiomeLock.dungeonsDone}/${plotBiomeLock.dungeonsTotal}`, hcx + 9, hcy + 5);
                 } else {
                   const coinIm = mapImg(Balaclava.UI_URLS.iconCoin);
                   if (coinIm && coinIm.complete && coinIm.naturalWidth > 0) {
@@ -8686,7 +8714,7 @@
                 this.el('div', {}, [
                   this.el('strong', { style: 'font-size:15px;color:#ffe39a;display:block;' }, it.name),
                   this.el('span', { class: 'rarity-tag', style: `background:${rar.bg};color:${rar.color}` },
-                    tr('market.stockLabel', { rar: rar.name, stock: offer.stock, disc: offer.discount ? ` �· -${offer.discount}%` : '' }))
+                    tr('market.stockLabel', { rar: rar.name, stock: offer.stock, disc: offer.discount ? ` · -${offer.discount}%` : '' }))
                 ])
               ]),
               this.el('div', { style: 'text-align:right;' }, [
@@ -8825,7 +8853,7 @@
             this.el('p', { class: 'quests-lore' }, ch.lore),
             this.el('div', { class: 'quests-obj' }, tr('quests.objectiveLine', { obj: ch.objective })),
             ch.reward ? this.el('div', { class: 'quests-reward' },
-              tr('quests.rewardLineXp', { coins: ch.reward.coins, xp: ch.reward.xp, items: rewardItems ? ` �· ${rewardItems}` : '' })) : null
+              tr('quests.rewardLineXp', { coins: ch.reward.coins, xp: ch.reward.xp, items: rewardItems ? ` · ${rewardItems}` : '' })) : null
           ]));
         });
       } else if (this.questFilter === 'contratos') {
@@ -8849,7 +8877,7 @@
               this.el('div', { style: `height:100%;width:${Math.round((cur / c.target) * 100)}%;background:${claimed || ready ? '#66bb6a' : '#ffb74d'};` })
             ]),
             this.el('div', { class: 'quests-reward' },
-              tr('quests.rewardLineXp', { coins: c.reward.coins, xp: c.reward.xp, items: itemStr ? ` �· ${itemStr}` : '' })),
+              tr('quests.rewardLineXp', { coins: c.reward.coins, xp: c.reward.xp, items: itemStr ? ` · ${itemStr}` : '' })),
             this.el('button', {
               class: (ready ? 'btn btn-green btn-sm' : 'btn btn-sm') + ' quests-btn',
               disabled: ready ? null : 'disabled',
@@ -8871,7 +8899,7 @@
               style: `background:${isCurr ? 'rgba(255,213,79,0.16)' : isDone ? 'rgba(24,48,34,0.68)' : 'rgba(20,26,44,0.82)'};border:1px solid ${isDone ? '#66bb6a' : isCurr ? '#ffd54f' : 'rgba(140,165,210,0.38)'};color:${isDone ? '#bdf5b9' : isCurr ? '#fff0b3' : '#d2dff0'};`
             }, [
               isDone ? this.uiIcon('iconCheck', 14) : (isCurr ? this.uiIcon('iconStar', 14) : this.uiIcon('iconLock', 14)),
-              `${qi + 1}. ${nq.title}${isCurr ? ` â��⬝ ${nq.desc}` : ''}`
+              `${qi + 1}. ${nq.title}${isCurr ? ` — ${nq.desc}` : ''}`
             ]));
           });
           grid.appendChild(this.el('div', { class: 'card quests-card' }, [
@@ -8998,7 +9026,7 @@
       const usedSlots = appliedEntries.length;
       const maxSlots = g.getMaxEnchantSlots ? g.getMaxEnchantSlots() : 3;
       const appliedText = appliedEntries
-        .map(([eid, lvl]) => `${table[eid] ? table[eid].name : eid} ${tr('common.levelShort')}${lvl}`).join(' �· ') || tr('ench.noneYet');
+        .map(([eid, lvl]) => `${table[eid] ? table[eid].name : eid} ${tr('common.levelShort')}${lvl}`).join(' · ') || tr('ench.noneYet');
       const pipRow = this.el('span', { class: 'enchant-pip-row' },
         Array.from({ length: maxSlots }, (_, i) => this.el('span', { class: 'enchant-pip' + (i < usedSlots ? ' filled' : '') }))
       );
@@ -9181,7 +9209,7 @@
               this.itemIcon(ench.icon || 'magic_crystal', 34),
               this.el('div', {}, [
                 this.el('strong', { style: `color:${ench.color || '#ffd54f'};font-size:16px;` }, ench.name),
-                this.el('div', { style: 'font-size:14px;color:#d6e9f8;line-height:1.45;' }, `${ench.target === 'tool' ? tr('ench.typeTool') : tr('ench.typeArmor')} �· ${tr('common.maxLevelShort')}.${ench.maxLevel}`)
+                this.el('div', { style: 'font-size:14px;color:#d6e9f8;line-height:1.45;' }, `${ench.target === 'tool' ? tr('ench.typeTool') : tr('ench.typeArmor')} · ${tr('common.maxLevelShort')}.${ench.maxLevel}`)
               ]),
               this.el('span', { class: 'rarity-tag', style: found ? 'background:#2e5b3f;color:#c8f7c5;margin-left:auto;' : 'background:#2b314d;color:#c7d0e0;margin-left:auto;' }, found ? tr('enc.inscribedTag') : tr('enc.catalogedTag'))
             ]),
@@ -9200,7 +9228,7 @@
         ]));
         entries.forEach(ent => {
           const found = discSet.has(ent.id);
-          const subMeta = ent.biome ? `${ent.kindLabel} �· ${(BIOMES[ent.biome] && BIOMES[ent.biome].name) || ent.biome}` : `${ent.kindLabel}${ent.cooldown ? tr('enc.rechargeSec', { sec: ent.cooldown }) : ''}`;
+          const subMeta = ent.biome ? `${ent.kindLabel} · ${(BIOMES[ent.biome] && BIOMES[ent.biome].name) || ent.biome}` : `${ent.kindLabel}${ent.cooldown ? tr('enc.rechargeSec', { sec: ent.cooldown }) : ''}`;
           grid.appendChild(this.el('div', { class: 'card' + (found ? ' selected' : ''), style: found ? '' : 'opacity:0.84;' }, [
             this.el('div', { class: 'card-head' }, [
               this.makeShrineThumb(ent.spriteKey, 'ancient_fragment', 42),
@@ -9211,7 +9239,7 @@
               this.el('span', { class: 'rarity-tag', style: found ? 'background:#285432;color:#c8f7c5;margin-left:auto;' : 'background:#2b314d;color:#c7d0e0;margin-left:auto;' }, found ? tr('enc.activatedTag') : tr('enc.toFindTag'))
             ]),
             this.el('p', { style: 'font-size:15px;color:#f8f1e4;margin:6px 0 4px;line-height:1.5;' }, ent.desc || ent.hint || ''),
-            ent.effectDetail ? this.el('div', { style: 'font-size:14px;color:#80deea;font-weight:700;line-height:1.48;' }, tr('enc.effectLine', { detail: ent.effectDetail, dur: ent.durationText ? ` �· ${ent.durationText}` : '' })) : null
+            ent.effectDetail ? this.el('div', { style: 'font-size:14px;color:#80deea;font-weight:700;line-height:1.48;' }, tr('enc.effectLine', { detail: ent.effectDetail, dur: ent.durationText ? ` · ${ent.durationText}` : '' })) : null
           ]));
         });
       } else if (filter === 'lore') {
@@ -9954,7 +9982,7 @@
           badge: 'BETA 1.2.1',
           color: '#ffd54f',
           icon: 'cofre_madera',
-          title: 'Beta 1.2.1 â��⬝ Chests (1,000 Stacks), Storage Fix & Compact XP',
+          title: 'Beta 1.2.1 — Chests (1,000 Stacks), Storage Fix & Compact XP',
           items: [
             'Chest stack limit increased from 100 to 1,000 items per slot across Wooden, Iron, and Golden Runic Chests.',
             'Fixed storage chests losing or emptying items when reopening or interacting, plus fixed Collector Towers draining chests.',
@@ -10018,7 +10046,7 @@
           icon: 'singularidad',
           title: 'Omega Energy Grid, Automation & Tier 16 Endgame',
           items: [
-            'Power Grid & Virtual Storage: Omega Central Nexus, Link Pylons, Quantum Battery (+5,000 to +40,000 W�·s reserve), and 4 Generators (Combustion, Geothermal, Arcane Solar, Singularity Reactor).',
+            'Power Grid & Virtual Storage: Omega Central Nexus, Link Pylons, Quantum Battery (+5,000 to +40,000 W·s reserve), and 4 Generators (Combustion, Geothermal, Arcane Solar, Singularity Reactor).',
             '6 Processing Machines & Harvesters: Crusher, Arcane Washer, Omega Smelter, Gem Synthesizer, Omega Runic Inscriber, Pure Matter Condenser, Deep Core Extractor, and Hydroponic Dome.',
             'Defense, Bosses & Overcharge: Omega Prism Turret, Island Overcharge Beacon (+25% to +60% machine speed & +30% damage), Singularity Press, Boss Simulation Chamber, and Infinite Overcharge Altar.',
             '13 Omega Research Technologies, Tier 16 Omega Gear, Island Ascension (Ranks I-III), and The Infinite Abyss endless dungeon.'
@@ -10040,7 +10068,7 @@
           badge: 'BETA 1.2.1',
           color: '#ffd54f',
           icon: 'cofre_madera',
-          title: 'Beta 1.2.1 â��⬝ Cofres (Stacks de 1000), Guardado y XP Simplificada',
+          title: 'Beta 1.2.1 — Cofres (Stacks de 1000), Guardado y XP Simplificada',
           items: [
             'Capacidad de stack en cofres aumentada de 100 a 1000 unidades por ranura en todos los cofres.',
             'Corregido el fallo que vaciaba o tiraba los objetos de los cofres al cerrarlos y volverlos a abrir, y evitado que las Torres Recolectoras vacien cofres.',
@@ -10104,7 +10132,7 @@
           icon: 'singularidad',
           title: 'Red de Energia Omega, Automatizacion y Tier 16',
           items: [
-            'Red Electrica y Almacen Virtual: Nexo Central Omega, Pilones de Enlace, Acumulador Cuantico (+5.000 a +40.000 W�·s) y 4 Generadores (Combustion, Geotermico, Solar Arcano y Reactor de Singularidad).',
+            'Red Electrica y Almacen Virtual: Nexo Central Omega, Pilones de Enlace, Acumulador Cuantico (+5.000 a +40.000 W·s) y 4 Generadores (Combustion, Geotermico, Solar Arcano y Reactor de Singularidad).',
             '6 Maquinas Procesadoras y Extractores: Trituradora, Lavadora Arcana, Fundidora Omega, Sintetizador de Gemas, Inscriptor Runico Omega, Condensador de Materia Pura, Extractor de Nucleo Profundo y Domo Hidroponico.',
             'Defensa, Jefes y Sobrecarga: Torreta de Prisma Omega, Baliza de Sobrecarga de Isla (+25% a +60% velocidad de maquinas y +30% dano), Prensa de Singularidades, Camara de Simulacion de Jefes y Altar de Sobrecarga Infinita.',
             'Arbol de 13 Tecnologias Omega, Equipamiento Tier 16, Ascension de Islas (Rango I a III) y la mazmorra infinita El Abismo Infinito.'
@@ -10219,7 +10247,7 @@
           label: 'Beta 1.3.0',
           pill: 'BETA v1.3.0',
           subtitle: isEn ? '361-Island Expansion & Crimson Abyss' : 'Gran Expansion Beta 1.3.0',
-          heroTitle: isEn ? 'BALACLAVA â��⬝ Beta 1.3.0 Release Notes' : 'BALACLAVA â��⬝ Notas de la Version Beta 1.3.0',
+          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.0 Release Notes' : 'BALACLAVA — Notas de la Version Beta 1.3.0',
           heroSub: isEn
             ? 'Complete summary of all 14 biomes, 75 dungeons, Omega balance, texture overhaul, Chest Relics UI and trailer debug tools.'
             : 'Resumen completo de las 361 islas, 14 biomas, 75 mazmorras, Jefe Final Carmesi Abisal, balance Omega y herramientas de trailer.',
@@ -10230,7 +10258,7 @@
           label: 'Beta 1.2.1',
           pill: 'BETA v1.2.1',
           subtitle: isEn ? 'Chests (1,000 Stacks) & Storage Fix' : 'Cofres (Stacks de 1000) y Correcciones',
-          heroTitle: isEn ? 'BALACLAVA â��⬝ Beta 1.2.1 Release Notes' : 'BALACLAVA â��⬝ Notas de la Version Beta 1.2.1',
+          heroTitle: isEn ? 'BALACLAVA — Beta 1.2.1 Release Notes' : 'BALACLAVA — Notas de la Version Beta 1.2.1',
           heroSub: isEn
             ? 'Previous release notes kept for reference: 1,000 stack chests, storage durability, combat scaling and UI refinements.'
             : 'Historial de cambios de la version anterior Beta 1.2.1.',
@@ -10338,12 +10366,12 @@
       const g = this.game;
       const dId = this.modalData?.dungeonId;
       const def = (Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[dId]) || {};
-      titleEl.textContent = `DesafÒ­o Corrupto: ${def.name || 'Mazmorra'}`;
+      titleEl.textContent = `Desafío Corrupto: ${def.name || 'Mazmorra'}`;
 
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:12px;' }, [
-        this.el('div', { style: 'font-size:16px;font-weight:700;color:#e040fb;margin-bottom:6px;' }, '�¡Has dominado las 24 Mazmorras del ArchipiÒ©lago!'),
+        this.el('div', { style: 'font-size:16px;font-weight:700;color:#e040fb;margin-bottom:6px;' }, '¡Has dominado las 24 Mazmorras del Archipiélago!'),
         this.el('div', { style: 'font-size:14px;color:#eceff1;line-height:1.45;' },
-          'Las energÒ­as del vacÒ­o han corrompido esta mazmorra ancestral. Los enemigos y el jefe poseen 25x vida, daÒ±o abrumador y patrones intensos, pero otorgan Esencias Corruptas, Gemas del VacÒ­o y Reliquias Legendarias.'
+          'Las energías del vacío han corrompido esta mazmorra ancestral. Los enemigos y el jefe poseen 25x vida, daÒ±o abrumador y patrones intensos, pero otorgan Esencias Corruptas, Gemas del VacÒ­o y Reliquias Legendarias.'
         )
       ]));
 
@@ -10351,7 +10379,7 @@
       if (isCorruptedCleared) {
         body.appendChild(this.el('div', { class: 'card', style: 'color:#81c784;font-weight:700;margin-bottom:12px;' }, [
           this.uiIcon('iconCheck', 16),
-          '�¡Ya completaste esta mazmorra en Modo Corrupto!'
+          '¡Ya completaste esta mazmorra en Modo Corrupto!'
         ]));
       }
 
@@ -10503,7 +10531,7 @@
                 if (g.cyclePlayerSkin) g.cyclePlayerSkin(-1);
                 this.renderModal();
               }
-            }, 'â��~'),
+            }, '⚙'),
             this.el('button', {
               type: 'button',
               class: 'btn btn-gold',
@@ -10513,7 +10541,7 @@
                 if (g.cyclePlayerSkin) g.cyclePlayerSkin(1);
                 this.renderModal();
               }
-            }, 'â�º')
+            }, '★')
           ])
         ]);
         stack.appendChild(skinBox);
@@ -10572,19 +10600,19 @@
         rows.push({ lv: 3, text: isEn ? 'Unlocks Tier III (Master) enchantments.' : 'Desbloquea encantamientos Grado III (Maestros).' });
       } else if (def.station) {
         rows.push({ lv: 1, text: isEn ? `Unlocks base ${def.name} recipes.` : `Desbloquea recetas base de ${def.name}.` });
-        rows.push({ lv: 2, text: isEn ? '+35% crafting/forging speed �· +20% Craft XP.' : '+35% velocidad de crafteo/forja �· +20% EXP obtenida.' });
-        rows.push({ lv: 3, text: isEn ? '+75% speed �· +40% XP �· 25% double output (x2) �· 20% Material Echo.' : '+75% velocidad �· +40% EXP �· 25% doble producciÒ³n (x2) �· 20% Eco de materiales.' });
+        rows.push({ lv: 2, text: isEn ? '+35% crafting/forging speed · +20% Craft XP.' : '+35% velocidad de crafteo/forja · +20% EXP obtenida.' });
+        rows.push({ lv: 3, text: isEn ? '+75% speed · +40% XP · 25% double output (x2) · 20% Material Echo.' : '+75% velocidad · +40% EXP · 25% doble producción (x2) · 20% Eco de materiales.' });
       }
 
       const hasAura = Boolean(def.auraDmg || def.auraSpeed || def.auraLuck || def.xpBonus || def.auraXp || def.auraSpellPower);
       if (hasAura) {
         const auraTags = [];
-        if (def.auraDmg) auraTags.push(isEn ? `+${Math.round(def.auraDmg * 100)}% DMG` : `+${Math.round(def.auraDmg * 100)}% DaÒ±o`);
+        if (def.auraDmg) auraTags.push(isEn ? `+${Math.round(def.auraDmg * 100)}% DMG` : `+${Math.round(def.auraDmg * 100)}% Daño`);
         if (def.auraSpeed) auraTags.push(isEn ? `+${Math.round(def.auraSpeed * 100)}% SPD` : `+${Math.round(def.auraSpeed * 100)}% Vel.`);
         if (def.auraLuck) auraTags.push(isEn ? `+${Math.round(def.auraLuck * 100)}% Luck` : `+${Math.round(def.auraLuck * 100)}% Suerte`);
         if (def.xpBonus || def.auraXp) auraTags.push(`+${Math.round(((def.xpBonus || 0) + (def.auraXp || 0)) * 100)}% XP`);
         if (def.auraSpellPower) auraTags.push(isEn ? `+${Math.round(def.auraSpellPower * 100)}% Spells` : `+${Math.round(def.auraSpellPower * 100)}% Hechizos`);
-        const baseStr = auraTags.join(' �· ');
+        const baseStr = auraTags.join(' · ');
         if (!def.station) rows.push({ lv: 1, text: isEn ? `Base aura: ${baseStr}.` : `Aura base: ${baseStr}.` });
         rows.push({ lv: 2, text: isEn ? `Empowered aura (+45%): x1.45 (${baseStr}).` : `Aura potenciada (+45%): bonos x1.45 (${baseStr}).` });
         rows.push({ lv: 3, text: isEn ? `Supreme aura (+90%): x1.90 (${baseStr}).` : `Aura suprema (+90%): bonos x1.90 (${baseStr}).` });
@@ -10593,8 +10621,8 @@
       if (def.isTurret) {
         const baseDmg = def.turretDmg || 28;
         rows.push({ lv: 1, text: isEn ? `Base turret (${baseDmg} DMG per shot).` : `Torreta base (${baseDmg} daÒ±o por disparo).` });
-        rows.push({ lv: 2, text: isEn ? `+45% damage (${Math.round(baseDmg * 1.45)}) �· +25% fire rate.` : `+45% daÒ±o (${Math.round(baseDmg * 1.45)}) �· +25% cadencia de tiro.` });
-        rows.push({ lv: 3, text: isEn ? `+90% damage (${Math.round(baseDmg * 1.90)}) �· +50% fire rate.` : `+90% daÒ±o (${Math.round(baseDmg * 1.90)}) �· +50% cadencia de tiro.` });
+        rows.push({ lv: 2, text: isEn ? `+45% damage (${Math.round(baseDmg * 1.45)}) · +25% fire rate.` : `+45% daÒ±o (${Math.round(baseDmg * 1.45)}) · +25% cadencia de tiro.` });
+        rows.push({ lv: 3, text: isEn ? `+90% damage (${Math.round(baseDmg * 1.90)}) · +50% fire rate.` : `+90% daÒ±o (${Math.round(baseDmg * 1.90)}) · +50% cadencia de tiro.` });
       }
 
       if (def.machineSpeedBonus) {
@@ -10605,17 +10633,17 @@
       if (def.autoCycle && !def.autoWaterRadius && !def.cropBoost) {
         if (def.autoCoins || def.autoXp) {
           rows.push({ lv: 1, text: isEn ? `Auto generation every ${def.autoCycle}s.` : `GeneraciÒ³n automÒ¡tica cada ${def.autoCycle}s.` });
-          rows.push({ lv: 2, text: isEn ? '+45% speed �· +50% coins / +40% XP.' : '+45% velocidad �· +50% monedas / +40% EXP.' });
-          rows.push({ lv: 3, text: isEn ? '+90% speed �· +100% coins / +80% XP.' : '+90% velocidad �· +100% monedas / +80% EXP.' });
+          rows.push({ lv: 2, text: isEn ? '+45% speed · +50% coins / +40% XP.' : '+45% velocidad · +50% monedas / +40% EXP.' });
+          rows.push({ lv: 3, text: isEn ? '+90% speed · +100% coins / +80% XP.' : '+90% velocidad · +100% monedas / +80% EXP.' });
         } else if (def.autoMine || def.autoProduce) {
           rows.push({ lv: 1, text: isEn ? `Auto production every ${def.autoCycle}s.` : `ProducciÒ³n automÒ¡tica cada ${def.autoCycle}s.` });
-          rows.push({ lv: 2, text: isEn ? '+35% speed �· 35% higher-purity ore chance.' : '+35% velocidad �· 35% prob. mineral de mayor pureza.' });
-          rows.push({ lv: 3, text: isEn ? '+70% speed �· Double output per cycle (x2).' : '+70% velocidad �· Doble producciÒ³n por ciclo (x2).' });
+          rows.push({ lv: 2, text: isEn ? '+35% speed · 35% higher-purity ore chance.' : '+35% velocidad · 35% prob. mineral de mayor pureza.' });
+          rows.push({ lv: 3, text: isEn ? '+70% speed · Double output per cycle (x2).' : '+70% velocidad · Doble producción por ciclo (x2).' });
         }
       }
 
       if (def.autoWaterRadius) {
-        rows.push({ lv: 1, text: isEn ? `Auto watering in ${def.autoWaterRadius}px radius.` : `Riego automÒ¡tico en radio ${def.autoWaterRadius}px.` });
+        rows.push({ lv: 1, text: isEn ? `Auto watering in ${def.autoWaterRadius}px radius.` : `Riego automático en radio ${def.autoWaterRadius}px.` });
         rows.push({ lv: 2, text: isEn ? '+20% range radius and faster cycles.' : '+20% radio de alcance y ciclos mÒ¡s frecuentes.' });
         rows.push({ lv: 3, text: isEn ? '+40% range covering the entire garden.' : '+40% radio de alcance sobre toda la huerta.' });
       }
@@ -10799,6 +10827,18 @@
       }
       if (def.opensPanel === 'dungeons') {
         const dList = this.el('div', { class: 'dungeon-atlas-list', style: 'margin-top:8px;' });
+        // Hero button: Portal directo al Jefe Final
+        dList.appendChild(this.el('button', {
+          class: 'btn btn-danger btn-sm',
+          style: 'background:linear-gradient(90deg, #b71c1c, #880e4f);border:2px solid #ff5252;color:#fff;font-weight:900;margin-bottom:8px;width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;box-shadow:0 0 14px rgba(255,23,68,0.5);letter-spacing:0.5px;',
+          onclick: () => {
+            this.closeModal();
+            g.enterDungeon('eclipse_carmesi', false, { directArena: true, forceNormal: true });
+          }
+        }, [
+          this.el('span', { style: 'font-size:14px;' }, '⚔️ Teletransportarse al Jefe Final (Arena Directa — Espadachín Carmesí Abisal)'),
+          this.el('span', { style: 'color:#ffe082;font-size:12px;font-weight:900;background:rgba(0,0,0,0.4);padding:3px 8px;border-radius:4px;border:1px solid #ffd54f;' }, 'BOSS FINAL')
+        ]));
         if (g.clearedDungeons && g.clearedDungeons.length >= 24) {
           const abFl = (g.omega && g.omega.state.abyss && g.omega.state.abyss.current) || 1;
           const abBest = (g.omega && g.omega.state.abyss && g.omega.state.abyss.best) || 0;
@@ -10810,7 +10850,7 @@
               g.enterDungeon('abismo_infinito');
             }
           }, [
-            this.el('span', {}, `El Abismo Infinito (Piso ${abFl} �· RÒ©cord: ${abBest})`),
+            this.el('span', {}, `El Abismo Infinito (Piso ${abFl} · Récord: ${abBest})`),
             this.el('span', { style: 'color:#ffd54f;font-size:12px;font-weight:900;' }, 'T16 ENDGAME')
           ]));
         }
@@ -10931,7 +10971,7 @@
                 g.toast(`Retirados ${count} objetos al inventario.`, 'info');
                 this.renderModal();
               } else {
-                g.toast('AlmacÒ©n virtual vacÒ­o.', 'warn');
+                g.toast('AlmacÒ©n virtual vacío.', 'warn');
               }
             }
           }, 'Retirar Todo')
@@ -10952,7 +10992,7 @@
         const entries = Object.entries(nData.items || {}).filter(([k, q]) => q > 0);
         if (!entries.length) {
           itemsGrid.appendChild(this.el('div', { style: 'grid-column:1/-1;text-align:center;padding:20px;color:#8ba2b8;font-size:13px;' },
-            'AlmacÒ©n virtual vacÒ­o. Los extractores, domos y procesadoras conectadas depositarÒ¡n automÒ¡ticamente sus productos aquÒ­.'));
+            'AlmacÒ©n virtual vacío. Los extractores, domos y procesadoras conectadas depositarÒ¡n automáticamente sus productos aquí.'));
         } else {
           for (const [id, q] of entries) {
             const it = Balaclava.ITEMS[id] || { name: id, icon: 'piedra' };
@@ -11007,7 +11047,7 @@
 
         body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:10px;padding:10px;' }, [
           this.el('div', { style: 'display:flex;justify-content:space-between;font-size:13px;font-weight:bold;margin-bottom:6px;' }, [
-            this.el('span', { style: 'color:#80d8ff;' }, `Reserva EnergÒ©tica del Nexo: ${curEn} / ${bufCap} W�·s${batBonus > 0 ? ` (+${batBonus} por Acumuladores)` : ''}`),
+            this.el('span', { style: 'color:#80d8ff;' }, `Reserva Energética del Nexo: ${curEn} / ${bufCap} W·s${batBonus > 0 ? ` (+${batBonus} por Acumuladores)` : ''}`),
             this.el('span', { style: 'color:#69f0ae;' }, `${enPct}%`)
           ]),
           this.el('div', { style: 'width:100%;height:10px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden;border:1px solid rgba(0,229,255,0.35);' }, [
@@ -11109,7 +11149,7 @@
                 const res = g.omega.researchAtomic(g, plotKey, r.id);
                 if (res.ok) {
                   Balaclava.Audio.play('levelup');
-                  g.toast(`�¡Investigado: ${r.name}!`, 'success');
+                  g.toast(`¡Investigado: ${r.name}!`, 'success');
                   this.renderModal();
                 } else {
                   Balaclava.Audio.play('error');
@@ -11152,7 +11192,7 @@
 
       if (!currentCat) {
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'text-align:center;padding:24px;color:#b8d4ec;' },
-          'Selecciona una categorÒ­a de recursos para calibrar la Prensa de Singularidades. Requiere 10.000 recursos compatibles de dicha categorÒ­a para condensar 1 Singularidad.'));
+          'Selecciona una categoría de recursos para calibrar la Prensa de Singularidades. Requiere 10.000 recursos compatibles de dicha categoría para condensar 1 Singularidad.'));
         return;
       }
 
@@ -11170,7 +11210,7 @@
           this.el('div', { style: `width:${pct}%;height:100%;background:linear-gradient(90deg, #7b1fa2, #e040fb);transition:width 0.2s;` })
         ]),
         this.el('div', { style: 'font-size:13px;color:#dce8f5;line-height:1.45;' },
-          `Objetivo: 1x Singularidad. La prensa extraerÒ¡ recursos de la categorÒ­a �«${currentCat}�» automÒ¡ticamente del Nexo mientras reciba suficiente energÒ­a (200 W).`),
+          `Objetivo: 1x Singularidad. La prensa extraerá recursos de la categoría «${currentCat}» automáticamente del Nexo mientras reciba suficiente energía (200 W).`),
         this.el('div', { style: 'display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;' }, [
           this.el('button', {
             class: 'btn btn-primary btn-sm',
@@ -11234,7 +11274,7 @@
             this.el('div', { style: `width:${Math.min(100, Math.round(((o.progress || 0) / 30) * 100))}%;height:100%;background:#00e5ff;` })
           ])
         ]) : this.el('div', { style: 'font-size:13px;color:#90a4ae;' },
-          'Inserta un Cristal de Datos de Jefe sintetizado para comenzar la simulaciÒ³n de combate continua.')
+          'Inserta un Cristal de Datos de Jefe sintetizado para comenzar la simulación de combate continua.')
       ]);
       body.appendChild(statusCard);
 
@@ -11267,7 +11307,7 @@
                 const r = g.omega.insertCrystal(g, plotKey, b, d.id);
                 if (r.ok) {
                   Balaclava.Audio.play('portal');
-                  g.toast(`�¡Iniciada simulaciÒ³n de ${d.boss.name}!`, 'success');
+                  g.toast(`¡Iniciada simulación de ${d.boss.name}!`, 'success');
                   this.renderModal();
                 } else {
                   g.toast(r.reason, 'warn');
@@ -11336,11 +11376,11 @@
 
       const infoCard = this.el('div', { class: 'card', style: 'padding:12px;margin-bottom:12px;' }, [
         this.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;' }, [
-          this.el('strong', { style: 'color:#ffd54f;font-size:16px;' }, `${info.name} â��⬝ Nivel +${curLvl}`),
+          this.el('strong', { style: 'color:#ffd54f;font-size:16px;' }, `${info.name} — Nivel +${curLvl}`),
           this.el('span', { style: 'color:#80d8ff;font-weight:bold;' }, `Bonus Actual: +${curPct}%`)
         ]),
         this.el('div', { style: 'font-size:13px;color:#dce8f5;line-height:1.45;' },
-          `Tipo de Sobrecarga: ${info.cat === 'damage' ? 'DaÒ±o Bruto' : (info.cat === 'defense' ? 'Defensa y Salud' : 'Potencia de ExtracciÒ³n')}. Siguiente nivel: +${nextPct}%. FÒ³rmulas de coste exponencial Base Ò� 1.35^Nivel.`)
+          `Tipo de Sobrecarga: ${info.cat === 'damage' ? 'Daño Bruto' : (info.cat === 'defense' ? 'Defensa y Salud' : 'Potencia de ExtracciÒ³n')}. Siguiente nivel: +${nextPct}%. Fórmulas de coste exponencial Base × 1.35^Nivel.`)
       ]);
       body.appendChild(infoCard);
 
@@ -11357,7 +11397,7 @@
             const r = g.omega.overloadBuy(g, targetKey, n, plotKey);
             if (r.ok) {
               Balaclava.Audio.play('levelup');
-              g.toast(`�¡Sobrecargado ${info.name} a +${r.to}!`, 'success');
+              g.toast(`¡Sobrecargado ${info.name} a +${r.to}!`, 'success');
               this.renderModal();
             } else {
               Balaclava.Audio.play('error');
@@ -11381,7 +11421,7 @@
           const r = g.omega.overloadBuy(g, targetKey, maxN, plotKey);
           if (r.ok) {
             Balaclava.Audio.play('levelup');
-            g.toast(`�¡Sobrecargado al mÒ¡ximo posible: +${r.to}!`, 'success');
+            g.toast(`¡Sobrecargado al máximo posible: +${r.to}!`, 'success');
             this.renderModal();
           } else {
             Balaclava.Audio.play('error');
@@ -11413,9 +11453,9 @@
         : (o.job && o.job.power ? o.job.power : (def.omega.power || 0));
 
       const energyDesc = isGen
-        ? `+${powerVal} W/s (ProducciÒ³n EnergÒ©tica)`
+        ? `+${powerVal} W/s (ProducciÒ³n Energética)`
         : isBat
-        ? `+${(def.omega.capBonus && def.omega.capBonus[lvlIdx]) || 5000} W�·s (Reserva de BaterÒ­a)`
+        ? `+${(def.omega.capBonus && def.omega.capBonus[lvlIdx]) || 5000} W·s (Reserva de Batería)`
         : isPylon
         ? `Capacidad de transmisiÒ³n: ${((Balaclava.OMEGA_CONFIG && Balaclava.OMEGA_CONFIG.pylonCapacity) || [60, 180, 540])[lvlIdx]} W/s`
         : `-${powerVal} W/s (Consumo de Red)`;
@@ -11431,7 +11471,7 @@
         this.el('div', { style: 'font-size:12px;color:#dce8f5;margin-bottom:8px;line-height:1.4;' }, def.desc || ''),
         o.reason ? this.el('div', { style: 'font-size:12px;color:#ffd54f;margin-bottom:8px;' }, o.reason) : null,
         (!isGen && !isBat && !isPylon) ? this.el('div', { style: 'display:flex;align-items:center;gap:8px;margin-top:6px;' }, [
-          this.el('span', { style: 'font-size:12px;color:#b8d4ec;' }, 'Prioridad de energÒ­a:'),
+          this.el('span', { style: 'font-size:12px;color:#b8d4ec;' }, 'Prioridad de energía:'),
           this.el('button', {
             class: 'btn btn-stone btn-sm ' + ((o.prio || 2) === 1 ? 'btn-gold' : ''),
             onclick: () => { o.prio = 1; this.renderModal(); }
@@ -11452,7 +11492,7 @@
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'padding:10px;font-size:13px;margin-bottom:10px;' }, [
           this.el('strong', { style: 'color:#69f0ae;display:block;margin-bottom:4px;' }, 'Combustibles Compatibles (desde el Nexo):'),
           this.el('div', { style: 'color:#dce8f5;line-height:1.45;' },
-            genDef.fuels.map(f => `${(Balaclava.ITEMS[f.id] && Balaclava.ITEMS[f.id].name) || f.id} (${f.t}s por unidad �· En Nexo: ${g.omega.nexusCount(plotKey, f.id)})`).join(' �· '))
+            genDef.fuels.map(f => `${(Balaclava.ITEMS[f.id] && Balaclava.ITEMS[f.id].name) || f.id} (${f.t}s por unidad · En Nexo: ${g.omega.nexusCount(plotKey, f.id)})`).join(' · '))
         ]));
       }
 
@@ -11482,7 +11522,7 @@
         for (const r of recipes) {
           listEl.appendChild(this.el('div', { style: 'padding:4px 6px;background:rgba(0,0,0,0.28);border-radius:4px;display:flex;justify-content:space-between;gap:8px;' }, [
             this.el('span', {}, `${r.name}: ${g.omega.fmtMap(r.in)} -> ${g.omega.fmtMap(r.out)}`),
-            this.el('span', { style: 'color:#80d8ff;white-space:nowrap;' }, `${r.time}s �· ${r.power} W/s`)
+            this.el('span', { style: 'color:#80d8ff;white-space:nowrap;' }, `${r.time}s · ${r.power} W/s`)
           ]));
         }
         recBox.appendChild(listEl);
@@ -11498,7 +11538,7 @@
             tbl.length ? tbl.map(k => {
               const itemId = typeof k === 'object' ? k.id : k;
               return (Balaclava.ITEMS[itemId] && Balaclava.ITEMS[itemId].name) || itemId;
-            }).join(', ') : 'Minerales estÒ¡ndar')
+            }).join(', ') : 'Minerales estándar')
         ]);
         body.appendChild(resCard);
       }
@@ -11610,7 +11650,7 @@
         body.appendChild(this.el('h4', { style: 'margin:8px 0;color:#ffd54f;' }, tr('bldg.stationRecipesTitle')));
         this._renderCraftingWorkspace(body, stRecs, { stationId, showStationLabel: false });
       } else {
-        body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:12px;color:#90a4ae;' }, 'No hay recetas en esta categorÒ­a.'));
+        body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:12px;color:#90a4ae;' }, 'No hay recetas en esta categoría.'));
       }
     }
 
@@ -11627,7 +11667,7 @@
           this.el('span', { style: 'color:#80deea;font-weight:700;' }, `${totalStored} / ${cap} unidades`)
         ]),
         this.el('div', { style: 'font-size:14px;color:#b0bec5;margin-top:4px;' },
-          'Las mÒ¡quinas conectadas por tuberÒ­as envÒ­an automÒ¡ticamente su exceso a este cofre cuando se llenan.'
+          'Las mÒ¡quinas conectadas por tuberÒ­as envÒ­an automáticamente su exceso a este cofre cuando se llenan.'
         )
       ]));
 
@@ -11657,7 +11697,7 @@
             else b.filters.push(fId);
             this.renderModal();
           }
-        }, `${isF ? 'â��S ' : '+ '}${fLabel}`));
+        }, `${isF ? '✓ ' : '+ '}${fLabel}`));
       });
       if (b.filters.length > 0) {
         filterBtnRow.appendChild(this.el('button', {
@@ -11683,7 +11723,7 @@
       const stKeys = Object.keys(b.storage).filter(k => b.storage[k] > 0);
       body.appendChild(this.el('h4', { style: 'margin:8px 0;color:#80cbc4;' }, 'Contenido del Cofre (Retiro Gradual):'));
       if (stKeys.length === 0) {
-        body.appendChild(this.el('div', { class: 'card', style: 'color:#90a4ae;margin-bottom:12px;' }, 'El cofre logÒ­stico estÒ¡ vacÒ­o actualmente.'));
+        body.appendChild(this.el('div', { class: 'card', style: 'color:#90a4ae;margin-bottom:12px;' }, 'El cofre logÒ­stico está vacío actualmente.'));
       } else {
         const grid = this.el('div', { style: 'display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto;' });
         stKeys.forEach(k => {
@@ -11745,7 +11785,7 @@
       invDeposit.appendChild(this.el('strong', { style: 'color:#a5d6a7;display:block;margin-bottom:6px;' }, 'Depositar desde tu inventario:'));
       const invKeys = Object.keys(g.inventory).filter(k => g.inventory[k] > 0 && Balaclava.ITEMS[k]);
       if (invKeys.length === 0) {
-        invDeposit.appendChild(this.el('div', { style: 'color:#90a4ae;' }, 'Tu inventario estÒ¡ vacÒ­o.'));
+        invDeposit.appendChild(this.el('div', { style: 'color:#90a4ae;' }, 'Tu inventario está vacío.'));
       } else {
         const depGrid = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;max-height:170px;overflow-y:auto;' });
         invKeys.forEach(k => {
@@ -11757,7 +11797,7 @@
               const curTot = Object.values(b.storage).reduce((s, q) => s + (Number(q) || 0), 0);
               const space = Math.max(0, cap - curTot);
               if (space <= 0) {
-                g.toast('El cofre logÒ­stico estÒ¡ lleno', 'warn');
+                g.toast('El cofre logÒ­stico está lleno', 'warn');
                 return;
               }
               const depositQty = Math.min(count, Math.min(10, space));
@@ -11811,8 +11851,16 @@
             class: 'btn btn-danger btn-sm',
             onclick: () => {
               b.storage = {};
+              if (Array.isArray(g.hotbar)) {
+                g.hotbar.forEach((slot, idx) => {
+                  if (slot && slot.kind === 'item' && (g.inventory[slot.id] || 0) <= 0) {
+                    g.hotbar[idx] = null;
+                  }
+                });
+              }
               if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('destroy');
               g.toast(`Incinerados ${stagedCount} objetos permanentemente.`, 'warn');
+              this.updateHUD(true);
               this.renderModal();
             }
           }, 'Incinerar Todo (Eliminar)') : null
@@ -11822,13 +11870,13 @@
       const binGrid = this.el('div', { class: 'chest-grid', style: 'max-height:150px;overflow-y:auto;' });
       if (stagedEntries.length === 0) {
         binGrid.appendChild(this.el('div', { style: 'grid-column:1/-1;color:#90a4ae;font-size:13px;padding:10px;' },
-          'El basurero estÒ¡ vacÒ­o. Haz clic en objetos de tu inventario abajo para enviarlos aquÒ­.'));
+          'El basurero está vacío. Haz clic en objetos de tu inventario abajo para enviarlos aquí.'));
       } else {
         stagedEntries.forEach(([id, q]) => {
           const it = Balaclava.ITEMS[id];
           const slot = this.el('div', {
             class: `inv-slot rarity-${it.rarity || 'comun'}`,
-            title: `${it.name} (x${q}) â��⬝ Clic: Recuperar al inventario`,
+            title: `${it.name} (x${q}) — Clic: Recuperar al inventario`,
             onclick: () => {
               const take = Math.min(q, maxStack);
               if (!g.canAddItem(id, 1)) {
@@ -11855,13 +11903,10 @@
 
       const invCard = this.el('div', { class: 'card', style: 'padding:10px;' });
       invCard.appendChild(this.el('strong', { style: 'color:#e2e8f0;font-size:14px;display:block;margin-bottom:8px;' },
-        'Tu Inventario (Clic: mover stack �· Clic Der: mover 1 �· Shift+Clic: mover todo)'));
+        'Tu Inventario (Clic: mover stack · Clic Der: mover 1 · Shift+Clic: mover todo)'));
       const invGrid = this.el('div', { class: 'chest-grid', style: 'max-height:200px;overflow-y:auto;' });
       const playerItems = Object.entries(g.inventory)
-        .map(([id, q]) => {
-          const hbSlots = (g.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
-          return [id, Math.max(0, q - hbSlots * maxStack)];
-        })
+        .map(([id, q]) => [id, q || 0])
         .filter(([id, q]) => q > 0 && Balaclava.ITEMS[id]);
 
       if (playerItems.length === 0) {
@@ -11875,11 +11920,10 @@
             rem -= stackQty;
             const slot = this.el('div', {
               class: `inv-slot rarity-${it.rarity || 'comun'}`,
-              title: `${it.name} (x${stackQty}) â��⬝ Enviar al basurero`,
+              title: `${it.name} (x${stackQty}) — Enviar al basurero`,
               onclick: (ev) => {
-                const hbSlots = (g.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
-                const invOnly = Math.max(0, (g.inventory[id] || 0) - hbSlots * maxStack);
-                const move = (ev && ev.shiftKey) ? invOnly : Math.min(invOnly, stackQty);
+                const total = g.inventory[id] || 0;
+                const move = (ev && ev.shiftKey) ? total : Math.min(total, stackQty);
                 if (move > 0) {
                   g.removeItem(id, move);
                   b.storage[id] = (b.storage[id] || 0) + move;
@@ -11932,7 +11976,7 @@
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'display:flex;gap:16px;align-items:center;margin-bottom:14px;padding:12px 14px;' }, [
         this.npcPortrait(npc.id, 76),
         this.el('div', {}, [
-          this.el('div', { style: 'font-size:14px;font-weight:800;color:#9ec5ff;margin-bottom:5px;' }, `${npc.personality} �· ${BIOMES[npc.biome].name}`),
+          this.el('div', { style: 'font-size:14px;font-weight:800;color:#9ec5ff;margin-bottom:5px;' }, `${npc.personality} · ${BIOMES[npc.biome].name}`),
           this.el('div', { style: 'font-size:16px;font-style:italic;line-height:1.45;color:#f4efe6;' }, `"${npc.greeting}"`)
         ])
       ]));
@@ -11952,7 +11996,7 @@
       if (q.reqItems) {
         const itemsOk = Object.entries(q.reqItems).every(([id, amt]) => (g.inventory[id] || 0) >= amt);
         checks.push(itemsOk);
-        parts.push(Object.entries(q.reqItems).map(([id, amt]) => `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${amt}`).join(' �· '));
+        parts.push(Object.entries(q.reqItems).map(([id, amt]) => `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${amt}`).join(' · '));
       }
       if (q.reqKillBiome) {
         const cur = (g.stats.killsByBiome && g.stats.killsByBiome[q.reqKillBiome.biome]) || 0;
@@ -12026,7 +12070,7 @@
       }, 'X');
       const hdr = this.el('div', { class: 'bal-cmd-hdr' }, [
         this.el('span', {}, '[DEV] CONSOLA'),
-        this.el('span', { class: 'bal-cmd-hint' }, 'Tab: completar �· â⬠��â⬠�S: historial �· Esc: cerrar'),
+        this.el('span', { class: 'bal-cmd-hint' }, 'Tab: completar · ↑↓: historial · Esc: cerrar'),
         closeBtn
       ]);
 
@@ -12285,7 +12329,7 @@
 
     executeSecretCommand(rawCmd) {
       const raw = String(rawCmd || '').trim();
-      if (!raw) return { ok: false, message: 'Comando vacÒ­o.' };
+      if (!raw) return { ok: false, message: 'Comando vacío.' };
       const g = this.game;
       if (!g || !g.started || !g.player) {
         this._pushCmdLog('Inicia o carga una partida primero.', 'err');
@@ -12327,8 +12371,8 @@
           '/xp <give|set> <n>          - Dar o fijar experiencia',
           '/level <set|add> <n>        - Subir o fijar nivel (/lvl)',
           '/sp <give|set> <n>          - Puntos de ConstelaciÒ³n',
-          '/godmode [on|off]           - Inmortalidad y energÒ­a infinita (/god)',
-          '/heal                       - Curar HP/EnergÒ­a al mÒ¡ximo y revivir',
+          '/godmode [on|off]           - Inmortalidad y energía infinita (/god)',
+          '/heal                       - Curar HP/EnergÒ­a al máximo y revivir',
           '/stat <add|set|reset|list> <stat> [val] - Modificar stats (ej. 50% o 200)',
           '/unlock <plots|skills|spells|all> - Desbloquear islas, Ò¡rbol o hechizos',
           '/time <dawn|day|dusk|night|0..1>  - Cambiar hora del dÒ­a',
@@ -12553,7 +12597,7 @@
         } else {
           if (val > 0) g.gainXp(val);
         }
-        return succeed(`Nivel ${g.player.level} �· XP ${g.player.xp}/${g.player.nextXp}.`);
+        return succeed(`Nivel ${g.player.level} · XP ${g.player.xp}/${g.player.nextXp}.`);
       }
 
       if (cmd === 'level' || cmd === 'lvl' || cmd === 'nivel') {
@@ -12612,7 +12656,7 @@
             g.addFloatingText(g.player.x, g.player.y - 30, 'GODMODE ON', '#ffd54f');
           }
         }
-        return succeed(`Godmode ${next ? 'ACTIVADO (inmortal + energÒ­a infinita)' : 'DESACTIVADO'}.`, next ? 'warn' : 'ok');
+        return succeed(`Godmode ${next ? 'ACTIVADO (inmortal + energía infinita)' : 'DESACTIVADO'}.`, next ? 'warn' : 'ok');
       }
 
       if (cmd === 'heal' || cmd === 'curar' || cmd === 'revive') {

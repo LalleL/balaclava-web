@@ -72,6 +72,7 @@
       this.unlockedSpells = ['misil_arcano'];
       this.spellSlots = ['misil_arcano', null, null, null];
       this.spellCooldowns = {};
+      this.spellLevels = {};
       this.storyIndex = 0;
       this.npcQuestProgress = {};
       this.claimedContracts = [];
@@ -3437,6 +3438,61 @@
       return true;
     }
 
+    getSpellLevel(spellId) {
+      if (!this.spellLevels) this.spellLevels = {};
+      return Math.max(1, Math.min(5, parseInt(this.spellLevels[spellId], 10) || 1));
+    },
+
+    getSpellUpgradeCost(spellId) {
+      const cur = this.getSpellLevel(spellId);
+      if (cur >= 5) return null;
+      const coinCost = cur * 150;
+      const crystalCost = cur * 2;
+      return {
+        level: cur + 1,
+        coins: coinCost,
+        crystals: crystalCost
+      };
+    },
+
+    canUpgradeSpell(spellId) {
+      const cost = this.getSpellUpgradeCost(spellId);
+      if (!cost) return false;
+      const availableCrystals = (this.inventory.cristales_magicos || 0) + (this.inventory.cristales || 0);
+      return this.coins >= cost.coins && availableCrystals >= cost.crystals;
+    },
+
+    upgradeSpell(spellId) {
+      const cost = this.getSpellUpgradeCost(spellId);
+      if (!cost) return false;
+      if (!this.canUpgradeSpell(spellId)) {
+        this.toast(`Necesitas ${cost.coins} monedas y ${cost.crystals} Cristales Mágicos.`, 'warn');
+        Balaclava.Audio.play('error');
+        return false;
+      }
+      this.coins -= cost.coins;
+      let needCrystals = cost.crystals;
+      if ((this.inventory.cristales_magicos || 0) > 0) {
+        const take = Math.min(this.inventory.cristales_magicos, needCrystals);
+        this.removeItem('cristales_magicos', take);
+        needCrystals -= take;
+      }
+      if (needCrystals > 0 && (this.inventory.cristales || 0) > 0) {
+        this.removeItem('cristales', needCrystals);
+      }
+      if (!this.spellLevels) this.spellLevels = {};
+      this.spellLevels[spellId] = cost.level;
+      Balaclava.Audio.play('levelup');
+      if (typeof this.spawnParticles === 'function') {
+        this.spawnParticles(this.player.x, this.player.y, '#b388ff', 24);
+      }
+      const sp = Balaclava.SPELLS && Balaclava.SPELLS[spellId];
+      const sName = sp ? sp.name : spellId;
+      this.toast(`¡${sName} mejorado a Nivel ${cost.level}! (+25% daño, -8% recarga)`, 'success');
+      this.uiDirty = true;
+      return true;
+    },
+
     castSpell(slotIdxOrId, targetWx = null, targetWy = null) {
       if (!this.started || this.paused || this.isPlayerDead()) return false;
       const spellId = typeof slotIdxOrId === 'number'
@@ -3483,7 +3539,7 @@
       } else {
         this.triggerPlayerAction('hana_staff', 0.42, wx, wy);
       }
-      const spMult = 1 + (this.mods.spellPower || 0) + (this.mods.dmgBonus || 0) * 0.25;
+      const spMult = (1 + (this.mods.spellPower || 0) + (this.mods.dmgBonus || 0) * 0.25) * lvlDmgMult;
       const baseDmg = Math.round((sp.baseDamage || 24) * spMult);
       const foes = this.activeDungeon
         ? [...this.activeDungeon.enemies, ...(this.activeDungeon.boss ? [this.activeDungeon.boss] : [])]
@@ -3521,7 +3577,7 @@
         this.damageNodesInArea(px, py, r, Math.round(baseDmg * 0.85), sp.color, 0, 'spell:nova_hielo');
         Balaclava.Audio.play('levelup');
       } else if (spellId === 'cadena_rayos') {
-        const maxBounces = sp.bounces || 4;
+        const maxBounces = (sp.bounces || 4) + (sLevel - 1);
         const sorted = foes
           .filter(e => e && !e._dead && dist(px, py, e.x, e.y) <= 340 && losOk(px, py, e.x, e.y))
           .sort((a, b) => dist(wx, wy, a.x, a.y) - dist(wx, wy, b.x, b.y))

@@ -1,5 +1,5 @@
 /**
- * OMEGA � El Legado de la Singularidad (endgame expansion core).
+ * OMEGA — El Legado de la Singularidad (endgame expansion core).
  *
  * Single data-driven module. Everything balance-related lives in OMEGA_CONFIG so it can be tuned
  * without touching logic. The logic is pure w.r.t. rendering: the industrial simulation advances in
@@ -14,7 +14,7 @@
   const BUILDINGS = Balaclava.BUILDINGS || {};
   const SAFE_MAX = 9e15; // below Number.MAX_SAFE_INTEGER
 
-  // ���������������������������������������������������������� CONFIG ����������������������������������������������������������
+  // ==================== CONFIG ====================
   const CFG = {
     saveVersion: 2,
     tickSec: 1,
@@ -63,8 +63,8 @@
     }
   };
 
-  // �������������������������������������������������� ore families ��������������������������������������������������
-  // yield = ingots per ONE raw ore after crush �  wash �  smelt (configurable per family).
+  // ==================== ore families ====================
+  // yield = ingots per ONE raw ore after crush → wash → smelt (configurable per family).
   const ORE_FAMILIES = {
     cobre:      { raw: 'cobre',           ingot: 'lingote_cobre',      yield: 5 },
     hierro:     { raw: 'hierro',          ingot: 'lingote_hierro',     yield: 5 },
@@ -83,7 +83,7 @@
     maldito:    { raw: 'plata_maldita',   ingot: 'lingote_maldito',    yield: 3 }
   };
 
-  // �������������������������������������������������� item registration ��������������������������������������������������
+  // ==================== item registration ====================
   function regItem(id, o) {
     if (ITEMS[id]) return;
     ITEMS[id] = Object.assign({ id, category: 'materiales', rarity: 'epico', sellValue: 10, buyValue: 0, source: 'Industria Omega', uses: 'Industria Omega', desc: '', icon: 'tablet_stone' }, o, { id });
@@ -105,7 +105,7 @@
     regItem('cristal_datos_' + d.id, { name: `Cristal de Datos: ${d.boss.name}`, rarity: 'epico', category: 'especiales', sellValue: 400, icon: 'cristal_datos', desc: `Registro de combate de ${d.boss.name}. Se inserta en la Cámara de Simulación.`, source: 'Cámara de Simulación (tras derrotar al jefe)', uses: 'Cámara de Simulación de Jefes' });
   });
 
-  // �������������������������������������������������� machine recipes ��������������������������������������������������
+  // ==================== machine recipes ====================
   // Every roll (bonus chance) is data here; the code only reads this table.
   const MACHINE_RECIPES = { trituradora: [], lavadora: [], fundidora: [], sintetizador: [], inscriptor: [] };
   Object.entries(ORE_FAMILIES).forEach(([fam, f]) => {
@@ -126,7 +126,7 @@
     { id: 'syn_esmeralda', name: 'Cristalizar Esmeraldas', in: { malaquita_pradera: 2, cristales: 2 }, out: { esmeraldas: 2 }, bonus: [], time: 5, power: 60 },
     { id: 'syn_topacio', name: 'Cristalizar Topacios y Jade', in: { ambar_desierto: 2, cristales: 2 }, out: { topacio: 2, jade: 1 }, bonus: [], time: 5, power: 60 },
     { id: 'syn_zafiro', name: 'Cristalizar Zafiros Glaciales', in: { azurita_glacial: 2, esquirla_hielo: 2 }, out: { zafiro: 2 }, bonus: [], time: 5, power: 65 },
-    { id: 'syn_amatista', name: 'Cristalizar Amatistas y �nice', in: { esencia_oscura: 2, cristales_magicos: 2 }, out: { amatista: 2, onice: 1 }, bonus: [], time: 6, power: 70 },
+    { id: 'syn_amatista', name: 'Cristalizar Amatistas y Ónice', in: { esencia_oscura: 2, cristales_magicos: 2 }, out: { amatista: 2, onice: 1 }, bonus: [], time: 6, power: 70 },
     { id: 'syn_rubi', name: 'Cristalizar Rubíes Ígneos', in: { esencia_magma: 2, material_volcanico: 2 }, out: { rubi: 2 }, bonus: [], time: 6, power: 75 },
     { id: 'syn_diamante', name: 'Comprimir Carbón en Diamantes', in: { carbon: 12, cristales_magicos: 2 }, out: { diamantes: 2 }, bonus: [{ id: 'cristal_abismal', qty: 1, chance: 0.25 }], time: 7, power: 90 },
     { id: 'syn_prisma', name: 'Sintetizar Prisma Imperial', in: { diamantes: 1, rubi: 1, esmeraldas: 1, zafiro: 1, amatista: 1 }, out: { prisma_imperial: 2 }, bonus: [{ id: 'gema_alma', qty: 1, chance: 0.35 }], time: 8, power: 120 }
@@ -142,7 +142,7 @@
     { id: 'ins_celestial', name: 'Electro-Fundir Lingote Celestial', in: { lingote_adamantita: 1, polvo_estelar: 1, cristales_magicos: 2 }, out: { lingote_celestial: 2 }, bonus: [{ id: 'nucleo_solar', qty: 1, chance: 0.20 }], time: 8, power: 130 }
   );
 
-  // �������������������������������������������������� extractor tables (real ids per all 14 biomes) ��������������������������������������������������
+  // ==================== extractor tables (real ids per all 14 biomes) ====================
   const EXTRACT_TABLES = {
     pradera:            [{ id: 'cobre', w: 40 }, { id: 'hierro', w: 30 }, { id: 'carbon', w: 20 }, { id: 'oro', w: 10 }],
     desierto:           [{ id: 'cobre', w: 30 }, { id: 'hierro', w: 30 }, { id: 'oro', w: 25 }, { id: 'platino', w: 10, res: 'rec_profundo' }],
@@ -160,23 +160,23 @@
     tierras_malditas:   [{ id: 'marmol_oscuro', w: 35 }, { id: 'plata_maldita', w: 25, res: 'rec_nucleo' }, { id: 'cristal_carmesi', w: 20, res: 'rec_nucleo' }, { id: 'esencia_oscura', w: 20 }]
   };
 
-  // �������������������������������������������������� press categories (explicit allow-lists) ��������������������������������������������������
+  // ==================== press categories (explicit allow lists) ====================
   const PRESS_CATEGORIES = {
     minerales: ['cobre', 'hierro', 'oro', 'plata', 'platino', 'titanio', 'adamantita', 'oricalco', 'carbon', 'estano', 'coral_roca', 'cuarzo_boreal', 'madera_ferrea', 'escoria_caldera', 'pirita_solar', 'hielo_eterno', 'hueso_fosil', 'plata_maldita', 'marmol_oscuro'],
     cultivos: ['trigo', 'flor_cristal', 'bellota', 'hongo_luminoso', 'flor_pantano'],
     criaturas: ['seda_arana', 'colmillo', 'cuerno_demonio', 'escamas_dragon', 'esporas_toxicas', 'garra_sombras', 'pluma_oscura', 'ectoplasma', 'gel_azul', 'saco_veneno', 'diente_goblin', 'resina_toxica']
   };
 
-  // �������������������������������������������������� generators ��������������������������������������������������
+  // ==================== generators ====================
   const GENERATORS = {
-    gen_vapor:            { out: 20,   fuels: [{ id: 'carbon', t: 40 }, { id: 'madera', t: 12 }], biome: null },
-    gen_geotermico:       { out: 90,   fuels: [{ id: 'esencia_magma', t: 90 }, { id: 'material_volcanico', t: 45 }], biome: { tierras_volcanicas: 1.25, caldera_ceniza: 1.35, tierras_malditas: 1.35 } },
-    nucleo_arcano:        { out: 320,  fuels: [{ id: 'cristales_magicos', t: 120 }, { id: 'polvo_estelar', t: 240 }], biome: null },
-    reactor_singularidad: { out: 4000, fuels: [{ id: 'singularidad', t: 900 }], biome: null }
+    gen_vapor:            { out: 20,   fuels: [{ id: 'carbon', t: 40 }, { id: 'carbon_vegetal', t: 30 }, { id: 'madera', t: 12 }], biome: null },
+    gen_geotermico:       { out: 90,   fuels: [{ id: 'esencia_magma', t: 90 }, { id: 'material_volcanico', t: 45 }, { id: 'escoria_caldera', t: 35 }, { id: 'obsidiana', t: 30 }], biome: { tierras_volcanicas: 1.25, caldera_ceniza: 1.35, tierras_malditas: 1.35 } },
+    nucleo_arcano:        { out: 320,  fuels: [{ id: 'cristales_magicos', t: 120 }, { id: 'polvo_estelar', t: 240 }, { id: 'cristales', t: 60 }, { id: 'tinta_arcana', t: 80 }], biome: null },
+    reactor_singularidad: { out: 4000, fuels: [{ id: 'singularidad', t: 900 }, { id: 'materia_oscura', t: 350 }, { id: 'gema_vacio', t: 450 }], biome: null }
   };
   const GEN_LEVEL_MULT = [1, 1.6, 2.4];
 
-  // �������������������������������������������������� buildings ��������������������������������������������������
+  // ==================== buildings ====================
   let _omegaSort = 100;
   function defBuilding(id, name, size, sprite, cost, desc, omega, reqOmega) {
     if (BUILDINGS[id]) return;
@@ -193,8 +193,8 @@
   defBuilding('gen_geotermico', 'Reactor Geotérmico de Lava', 2, 'bld_omega_gen_geo', { lingote_acero: 14, obsidiana_refinada: 8, engrane: 8 }, 'Convierte esencia de magma en gran potencia. +25% en Tierras Volcánicas.', { kind: 'generator' }, 'gen_geo');
   defBuilding('nucleo_arcano', 'Núcleo Arcano', 2, 'bld_omega_nucleo', { lingote_titanio: 12, cristales_magicos: 20, polvo_estelar: 10, engrane: 10 }, 'Consume cristales y esencia para producir enormes cantidades de energía.', { kind: 'generator' }, 'gen_arcano');
   defBuilding('reactor_singularidad', 'Reactor de Singularidad', 2, 'bld_omega_reactor', { lingote_omega: 4, singularidad: 2, lingote_adamantita: 20 }, 'Generador definitivo alimentado por Singularidades.', { kind: 'generator' }, 'gen_singularidad');
-  defBuilding('trituradora', 'Trituradora', 1, 'bld_omega_trituradora', { lingote_hierro: 10, engrane: 6, piedra: 20 }, 'Tritura mineral crudo en fragmentos (1 �  2).', { kind: 'machine', mtype: 'trituradora', power: 8 }, 'proc_trituracion');
-  defBuilding('lavadora_arcana', 'Lavadora Arcana', 1, 'bld_omega_lavadora', { lingote_acero: 8, cristales: 10, engrane: 6 }, 'Purifica fragmentos en polvos puros (1 �  2).', { kind: 'machine', mtype: 'lavadora', power: 12 }, 'proc_lavado');
+  defBuilding('trituradora', 'Trituradora', 1, 'bld_omega_trituradora', { lingote_hierro: 10, engrane: 6, piedra: 20 }, 'Tritura mineral crudo en fragmentos (1 → 2).', { kind: 'machine', mtype: 'trituradora', power: 8 }, 'proc_trituracion');
+  defBuilding('lavadora_arcana', 'Lavadora Arcana', 1, 'bld_omega_lavadora', { lingote_acero: 8, cristales: 10, engrane: 6 }, 'Purifica fragmentos en polvos puros (1 → 2).', { kind: 'machine', mtype: 'lavadora', power: 12 }, 'proc_lavado');
   defBuilding('fundidora_omega', 'Fundidora Omega', 2, 'bld_omega_fundidora', { lingote_titanio: 10, lingote_acero: 12, cristales_magicos: 6, engrane: 8 }, 'Funde polvos puros en lingotes avanzados y forja el Lingote Omega.', { kind: 'machine', mtype: 'fundidora', power: 30 }, 'proc_fundicion');
   defBuilding('sintetizador_gemas', 'Sintetizador de Gemas', 2, 'bld_omega_sintetizador', { lingote_titanio: 10, cristales_magicos: 12, vidrio: 12, engrane: 8 }, 'Cristaliza gemas preciosas, diamantes, polvo estelar y prismas imperiales usando alta energía.', { kind: 'machine', mtype: 'sintetizador', power: 65 }, 'proc_sintesis');
   defBuilding('forja_runica_omega', 'Inscriptor Rúnico Omega', 1, 'bld_omega_inscriptor', { lingote_adamantita: 8, cristales_magicos: 10, polvo_estelar: 6, engrane: 8 }, 'Graba runas elementales, gemas del alma y electro-funde Lingotes Celestiales usando energía de la red.', { kind: 'machine', mtype: 'inscriptor', power: 80 }, 'proc_inscripcion');
@@ -213,7 +213,7 @@
   defBuilding('condensador_materia', 'Condensador de Materia Pura', 2, 'bld_omega_condensador', { lingote_adamantita: 14, lingote_celestial: 6, cristales_magicos: 16, engrane: 14 }, 'Convierte energía pura (500 energía/s, sin consumir materiales) directamente en Polvo Estelar, Cristales Mágicos y Materia Comprimida.', { kind: 'condenser', power: 500, cycleSec: 20 }, 'comp_condensador');
   defBuilding('altar_sobrecarga', 'Altar de Sobrecarga Infinita', 2, 'bld_omega_altar', { lingote_omega: 2, singularidad: 1, lingote_celestial: 10 }, 'Mejora sin límite armas, herramientas, armaduras y reliquias con coste exponencial.', { kind: 'altar' }, 'sobre_altar');
 
-  // �������������������������������������������������� research (Ingeniería Omega) ��������������������������������������������������
+  // ==================== research (Ingeniería Omega) ====================
   const CATS = {
     fundamentos: 'Fundamentos industriales', logistica: 'Redes logísticas', generacion: 'Generación energética', procesamiento: 'Procesamiento de minerales',
     recoleccion: 'Recolección automatizada', simulacion: 'Simulación de jefes', compresion: 'Compresión de recursos', equipo: 'Equipamiento Omega',
@@ -260,7 +260,7 @@
   const RESEARCH_BY_ID = {};
   RESEARCH.forEach(r => { RESEARCH_BY_ID[r.id] = r; });
 
-  // �������������������������������������������������� helpers ��������������������������������������������������
+  // ==================== helpers ====================
   const plotKeyOf = (tx, ty) => {
     const P = (Balaclava.CONST && Balaclava.CONST.PLOT_TILES) || 12;
     return Math.floor(tx / P) + ',' + Math.floor(ty / P);
@@ -277,7 +277,7 @@
   const sumVals = (m) => Object.values(m).reduce((a, v) => a + (Number(v) || 0), 0);
   const lvlIdx = (b) => cap((b.level || 1) - 1, 0, 2);
 
-  // �������������������������������������������������� OmegaSystem ��������������������������������������������������
+  // ==================== OmegaSystem ====================
   class OmegaSystem {
     constructor() { this.reset(); }
 
@@ -294,7 +294,7 @@
       this.lastError = '';
     }
 
-    // ���� research & modifiers ����
+  // ==================== research & modifiers ====================
     hasResearch(id) { return !!this.state.research[id]; }
     getMod(stat) {
       let v = 0;
@@ -325,7 +325,7 @@
       return { ok: true };
     }
 
-    // ���� placement gating (hook from Game.canPlaceBuilding) ����
+  // ==================== placement gating (hook from Game.canPlaceBuilding) ====================
     canPlace(game, buildingId, tx, ty) {
       const def = BUILDINGS[buildingId];
       if (!def || !def.omegaStructure) return { ok: true };
@@ -343,7 +343,7 @@
       return { ok: true };
     }
 
-    // ���� nexus storage (per island, transactional) ����
+  // ==================== nexus storage (per island, transactional) ====================
     nexusData(plot) {
       let n = this.state.nexus[plot];
       if (!n) n = this.state.nexus[plot] = { items: {}, energy: 0, level: 1, stat: { in: {}, out: {}, lastProd: 0, lastCons: 0, lastDeficit: 0 } };
@@ -380,7 +380,7 @@
     }
     produced(id, q) { this.state.produced[id] = (this.state.produced[id] || 0) + q; }
 
-    // Player �! Nexus (validated both sides, atomic)
+  // ==================== Player ! Nexus (validated both sides, atomic) ====================
     depositFromInventory(game, plot, id, qty) {
       qty = Math.floor(qty);
       if (!(qty > 0) || !ITEMS[id]) return { ok: false, reason: 'Cantidad inválida' };
@@ -416,7 +416,7 @@
     }
     fmtMap(m) { return Object.entries(m).map(([k, q]) => `${Math.ceil(q)} ${(ITEMS[k] && ITEMS[k].name) || k}`).join(', '); }
 
-    // ���� network topology ����
+  // ==================== network topology ====================
     signature(game) {
       let s = Object.keys(this.state.research).length + '|' + (game.buildings || []).length;
       for (const b of game.buildings || []) {
@@ -515,7 +515,7 @@
       return Math.max(0, p * eff);
     }
 
-    // ���� frame hook ����
+  // ==================== frame hook ====================
     update(dt, game) {
       this.acc += dt;
       let n = 0;
@@ -547,6 +547,33 @@
 
       // Generators: burn fuel only if somebody needs power or the buffer isn't full.
       const wantPower = nx.stat.lastCons > 0 || nx.energy < bufCap * 0.95;
+      // Auto-collect ground drops on the island into the Nexo Central
+      if (Array.isArray(game.drops) && game.drops.length > 0 && net.nexus) {
+        const ntx = (net.nexus.tx + 1) * 48;
+        const nty = (net.nexus.ty + 1) * 48;
+        for (let i = game.drops.length - 1; i >= 0; i--) {
+          const d = game.drops[i];
+          if (!d || d.itemId === '_coin' || d.life < 0.25) continue;
+          const dropPlot = plotKeyOf(Math.floor(d.x / 48), Math.floor(d.y / 48));
+          if (dropPlot === plot) {
+            const dDist = Math.hypot(ntx - d.x, nty - d.y);
+            if (dDist < 360) {
+              const ang = Math.atan2(nty - d.y, ntx - d.x);
+              d.x += Math.cos(ang) * 260 * dt;
+              d.y += Math.sin(ang) * 260 * dt;
+            }
+            if (dDist < 36 && this.nexusCanAdd(plot, { [d.itemId]: d.qty })) {
+              this.nexusAdd(plot, { [d.itemId]: d.qty });
+              if (typeof game.spawnFx === 'function') {
+                game.spawnFx('pvfx_star_burst_pickup', d.x, d.y - 6, 0, 0.36, 0.85, 0.85, { blend: 'lighter' });
+              }
+              if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+              game.drops.splice(i, 1);
+            }
+          }
+        }
+      }
+
       let produced = 0;
       for (const e of net.gens) {
         const g = GENERATORS[e.b.type]; const o = e.b.omega;
@@ -557,16 +584,50 @@
         while (rem > 1e-9 && guard++ < 1000) {
           if (o.burn <= 0) {
             if (!wantPower) break;
-            const fuel = g.fuels.find(f => this.nexusCount(plot, f.id) >= 1);
-            if (!fuel || !this.nexusTake(plot, { [fuel.id]: 1 })) break;
-            o.burn = fuel.t;
+            // 1. Take fuel from Nexo Central
+            let fuel = g.fuels.find(f => this.nexusCount(plot, f.id) >= 1);
+            if (fuel && this.nexusTake(plot, { [fuel.id]: 1 })) {
+              o.burn = fuel.t;
+            } else {
+              // 2. Take fuel from generator storage
+              fuel = g.fuels.find(f => e.b.storage && (e.b.storage[f.id] || 0) >= 1);
+              if (fuel) {
+                e.b.storage[fuel.id] -= 1;
+                if (e.b.storage[fuel.id] <= 0) delete e.b.storage[fuel.id];
+                o.burn = fuel.t;
+              } else {
+                // 3. Fallback: if player is on this island plot, take from player inventory
+                const pPlot = plotKeyOf(Math.floor(game.player.x / 48), Math.floor(game.player.y / 48));
+                if (pPlot === plot) {
+                  fuel = g.fuels.find(f => game.inventory && (game.inventory[f.id] || 0) >= 1);
+                  if (fuel) {
+                    game.removeItem(fuel.id, 1);
+                    o.burn = fuel.t;
+                  }
+                }
+              }
+            }
+            if (o.burn <= 0) break;
           }
           const use = Math.min(rem, o.burn);
           produced += rate * use; burnedTime += use; o.burn -= use; rem -= use;
         }
         o.rate = rate;
-        if (burnedTime > 0) this.setState(e.b, 'activa', `Produciendo ${Math.round(rate)} energía/s`);
-        else this.setState(e.b, 'sin_materiales', g.fuels.map(f => (ITEMS[f.id] || {}).name || f.id).join(' / ') + ' en el Nexo para arrancar.');
+
+        // Passive geothermal baseline in volcanic biomes
+        const isVolcanic = ['tierras_volcanicas', 'caldera_ceniza', 'tierras_malditas'].includes(this.biomeOf(game, e.b));
+        if (e.b.type === 'gen_geotermico' && isVolcanic) {
+          const passiveRate = 35 * GEN_LEVEL_MULT[lvlIdx(e.b)] * (1 + this.getMod('genOutput'));
+          if (burnedTime <= 0) {
+            produced += passiveRate * dt;
+            this.setState(e.b, 'activa', `Calor geotérmico pasivo (${Math.round(passiveRate)} W/s)`);
+          } else {
+            this.setState(e.b, 'activa', `Sobrecarga de magma activa (${Math.round(rate)} W/s)`);
+          }
+        } else {
+          if (burnedTime > 0) this.setState(e.b, 'activa', `Produciendo ${Math.round(rate)} energía/s`);
+          else this.setState(e.b, 'sin_materiales', g.fuels.map(f => (ITEMS[f.id] || {}).name || f.id).join(' / ') + ' en el Nexo para arrancar.');
+        }
       }
 
       // Consumers (priority order). Power drawn from produced + battery.
@@ -604,7 +665,7 @@
       } catch (e) { return 'pradera'; }
     }
 
-    // ���� per-kind job preparation (decides whether machine wants power this tick) ����
+  // ==================== per kind job preparation (decides whether machine wants power this tick) ====================
     prepare(game, net, e, speed) {
       const kind = e.def.omega.kind; const o = e.b.omega; const plot = net.plot;
       if (kind === 'machine') {
@@ -676,7 +737,7 @@
       this.setState(e.b, 'activa', `Condensando energía en materia (${Math.floor(100 * (o.progress || 0) / cyc)}%)`);
     }
 
-    // ���� recipe machines ����
+  // ==================== recipe machines ====================
     recipesFor(e) { return MACHINE_RECIPES[e.def.omega.mtype] || []; }
     startRecipeJob(game, net, e) {
       const o = e.b.omega; const plot = net.plot;
@@ -719,7 +780,7 @@
       this.setState(e.b, 'activa', j ? `Procesando ${j.rid} (${Math.floor(100 * j.progress / j.time)}%)` : 'Activa');
     }
 
-    // ���� extractor ����
+  // ==================== extractor ====================
     extractTable(game, e) {
       const bio = this.biomeOf(game, e.b);
       return (EXTRACT_TABLES[bio] || EXTRACT_TABLES.pradera).filter(x => !x.res || this.hasResearch(x.res));
@@ -757,7 +818,7 @@
       }
     }
 
-    // ���� hydroponic dome ����
+  // ==================== hydroponic dome ====================
     domoRadius(e) { return 4 + 2 * lvlIdx(e.b) + this.getMod('domoRadius'); }
     matureCropsIn(game, e) {
       const r = this.domoRadius(e); const cx = e.b.tx + 1, cy = e.b.ty + 1; const out = [];
@@ -791,7 +852,7 @@
       this.setState(e.b, 'activa', `Cosechando (radio ${this.domoRadius(e)})`);
     }
 
-    // ���� boss simulation chamber ����
+  // ==================== boss simulation chamber ====================
     canMakeCrystal(game, did) {
       if (!Balaclava.DUNGEON_DEFS[did]) return { ok: false, reason: 'Jefe desconocido' };
       if (!(game.clearedDungeons || []).includes(did)) return { ok: false, reason: 'Aún no has derrotado a este jefe.' };
@@ -852,7 +913,7 @@
       }
     }
 
-    // ���� singularity press ����
+  // ==================== singularity press ====================
     pressCost() { return Math.floor(CFG.pressCostBase * (1 - this.getMod('pressEff'))); }
     pressAvailable(plot, cat) { const it = this.nexusData(plot).items; return (PRESS_CATEGORIES[cat] || []).reduce((a, id) => a + (it[id] || 0), 0); }
     pressSetCategory(b, cat) {
@@ -902,7 +963,7 @@
       this.setState(e.b, 'activa', `Comprimiendo ${Math.floor(have)}/${cost}`);
     }
 
-    // ���� overload altar (infinite upgrades) ����
+  // ==================== overload altar (infinite upgrades) ====================
     overloadKeyInfo(game, key) {
       // key: 'tool:<id>' or '<itemId>'
       if (key.startsWith('tool:')) {
@@ -927,7 +988,7 @@
       if (cat === 'speed') p = Math.min(p, CFG.overloadSpeedCapPct);
       return Math.round(p * 100) / 100;
     }
-    // Cost to buy the level that goes from L to L+1 is Base � 1.35^L  (L = current level, 0-based)
+  // ==================== Cost to buy the level that goes from L to L+1 is Base  1.35^L (L = current level, 0 based) ====================
     overloadStepCost(info, L) {
       const tf = 0.5 + info.tierIdx / 30;
       const out = {};
@@ -959,7 +1020,7 @@
     }
     overloadMaxAffordable(game, key, plot, hardCap) {
       let lo = 0, hi = hardCap || 5000;
-      // cost is monotonic in n �  binary search
+  // ==================== cost is monotonic in n  binary search ====================
       while (lo < hi) {
         const mid = Math.ceil((lo + hi) / 2);
         const q = this.overloadQuote(game, key, mid, plot);
@@ -1010,7 +1071,7 @@
       }
     }
 
-    // ���� abyss ����
+  // ==================== abyss ====================
     abyssUnlocked(game) { return (game.clearedDungeons || []).length >= CFG.abyssUnlockDungeons; }
     abyssModifiersFor(floor) {
       const mods = ['resistente', 'horda', 'elite', 'veloz', 'botin'];
@@ -1067,7 +1128,8 @@
       try { if (game.saveSys) game.saveSys.save(game, game.currentSlot, true); } catch (e) { /* persisted on next autosave */ }
     }
 
-    // ���� ascension ����
+  // ==================== ascension ====================
+    plotKeyOf(tx, ty) { return plotKeyOf(tx, ty); }
     islandKey(x, y) { const T = (Balaclava.CONST && Balaclava.CONST.TILE_SIZE) || 48; return plotKeyOf(Math.floor(x / T), Math.floor(y / T)); }
     ascensionRank(plot) { return this.state.ascension[plot] || 0; }
     ascensionInfo(game, plot) {
@@ -1083,7 +1145,7 @@
       if (info.maxed) return { ok: false, reason: 'Rango máximo alcanzado.' };
       const p = this.pay(game, plot, info.next.cost);
       if (!p.ok) return { ok: false, reason: 'Faltan: ' + this.fmtMap(p.missing) };
-      this.state.ascension[plot] = info.rank + 1; // absolute rank �  multipliers are looked up, never accumulated
+      this.state.ascension[plot] = info.rank + 1; // absolute rank — multipliers are looked up, never accumulated
       this._sig = null;
       try { if (game.saveSys) game.saveSys.save(game, game.currentSlot, true); } catch (e) { /* ignore */ }
       return { ok: true, rank: info.rank + 1 };
@@ -1095,7 +1157,7 @@
       return { hp: r.hp, dmg: r.dmg };
     }
 
-    // ���� persistence ����
+  // ==================== persistence ====================
     serialize() {
       const s = JSON.parse(JSON.stringify(this.state));
       s.savedAt = Date.now(); s.v = CFG.saveVersion;

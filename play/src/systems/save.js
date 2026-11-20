@@ -89,6 +89,7 @@
         permanentRelics: [...(game.permanentRelics || [])],
         unlockedSpells: [...(game.unlockedSpells || ['misil_arcano'])],
         spellSlots: [...(game.spellSlots || ['misil_arcano', null, null, null])],
+        spellLevels: { ...(game.spellLevels || {}) },
         spellCooldowns: Object.fromEntries(
           Object.entries(game.spellCooldowns || {})
             .filter(([, rem]) => typeof rem === 'number' && rem > 0.05)
@@ -384,6 +385,7 @@
         ? data.spellSlots.slice(0, 4)
         : ['misil_arcano', null, null, null];
       while (game.spellSlots.length < 4) game.spellSlots.push(null);
+      game.spellLevels = (data.spellLevels && typeof data.spellLevels === 'object') ? { ...data.spellLevels } : {};
       game.spellCooldowns = {};
       if (data.spellCooldowns && typeof data.spellCooldowns === 'object') {
         Object.entries(data.spellCooldowns).forEach(([sid, rem]) => {

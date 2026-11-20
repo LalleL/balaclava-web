@@ -32,8 +32,8 @@
     hoverGrid: null,
     activeSysTab: 'combat',
     selectedRelicId: DATA.relicsShowcase[0].id,
-    activePatchVer: '1.3.0',
-    downloadCount: null
+    activePatchVer: '1.3.1',
+    downloadCount: 15
   };
 
   const t = (key, fallback = null) => {
@@ -133,9 +133,11 @@
   function readDownloadCache() {
     try {
       const raw = window.localStorage.getItem(DL_CACHE_KEY);
-      if (!raw) return null;
+      const baseOffset = (cfg && typeof cfg.downloadBaseOffset === 'number') ? cfg.downloadBaseOffset : 15;
+      if (!raw) return { count: baseOffset, ts: 0, optimisticUntil: 0 };
       const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed.count !== 'number' || !Number.isFinite(parsed.count)) return null;
+      if (!parsed || typeof parsed.count !== 'number' || !Number.isFinite(parsed.count)) return { count: baseOffset, ts: 0, optimisticUntil: 0 };
+      if (parsed.count < baseOffset) parsed.count = baseOffset;
       return parsed;
     } catch (_) {
       return null;

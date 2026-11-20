@@ -15,7 +15,7 @@
 
   // Every building has a concrete, active gameplay function (zero decorative-only entries).
   const BUILDINGS = {
-    // === PRODUCCI�N ===
+    // === PRODUCCIÓN ===
     horno: {
       id: 'horno', name: 'Horno', category: 'produccion', size: 1, placeOn: 'land',
       cost: { piedra: 10, madera: 4 },
@@ -216,7 +216,7 @@
       opensPanel: 'dungeons'
     },
 
-    // === AUTOMATIZACI�N E INFRAESTRUCTURA ===
+    // === AUTOMATIZACIÓN E INFRAESTRUCTURA ===
     taladro: {
       id: 'taladro', name: 'Taladro Automático', category: 'automatizacion', size: 2, placeOn: 'land',
       cost: { lingote_hierro: 8, lingote_cobre: 6, engrane: 3 },
@@ -514,7 +514,7 @@
     desc: 'Cuenco volcánico encendido que ilumina ampliamente de noche e inspira +10% Daño cercano.'
   };
   BUILDINGS.estatua_rey_oseo = {
-    id: 'estatua_rey_oseo', name: 'Monumento del Rey �seo', category: 'fortificacion', placeOn: 'land', size: 2,
+    id: 'estatua_rey_oseo', name: 'Monumento del Rey Óseo', category: 'fortificacion', placeOn: 'land', size: 2,
     sprite: 'giant_skeleton_1', visualScale: 1.12, auraDmg: 0.18, lightRadius: 150,
     cost: { piedra: 16, huesos: 12, esencia_oscura: 3 }, xp: 48,
     desc: 'Colosal monumento esquelético con corona que emite luz espectral e infunde +18% Daño.'
