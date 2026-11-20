@@ -627,23 +627,31 @@
       return used;
     }
 
-    canAddItem(itemId, qty = 1) {
-      if (!Balaclava.ITEMS[itemId] || qty <= 0) return false;
+    getItemCapacityInfo(itemId) {
       const maxSlots = this.getMaxInventorySlots();
       const maxStack = this.getMaxStackSize();
       const usedSlots = this.getUsedInventorySlots();
       const freeSlots = Math.max(0, maxSlots - usedSlots);
+      const hotbar = this.hotbar || [];
+      const inv = this.inventory || {};
+      const emptyHotbarSlots = hotbar.filter(s => !s || (s.kind === 'item' && s.id !== itemId && (inv[s.id] || 0) <= 0)).length;
 
-      const hotbarSlotsWithItem = (this.hotbar || []).filter(s => s && s.kind === 'item' && s.id === itemId).length;
+      const hotbarSlotsWithItem = hotbar.filter(s => s && s.kind === 'item' && s.id === itemId).length;
       const hotbarCap = hotbarSlotsWithItem * maxStack;
-      const totalQty = this.inventory[itemId] || 0;
+      const totalQty = inv[itemId] || 0;
       const curInvQty = Math.max(0, totalQty - hotbarCap);
       const curHbQty = Math.min(totalQty, hotbarCap);
       const freeInHotbar = hotbarCap - curHbQty;
 
       const mod = curInvQty % maxStack;
       const spaceInPartial = mod === 0 ? 0 : (maxStack - mod);
-      return (freeInHotbar + spaceInPartial + (freeSlots * maxStack)) >= qty;
+      const totalFit = freeInHotbar + spaceInPartial + (freeSlots * maxStack) + (emptyHotbarSlots * maxStack);
+      return { maxStack, freeSlots, emptyHotbarSlots, freeInHotbar, spaceInPartial, totalQty, curInvQty, totalFit };
+    }
+
+    canAddItem(itemId, qty = 1) {
+      if (!Balaclava.ITEMS[itemId] || qty <= 0) return false;
+      return this.getItemCapacityInfo(itemId).totalFit >= qty;
     }
 
     migrateLegacyInventoryOverflow(isFirstPostUpdateLoad = false) {
@@ -889,27 +897,24 @@
     addItem(itemId, qty = 1) {
       if (!Balaclava.ITEMS[itemId] || qty <= 0) return;
 
-      const maxSlots = this.getMaxInventorySlots();
-      const maxStack = this.getMaxStackSize();
-      const usedSlots = this.getUsedInventorySlots();
-      const freeSlots = Math.max(0, maxSlots - usedSlots);
-
-      const hotbarSlotsWithItem = (this.hotbar || []).filter(s => s && s.kind === 'item' && s.id === itemId).length;
-      const hotbarCap = hotbarSlotsWithItem * maxStack;
-      const totalQty = this.inventory[itemId] || 0;
-      const curInvQty = Math.max(0, totalQty - hotbarCap);
-      const curHbQty = Math.min(totalQty, hotbarCap);
-      const freeInHotbar = hotbarCap - curHbQty;
-
-      const mod = curInvQty % maxStack;
-      const spaceInPartial = mod === 0 ? 0 : (maxStack - mod);
-      const totalFit = freeInHotbar + spaceInPartial + (freeSlots * maxStack);
-
-      const toAdd = Math.min(qty, totalFit);
+      const cap = this.getItemCapacityInfo(itemId);
+      const toAdd = Math.min(qty, cap.totalFit);
       const excess = qty - toAdd;
 
       if (toAdd > 0) {
-        this.inventory[itemId] = totalQty + toAdd;
+        const fitWithoutEmptyHb = cap.freeInHotbar + cap.spaceInPartial + (cap.freeSlots * cap.maxStack);
+        const overflowToHotbar = Math.max(0, toAdd - fitWithoutEmptyHb);
+        if (overflowToHotbar > 0 && Array.isArray(this.hotbar)) {
+          let slotsNeeded = Math.ceil(overflowToHotbar / cap.maxStack);
+          for (let i = 0; i < this.hotbar.length && slotsNeeded > 0; i++) {
+            const curSlot = this.hotbar[i];
+            if (!curSlot || (curSlot.kind === 'item' && curSlot.id !== itemId && (this.inventory[curSlot.id] || 0) <= 0)) {
+              this.hotbar[i] = { kind: 'item', id: itemId };
+              slotsNeeded--;
+            }
+          }
+        }
+        this.inventory[itemId] = cap.totalQty + toAdd;
         this.stats.byItem[itemId] = (this.stats.byItem[itemId] || 0) + toAdd;
         this.stats.gatheredTotal += toAdd;
         this.events.recordAction('gather', toAdd);
@@ -3555,9 +3560,12 @@
         Balaclava.Audio.play('error');
         return false;
       }
+      const sLevel = this.getSpellLevel(spellId);
+      const lvlDmgMult = 1 + (sLevel - 1) * 0.25;
+      const lvlCdMult = Math.max(0.5, 1 - (sLevel - 1) * 0.08);
       if (cost > 0) this.player.energy = Math.max(0, this.player.energy - cost);
       const cdRed = Math.min(0.75, this.mods.spellCdRed || 0);
-      this.spellCooldowns[spellId] = Math.max(3.0, (sp.cooldown || 20.0) * (1 - cdRed));
+      this.spellCooldowns[spellId] = Math.max(3.0, (sp.cooldown || 20.0) * lvlCdMult * (1 - cdRed));
 
       const px = this.player.x;
       const py = this.player.y;
@@ -6656,12 +6664,13 @@
         }
       }
 
-      // Hold mouse button for melee/harvesting/bow/tilling & continuous laser wands — NEVER auto-repeat fishing rod or consumables/bombs!
+      // Hold mouse button for melee/harvesting/bow/tilling & special weapons — NEVER auto-repeat fishing rod or consumables/bombs!
       const holdSlot = this.hotbar[this.activeSlot];
       const holdItemDef = holdSlot && holdSlot.kind === 'item' ? Balaclava.ITEMS[holdSlot.id] : null;
       const isHoldLaser = !!(holdItemDef && holdItemDef.isLaserWeapon);
+      const isHoldWeaponItem = !!(holdItemDef && (holdItemDef.isLaserWeapon || holdItemDef.isRangedWeapon || holdItemDef.isStaffWeapon || holdItemDef.isSpecialBlade || holdItemDef.weaponMelee));
       const isHoldBow = !!(holdSlot && holdSlot.kind === 'tool' && holdSlot.id === 'arco');
-      const noHoldRepeat = !holdSlot || holdSlot.id === 'cana' || (holdSlot.kind === 'item' && !isHoldLaser) || !!this.farming.fishing;
+      const noHoldRepeat = !holdSlot || holdSlot.id === 'cana' || (holdSlot.kind === 'item' && !isHoldWeaponItem) || !!this.farming.fishing;
       const holdReady = isHoldLaser
         ? (this.laserCooldown || 0) <= 0
         : (p.swingTimer <= 0 && (!isHoldBow || ((p.bowReloadTimer || 0) <= 0 && p.bowLoaded !== false && this.getArrowCount() > 0)));
@@ -8016,13 +8025,12 @@
       ctx.strokeStyle = '#180306';
       ctx.strokeText(sigText, 55, 0);
 
+      // Soft glow without expensive shadowBlur
+      ctx.fillStyle = 'rgba(255, 51, 75, 0.25)';
+      ctx.fillText(sigText, 55, 1);
+
       // Vibrant red core
       ctx.fillStyle = '#ff334b';
-      ctx.fillText(sigText, 55, 0);
-
-      // Soft glow
-      ctx.shadowColor = 'rgba(255, 51, 75, 0.55)';
-      ctx.shadowBlur = 8;
       ctx.fillText(sigText, 55, 0);
       ctx.restore();
     }
@@ -8046,12 +8054,22 @@
       const animWater = !this.settings || this.settings.waterAnim !== false;
       if (waterReady) {
         const wFrame = animWater ? (Math.floor(this.time * 4.2 * wSpd) % wInfo.frames) : 0;
-        for (let ty = minTy; ty <= maxTy; ty++) {
-          for (let tx = minTx; tx <= maxTx; tx++) {
-            const px = tx * TILE_SIZE;
-            const py = ty * TILE_SIZE;
-            ctx.drawImage(extraWater, wFrame * 16, 0, 16, 16, px, py, TILE_SIZE, TILE_SIZE);
-          }
+        if (!this._waterPatterns) this._waterPatterns = {};
+        const patKey = `${wInfo.style || 'c'}_${wFrame}`;
+        let wPat = this._waterPatterns[patKey];
+        if (!wPat) {
+          const wc = document.createElement('canvas');
+          wc.width = TILE_SIZE;
+          wc.height = TILE_SIZE;
+          const wctx = wc.getContext('2d');
+          wctx.imageSmoothingEnabled = false;
+          wctx.drawImage(extraWater, wFrame * 16, 0, 16, 16, 0, 0, TILE_SIZE, TILE_SIZE);
+          wPat = ctx.createPattern(wc, 'repeat');
+          this._waterPatterns[patKey] = wPat;
+        }
+        if (wPat) {
+          ctx.fillStyle = wPat;
+          ctx.fillRect(minTx * TILE_SIZE, minTy * TILE_SIZE, (maxTx - minTx + 1) * TILE_SIZE, (maxTy - minTy + 1) * TILE_SIZE);
         }
       }
       if (animWater) {
@@ -8188,33 +8206,41 @@
         ctx.fillStyle = '#731204';
         ctx.fillRect(ix, iy, iw, ih);
 
-        // Flowing pixel magma convection currents & glowing yellow veins
-        const tFlow = this.time * 1.15;
-        const pulse = 0.5 + 0.5 * Math.sin(this.time * 2.4 + tx * 0.9 + ty * 0.7);
-        const cell = 5;
-        for (let cy = 0; cy < TILE_SIZE; cy += cell) {
-          const wy = py + cy;
-          if (wy + cell <= iy || wy >= iy + ih) continue;
-          for (let cx = 0; cx < TILE_SIZE; cx += cell) {
-            const wx = px + cx;
-            if (wx + cell <= ix || wx >= ix + iw) continue;
-            const u = (tx * 9 + cx / cell);
-            const v = (ty * 9 + cy / cell);
-            const w1 = Math.sin(u * 0.56 + tFlow + Math.cos(v * 0.44 - tFlow * 0.6));
-            const w2 = Math.cos(v * 0.60 - tFlow * 0.8 + Math.sin((u + v) * 0.36));
-            const heat = (w1 + w2) * 0.5 + pulse * 0.14;
-            if (heat > 0.46) ctx.fillStyle = '#fff59d';
-            else if (heat > 0.22) ctx.fillStyle = '#ffb300';
-            else if (heat > -0.10) ctx.fillStyle = '#f4511e';
-            else if (heat > -0.44) ctx.fillStyle = '#b71c1c';
-            else ctx.fillStyle = '#3b150e';
-            ctx.fillRect(wx, wy, cell, cell);
-            if (heat < -0.44) {
-              ctx.fillStyle = '#5c2618';
-              ctx.fillRect(wx, wy, cell, 2);
+        // Cached 6-frame flowing magma tile (avoids 100 trig + fillRect calls per lava tile per frame)
+        if (!this._lavaFrames) {
+          this._lavaFrames = [];
+          const cell = 6;
+          for (let f = 0; f < 6; f++) {
+            const lc = document.createElement('canvas');
+            lc.width = TILE_SIZE;
+            lc.height = TILE_SIZE;
+            const lctx = lc.getContext('2d');
+            const tFlow = (f / 6) * Math.PI * 2;
+            for (let cy = 0; cy < TILE_SIZE; cy += cell) {
+              for (let cx = 0; cx < TILE_SIZE; cx += cell) {
+                const u = cx / cell;
+                const v = cy / cell;
+                const w1 = Math.sin(u * 0.75 + tFlow + Math.cos(v * 0.65 - tFlow));
+                const w2 = Math.cos(v * 0.78 - tFlow + Math.sin((u + v) * 0.45));
+                const heat = (w1 + w2) * 0.5;
+                if (heat > 0.44) lctx.fillStyle = '#fff59d';
+                else if (heat > 0.20) lctx.fillStyle = '#ffb300';
+                else if (heat > -0.12) lctx.fillStyle = '#f4511e';
+                else if (heat > -0.44) lctx.fillStyle = '#b71c1c';
+                else lctx.fillStyle = '#3b150e';
+                lctx.fillRect(cx, cy, cell, cell);
+                if (heat < -0.44) {
+                  lctx.fillStyle = '#5c2618';
+                  lctx.fillRect(cx, cy, cell, 2);
+                }
+              }
             }
+            this._lavaFrames.push(lc);
           }
         }
+        const lFrame = Math.floor(this.time * 4.5 + (tx * 3 + ty * 5)) % 6;
+        const lavaImg = this._lavaFrames[(lFrame + 6) % 6];
+        if (lavaImg) ctx.drawImage(lavaImg, px, py);
 
         // Deep sunken wall cast shadow along cliff interior so molten pool sits visibly below ground level
         if (!lN) {
@@ -9026,18 +9052,27 @@
       const maxTy = Math.min(WORLD_TILES - 1, Math.ceil((this.camera.y + halfH) / TILE_SIZE));
 
       const blocked = new Set();
-      for (const c of this.world.crops) blocked.add(`${c.tx},${c.ty}`);
+      for (const c of this.world.crops) {
+        if (c.tx >= minTx && c.tx <= maxTx && c.ty >= minTy && c.ty <= maxTy) {
+          blocked.add((c.tx & 0xfff) | ((c.ty & 0xfff) << 12));
+        }
+      }
       for (const b of this.buildings) {
         const bDef = Balaclava.BUILDINGS[b.type];
         const sz = (bDef && bDef.size) || 1;
+        if (b.tx + sz < minTx || b.tx > maxTx || b.ty + sz < minTy || b.ty > maxTy) continue;
         for (let dy = 0; dy < sz; dy++) {
           for (let dx = 0; dx < sz; dx++) {
-            blocked.add(`${b.tx + dx},${b.ty + dy}`);
+            blocked.add(((b.tx + dx) & 0xfff) | (((b.ty + dy) & 0xfff) << 12));
           }
         }
       }
       for (const n of this.world.nodes) {
-        blocked.add(`${Math.floor(n.x / TILE_SIZE)},${Math.floor(n.y / TILE_SIZE)}`);
+        const ntx = Math.floor(n.x / TILE_SIZE);
+        const nty = Math.floor(n.y / TILE_SIZE);
+        if (ntx >= minTx && ntx <= maxTx && nty >= minTy && nty <= maxTy) {
+          blocked.add((ntx & 0xfff) | ((nty & 0xfff) << 12));
+        }
       }
 
       const extraImgs = Balaclava.Assets.extraImages || {};
@@ -9057,7 +9092,7 @@
           if (!this.world.isTileUnlocked(tx, ty)) continue;
           const tile = this.world.tiles[ty] && this.world.tiles[ty][tx];
           if (tile !== 1) continue;
-          if (blocked.has(`${tx},${ty}`)) continue;
+          if (blocked.has((tx & 0xfff) | ((ty & 0xfff) << 12))) continue;
 
           const gx = Math.floor(tx / PLOT_TILES);
           const gy = Math.floor(ty / PLOT_TILES);
@@ -9089,11 +9124,24 @@
             const im = extraImgs[fl.key];
             if (okImg(im)) {
               if (fl.glow) {
-                const g = ctx.createRadialGradient(wx, wy - 4, 1, wx, wy - 4, fl.size * 0.75);
-                g.addColorStop(0, biome === 'tierras_volcanicas' ? 'rgba(255,87,34,0.28)' : 'rgba(100,220,255,0.28)');
-                g.addColorStop(1, 'rgba(0,0,0,0)');
-                ctx.fillStyle = g;
-                ctx.beginPath(); ctx.arc(wx, wy - 4, fl.size * 0.75, 0, Math.PI * 2); ctx.fill();
+                const isVolc = biome === 'tierras_volcanicas';
+                if (!this._floraGlowStamps) this._floraGlowStamps = {};
+                const gKey = isVolc ? 'v' : 'c';
+                let gStamp = this._floraGlowStamps[gKey];
+                if (!gStamp) {
+                  gStamp = document.createElement('canvas');
+                  gStamp.width = 48;
+                  gStamp.height = 48;
+                  const gctx = gStamp.getContext('2d');
+                  const gr = gctx.createRadialGradient(24, 24, 2, 24, 24, 24);
+                  gr.addColorStop(0, isVolc ? 'rgba(255,87,34,0.28)' : 'rgba(100,220,255,0.28)');
+                  gr.addColorStop(1, 'rgba(0,0,0,0)');
+                  gctx.fillStyle = gr;
+                  gctx.fillRect(0, 0, 48, 48);
+                  this._floraGlowStamps[gKey] = gStamp;
+                }
+                const grRad = fl.size * 0.75;
+                ctx.drawImage(gStamp, wx - grRad, wy - 4 - grRad, grRad * 2, grRad * 2);
               }
               const sz = fl.size;
               const aspect = im.height / Math.max(1, im.width);
