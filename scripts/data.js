@@ -1,5 +1,5 @@
 /**
- * Datos reales de Balaclava Beta 1.3.0 (extraídos del código del juego)
+ * Datos reales de Balaclava Beta 1.3.3 (extraídos del código del juego)
  * Soporta Español (es) e Inglés (en) sin mezclar idiomas.
  */
 window.BALACLAVA_DATA = {
@@ -8,10 +8,10 @@ window.BALACLAVA_DATA = {
     { key: 'biomes', num: '14', icon: 'assets/ui/rpg_compass.png', labelEs: 'Biomas', labelEn: 'Biomes', accent: '#81c784' },
     { key: 'dungeons', num: '75', icon: 'assets/icons_extra/llave_maestra.png', labelEs: 'Mazmorras', labelEn: 'Dungeons', accent: '#ff1744' },
     { key: 'relics', num: '92', icon: 'assets/sprites_v13/icons/relic_v13_52.png', labelEs: 'Reliquias', labelEn: 'Relics', accent: '#ffd54f' },
-    { key: 'items', num: '662', icon: 'assets/icons/backpack.png', labelEs: 'Objetos Únicos', labelEn: 'Unique Items', accent: '#ce93d8' },
+    { key: 'items', num: '681', icon: 'assets/icons/backpack.png', labelEs: 'Objetos Únicos', labelEn: 'Unique Items', accent: '#ce93d8' },
     { key: 'skills', num: '345', icon: 'assets/icons/spellbook.png', labelEs: 'Nodos Astrales', labelEn: 'Astral Nodes', accent: '#64b5f6' },
     { key: 'buildings', num: '93', icon: 'assets/sprites_extra/bld_omega_nexo.png', labelEs: 'Construcciones', labelEn: 'Buildings', accent: '#ffd54f' },
-    { key: 'recipes', num: '404', icon: 'assets/icons/anvil.png', labelEs: 'Recetas', labelEn: 'Recipes', accent: '#81c784' }
+    { key: 'recipes', num: '423', icon: 'assets/icons/anvil.png', labelEs: 'Recetas', labelEn: 'Recipes', accent: '#81c784' }
   ],
 
   zones: [
@@ -603,17 +603,17 @@ window.BALACLAVA_DATA = {
       icon: 'assets/icons/sword.png',
       labelEs: 'Combate y Hechizos',
       labelEn: 'Combat & Spells',
-      headlineEs: '81 Enemigos, 18 Hechizos y Arsenal de 16 Rangos',
-      headlineEn: '81 Enemies, 18 Spells & 16-Tier Arsenal',
+      headlineEs: '81 Enemigos, 18 Hechizos y Arsenal de 23 Rangos',
+      headlineEn: '81 Enemies, 18 Spells & 23-Tier Arsenal',
       summaryEs: 'Domina el combate direccional con Hana Caraka alternando entre espadas, lanzas, arcos, ballestas, báculos y 18 grimorios arcanos en tiempo real.',
       summaryEn: 'Master directional action combat as Hana Caraka, swapping between swords, spears, bows, crossbows, staves, and 18 arcane grimoires.',
       cards: [
         {
           icon: 'assets/icons/sword.png',
-          titleEs: '8 Herramientas × 16 Rangos',
-          titleEn: '8 Tools × 16 Tiers',
-          descEs: 'Progresa desde Madera y Piedra hasta Mitrilo, Adamantita, conjuntos regionales R9–R15 y el equipo Omega R16 + Hoja de la Singularidad.',
-          descEn: 'Advance from Wood & Stone through Mithril, Adamantite, regional T9–T15 sets, and Tier 16 Omega + Singularity Blade.'
+          titleEs: '8 Herramientas × 23 Rangos',
+          titleEn: '8 Tools × 23 Tiers',
+          descEs: 'Progresa desde Madera y Piedra hasta Oricalco (R13), los 7 metales de bioma Coral→Maldito (R14–R20), Legendaria (R21), Celestial (R22) y el equipo Omega R23 + Hoja de la Singularidad.',
+          descEn: 'Advance from Wood & Stone to Orichalcum (T13), 7 Biome Metals Coral→Cursed Silver (T14–T20), Legendary (T21), Celestial (T22), and Tier 23 Omega + Singularity Blade.'
         },
         {
           icon: 'assets/icons_extra/grimorio_arcano.png',
@@ -713,10 +713,10 @@ window.BALACLAVA_DATA = {
         },
         {
           icon: 'assets/icons/fishing_rod.png',
-          titleEs: 'Pesca en 15 Rangos y Biomas',
-          titleEn: '15-Tier Biome Fishing',
-          descEs: 'Mejora tu caña del Rango 1 al 15 con cebos especiales para pescar truchas doradas, peces abisales, peces de lava y tesoros hundidos.',
-          descEn: 'Upgrade fishing rods across 15 tiers with special baits to reel in golden trout, lava fish, and sunken chests.'
+          titleEs: 'Pesca en 23 Rangos y Biomas',
+          titleEn: '23-Tier Biome Fishing',
+          descEs: 'Mejora tu caña del Rango 1 al 23 con cebos especiales para pescar truchas doradas, peces abisales, peces de lava y tesoros hundidos.',
+          descEn: 'Upgrade fishing rods across 23 tiers with special baits to reel in golden trout, lava fish, and sunken chests.'
         },
         {
           icon: 'assets/icons/sun.png',
@@ -730,6 +730,67 @@ window.BALACLAVA_DATA = {
   ],
 
   patchNotes: {
+    '1.3.3': {
+      id: '1.3.3',
+      label: 'Beta 1.3.3',
+      pill: 'BETA v1.3.3',
+      subtitleEs: 'Actualización Beta 1.3.3 — Progresión de 23 Tiers y Omega Late-Game',
+      subtitleEn: 'Beta 1.3.3 Update — 23-Tier Progression & True Late-Game Omega',
+      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.3',
+      heroTitleEn: 'BALACLAVA — Beta 1.3.3 Release Notes',
+      heroSubEs: 'Expansión integral de herramientas y las 5 piezas de armadura hasta 23 tiers completos: los 7 metales de Zona III y IV pasan a formar la escalera principal T14–T20, seguidos por Legendaria (T21), Celestial (T22) y Omega de Singularidad (T23).',
+      heroSubEn: 'Full 23-tier progression expansion across all 8 tools and 5 armor slots: all 7 Zone III-IV biome metals become the core T14-T20 ladder, crowned by Legendary (T21), Celestial (T22), and Singularity Omega (T23) late-game gear.',
+      sectionsEs: [
+        {
+          badge: '23 TIERS DE EQUIPO',
+          color: '#e040fb',
+          icon: 'assets/icons_extra/casco_omega.png',
+          title: 'Metales de Bioma T14–T20 y Verdadero Late-Game Omega T23',
+          items: [
+            'Todas las 8 herramientas y las 5 ranuras de armadura (Casco, Coraza, Escudo, Botas y Pantalones) ahora progresan del Tier 1 al Tier 23 sin saltos.',
+            'Tras Oricalco (T13), progresas por los 7 metales de Zona III y IV: Coralina (T14), Boreal (T15), Selvana (T16), Escoria Ígnea (T17), Pirita Solar (T18), Glacial Eterna (T19) y Plata Maldita / Abismal (T20).',
+            'Legendaria (T21) y Celestial (T22) superan el equipo de bioma, y Omega (T23) queda reservado al late-game definitivo exigiendo investigación Metalurgia Omega, Singularidades y Materia Comprimida.',
+            'Nuevas botas, grebas, yelmos, escudos y coraza glaciar para completar cada set de Zona III–IV, además de paletas visuales propias por tier.'
+          ]
+        },
+        {
+          badge: 'BALANCE Y CRAFTEO',
+          color: '#81c784',
+          icon: 'assets/icons/anvil.png',
+          title: 'Cero Bloqueos y Validación Estricta de Investigación Omega',
+          items: [
+            'Mejora del Pico a Cobre (T3) liberada de exigir Forja previa para eliminar el bloqueo mutuo con el Hierro; Hierro T4+ conserva el requisito de Forja.',
+            'Validación estricta de la investigación Metalurgia Omega en recetas, herramientas y armaduras T23.',
+            'Requisitos de pico por mineral reequilibrados paso a paso en los 14 biomas de Zonas I–IV.'
+          ]
+        }
+      ],
+      sectionsEn: [
+        {
+          badge: '23 GEAR TIERS',
+          color: '#e040fb',
+          icon: 'assets/icons_extra/casco_omega.png',
+          title: 'T14–T20 Biome Metals & True Late-Game Omega T23',
+          items: [
+            'All 8 tools and all 5 armor slots (Helm, Armor, Shield, Boots, Greaves) now scale continuously from Tier 1 to Tier 23.',
+            'After Orichalcum (T13), progress sequentially through all 7 Zone III & IV biome metals: Coraline (T14), Boreal (T15), Emerald Jungle (T16), Caldera Slag (T17), Solar Pyrite (T18), Eternal Glacier (T19), and Cursed Silver / Abyssal (T20).',
+            'Legendary (T21) and Celestial (T22) scale above all biome gear, while Omega (T23) stands as true late-game requiring Omega Metallurgy research, Singularities, and Compressed Matter.',
+            'Added missing biome boots, greaves, helms, shields, and glacier armor for full 5-piece sets, plus distinct tool pixel palettes.'
+          ]
+        },
+        {
+          badge: 'BALANCE & FORGING',
+          color: '#81c784',
+          icon: 'assets/icons/anvil.png',
+          title: 'Zero Forging Deadlocks & Strict Omega Research Gating',
+          items: [
+            'Upgrading tools to Copper (T3) no longer requires a Forge first, eliminating the Iron/Forge circular dependency while keeping Forge mandatory for Iron (T4+).',
+            'Enforced Omega Metallurgy research checks across Recipes, Tool Upgrades, and Armor Upgrades.',
+            'Smooth step-by-step Pickaxe mining requirements aligned across all 14 biomes in Zones I–IV.'
+          ]
+        }
+      ]
+    },
     '1.3.2': {
       id: '1.3.2',
       label: 'Beta 1.3.2',
@@ -1169,7 +1230,7 @@ window.BALACLAVA_DATA = {
 
   i18n: {
     es: {
-      pageTitle: 'BALACLAVA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 1.3.2)',
+      pageTitle: 'BALACLAVA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 1.3.3)',
       ariaBrand: 'Balaclava Inicio',
       ariaNav: 'Navegación principal',
       ariaLang: 'Cambiar idioma Español / Inglés',
@@ -1189,9 +1250,9 @@ window.BALACLAVA_DATA = {
       heroBtnDownload: 'Descargar para Windows',
       heroBtnDiscord: 'Unirse a Discord',
       heroBtnKofi: 'Apoyar en Ko-fi',
-      heroBtnPatch: 'Notas Beta 1.3.2',
+      heroBtnPatch: 'Notas Beta 1.3.3',
       heroMetaPrefix: 'Gratis para Windows',
-      statsTitle: 'Todo el Contenido de Beta 1.3.2',
+      statsTitle: 'Todo el Contenido de Beta 1.3.3',
       worldTag: 'MUNDO ABIERTO · 19×19 DIRECCIONAL',
       worldTitle: 'Explora las 4 Zonas y 14 Biomas',
       worldSub: 'Progresión secuencial Zona I → II → III → IV con distribución climática coherente: la nieve al Este nunca toca la lava del Oeste.',
@@ -1211,8 +1272,8 @@ window.BALACLAVA_DATA = {
       bossLocation: 'Eclipse del Espadachín Carmesí · Tierras Malditas (Oeste)',
       bossSummary: '75 mazmorras únicas con salas de runas, acertijos secuenciales, llaves de jefe, cofres temáticos, efectos visuales Gigapack y combates por fases (Vida ×30 / Daño ×10).',
       bossAttacksTitle: 'Habilidades del Jefe Final',
-      bossDropsTitle: 'Botín Supremo y Conjunto Final Omega R16',
-      bossDropsSub: 'Culmina tu aventura forjando el conjunto Rango 16 Omega y la Hoja de la Singularidad, o empuña la Espada del Eclipse Carmesí.',
+      bossDropsTitle: 'Botín Supremo y Conjunto Final Omega R23',
+      bossDropsSub: 'Culmina tu aventura forjando el conjunto Rango 23 Omega y la Hoja de la Singularidad, o empuña la Espada del Eclipse Carmesí.',
       systemsTag: 'PROFUNDIDAD RPG Y AUTOMATIZACIÓN',
       systemsTitle: 'Sistemas de Balaclava',
       systemsSub: 'Alterna entre combate arcano, red eléctrica Omega, constelaciones astrales, bóveda de 92 reliquias y vida isleña.',
@@ -1221,7 +1282,7 @@ window.BALACLAVA_DATA = {
       relicClickHint: 'Haz clic en cualquier ranura de la cuadrícula para ver su efecto real y origen.',
       patchTag: 'HISTORIAL OFICIAL DE VERSIONES',
       patchTitle: 'Notas de la Versión',
-      patchSub: 'Selector idéntico al menú principal del juego: consulta todas las novedades de Beta 1.3.2 o el historial de versiones anteriores.',
+      patchSub: 'Selector idéntico al menú principal del juego: consulta todas las novedades de Beta 1.3.3 o el historial de versiones anteriores.',
       downloadTag: 'DESCARGA OFICIAL PARA ESCRITORIO',
       downloadTitle: 'Descarga e Instalación',
       downloadSub: 'Construido para Windows mediante Tauri 2. Descarga directa y sencilla para escritorio.',
@@ -1245,7 +1306,7 @@ window.BALACLAVA_DATA = {
       modalPlaceholderBody: 'El enlace de descarga de esta versión aún no se ha publicado. Cuando lo añadas en site-config.js, este botón iniciará la descarga directa para Windows.'
     },
     en: {
-      pageTitle: 'BALACLAVA — Pixel Action RPG, Automation & Dungeons (Beta 1.3.2)',
+      pageTitle: 'BALACLAVA — Pixel Action RPG, Automation & Dungeons (Beta 1.3.3)',
       ariaBrand: 'Balaclava Home',
       ariaNav: 'Main navigation',
       ariaLang: 'Switch language Spanish / English',
@@ -1265,9 +1326,9 @@ window.BALACLAVA_DATA = {
       heroBtnDownload: 'Download for Windows',
       heroBtnDiscord: 'Join Discord',
       heroBtnKofi: 'Support on Ko-fi',
-      heroBtnPatch: 'Beta 1.3.2 Notes',
+      heroBtnPatch: 'Beta 1.3.3 Notes',
       heroMetaPrefix: 'Free for Windows',
-      statsTitle: 'Everything Inside Beta 1.3.2',
+      statsTitle: 'Everything Inside Beta 1.3.3',
       worldTag: 'OPEN WORLD · 19×19 DIRECTIONAL',
       worldTitle: 'Explore 4 Zones & 14 Biomes',
       worldSub: 'Sequential Zone I → II → III → IV progression with coherent climate borders: Eastern ice never touches Western lava.',
@@ -1287,8 +1348,8 @@ window.BALACLAVA_DATA = {
       bossLocation: 'Eclipse of the Crimson Swordsman · Cursed Lands (West)',
       bossSummary: '75 unique dungeons featuring rune rooms, sequential puzzles, boss keys, themed chests, Gigapack VFX, and multi-phase boss fights (HP ×30 / DMG ×10).',
       bossAttacksTitle: 'Final Boss Abilities',
-      bossDropsTitle: 'Supreme Loot & Tier 16 Omega Endgame Set',
-      bossDropsSub: 'Reach the pinnacle of progression with Tier 16 Omega Armor, the Singularity Blade, and the Crimson Eclipse Blade.',
+      bossDropsTitle: 'Supreme Loot & Tier 23 Omega Endgame Set',
+      bossDropsSub: 'Reach the pinnacle of progression with Tier 23 Omega Armor, the Singularity Blade, and the Crimson Eclipse Blade.',
       systemsTag: 'RPG DEPTH & INDUSTRIAL AUTOMATION',
       systemsTitle: 'Game Systems',
       systemsSub: 'Switch between arcane combat, Omega power grids, 345 Astral constellation nodes, the 92-relic vault, and cozy island life.',
@@ -1297,7 +1358,7 @@ window.BALACLAVA_DATA = {
       relicClickHint: 'Click any chest grid cell to inspect its passive bonus and origin.',
       patchTag: 'OFFICIAL RELEASE HISTORY',
       patchTitle: 'Patch Notes',
-      patchSub: 'Mirrors the in-game version switcher: review every addition in Beta 1.3.2 or browse previous version history.',
+      patchSub: 'Mirrors the in-game version switcher: review every addition in Beta 1.3.3 or browse previous version history.',
       downloadTag: 'OFFICIAL DESKTOP RELEASE',
       downloadTitle: 'Download & Installation',
       downloadSub: 'Built for Windows desktop via Tauri 2. Fast and direct desktop release.',

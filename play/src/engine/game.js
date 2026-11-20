@@ -2023,6 +2023,12 @@
         Balaclava.Audio.play('error');
         return false;
       }
+      if (rec.reqOmega && (!this.omega || !this.omega.hasResearch(rec.reqOmega))) {
+        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
+        Balaclava.Audio.play('error');
+        return false;
+      }
       if (!Array.isArray(this.craftQueue)) this.craftQueue = [];
       if (this.craftQueue.length >= 8) {
         this.toast(T('toast.queueFull'), 'warn');
@@ -2188,6 +2194,12 @@
 
       const cost = tool.tierCosts[nextTier];
       if (!cost) return false;
+      if (cost.reqOmega && (!this.omega || !this.omega.hasResearch(cost.reqOmega))) {
+        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
+        Balaclava.Audio.play('error');
+        return false;
+      }
       if (this.coins < cost.coins) {
         this.toast(T('toast.needCoinsExact', { coins: cost.coins }), 'warn');
         Balaclava.Audio.play('error');
@@ -2260,6 +2272,12 @@
         Balaclava.Audio.play('error');
         return false;
       }
+      if (rec.reqOmega && (!this.omega || !this.omega.hasResearch(rec.reqOmega))) {
+        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
+        Balaclava.Audio.play('error');
+        return false;
+      }
       const can = Object.entries(rec.in || {}).every(([id, q]) => (this.inventory[id] || 0) >= q);
       if (!can) {
         Balaclava.Audio.play('error');
@@ -2317,6 +2335,12 @@
 
       const mat = Balaclava.getArmorUpgradeMaterials(slot, nextId);
       if (!mat) return false;
+      if (mat.reqOmega && (!this.omega || !this.omega.hasResearch(mat.reqOmega))) {
+        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
+        Balaclava.Audio.play('error');
+        return false;
+      }
       const stOk = mat.station === 'investigacion'
         ? (this.hasStationAvailable('investigacion') || this.hasStationAvailable('forja'))
         : this.hasStationAvailable(mat.station);

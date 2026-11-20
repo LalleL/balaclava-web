@@ -96,7 +96,7 @@
     regItem('polvo_' + fam, { name: `Polvo Puro de ${rawName}`, rarity: 'raro', sellValue: 6, icon: 'polvo_' + fam, desc: 'Polvo purificado listo para fundir.', source: 'Lavadora Arcana', uses: 'Se funde en la Fundidora Omega' });
   });
   regItem('singularidad', { name: 'Singularidad', rarity: 'legendario', sellValue: 2500, icon: 'singularidad', category: 'especiales', desc: 'Materia colapsada: 10.000 recursos comprimidos en un punto.', source: 'Prensa de Singularidades', uses: 'Equipamiento Omega, reactores, sobrecarga, ascensión' });
-  regItem('lingote_omega', { name: 'Lingote Omega', rarity: 'legendario', sellValue: 900, icon: 'lingote_omega', desc: 'Aleación definitiva forjada con singularidad y los cinco biomas.', source: 'Fundidora Omega', uses: 'Equipamiento Tier 16, sobrecarga infinita' });
+  regItem('lingote_omega', { name: 'Lingote Omega', rarity: 'legendario', sellValue: 900, icon: 'lingote_omega', desc: 'Aleación definitiva forjada con singularidad y los biomas avanzados.', source: 'Fundidora Omega', uses: 'Equipamiento Tier 23 Omega, sobrecarga infinita' });
   regItem('materia_comprimida', { name: 'Materia Comprimida', rarity: 'legendario', sellValue: 600, icon: 'materia_comprimida', category: 'especiales', desc: 'Residuo exótico de islas ascendidas, Condensadores de Materia y del Abismo Infinito.', source: 'Abismo Infinito / Islas ascendidas / Condensador de Materia', uses: 'Sobrecarga, ascensión, mejoras definitivas' });
 
   const DUNGEON_DEFS = Balaclava.DUNGEON_DEFS || {};
@@ -252,7 +252,7 @@
     R('comp_prensa', 'compresion', 'Compresión Extrema', 'Desbloquea la Prensa de Singularidades (25.000 recursos/u).', { lingote_adamantita: 18, cristales_magicos: 20, lingote_pirita: 8 }, ['proc_fundicion']),
     R('comp_eficiencia', 'compresion', 'Campos de Contención', '-15% coste de Singularidad.', { lingote_adamantita: 16, polvo_estelar: 25 }, ['comp_prensa'], { effect: { pressEff: 0.15 } }),
     R('tec_singularidad', 'singularidad', 'Teoría de Singularidades', 'Requisito de tecnologías definitivas.', { singularidad: 2, polvo_estelar: 30, cristal_carmesi: 6 }, ['comp_prensa', 'comp_eficiencia']),
-    R('omega_equipo', 'equipo', 'Metalurgia Omega', 'Desbloquea Lingote Omega y Equipamiento Tier 16 (50 mazmorras).', { singularidad: 3, lingote_celestial: 24, lingote_maldito: 10 }, ['comp_prensa'], { dungeons: 50 }),
+    R('omega_equipo', 'equipo', 'Metalurgia Omega', 'Desbloquea Lingote Omega y Equipamiento Tier 23 (50 mazmorras).', { singularidad: 3, lingote_celestial: 24, lingote_maldito: 10 }, ['comp_prensa'], { dungeons: 50 }),
     R('sobre_altar', 'sobrecarga', 'Sobrecarga Infinita', 'Desbloquea el Altar de Sobrecarga Infinita.', { singularidad: 4, lingote_omega: 4 }, ['omega_equipo']),
     R('asc_islas', 'ascension', 'Ascensión de Islas', 'Permite ascender islas (55 mazmorras).', { singularidad: 5, lingote_omega: 5 }, ['omega_equipo'], { dungeons: 55 }),
     R('abismo_inv', 'abismo', 'Cartografía del Abismo', '+25% materia comprimida del Abismo y las islas ascendidas (45 mazmorras).', { singularidad: 4, polvo_estelar: 40 }, ['omega_equipo'], { dungeons: 45, effect: { compressedBonus: 0.25, abyssLoot: 0.25 } })

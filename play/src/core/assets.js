@@ -388,7 +388,7 @@
     getToolImg(toolId, tierId = 'basica') {
       const map = Balaclava.TOOL_PNG_MAP && Balaclava.TOOL_PNG_MAP[toolId];
       if (map) {
-        const rawUrl = map[tierId] || map.basica;
+        const rawUrl = (tierId === 'basica' || !tierId) ? map.basica : map[tierId];
         if (rawUrl) {
           const ROOT = window.BALACLAVA_ROOT_BASE || '';
           const resolved = (ROOT && rawUrl.startsWith('assets/')) ? (ROOT + rawUrl) : rawUrl;
@@ -427,8 +427,16 @@
         titanio:    { m: '#b0bec5', h: '#ffffff', d: '#37474f', g: '#80deea' },
         adamantita: { m: '#66bb6a', h: '#c8e6c9', d: '#1b5e20', g: '#ffd54f' },
         oricalco:   { m: '#ff7043', h: '#ffe0b2', d: '#bf360c', g: '#ffd54f' },
-        legendaria: { m: '#ff5722', h: '#ffe082', d: '#b71c1c', g: '#00e5ff' },
-        celestial:  { m: '#80deea', h: '#ffffff', d: '#0277bd', g: '#ffd54f' }
+        legendaria: { m: '#ff9800', h: '#ffe082', d: '#b71c1c', g: '#00e5ff' },
+        celestial:  { m: '#80deea', h: '#ffffff', d: '#0277bd', g: '#ffd54f' },
+        coral:      { m: '#26c6da', h: '#b2ebf2', d: '#006978', g: '#4deeea' },
+        boreal:     { m: '#80deea', h: '#e0f7fa', d: '#00838f', g: '#b388ff' },
+        selvano:    { m: '#00e676', h: '#b9f6ca', d: '#1b5e20', g: '#ffd54f' },
+        escoria:    { m: '#ff6d00', h: '#ffccbc', d: '#bf360c', g: '#ffd54f' },
+        pirita:     { m: '#ffca28', h: '#fff9c4', d: '#ff6f00', g: '#ff5252' },
+        glaciar:    { m: '#29b6f6', h: '#e1f5fe', d: '#01579b', g: '#e040fb' },
+        maldito:    { m: '#9c27b0', h: '#e1bee7', d: '#4a148c', g: '#ff1744' },
+        omega:      { m: '#e040fb', h: '#ffffff', d: '#6a1b9a', g: '#00e5ff' }
       }[tierId] || { m: '#a1887f', h: '#d7ccc8', d: '#5d4037', g: '#ffd54f' };
 
       const wood = { w: '#8d5524', W: '#c68642', b: '#1b1116', ...tierColors };
@@ -483,12 +491,12 @@
         ],
         cana: [
           '.......bbb..',
-          '......bw.b..',
-          '.....bw..b..',
+          '......bm.b..',
+          '.....bh..b..',
           '....bw...b..',
           '...bw....b..',
-          '..bw.....g..',
-          '.bw.....g.g.',
+          '..bm.....g..',
+          '.bw.....g.h.',
           '.b.......g..',
           '............',
           '............'
@@ -507,15 +515,27 @@
         ],
         arco: [
           '....bbbb....',
-          '..bbw..wb...',
-          '.bw....g.b..',
+          '..bbm..hb...',
+          '.bm....g.b..',
           '.bw....g....',
-          'bw.....g....',
-          'bw.....g....',
+          'bh.....g....',
+          'bh.....g....',
           '.bw....g....',
-          '.bw....g.b..',
-          '..bbw..wb...',
+          '.bm....g.b..',
+          '..bbm..hb...',
           '....bbbb....'
+        ],
+        azada: [
+          '....bbbbb...',
+          '...bhhhmmb..',
+          '..bhhmmwmb..',
+          '..bmmbbwb...',
+          '......bw....',
+          '.....bw.....',
+          '....bw......',
+          '...bw.......',
+          '..bw........',
+          '..b.........'
         ]
       };
       this.paintPixelGrid(ctx, grids[toolId] || grids.pico, wood, 2, 2, 3);

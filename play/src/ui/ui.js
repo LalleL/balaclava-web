@@ -1055,19 +1055,19 @@
         type: 'button',
         class: 'title-patch-notes-btn',
         'data-tip-text': isEnTitle
-          ? 'View recent changes and new content in Beta 1.3.0'
-          : 'Ver todos los cambios recientes y contenido nuevo de la Beta 1.3.0',
+          ? 'View recent changes and new content in Beta 1.3.3'
+          : 'Ver todos los cambios recientes y contenido nuevo de la Beta 1.3.3',
         onclick: () => this.openModal('patch_notes')
       }, [
         this.el('img', { class: 'pixel-img', src: 'assets/icons/scroll_map.png', width: 18, height: 18, alt: '' }),
         this.el('span', { class: 'title-patch-notes-label' }, isEnTitle ? 'Patch Notes' : 'Cambios recientes'),
-        this.el('span', { class: 'title-patch-notes-badge' }, 'Beta 1.3.2')
+        this.el('span', { class: 'title-patch-notes-badge' }, 'Beta 1.3.3')
       ]);
       box.appendChild(patchBtn);
 
       const verEl = document.querySelector('#title-screen .title-version');
       if (verEl) {
-        verEl.textContent = 'Balaclava Beta v1.3.2';
+        verEl.textContent = 'Balaclava Beta v1.3.3';
         verEl.style.pointerEvents = 'auto';
         verEl.style.cursor = 'pointer';
         verEl.onclick = () => this.openModal('patch_notes');
@@ -3835,8 +3835,8 @@
         credits: tr('credits.title'),
         relics: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Permanent Relics Vault' : 'Cofre de Reliquias',
         patch_notes: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en')
-          ? `Patch Notes — Beta ${this._activePatchVer || '1.3.2'}`
-          : `Cambios Recientes — Beta ${this._activePatchVer || '1.3.2'}`,
+          ? `Patch Notes — Beta ${this._activePatchVer || '1.3.3'}`
+          : `Cambios Recientes — Beta ${this._activePatchVer || '1.3.3'}`,
         quit_confirm: tr('quit.title'),
         quit_web_fallback: tr('quit.webFallbackTitle'),
         discord_fallback: tr('title.discord'),
@@ -5443,10 +5443,11 @@
 
     _sortRecipes(recs) {
       const getTierScore = (id, item) => {
+        if (item && item.tier) return Number(item.tier) * 50;
         if (!id) return 500;
         const s = id.toLowerCase();
-        if (s.includes('omega') || s.includes('singularidad') || s.includes('antimateria') || s.includes('cronal')) return 900;
-        if (s.includes('celestial') || s.includes('estelar') || s.includes('arcano') || s.includes('vacio')) return 800;
+        if (s.includes('omega') || s.includes('singularidad') || s.includes('antimateria') || s.includes('cronal')) return 1150;
+        if (s.includes('celestial') || s.includes('estelar') || s.includes('arcano') || s.includes('vacio')) return 1100;
         if (s.includes('obsidiana') || s.includes('magma') || s.includes('fuego')) return 700;
         if (s.includes('platino') || s.includes('plata') || s.includes('titanio')) return 600;
         if (s.includes('acero')) return 500;
@@ -5455,7 +5456,6 @@
         if (s.includes('cobre') || s.includes('bronce')) return 200;
         if (s.includes('piedra') || s.includes('hueso')) return 150;
         if (s.includes('madera') || s.includes('cuero') || s.includes('fibra')) return 100;
-        if (item && item.tier) return Number(item.tier) * 50;
         return 250;
       };
 
@@ -5497,7 +5497,8 @@
       const hasStation = g.hasStationAvailable(rec.station);
       const reqSkill = rec.reqSkill ? (Balaclava.SKILLS && Balaclava.SKILLS[rec.reqSkill]) : null;
       const hasSkill = !rec.reqSkill || (Array.isArray(g.unlockedSkills) && g.unlockedSkills.includes(rec.reqSkill));
-      const canAfford = hasStation && hasSkill && Object.entries(rec.in).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
+      const hasOmegaRes = !rec.reqOmega || Boolean(g.omega && g.omega.hasResearch(rec.reqOmega));
+      const canAfford = hasStation && hasSkill && hasOmegaRes && Object.entries(rec.in).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
 
       const ingList = this.el('div', { style: 'font-size:14px;' });
       Object.entries(rec.in).forEach(([id, q]) => {
@@ -5682,7 +5683,8 @@
         const hasStation = g.hasStationAvailable(rec.station);
         const reqSkill = rec.reqSkill ? (Balaclava.SKILLS && Balaclava.SKILLS[rec.reqSkill]) : null;
         const hasSkill = !rec.reqSkill || (Array.isArray(g.unlockedSkills) && g.unlockedSkills.includes(rec.reqSkill));
-        const canAfford = hasStation && hasSkill && Object.entries(rec.in || {}).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
+        const hasOmegaRes = !rec.reqOmega || Boolean(g.omega && g.omega.hasResearch(rec.reqOmega));
+        const canAfford = hasStation && hasSkill && hasOmegaRes && Object.entries(rec.in || {}).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
         const alreadyOwnedTool = isTool && Boolean(g.toolTiers && g.toolTiers[rec.toolUnlock]);
 
         // Calculate max batches player can craft right now
@@ -5728,11 +5730,18 @@
           if (armBox) inspectorEl.appendChild(armBox);
         }
 
-        // Skill requirement
+        // Skill / Omega research requirement
         if (reqSkill) {
           inspectorEl.appendChild(this.el('div', {
             style: `font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;background:${hasSkill ? 'rgba(46,125,50,0.22)' : 'rgba(183,28,28,0.28)'};border:1px solid ${hasSkill ? '#66bb6a' : '#ef5350'};color:${hasSkill ? '#a5d6a7' : '#ffab91'};margin-top:6px;`
           }, hasSkill ? `Habilidad aprendida: ${reqSkill.name}` : `Requiere Habilidad: ${reqSkill.name}`));
+        }
+        if (rec.reqOmega) {
+          inspectorEl.appendChild(this.el('div', {
+            style: `font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;background:${hasOmegaRes ? 'rgba(46,125,50,0.22)' : 'rgba(156,39,176,0.28)'};border:1px solid ${hasOmegaRes ? '#66bb6a' : '#e040fb'};color:${hasOmegaRes ? '#a5d6a7' : '#f3e5f5'};margin-top:6px;`
+          }, hasOmegaRes
+            ? (isEn ? 'Omega Research unlocked: Omega Metallurgy' : 'Investigación Omega completada: Metalurgia Omega')
+            : (isEn ? 'Requires Central Nexus Research: Omega Metallurgy' : 'Requiere Investigación en el Nexo: Metalurgia Omega')));
         }
 
         // Station warning if not available
@@ -5795,7 +5804,7 @@
             }, `Fabricar x1 (${dur.toFixed(1)}s)`);
             btnRow.appendChild(btnX1);
 
-            if (maxBatches >= 5 && !isTool) {
+            if (canAfford && maxBatches >= 5 && !isTool) {
               btnRow.appendChild(this.el('button', {
                 class: 'btn btn-gold btn-sm',
                 style: 'min-width:44px;',
@@ -5807,7 +5816,7 @@
               }, 'x5'));
             }
 
-            if (maxBatches >= 10 && !isTool) {
+            if (canAfford && maxBatches >= 10 && !isTool) {
               btnRow.appendChild(this.el('button', {
                 class: 'btn btn-gold btn-sm',
                 style: 'min-width:48px;',
@@ -5819,7 +5828,7 @@
               }, 'x10'));
             }
 
-            if (maxBatches > 1 && maxBatches !== 5 && maxBatches !== 10 && !isTool) {
+            if (canAfford && maxBatches > 1 && maxBatches !== 5 && maxBatches !== 10 && !isTool) {
               btnRow.appendChild(this.el('button', {
                 class: 'btn btn-gold btn-sm',
                 style: 'flex:1 1 auto;',
@@ -6042,11 +6051,12 @@
           if (compareBox) card.appendChild(compareBox);
           const cost = tool.tierCosts[nextTier];
           const needsForja = (nextTier !== 'mejorada' && nextTier !== 'cobre') && !g.hasStationAvailable('forja');
+          const needsOmegaRes = Boolean(cost && cost.reqOmega && (!g.omega || !g.omega.hasResearch(cost.reqOmega)));
           const itemsOk = cost && cost.items ? Object.entries(cost.items).every(([id, q]) => (g.inventory[id] || 0) >= q) : true;
           const queuedUp = queue.find(j => j.toolUpgrade === tool.id);
           const cdLeft = (g.toolUpgradeCooldowns && g.toolUpgradeCooldowns[tool.id]) || 0;
           const busy = Boolean(queuedUp || cdLeft > 0);
-          const canUp = !busy && !needsForja && g.coins >= (cost ? cost.coins : 0) && itemsOk;
+          const canUp = !busy && !needsForja && !needsOmegaRes && g.coins >= (cost ? cost.coins : 0) && itemsOk;
           const cDiv = this.el('div', { style: 'font-size:14px;line-height:1.48;' }, [
             this.el('div', { style: `color:${g.coins >= (cost ? cost.coins : 0) ? '#ffd54f' : '#ff8a65'}` }, `${tr('tooltip.goldLabel')}: ${g.coins}/${cost ? cost.coins : 0}`),
             ...(cost && cost.items ? Object.entries(cost.items).map(([id, q]) =>
@@ -6055,6 +6065,10 @@
             ) : [])
           ]);
           if (needsForja) cDiv.appendChild(this.el('div', { style: 'color:#ff8a65;' }, tr('tools.forjaRequired')));
+          if (needsOmegaRes) {
+            const isEnT = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+            cDiv.appendChild(this.el('div', { style: 'color:#e040fb;font-weight:700;' }, isEnT ? 'Requires Central Nexus: Omega Metallurgy' : 'Requiere Nexo Central: Metalurgia Omega'));
+          }
           card.appendChild(cDiv);
           let upLabel;
           if (queuedUp) {
@@ -6169,13 +6183,14 @@
         const stOk = !mat ? true : (mat.station === 'investigacion'
           ? (g.hasStationAvailable('investigacion') || g.hasStationAvailable('forja'))
           : g.hasStationAvailable(mat.station));
+        const needsOmegaRes = Boolean(mat && mat.reqOmega && (!g.omega || !g.omega.hasResearch(mat.reqOmega)));
         const itemsOk = mat && mat.items
           ? Object.entries(mat.items).every(([id, q]) => (g.inventory[id] || 0) >= q)
           : true;
         const queuedUp = queue.find(j => j.armorUpgrade === slot);
         const cdLeft = (g.armorUpgradeCooldowns && g.armorUpgradeCooldowns[slot]) || 0;
         const busy = Boolean(queuedUp || cdLeft > 0);
-        const canUp = !busy && stOk && itemsOk;
+        const canUp = !busy && stOk && !needsOmegaRes && itemsOk;
 
         const armorCmp = this._buildArmorComparisonBox(curItem, nextItem);
         if (armorCmp) card.appendChild(armorCmp);
@@ -6189,6 +6204,10 @@
         if (!stOk) {
           const reqStLabel = (mat && mat.station && mat.station !== 'forja' && Balaclava.I18n && Balaclava.I18n.getStationName) ? `Requiere ${Balaclava.I18n.getStationName(mat.station)}` : tr('tools.forjaRequired');
           cDiv.appendChild(this.el('div', { style: 'color:#ff8a65;' }, reqStLabel));
+        }
+        if (needsOmegaRes) {
+          const isEnA = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+          cDiv.appendChild(this.el('div', { style: 'color:#e040fb;font-weight:700;' }, isEnA ? 'Requires Central Nexus: Omega Metallurgy' : 'Requiere Nexo Central: Metalurgia Omega'));
         }
         card.appendChild(cDiv);
 
@@ -9981,7 +10000,7 @@
 
     renderPatchNotesModal(body) {
       const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
-      if (!this._activePatchVer) this._activePatchVer = '1.3.2';
+      if (!this._activePatchVer) this._activePatchVer = '1.3.3';
       const sections121 = isEn ? [
         {
           badge: 'BETA 1.2.1',
@@ -10279,7 +10298,53 @@
         }
       ];
 
+      const sections133 = [
+        {
+          badge: '23 TIERS COMPLETOS',
+          color: '#e040fb',
+          icon: 'casco_omega',
+          title: isEn ? 'Expanded 23-Tier Progression (T14–T20 Biome Metals & Omega T23 Endgame)' : 'Progresión Expandida a 23 Tiers (T14–T20 Metales de Bioma y Omega T23)',
+          items: isEn ? [
+            'All 8 tools and all 5 armor slots (Helm, Armor, Shield, Boots, Greaves) now scale across 23 complete tiers from Basic (T1) to Omega (T23).',
+            'All 7 new Zone III & IV biome metals integrated directly into the main upgrade ladder after Orichalcum (T13): Coraline (T14), Boreal (T15), Emerald Jungle (T16), Caldera Slag (T17), Solar Pyrite (T18), Eternal Glacier (T19), and Cursed Silver / Abyssal (T20).',
+            'Legendary (T21) and Celestial (T22) rescaled cleanly above Zone IV gear, crowning Singularity Omega (T23) as true late-game requiring Omega Metallurgy research, Singularities, and Compressed Matter.',
+            'Complete 23-tier sets with new biome boots, leggings, helms, shields, and glacier armor, plus distinct pixel palettes and glow cues for all new tool tiers.'
+          ] : [
+            'Todas las 8 herramientas y las 5 ranuras de armadura (Casco, Coraza, Escudo, Botas y Pantalones) ahora escalan por 23 tiers completos desde Básica (T1) hasta Omega (T23).',
+            'Los 7 metales de Zona III y IV quedan integrados en la progresión principal tras Oricalco (T13): Coralina (T14), Boreal (T15), Selvana (T16), Escoria Ígnea (T17), Pirita Solar (T18), Glacial Eterna (T19) y Plata Maldita / Abismal (T20).',
+            'Legendaria (T21) y Celestial (T22) se reescalan por encima de Zona IV, coronando a Omega (T23) como verdadero late-game que exige Investigación de Metalurgia Omega, Singularidades y Materia Comprimida.',
+            'Sets completos en las 5 piezas (incluyendo nuevas botas, grebas, yelmos, escudos y coraza glaciar) y paletas visuales propias para los nuevos tiers de herramientas.'
+          ]
+        },
+        {
+          badge: 'BALANCE Y CORRECCIONES',
+          color: '#81c784',
+          icon: 'pico',
+          title: isEn ? 'Zero-Softlock Forging & Omega Research Gating' : 'Cero Bloqueos de Progresión y Requisito Omega Estricto',
+          items: isEn ? [
+            'Fixed Copper Pickaxe (T3) crafting order so upgrading Improved -> Copper no longer requires a Forge (which needs Iron), while Iron (T4+) keeps the Forge requirement.',
+            'Enforced Omega Metallurgy research check in Recipes, Tools, and Armor upgrades so T23 Omega gear stays locked until earned in late-game.',
+            'Step-by-step Pickaxe mining requirements aligned smoothly across all 14 biomes in Zones I–IV.'
+          ] : [
+            'Corregido el crafteo del Pico de Cobre (T3): ya no exige Forja (evitando el bloqueo mutuo con el Hierro), manteniendo la Forja obligatoria desde Hierro (T4+).',
+            'Validación estricta de la investigación Metalurgia Omega en recetas, herramientas y armaduras para proteger el endgame T23.',
+            'Requisitos de pico por mineral ajustados bioma a bioma en Zonas I–IV para una progresión sin bloqueos.'
+          ]
+        }
+      ];
+
       const patchVersions = [
+        {
+          id: '1.3.3',
+          label: 'Beta 1.3.3',
+          pill: 'BETA v1.3.3',
+          subtitle: isEn ? '23-Tier Progression & True Late-Game Omega' : '23 Tiers de Equipo y Omega Late-Game',
+          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.3 Release Notes' : 'BALACLAVA — Notas de la Versión Beta 1.3.3',
+          heroSub: isEn
+            ? 'Massive 23-tier progression expansion integrating Zone III-IV biome metals (T14-T20), Legendary T21, Celestial T22, and true late-game Omega T23.'
+            : 'Expansión completa a 23 tiers de herramientas y armaduras integrando los minerales de Zona III-IV (T14-T20), Legendaria T21, Celestial T22 y Omega T23 como verdadero late-game.',
+          sections: sections133
+        },
         {
           id: '1.3.2',
           label: 'Beta 1.3.2',
@@ -10936,7 +11001,7 @@
             }
           }, [
             this.el('span', {}, `🌌 El Abismo Infinito (Piso ${abFl} · Récord: ${abBest})`),
-            this.el('span', { style: 'color:#ffd54f;font-size:12px;font-weight:900;' }, 'T16 ENDGAME')
+            this.el('span', { style: 'color:#ffd54f;font-size:12px;font-weight:900;' }, 'T23 ENDGAME')
           ]));
         }
 

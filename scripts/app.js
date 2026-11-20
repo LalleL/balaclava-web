@@ -4,8 +4,8 @@
   const cfg = Object.assign({
     downloadUrl: '#pon-tu-link-de-descarga-aqui',
     mirrorUrl: '',
-    version: 'Beta 1.3.2',
-    versionLabel: 'Beta 1.3.2',
+    version: 'Beta 1.3.3',
+    versionLabel: 'Beta 1.3.3',
     fileName: 'Balaclava_Beta_1.3.0_Setup_x64.exe',
     fileSizeEs: 'Por definir (~140 MB)',
     fileSizeEn: 'TBD (~140 MB)',
@@ -32,7 +32,7 @@
     hoverGrid: null,
     activeSysTab: 'combat',
     selectedRelicId: DATA.relicsShowcase[0].id,
-    activePatchVer: '1.3.2',
+    activePatchVer: '1.3.3',
     downloadCount: 15
   };
 
@@ -815,7 +815,7 @@
     const contentEl = document.getElementById('patch-notes-content');
     if (!tabsEl || !contentEl) return;
 
-    const versions = [DATA.patchNotes['1.3.2'], DATA.patchNotes['1.3.1'], DATA.patchNotes['1.3.0'], DATA.patchNotes['1.2.1']].filter(Boolean);
+    const versions = [DATA.patchNotes['1.3.3'], DATA.patchNotes['1.3.2'], DATA.patchNotes['1.3.1'], DATA.patchNotes['1.3.0'], DATA.patchNotes['1.2.1']].filter(Boolean);
     tabsEl.innerHTML = '';
     versions.forEach((ver) => {
       tabsEl.appendChild(el('button', {
@@ -830,7 +830,7 @@
       }, ver.label));
     });
 
-    const active = DATA.patchNotes[state.activePatchVer] || DATA.patchNotes['1.3.2'] || DATA.patchNotes['1.3.0'];
+    const active = DATA.patchNotes[state.activePatchVer] || DATA.patchNotes['1.3.3'] || DATA.patchNotes['1.3.0'];
     const sections = pickLang(active.sectionsEs, active.sectionsEn);
 
     contentEl.innerHTML = '';

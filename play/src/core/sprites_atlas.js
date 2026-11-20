@@ -2287,6 +2287,10 @@
     for (const [id, f] of Object.entries(relics)) { const k = 'ov_' + id; M[k] = P + f + X; M[id] = M[k]; if (R[id]) R[id].icon = k; }
     for (const f of ['fragmento_', 'polvo_']) for (const fam of ['cobre','hierro','oro','plata','platino','titanio','adamantita','oricalco','coral','boreal','selvano','escoria','pirita','hueso','maldito']) M[f + fam] = P + f + fam + X;
     ['armor_solar','helm_solar','boots_solar','shield_solar'].forEach(k => { M[k] = P + k + X; });
+    M.helm_caldera = P + 'rel_corona_caldera' + X;
+    M.helm_faraon = P + 'rel_nemes_faraon' + X;
+    M.pantalones_abismal = P + 'pantalones_volcanico' + X;
+    M.shield_eclipse = RAVEN_BASE + 'fb2150.png';
     Balaclava.EXTRA_SPRITE_PATHS = Balaclava.EXTRA_SPRITE_PATHS || {};
   })();
 
@@ -2350,7 +2354,7 @@
 
   assets.createToolIconEl = function (toolId, tierId = 'basica', size = 28) {
     const tierMap = Balaclava.TOOL_PNG_MAP[toolId];
-    const url = tierMap && (tierMap[tierId] || tierMap.basica);
+    const url = tierMap && ((tierId === 'basica' || !tierId) ? tierMap.basica : tierMap[tierId]);
     if (url) {
       const img = document.createElement('img');
       img.src = encodeURI(withRoot(url));
@@ -2376,6 +2380,18 @@
     copy.height = c.height;
     copy.style.width = size + 'px';
     copy.style.height = size + 'px';
+    copy.className = 'pixel-img';
+    if (tierId === 'omega') {
+      copy.style.filter = 'drop-shadow(0 0 5px rgba(224, 64, 251, 0.95)) brightness(1.12)';
+    } else if (tierId === 'maldito' || tierId === 'glaciar' || tierId === 'pirita' || tierId === 'escoria') {
+      const glowMap = {
+        escoria: 'rgba(255, 109, 0, 0.75)',
+        pirita:  'rgba(255, 213, 79, 0.75)',
+        glaciar: 'rgba(79, 195, 247, 0.8)',
+        maldito: 'rgba(186, 104, 200, 0.85)'
+      };
+      copy.style.filter = `drop-shadow(0 0 3px ${glowMap[tierId]})`;
+    }
     copy.getContext('2d').drawImage(c, 0, 0);
     return copy;
   };
