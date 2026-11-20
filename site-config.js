@@ -9,14 +9,14 @@
  */
 window.BALACLAVA_SITE_CONFIG = {
   // 1. Enlace principal de descarga directa (GitHub Releases)
-  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v1.3.1-beta/Balaclava.exe',
+  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v1.3.2-beta/Balaclava.exe',
 
   // 2. Enlace alternativo / mirror opcional (déjalo vacío '' si no usas mirror)
   mirrorUrl: '',
 
   // 3. Versión actual mostrada en badges, hero y tarjetas de descarga
-  version: 'Beta 1.3.1',
-  versionLabel: 'Beta 1.3.1',
+  version: 'Beta 1.3.2',
+  versionLabel: 'Beta 1.3.2',
 
   // 4. Datos técnicos del archivo descargable
   fileName: 'Balaclava.exe',

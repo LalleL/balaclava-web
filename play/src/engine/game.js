@@ -4985,6 +4985,30 @@
       const dName = (isCorrupted ? '[CORRUPTA] ' : '') + ((def && def.name) || (gate && gate.name) || 'Mazmorra');
       const tierList = Array.isArray(Balaclava.DUNGEON_TIER_LIST) ? Balaclava.DUNGEON_TIER_LIST : [];
       const tierIdx = Math.max(0, tierList.indexOf(dungeonId));
+
+      // Bloqueo estricto por progresión de biomas (Beta 1.3.2):
+      // No se permite entrar a mazmorras cuyos biomas/islas no hayan sido explorados y desbloqueados.
+      const targetBiome = (gate && gate.biome) || (def && (def.themeKey || def.biomeId)) || null;
+      if (targetBiome && !(opts && opts.bypassBiomeLock) && !(this.player && this.player.godMode)) {
+        const unlockedPlots = Array.isArray(this.unlockedPlots) ? this.unlockedPlots : [];
+        const isIslandUnlocked = gate && gate.plot && unlockedPlots.some(([gx, gy]) => gx === gate.plot[0] && gy === gate.plot[1]);
+        const unlockedBiomes = new Set(
+          unlockedPlots.map(([gx, gy]) => (this.world && this.world.plotBiomes && this.world.plotBiomes[gy] && this.world.plotBiomes[gy][gx]) || 'pradera')
+        );
+        const isBiomeUnlocked = unlockedBiomes.has(targetBiome);
+        const isCleared = Array.isArray(this.clearedDungeons) && this.clearedDungeons.includes(dungeonId);
+
+        if (!isBiomeUnlocked && !isIslandUnlocked && !isCleared) {
+          const bData = (Balaclava.CONST && Balaclava.CONST.BIOMES && Balaclava.CONST.BIOMES[targetBiome])
+            || (Balaclava.BIOMES && Balaclava.BIOMES[targetBiome])
+            || null;
+          const bName = (bData && bData.name) || targetBiome;
+          this.toast(`🔒 Mazmorra bloqueada: debes explorar y desbloquear el bioma ${bName} en el archipiélago primero.`, 'warn');
+          if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('error');
+          return false;
+        }
+      }
+
       const doEnter = () => {
         this.farming.fishing = null;
         this.placingBuildingId = null;

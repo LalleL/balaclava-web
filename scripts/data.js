@@ -730,6 +730,85 @@ window.BALACLAVA_DATA = {
   ],
 
   patchNotes: {
+    '1.3.2': {
+      id: '1.3.2',
+      label: 'Beta 1.3.2',
+      pill: 'BETA v1.3.2',
+      subtitleEs: 'Actualización Beta 1.3.2 — Bloqueo de Mazmorras por Bioma y Correcciones',
+      subtitleEn: 'Beta 1.3.2 Update — Dungeon Progression Biome Lock & Polish',
+      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.2',
+      heroTitleEn: 'BALACLAVA — Beta 1.3.2 Release Notes',
+      heroSubEs: 'Bloqueo estricto de acceso a mazmorras según progresión de biomas descubiertos en el archipiélago, corrección de atajo indebido al Jefe Final, resiliencia contra iconos rotos y tipografía limpia.',
+      heroSubEn: 'Strict dungeon access gating requiring island/biome exploration, removal of premature final boss bypass, resilient procedural canvas fallbacks, and clean typography.',
+      sectionsEs: [
+        {
+          badge: 'SANTUARIO Y BIOMAS',
+          color: '#ff5252',
+          icon: 'assets/icons_extra/llave_maestra.png',
+          title: 'Bloqueo Estricto de Mazmorras por Progresión',
+          items: [
+            'El Santuario de Mazmorras valida estrictamente la progresión del mundo: acceder a una mazmorra requiere explorar y desbloquear su bioma primero.',
+            'Se eliminó el botón de atajo directo al Jefe Final. La Ciudadela del Eclipse Carmesí requiere desbloquear las Tierras Malditas.',
+            'Las mazmorras en biomas aún no alcanzados se muestran bloqueadas (🔒) indicando el bioma requerido.'
+          ]
+        },
+        {
+          badge: 'TEXTURAS E ICONOS',
+          color: '#4fc3f7',
+          icon: 'assets/icons_extra/cristal_datos.png',
+          title: 'Resiliencia Total contra Iconos Rotos',
+          items: [
+            'Nuevo sistema de fallback automático a canvas procedimental en caso de texturas faltantes o demoradas.',
+            'Nombres limpios en etiquetas alt para evitar que se muestren códigos técnicos como ov_ce o ov_fi.',
+            'Soporte directo para iconos concordantes de cera de abeja, fibra vegetal y armaduras avanzadas.'
+          ]
+        },
+        {
+          badge: 'ESTABILIDAD Y WEB',
+          color: '#69f0ae',
+          icon: 'assets/icons/backpack.png',
+          title: 'Contador de Descargas y Codificación UTF-8',
+          items: [
+            'El contador de descargas de la página oficial se mantiene sincronizado de forma segura sin reiniciarse.',
+            'Revisión y verificación completa de codificación UTF-8 en todas las fichas de construcción y descripciones.'
+          ]
+        }
+      ],
+      sectionsEn: [
+        {
+          badge: 'DUNGEONS & BIOMES',
+          color: '#ff5252',
+          icon: 'assets/icons_extra/llave_maestra.png',
+          title: 'Strict Biome Lock for Dungeon Sanctuary',
+          items: [
+            'Dungeon Sanctuary strictly validates biome progression: entering a dungeon now requires unlocking its island/biome first.',
+            'Removed premature direct boss teleport bypass. Access to the Crimson Citadel requires reaching the Tierras Malditas.',
+            'Locked dungeons are grayed out with a lock badge showing the required biome.'
+          ]
+        },
+        {
+          badge: 'TEXTURES & ICONS',
+          color: '#4fc3f7',
+          icon: 'assets/icons_extra/cristal_datos.png',
+          title: 'Total Resiliency Against Missing Icons',
+          items: [
+            'Automated procedural canvas fallback for any missing or delayed inventory item icon.',
+            'Clean alt labels preventing raw technical prefixes like ov_ce or ov_fi from ever showing.',
+            'Concordant icons for beeswax, vegetable fiber, and advanced gear.'
+          ]
+        },
+        {
+          badge: 'STABILITY & WEB',
+          color: '#69f0ae',
+          icon: 'assets/icons/backpack.png',
+          title: 'Download Counter & UTF-8 Text',
+          items: [
+            'Official site download counter guarded against resetting.',
+            'Full UTF-8 verification across all building inspectors, cards and tooltips.'
+          ]
+        }
+      ]
+    },
     '1.3.1': {
       id: '1.3.1',
       label: 'Beta 1.3.1',

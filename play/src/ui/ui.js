@@ -1061,13 +1061,13 @@
       }, [
         this.el('img', { class: 'pixel-img', src: 'assets/icons/scroll_map.png', width: 18, height: 18, alt: '' }),
         this.el('span', { class: 'title-patch-notes-label' }, isEnTitle ? 'Patch Notes' : 'Cambios recientes'),
-        this.el('span', { class: 'title-patch-notes-badge' }, 'Beta 1.3.0')
+        this.el('span', { class: 'title-patch-notes-badge' }, 'Beta 1.3.2')
       ]);
       box.appendChild(patchBtn);
 
       const verEl = document.querySelector('#title-screen .title-version');
       if (verEl) {
-        verEl.textContent = 'Balaclava Beta v1.3.0';
+        verEl.textContent = 'Balaclava Beta v1.3.2';
         verEl.style.pointerEvents = 'auto';
         verEl.style.cursor = 'pointer';
         verEl.onclick = () => this.openModal('patch_notes');
@@ -3835,8 +3835,8 @@
         credits: tr('credits.title'),
         relics: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Permanent Relics Vault' : 'Cofre de Reliquias',
         patch_notes: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en')
-          ? `Patch Notes — Beta ${this._activePatchVer || '1.3.0'}`
-          : `Cambios Recientes — Beta ${this._activePatchVer || '1.3.0'}`,
+          ? `Patch Notes — Beta ${this._activePatchVer || '1.3.2'}`
+          : `Cambios Recientes — Beta ${this._activePatchVer || '1.3.2'}`,
         quit_confirm: tr('quit.title'),
         quit_web_fallback: tr('quit.webFallbackTitle'),
         discord_fallback: tr('title.discord'),
@@ -9976,7 +9976,7 @@
 
     renderPatchNotesModal(body) {
       const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
-      if (!this._activePatchVer) this._activePatchVer = '1.3.0';
+      if (!this._activePatchVer) this._activePatchVer = '1.3.2';
       const sections121 = isEn ? [
         {
           badge: 'BETA 1.2.1',
@@ -10241,10 +10241,54 @@
         }
       ];
 
+            const sections132 = [
+        {
+          badge: 'SANTUARIO Y BIOMAS',
+          color: '#ff5252',
+          icon: 'llave_maestra',
+          title: isEn ? 'Strict Biome Lock for Dungeon Sanctuary' : 'Bloqueo Estricto de Mazmorras por Bioma',
+          items: isEn ? [
+            'Dungeon Sanctuary strictly validates biome progression: entering a dungeon now requires unlocking its island/biome first.',
+            'Removed premature direct boss teleport bypass. Access to the Crimson Citadel requires reaching the Tierras Malditas.',
+            'Locked dungeons are grayed out with a lock badge showing the required biome.'
+          ] : [
+            'El Santuario de Mazmorras valida estrictamente la progresión del mundo: acceder a una mazmorra requiere explorar y desbloquear su bioma primero.',
+            'Se eliminó el botón de atajo directo al Jefe Final. La Ciudadela del Eclipse Carmesí requiere desbloquear las Tierras Malditas.',
+            'Las mazmorras en biomas aún no alcanzados se muestran bloqueadas (🔒) indicando el bioma requerido.'
+          ]
+        },
+        {
+          badge: 'RESILIENCIA Y FUENTES',
+          color: '#4fc3f7',
+          icon: 'cristal_datos',
+          title: isEn ? 'Asset Resiliency & Clean UTF-8' : 'Resiliencia de Texturas y Tipografía Limpia',
+          items: isEn ? [
+            'Resilient canvas fallbacks for all items, drop icons and recipes (preventing broken image glyphs).',
+            'Full UTF-8 cleanup across crafting stations, tooltips and building inspectors.',
+            'Web download counter stabilized and persistent.'
+          ] : [
+            'Fallback automático procedimental para iconos de objetos y recetas (evita imágenes rotas).',
+            'Limpieza total de caracteres UTF-8 en fichas de edificios, estaciones de trabajo y descripciones.',
+            'Contador de descargas de la web protegido contra reinicios.'
+          ]
+        }
+      ];
+
       const patchVersions = [
         {
+          id: '1.3.2',
+          label: 'Beta 1.3.2',
+          pill: 'BETA v1.3.2',
+          subtitle: isEn ? 'Dungeon Progression Fix & Clean Typography' : 'Bloqueo de Mazmorras por Bioma y Correcciones',
+          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.2 Release Notes' : 'BALACLAVA — Notas de la Versión Beta 1.3.2',
+          heroSub: isEn
+            ? 'Dungeon Sanctuary biome progression locks, boss portal fixes, canvas fallbacks and clean UTF-8 text.'
+            : 'Bloqueo estricto de mazmorras por bioma en el Santuario, corrección del portal del Jefe Final, fallbacks de iconos y tipografía UTF-8 limpia.',
+          sections: sections132
+        },
+        {
           id: '1.3.0',
-          label: 'Beta 1.3.0',
+          label: 'Beta 1.3.2',
           pill: 'BETA v1.3.0',
           subtitle: isEn ? '361-Island Expansion & Crimson Abyss' : 'Gran Expansion Beta 1.3.0',
           heroTitle: isEn ? 'BALACLAVA — Beta 1.3.0 Release Notes' : 'BALACLAVA — Notas de la Version Beta 1.3.0',
@@ -10827,19 +10871,17 @@
       }
       if (def.opensPanel === 'dungeons') {
         const dList = this.el('div', { class: 'dungeon-atlas-list', style: 'margin-top:8px;' });
-        // Hero button: Portal directo al Jefe Final
-        dList.appendChild(this.el('button', {
-          class: 'btn btn-danger btn-sm',
-          style: 'background:linear-gradient(90deg, #b71c1c, #880e4f);border:2px solid #ff5252;color:#fff;font-weight:900;margin-bottom:8px;width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;box-shadow:0 0 14px rgba(255,23,68,0.5);letter-spacing:0.5px;',
-          onclick: () => {
-            this.closeModal();
-            g.enterDungeon('eclipse_carmesi', false, { directArena: true, forceNormal: true });
-          }
-        }, [
-          this.el('span', { style: 'font-size:14px;' }, '⚔️ Teletransportarse al Jefe Final (Arena Directa — Espadachín Carmesí Abisal)'),
-          this.el('span', { style: 'color:#ffe082;font-size:12px;font-weight:900;background:rgba(0,0,0,0.4);padding:3px 8px;border-radius:4px;border:1px solid #ffd54f;' }, 'BOSS FINAL')
-        ]));
-        if (g.clearedDungeons && g.clearedDungeons.length >= 24) {
+
+        // Unlocked plots & biomes calculation
+        const unlockedPlots = Array.isArray(g.unlockedPlots) ? g.unlockedPlots : [];
+        const unlockedBiomes = new Set(
+          unlockedPlots.map(([gx, gy]) => (g.world && g.world.plotBiomes && g.world.plotBiomes[gy] && g.world.plotBiomes[gy][gx]) || 'pradera')
+        );
+        const clearedSet = new Set(Array.isArray(g.clearedDungeons) ? g.clearedDungeons : []);
+        const gatesObj = Balaclava.DUNGEON_GATES || {};
+
+        // T16 Endgame: El Abismo Infinito (requiere 24+ mazmorras completadas)
+        if (clearedSet.size >= 24) {
           const abFl = (g.omega && g.omega.state.abyss && g.omega.state.abyss.current) || 1;
           const abBest = (g.omega && g.omega.state.abyss && g.omega.state.abyss.best) || 0;
           dList.appendChild(this.el('button', {
@@ -10850,23 +10892,56 @@
               g.enterDungeon('abismo_infinito');
             }
           }, [
-            this.el('span', {}, `El Abismo Infinito (Piso ${abFl} · Récord: ${abBest})`),
+            this.el('span', {}, `🌌 El Abismo Infinito (Piso ${abFl} · Récord: ${abBest})`),
             this.el('span', { style: 'color:#ffd54f;font-size:12px;font-weight:900;' }, 'T16 ENDGAME')
           ]));
         }
-        Object.values(Balaclava.DUNGEON_DEFS).forEach(d => {
-          const dmBiome = BIOMES[d.themeKey || d.biomeId || d.id] || BIOMES.pradera;
-          dList.appendChild(this.el('button', {
-            class: 'btn btn-sm',
-            style: 'justify-content:space-between;',
-            onclick: () => { this.closeModal(); g.enterDungeon(d.id); }
-          }, [
-            tr('bldg.dungeonRow', { name: d.name, biome: dmBiome.name, lvl: d.recLevel || 2 }),
-            g.clearedDungeons.includes(d.id) ? this.uiIcon('iconCheck', 14) : null
-          ]));
+
+        // List all 75 dungeons with strict Biome Lock enforcement
+        const allDefs = Object.values(Balaclava.DUNGEON_DEFS || {});
+        allDefs.forEach(d => {
+          const gate = gatesObj[d.id] || null;
+          const targetBiomeKey = (gate && gate.biome) || d.themeKey || d.biomeId || 'pradera';
+          const dmBiome = BIOMES[targetBiomeKey] || BIOMES.pradera;
+          const isIslandUnlocked = gate && gate.plot && unlockedPlots.some(([gx, gy]) => gx === gate.plot[0] && gy === gate.plot[1]);
+          const isBiomeUnlocked = unlockedBiomes.has(targetBiomeKey);
+          const isCleared = clearedSet.has(d.id);
+          const isAvailable = isCleared || isBiomeUnlocked || isIslandUnlocked || (g.player && g.player.godMode);
+          const isFinalBoss = d.id === 'eclipse_carmesi' || (gate && gate.isFinal);
+
+          if (isAvailable) {
+            dList.appendChild(this.el('button', {
+              class: 'btn btn-sm',
+              style: 'justify-content:space-between;margin-bottom:4px;' + (isFinalBoss ? 'background:linear-gradient(90deg, rgba(183,28,28,0.35), rgba(136,14,79,0.35));border:1.5px solid #ff5252;' : ''),
+              onclick: () => { this.closeModal(); g.enterDungeon(d.id); }
+            }, [
+              this.el('span', { style: isFinalBoss ? 'color:#ff8a80;font-weight:900;' : '' }, [
+                isFinalBoss ? '👑 ' : '',
+                tr('bldg.dungeonRow', { name: d.name, biome: dmBiome.name, lvl: d.recLevel || 2 })
+              ]),
+              isCleared ? this.uiIcon('iconCheck', 14) : (isFinalBoss ? this.el('span', { style: 'color:#ffd54f;font-size:11px;font-weight:900;padding:2px 6px;background:rgba(0,0,0,0.4);border-radius:3px;' }, 'JEFE FINAL') : null)
+            ]));
+          } else {
+            // Locked: Biome has not been unlocked in the world
+            dList.appendChild(this.el('button', {
+              class: 'btn btn-sm',
+              style: 'justify-content:space-between;margin-bottom:4px;opacity:0.42;background:rgba(20,22,28,0.7);border:1px dashed #546e7a;cursor:not-allowed;color:#90a4ae;',
+              onclick: () => {
+                g.toast(`🔒 Mazmorra bloqueada: debes explorar y desbloquear el bioma ${dmBiome.name} en el archipiélago primero.`, 'warn');
+                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('error');
+              }
+            }, [
+              this.el('span', {}, [
+                isFinalBoss ? '🔒👑 ' : '🔒 ',
+                `${d.name} (${dmBiome.name} · Nv.${d.recLevel || 2}+)`
+              ]),
+              this.el('span', { style: 'color:#ffab91;font-size:11px;font-weight:bold;' }, 'BLOQUEADA')
+            ]));
+          }
         });
+
         body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:12px;' }, [
-          this.el('strong', { style: 'color:#ff8a65;' }, tr('bldg.enterDungeonTitle', { n: Object.keys(Balaclava.DUNGEON_DEFS).length })),
+          this.el('strong', { style: 'color:#ff8a65;' }, tr('bldg.enterDungeonTitle', { n: allDefs.length })),
           dList
         ]));
       }

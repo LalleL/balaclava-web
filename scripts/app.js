@@ -4,8 +4,8 @@
   const cfg = Object.assign({
     downloadUrl: '#pon-tu-link-de-descarga-aqui',
     mirrorUrl: '',
-    version: 'Beta 1.3.0',
-    versionLabel: 'Beta 1.3.0',
+    version: 'Beta 1.3.2',
+    versionLabel: 'Beta 1.3.2',
     fileName: 'Balaclava_Beta_1.3.0_Setup_x64.exe',
     fileSizeEs: 'Por definir (~140 MB)',
     fileSizeEn: 'TBD (~140 MB)',
@@ -32,7 +32,7 @@
     hoverGrid: null,
     activeSysTab: 'combat',
     selectedRelicId: DATA.relicsShowcase[0].id,
-    activePatchVer: '1.3.1',
+    activePatchVer: '1.3.2',
     downloadCount: 15
   };
 

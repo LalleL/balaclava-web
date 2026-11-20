@@ -2171,10 +2171,13 @@
   // Upgrade ground drop / canvas icon resolver to serve crisp loaded PNGs whenever available
   const origGetItemIconCanvas = assets.getItemIconCanvas.bind(assets);
   assets.getItemIconCanvas = function (iconType) {
-    const mappedIcon = Balaclava.ITEMS && Balaclava.ITEMS[iconType] && Balaclava.ITEMS[iconType].icon;
-    const img = assets.itemImages && (assets.itemImages[iconType] || (mappedIcon && assets.itemImages[mappedIcon]));
+    const rawKey = typeof iconType === 'string' ? iconType.replace(/^ov_/, '') : iconType;
+    const itDef = Balaclava.ITEMS && (Balaclava.ITEMS[iconType] || Balaclava.ITEMS[rawKey]);
+    const mappedIcon = itDef && itDef.icon;
+    const cleanMapped = typeof mappedIcon === 'string' ? mappedIcon.replace(/^ov_/, '') : mappedIcon;
+    const img = assets.itemImages && (assets.itemImages[iconType] || assets.itemImages[rawKey] || (mappedIcon && assets.itemImages[mappedIcon]));
     if (img && img.complete && img.naturalWidth > 0) return img;
-    return origGetItemIconCanvas(mappedIcon || iconType);
+    return origGetItemIconCanvas(cleanMapped || rawKey || iconType);
   };
 
   assets.loadExtraAssets = async function () {
@@ -2298,36 +2301,49 @@
 
   // Safe DOM icon helper using real transparent PNG assets (zero dataURL taint!).
   assets.createItemIconEl = function (iconType, size = 28) {
-    const url = Balaclava.ITEM_PNG_MAP[iconType] || (Balaclava.ITEMS && Balaclava.ITEMS[iconType] && Balaclava.ITEM_PNG_MAP[Balaclava.ITEMS[iconType].icon]);
+    const rawKey = typeof iconType === 'string' ? iconType.replace(/^ov_/, '') : iconType;
+    const itDef = (Balaclava.ITEMS && (Balaclava.ITEMS[iconType] || Balaclava.ITEMS[rawKey])) || null;
+    const targetKey = (itDef && itDef.icon) || iconType;
+    const url = Balaclava.ITEM_PNG_MAP[iconType]
+      || Balaclava.ITEM_PNG_MAP[targetKey]
+      || Balaclava.ITEM_PNG_MAP[rawKey]
+      || (itDef && itDef.icon && Balaclava.ITEM_PNG_MAP[itDef.icon]);
     if (url) {
       const img = document.createElement('img');
       img.src = encodeURI(withRoot(url));
       img.width = size;
       img.height = size;
-      img.alt = iconType || 'item';
+      img.alt = (itDef && itDef.name) || rawKey || 'item';
       img.className = 'pixel-img';
       img.style.width = size + 'px';
       img.style.height = size + 'px';
       img.draggable = false;
-      img.onerror = () => {
+      const swapToFallback = () => {
         try {
-          const fallbackCanvas = assets.getItemIconCanvas(iconType);
+          const fallbackCanvas = origGetItemIconCanvas(rawKey) || assets.getItemIconCanvas(rawKey);
           if (fallbackCanvas && img.parentNode) {
-            fallbackCanvas.style.width = size + 'px';
-            fallbackCanvas.style.height = size + 'px';
-            fallbackCanvas.className = 'pixel-img';
-            img.parentNode.replaceChild(fallbackCanvas, img);
+            const copy = document.createElement('canvas');
+            copy.width = fallbackCanvas.width || 32;
+            copy.height = fallbackCanvas.height || 32;
+            copy.style.width = size + 'px';
+            copy.style.height = size + 'px';
+            copy.className = 'pixel-img';
+            const ctx = copy.getContext('2d');
+            ctx.drawImage(fallbackCanvas, 0, 0);
+            img.parentNode.replaceChild(copy, img);
           }
         } catch (_) {}
       };
+      img.onerror = swapToFallback;
       return img;
     }
-    const c = assets.getItemIconCanvas(iconType);
+    const c = origGetItemIconCanvas(rawKey) || assets.getItemIconCanvas(rawKey);
     const copy = document.createElement('canvas');
-    copy.width = c.width;
-    copy.height = c.height;
+    copy.width = c.width || 32;
+    copy.height = c.height || 32;
     copy.style.width = size + 'px';
     copy.style.height = size + 'px';
+    copy.className = 'pixel-img';
     copy.getContext('2d').drawImage(c, 0, 0);
     return copy;
   };
