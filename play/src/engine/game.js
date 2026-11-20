@@ -9537,55 +9537,6 @@
         ctx.fill();
       }
 
-      // Draw active held item behind player first when facing UP
-      const heldSlot = this.hotbar && this.hotbar[this.activeSlot];
-      const heldItem = heldSlot && heldSlot.kind === 'item' ? Balaclava.ITEMS[heldSlot.id] : null;
-      const heldToolId = heldSlot && heldSlot.kind === 'tool' ? heldSlot.id : null;
-      const heldToolTier = (heldToolId && this.toolTiers && this.toolTiers[heldToolId]) || 'basica';
-
-      const drawHeldIdleGear = (inFront) => {
-        if (p.swingTimer > 0 || (p.actionTimer || 0) > 0 || p.onWater || fishingPhase || p.dashTimer > 0 || (p.hurtTimer || 0) > 0) return;
-        const shouldShowUpDir = (dir === 'up');
-        if (inFront === shouldShowUpDir) return;
-
-        let hImg = null;
-        let showGlowColor = null;
-        if (heldItem && (heldItem.isLaserWeapon || heldItem.isBomb || heldItem.isSpecialBlade || heldItem.weaponMelee || heldItem.isRangedWeapon || heldItem.isStaffWeapon) && (this.inventory[heldItem.id] || 0) > 0) {
-          hImg = assets.getItemIconCanvas ? assets.getItemIconCanvas(heldItem.icon) : null;
-          if (heldItem.laserStats && heldItem.laserStats.color) showGlowColor = heldItem.laserStats.color;
-          else if (heldItem.staffStats && heldItem.staffStats.color) showGlowColor = heldItem.staffStats.color;
-          else if (heldItem.bladeStats && heldItem.bladeStats.color) showGlowColor = heldItem.bladeStats.color;
-        } else if (heldToolId && heldToolTier !== 'basica') {
-          hImg = assets.getToolImg ? assets.getToolImg(heldToolId, heldToolTier) : null;
-          const tm = Balaclava.TIER_META && Balaclava.TIER_META[heldToolTier];
-          if (tm && tm.color) showGlowColor = tm.color;
-        }
-        if (!hImg) return;
-
-        const bob = p.moving ? Math.sin(p.animTimer * 18) * 1.5 : Math.sin(p.animTimer * 4) * 0.8;
-        let hx = p.facing * 12;
-        let hy = 1 + bob;
-        let hRot = p.facing > 0 ? 0.15 : -0.15;
-        if (dir === 'down') { hx = 10; hy = 2 + bob; hRot = 0.25; }
-        else if (dir === 'up') { hx = -10; hy = -1 + bob; hRot = -0.3; }
-
-        ctx.save();
-        ctx.translate(hx, hy);
-        if (showGlowColor) {
-          const gr = ctx.createRadialGradient(0, 0, 1, 0, 0, 11);
-          gr.addColorStop(0, showGlowColor + '55');
-          gr.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = gr;
-          ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI * 2); ctx.fill();
-        }
-        if (flipX < 0 || dir === 'left') ctx.scale(-1, 1);
-        ctx.rotate(hRot);
-        ctx.drawImage(hImg, -9, -9, 18, 18);
-        ctx.restore();
-      };
-
-      drawHeldIdleGear(false);
-
       ctx.save();
       ctx.scale(flipX, 1);
       if (sheet) {
@@ -9595,8 +9546,6 @@
         ctx.fillRect(-10, -22 - jumpLiftY, 20, 26);
       }
       ctx.restore();
-
-      drawHeldIdleGear(true);
 
       // Active Shield Barrier halo when shieldHp > 0
       if ((p.shieldTimer || 0) > 0 && (p.shieldHp || 0) > 0) {
@@ -9609,73 +9558,6 @@
       }
 
       ctx.restore();
-
-      // --- ITEM/TIER ALIGNED OVERLAY DURING SWING / ATTACK ---
-      if (p.swingTimer > 0 && !p.deadTimer) {
-        const sProg = clamp(1 - p.swingTimer / Math.max(0.01, p.swingDur), 0, 0.99);
-        const tierId = (this.toolTiers && this.toolTiers[p.swingTool]) || 'basica';
-        const showCustomWeapon = isSpecialItemSwing || tierId !== 'basica';
-        let toolImg = null;
-        if (isSpecialItemSwing && assets.getItemIconCanvas) {
-          toolImg = assets.getItemIconCanvas(p.swingItemId);
-        } else if (showCustomWeapon) {
-          toolImg = assets.getToolImg ? assets.getToolImg(p.swingTool, tierId) : assets.getItemIconCanvas(p.swingTool);
-        }
-
-        if (toolImg && showCustomWeapon) {
-          const isBowLike = p.swingTool === 'arco' || p.swingTool === 'ballesta';
-          const isLaserOrStaff = p.swingTool === 'varita' || p.swingTool === 'baculo' || String(p.swingItemId || '').includes('varita') || String(p.swingItemId || '').includes('baculo');
-          if (isBowLike) {
-            const recoil = sProg >= 0.65 ? (sProg - 0.65) * 7 : 0;
-            const reach = 13 - recoil;
-            const tx = p.x + Math.cos(p.swingAngle) * reach;
-            const ty = p.y - 4 + Math.sin(p.swingAngle) * reach;
-            ctx.save();
-            ctx.translate(tx, ty);
-            ctx.rotate(p.swingAngle + Math.PI / 4);
-            ctx.drawImage(toolImg, -10, -10, 20, 20);
-            ctx.restore();
-          } else if (isLaserOrStaff) {
-            const reach = 14 + Math.sin(sProg * Math.PI) * 5;
-            const tx = p.x + Math.cos(p.swingAngle) * reach;
-            const ty = p.y - 4 + Math.sin(p.swingAngle) * reach;
-            const stCol = (Balaclava.ITEMS[p.swingItemId] && ((Balaclava.ITEMS[p.swingItemId].laserStats && Balaclava.ITEMS[p.swingItemId].laserStats.color) || (Balaclava.ITEMS[p.swingItemId].staffStats && Balaclava.ITEMS[p.swingItemId].staffStats.color))) || '#ffd54f';
-            ctx.save();
-            ctx.translate(tx, ty);
-            const aura = ctx.createRadialGradient(0, 0, 2, 0, 0, 14);
-            aura.addColorStop(0, stCol + '77');
-            aura.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = aura;
-            ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
-            ctx.rotate(p.swingAngle + Math.PI / 4);
-            ctx.drawImage(toolImg, -11, -11, 22, 22);
-            ctx.restore();
-          } else {
-            const sweepDir = (p.attackCount % 2 === 0) ? -1 : 1;
-            const arcOffset = (sProg - 0.45) * 2.1 * sweepDir * p.facing;
-            const effAngle = p.swingAngle + arcOffset;
-            const reach = 15 + Math.sin(sProg * Math.PI) * 8;
-            const tx = p.x + Math.cos(effAngle) * reach;
-            const ty = p.y - 3 + Math.sin(effAngle) * reach;
-            const sz = isSpecialItemSwing ? 23 : 21;
-            const tm = Balaclava.TIER_META && Balaclava.TIER_META[tierId];
-            const tierColor = (Balaclava.ITEMS[p.swingItemId] && Balaclava.ITEMS[p.swingItemId].bladeStats && Balaclava.ITEMS[p.swingItemId].bladeStats.color) || (tm && tm.color);
-
-            ctx.save();
-            ctx.translate(tx, ty);
-            if (tierColor) {
-              const glow = ctx.createRadialGradient(0, 0, 1, 0, 0, 13);
-              glow.addColorStop(0, tierColor + '55');
-              glow.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.fillStyle = glow;
-              ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
-            }
-            ctx.rotate(effAngle + Math.PI / 4);
-            ctx.drawImage(toolImg, -sz / 2, -sz / 2, sz, sz);
-            ctx.restore();
-          }
-        }
-      }
 
       // Indicador visual de recarga del arco y pose de carga en mano
       if (!p.deadTimer && (p.bowReloadTimer || 0) > 0 && (p.bowReloadDur || 0) > 0) {
