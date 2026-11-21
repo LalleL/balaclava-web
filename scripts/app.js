@@ -13,6 +13,7 @@
     releaseDateEn: 'November 2026',
     platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
     githubRepo: 'LalleL/balaclava-web',
+    webPlayersCounterUrl: '',
     discordUrl: 'https://discord.gg/8wrsjRSMY2',
     kofiUrl: 'https://ko-fi.com/balaclava'
   }, window.BALACLAVA_SITE_CONFIG || {});
@@ -33,7 +34,8 @@
     activeSysTab: 'combat',
     selectedRelicId: DATA.relicsShowcase[0].id,
     activePatchVer: '1.3.3',
-    downloadCount: 15
+    downloadCount: 15,
+    webPlayerCount: null
   };
 
   const t = (key, fallback = null) => {
@@ -204,6 +206,39 @@
       state.downloadCount = nextCount;
       writeDownloadCache(nextCount, optimisticValid ? cached.optimisticUntil : 0);
       renderDownloadCount();
+    } catch (_) {}
+  }
+
+  function renderWebPlayerCount() {
+    const wraps = document.querySelectorAll('.js-web-counter-wrap');
+    const texts = document.querySelectorAll('.js-web-counter-text');
+    const count = state.webPlayerCount;
+    if (typeof count !== 'number' || !Number.isFinite(count) || count < 0) {
+      wraps.forEach((w) => w.classList.add('hidden'));
+      return;
+    }
+    const locale = state.lang === 'en' ? 'en-US' : 'es-ES';
+    const numStr = new Intl.NumberFormat(locale).format(count);
+    const unit = state.lang === 'en'
+      ? (count === 1 ? 'browser player' : 'browser players')
+      : (count === 1 ? 'jugador web' : 'jugadores web');
+    const label = `${numStr} ${unit}`;
+    texts.forEach((n) => { n.textContent = label; });
+    wraps.forEach((w) => w.classList.remove('hidden'));
+  }
+
+  async function loadWebPlayerCount() {
+    const baseUrl = String(cfg.webPlayersCounterUrl || '').trim().replace(/\/+$/, '');
+    if (!baseUrl || typeof window.fetch !== 'function') return;
+    try {
+      const res = await window.fetch(`${baseUrl}/`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const count = Number(data && data.uniquePlayers);
+      if (Number.isFinite(count) && count >= 0) {
+        state.webPlayerCount = count;
+        renderWebPlayerCount();
+      }
     } catch (_) {}
   }
 
@@ -952,6 +987,7 @@
 
     syncConfigUI();
     renderDownloadCount();
+    renderWebPlayerCount();
     renderStats();
     renderZoneFilters();
     renderBiomePills();
@@ -996,6 +1032,7 @@
     loadAtlasTextures();
     applyLanguage();
     loadDownloadCount();
+    loadWebPlayerCount();
   }
 
   if (document.readyState === 'loading') {

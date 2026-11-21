@@ -29,6 +29,7 @@ window.BALACLAVA_SITE_CONFIG = {
   // 5. Enlaces oficiales de comunidad y apoyo
   downloadBaseOffset: 15,
   githubRepo: 'LalleL/balaclava-web',
+  webPlayersCounterUrl: '',
   discordUrl: 'https://discord.gg/8wrsjRSMY2',
   kofiUrl: 'https://ko-fi.com/balaclava'
 };
