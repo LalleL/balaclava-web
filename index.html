@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" href="assets/icons/balaclava_core.png" />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/boldpixels_web/boldpixels.woff2" crossorigin />
   <link rel="preload" as="font" type="font/ttf" href="assets/fonts/m6x11plus.ttf" crossorigin />
-  <link rel="stylesheet" href="styles/main.css?v=1.3.9" />
+  <link rel="stylesheet" href="styles/main.css?v=1.3.11" />
 </head>
 <body>
   <!-- Blurred Foto 5 background -->
@@ -383,8 +383,30 @@
     </div>
   </div>
 
-  <script src="site-config.js?v=1.3.10"></script>
-  <script src="scripts/data.js?v=1.3.10"></script>
-  <script src="scripts/app.js?v=1.3.10"></script>
+  <!-- Maintenance Overlay -->
+  <div id="maintenance-overlay" class="maintenance-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="maintenance-title">
+    <div class="rpg-panel-slate maintenance-card">
+      <img src="assets/icons/balaclava_core.png" alt="Balaclava" class="pixel-img" width="56" height="56" />
+      <span class="maintenance-pill">MAINTENANCE</span>
+      <h2 id="maintenance-title" class="maintenance-title">Update in Progress</h2>
+      <p id="maintenance-desc" class="maintenance-desc">
+        We are currently uploading a new Balaclava update. Downloads and browser play are temporarily paused — please check back in a few minutes!
+      </p>
+      <div class="maintenance-actions">
+        <a href="https://discord.gg/8wrsjRSMY2" target="_blank" rel="noopener noreferrer" class="btn btn-primary js-discord-link">
+          <img src="assets/ui/ico_discord.png" alt="" class="pixel-img" width="18" height="18" />
+          <span data-i18n="heroBtnDiscord">Join Discord</span>
+        </a>
+        <a href="https://ko-fi.com/balaclava" target="_blank" rel="noopener noreferrer" class="btn btn-kofi js-kofi-link">
+          <img src="assets/icons_extra/coffee.png" alt="" class="pixel-img" width="18" height="18" />
+          <span data-i18n="heroBtnKofi">Support on Ko-fi</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="site-config.js?v=1.3.11"></script>
+  <script src="scripts/data.js?v=1.3.11"></script>
+  <script src="scripts/app.js?v=1.3.11"></script>
 </body>
 </html>

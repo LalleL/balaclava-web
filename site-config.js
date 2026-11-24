@@ -31,5 +31,12 @@ window.BALACLAVA_SITE_CONFIG = {
   githubRepo: 'LalleL/balaclava-web',
   webPlayersCounterUrl: 'https://balaclava-counter.000lallel.workers.dev',
   discordUrl: 'https://discord.gg/8wrsjRSMY2',
-  kofiUrl: 'https://ko-fi.com/balaclava'
+  kofiUrl: 'https://ko-fi.com/balaclava',
+
+  // 6. Modo mantenimiento (pon true para pausar descargas y /play/, false para volver a abrir)
+  maintenanceMode: true,
+  maintenanceTitleEn: 'Update in Progress',
+  maintenanceTitleEs: 'Actualización en Curso',
+  maintenanceMsgEn: 'We are currently uploading a new Balaclava update. Downloads and browser play are temporarily paused — please check back in a few minutes!',
+  maintenanceMsgEs: 'Estamos subiendo una nueva actualización de Balaclava. Las descargas y el juego en navegador están pausados temporalmente — ¡vuelve en unos minutos!'
 };

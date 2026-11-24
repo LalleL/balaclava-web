@@ -1835,6 +1835,68 @@ section {
   overflow-wrap: anywhere;
 }
 
+/* === MODO MANTENIMIENTO === */
+body.maintenance-active {
+  overflow: hidden;
+}
+
+.maintenance-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(5, 7, 14, 0.92);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.maintenance-card {
+  width: min(540px, 100%);
+  padding: 28px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.maintenance-pill {
+  padding: 4px 12px;
+  background: linear-gradient(180deg, #ffd54f 0%, #d4a64a 100%);
+  color: #140c04;
+  border: 2px solid #fff3c4;
+  font-family: 'BalaclavaPixel', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.maintenance-title {
+  margin: 0;
+  font-family: 'BalaclavaTitlePixel', 'BalaclavaPixel', monospace;
+  font-weight: normal;
+  font-size: 28px;
+  color: #fff6df;
+  letter-spacing: 1.5px;
+}
+
+.maintenance-desc {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.48;
+  color: var(--ink-dim);
+}
+
+.maintenance-actions {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
 /* === RESPONSIVE (CERO DESBORDAMIENTO EN MÓVIL Y ESCRITORIO) === */
 @media (min-width: 1201px) {
   .mobile-drawer {

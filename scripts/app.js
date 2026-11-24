@@ -117,6 +117,39 @@
         mirrorBtn.classList.add('hidden');
       }
     }
+
+    syncMaintenanceMode();
+  }
+
+  function syncMaintenanceMode() {
+    const active = Boolean(cfg.maintenanceMode);
+    const overlay = document.getElementById('maintenance-overlay');
+    const titleEl = document.getElementById('maintenance-title');
+    const descEl = document.getElementById('maintenance-desc');
+
+    if (active) {
+      document.body.classList.add('maintenance-active');
+      if (titleEl) {
+        titleEl.textContent = pickLang(
+          cfg.maintenanceTitleEs || 'Actualización en Curso',
+          cfg.maintenanceTitleEn || 'Update in Progress'
+        );
+      }
+      if (descEl) {
+        descEl.textContent = pickLang(
+          cfg.maintenanceMsgEs || 'Estamos subiendo una nueva actualización. Vuelve en unos minutos.',
+          cfg.maintenanceMsgEn || 'We are currently uploading a new update. Please check back in a few minutes!'
+        );
+      }
+      document.querySelectorAll('.js-download-trigger, #hero-play-web-btn').forEach((btn) => {
+        btn.setAttribute('href', '#maintenance');
+        btn.removeAttribute('download');
+      });
+      if (overlay) overlay.classList.remove('hidden');
+    } else {
+      document.body.classList.remove('maintenance-active');
+      if (overlay) overlay.classList.add('hidden');
+    }
   }
 
   const DL_CACHE_KEY = 'balaclava_dl_count_v2';
