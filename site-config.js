@@ -9,19 +9,19 @@
  */
 window.BALACLAVA_SITE_CONFIG = {
   // 1. Enlace principal de descarga directa (GitHub Releases)
-  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64-setup.exe',
+  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/2.0.0-rc2/abyssea.exe',
 
-  // 2. Enlace alternativo / mirror opcional (MSI installer)
-  mirrorUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64_en-US.msi',
+  // 2. Enlace alternativo / mirror opcional (déjalo vacío '' si no usas mirror)
+  mirrorUrl: '',
 
   // 3. Versión actual mostrada en badges, hero y tarjetas de descarga
   version: 'Beta 2.0.0 RC2',
   versionLabel: 'Beta 2.0.0 RC2',
 
   // 4. Datos técnicos del archivo descargable
-  fileName: 'Abyssea_2.0.0_x64-setup.exe',
-  fileSizeEs: '124.25 MB',
-  fileSizeEn: '124.25 MB',
+  fileName: 'abyssea.exe',
+  fileSizeEs: '125.30 MB',
+  fileSizeEn: '125.30 MB',
   releaseDateEs: '25 Nov 2026',
   releaseDateEn: 'Nov 25, 2026',
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
