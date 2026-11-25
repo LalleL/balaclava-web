@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- *  BALACLAVA — CONFIGURACIÓN CENTRAL DEL SITIO WEB
+ *  ABYSSEA — CONFIGURACIÓN CENTRAL DEL SITIO WEB
  * ============================================================================
  *  Edita este único archivo para conectar tu enlace real de descarga,
  *  mirror, peso o fecha de lanzamiento
@@ -37,6 +37,6 @@ window.BALACLAVA_SITE_CONFIG = {
   maintenanceMode: true,
   maintenanceTitleEn: 'Update in Progress',
   maintenanceTitleEs: 'Actualización en Curso',
-  maintenanceMsgEn: 'We are currently uploading a new Balaclava update. Downloads and browser play are temporarily paused — please check back in a few minutes!',
-  maintenanceMsgEs: 'Estamos subiendo una nueva actualización de Balaclava. Las descargas y el juego en navegador están pausados temporalmente — ¡vuelve en unos minutos!'
+  maintenanceMsgEn: 'We are currently uploading a new Abyssea update. Downloads and browser play are temporarily paused — please check back in a few minutes!',
+  maintenanceMsgEs: 'Estamos subiendo una nueva actualización de Abyssea. Las descargas y el juego en navegador están pausados temporalmente — ¡vuelve en unos minutos!'
 };

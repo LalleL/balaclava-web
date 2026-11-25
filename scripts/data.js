@@ -736,8 +736,8 @@ window.BALACLAVA_DATA = {
       pill: 'BETA v1.3.3',
       subtitleEs: 'Actualización Beta 1.3.3 — Progresión de 23 Tiers y Omega Late-Game',
       subtitleEn: 'Beta 1.3.3 Update — 23-Tier Progression & True Late-Game Omega',
-      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.3',
-      heroTitleEn: 'BALACLAVA — Beta 1.3.3 Release Notes',
+      heroTitleEs: 'ABYSSEA — Notas de la Versión Beta 1.3.3',
+      heroTitleEn: 'ABYSSEA — Beta 1.3.3 Release Notes',
       heroSubEs: 'Expansión integral de herramientas y las 5 piezas de armadura hasta 23 tiers completos: los 7 metales de Zona III y IV pasan a formar la escalera principal T14–T20, seguidos por Legendaria (T21), Celestial (T22) y Omega de Singularidad (T23).',
       heroSubEn: 'Full 23-tier progression expansion across all 8 tools and 5 armor slots: all 7 Zone III-IV biome metals become the core T14-T20 ladder, crowned by Legendary (T21), Celestial (T22), and Singularity Omega (T23) late-game gear.',
       sectionsEs: [
@@ -797,8 +797,8 @@ window.BALACLAVA_DATA = {
       pill: 'BETA v1.3.2',
       subtitleEs: 'Actualización Beta 1.3.2 — Bloqueo de Mazmorras por Bioma y Correcciones',
       subtitleEn: 'Beta 1.3.2 Update — Dungeon Progression Biome Lock & Polish',
-      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.2',
-      heroTitleEn: 'BALACLAVA — Beta 1.3.2 Release Notes',
+      heroTitleEs: 'ABYSSEA — Notas de la Versión Beta 1.3.2',
+      heroTitleEn: 'ABYSSEA — Beta 1.3.2 Release Notes',
       heroSubEs: 'Bloqueo estricto de acceso a mazmorras según progresión de biomas descubiertos en el archipiélago, corrección de atajo indebido al Jefe Final, resiliencia contra iconos rotos y tipografía limpia.',
       heroSubEn: 'Strict dungeon access gating requiring island/biome exploration, removal of premature final boss bypass, resilient procedural canvas fallbacks, and clean typography.',
       sectionsEs: [
@@ -876,8 +876,8 @@ window.BALACLAVA_DATA = {
       pill: 'BETA v1.3.1',
       subtitleEs: 'Actualización Beta 1.3.1 — Nivel de Hechizos, Red Omega & Optimización Visual',
       subtitleEn: 'Beta 1.3.1 Update — Spell Leveling, Omega Power & Visual Overhaul',
-      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.1',
-      heroTitleEn: 'BALACLAVA — Beta 1.3.1 Release Notes',
+      heroTitleEs: 'ABYSSEA — Notas de la Versión Beta 1.3.1',
+      heroTitleEn: 'ABYSSEA — Beta 1.3.1 Release Notes',
       heroSubEs: 'Mejora completa de la red eléctrica, auto-recolección del Nexo Central, subida de nivel de hechizos en el Grimorio, portal directo al Jefe Final, balance de proporciones 2x2 y corrección de texturas.',
       heroSubEn: 'Complete power grid overhaul, Central Nexus fuel auto-vacuum, spell leveling in the Grimorio, direct Final Boss portal, 2x2 building resizing, and concordant textures.',
       sectionsEs: [
@@ -979,8 +979,8 @@ window.BALACLAVA_DATA = {
       pill: 'BETA v1.3.0',
       subtitleEs: 'Gran Expansión Beta 1.3.0 — 361 Islas y Eclipse Carmesí',
       subtitleEn: '361-Island Expansion & Crimson Abyss',
-      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.3.0',
-      heroTitleEn: 'BALACLAVA — Beta 1.3.0 Release Notes',
+      heroTitleEs: 'ABYSSEA — Notas de la Versión Beta 1.3.0',
+      heroTitleEn: 'ABYSSEA — Beta 1.3.0 Release Notes',
       heroSubEs: 'Resumen oficial de las 361 islas, 14 biomas, 75 mazmorras, Jefe Final Carmesí Abisal, bóveda de 92 reliquias y equilibrio Omega.',
       heroSubEn: 'Complete summary of all 361 islands, 14 biomes, 75 dungeons, Final Boss Crimson Swordsman, 92-relic vault, and Omega T16 balance.',
       sectionsEs: [
@@ -1078,8 +1078,8 @@ window.BALACLAVA_DATA = {
       pill: 'BETA v1.2.1',
       subtitleEs: 'Cofres (Acumulación de 1.000), Hana Caraka y Red Omega',
       subtitleEn: 'Chests (1,000 Stacks), Hana Caraka & Omega Grid',
-      heroTitleEs: 'BALACLAVA — Notas de la Versión Beta 1.2.1',
-      heroTitleEn: 'BALACLAVA — Beta 1.2.1 Release Notes',
+      heroTitleEs: 'ABYSSEA — Notas de la Versión Beta 1.2.1',
+      heroTitleEn: 'ABYSSEA — Beta 1.2.1 Release Notes',
       heroSubEs: 'Historial de cambios de la versión anterior Beta 1.2.1 conservado para referencia.',
       heroSubEn: 'Previous release notes kept for reference: 1,000-stack chests, Hana Caraka, and Omega Energy Grid.',
       sectionsEs: [
@@ -1185,11 +1185,11 @@ window.BALACLAVA_DATA = {
     es: [
       {
         q: '¿Mis partidas de versiones anteriores (10×10 / Beta 1.2.1) siguen sirviendo en Beta 1.3.0?',
-        a: 'Sí. Balaclava Beta 1.3.0 incluye migración automática de partidas anteriores (10×10 → 19×19) para conservar tu progreso, inventario, equipo y construcciones sin perder nada.'
+        a: 'Sí. Abyssea Beta 1.3.0 incluye migración automática de partidas anteriores (10×10 → 19×19) para conservar tu progreso, inventario, equipo y construcciones sin perder nada.'
       },
       {
         q: '¿Necesito conexión a internet para jugar?',
-        a: 'No. Balaclava funciona sin conexión como aplicación nativa de escritorio en Windows mediante Tauri 2 (con integración opcional de estado en Discord si tienes Discord abierto).'
+        a: 'No. Abyssea funciona sin conexión como aplicación nativa de escritorio en Windows mediante Tauri 2 (con integración opcional de estado en Discord si tienes Discord abierto).'
       },
       {
         q: '¿Está disponible en Español y en Inglés?',
@@ -1207,11 +1207,11 @@ window.BALACLAVA_DATA = {
     en: [
       {
         q: 'Do my older saves (10×10 / Beta 1.2.1) still work in Beta 1.3.0?',
-        a: 'Yes! Balaclava Beta 1.3.0 includes automatic save migration (10×10 → 19×19) so you keep your inventory, gear, structures, and progress safely.'
+        a: 'Yes! Abyssea Beta 1.3.0 includes automatic save migration (10×10 → 19×19) so you keep your inventory, gear, structures, and progress safely.'
       },
       {
         q: 'Do I need an internet connection to play?',
-        a: 'No. Balaclava runs 100% offline as a native Windows desktop app powered by Tauri 2 (with optional Discord Rich Presence when Discord is running).'
+        a: 'No. Abyssea runs 100% offline as a native Windows desktop app powered by Tauri 2 (with optional Discord Rich Presence when Discord is running).'
       },
       {
         q: 'Is the game fully translated in Spanish and English?',
@@ -1230,8 +1230,8 @@ window.BALACLAVA_DATA = {
 
   i18n: {
     es: {
-      pageTitle: 'BALACLAVA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 1.3.3)',
-      ariaBrand: 'Balaclava Inicio',
+      pageTitle: 'ABYSSEA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 1.3.3)',
+      ariaBrand: 'Abyssea Inicio',
       ariaNav: 'Navegación principal',
       ariaLang: 'Cambiar idioma Español / Inglés',
       ariaBurger: 'Abrir menú',
@@ -1276,7 +1276,7 @@ window.BALACLAVA_DATA = {
       bossDropsTitle: 'Botín Supremo y Conjunto Final Omega R23',
       bossDropsSub: 'Culmina tu aventura forjando el conjunto Rango 23 Omega y la Hoja de la Singularidad, o empuña la Espada del Eclipse Carmesí.',
       systemsTag: 'PROFUNDIDAD RPG Y AUTOMATIZACIÓN',
-      systemsTitle: 'Sistemas de Balaclava',
+      systemsTitle: 'Sistemas de Abyssea',
       systemsSub: 'Alterna entre combate arcano, red eléctrica Omega, constelaciones astrales, bóveda de 92 reliquias y vida isleña.',
       constellationBadge: '69 NODOS',
       relicVaultCount: 'Muestra interactiva de la Bóveda (92 Reliquias: 75 de Jefes + 17 Secretas)',
@@ -1287,7 +1287,7 @@ window.BALACLAVA_DATA = {
       downloadTag: 'DESCARGA OFICIAL PARA ESCRITORIO',
       downloadTitle: 'Descarga e Instalación',
       downloadSub: 'Construido para Windows mediante Tauri 2. Descarga directa y sencilla para escritorio.',
-      downloadBtnPrimary: 'Descargar Balaclava',
+      downloadBtnPrimary: 'Descargar Abyssea',
       downloadBtnMirror: 'Enlace Alternativo',
       downloadMetaVersion: 'Versión',
       downloadMetaSize: 'Peso',
@@ -1307,8 +1307,8 @@ window.BALACLAVA_DATA = {
       modalPlaceholderBody: 'El enlace de descarga de esta versión aún no se ha publicado. Cuando lo añadas en site-config.js, este botón iniciará la descarga directa para Windows.'
     },
     en: {
-      pageTitle: 'BALACLAVA — Pixel Action RPG, Automation & Dungeons (Beta 1.3.3)',
-      ariaBrand: 'Balaclava Home',
+      pageTitle: 'ABYSSEA — Pixel Action RPG, Automation & Dungeons (Beta 1.3.3)',
+      ariaBrand: 'Abyssea Home',
       ariaNav: 'Main navigation',
       ariaLang: 'Switch language Spanish / English',
       ariaBurger: 'Open menu',
@@ -1364,7 +1364,7 @@ window.BALACLAVA_DATA = {
       downloadTag: 'OFFICIAL DESKTOP RELEASE',
       downloadTitle: 'Download & Installation',
       downloadSub: 'Built for Windows desktop via Tauri 2. Fast and direct desktop release.',
-      downloadBtnPrimary: 'Download Balaclava',
+      downloadBtnPrimary: 'Download Abyssea',
       downloadBtnMirror: 'Alternative Mirror',
       downloadMetaVersion: 'Version',
       downloadMetaSize: 'Size',
