@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const TIER_ORDER = [
     'basica', 'mejorada', 'cobre', 'hierro', 'plata',
@@ -302,7 +302,7 @@
   Object.values(TOOLS).forEach(t => {
     Object.values(t.tierCosts).forEach(c => {
       Object.keys(c.items).forEach(k => {
-        if (!c.items[k] || !Balaclava.ITEMS[k]) delete c.items[k];
+        if (!c.items[k] || !Abyssea.ITEMS[k]) delete c.items[k];
       });
     });
   });
@@ -331,7 +331,7 @@
 
   // Strict tool hierarchy multiplier & feedback for mining, chopping, foraging, excavation & combat.
   function getToolEfficiency(toolId, targetKind, tierId = 'basica') {
-    const T = (k, vars) => (Balaclava.I18n ? Balaclava.I18n.t(k, vars) : k);
+    const T = (k, vars) => (Abyssea.I18n ? Abyssea.I18n.t(k, vars) : k);
     if (!toolId || !tierId) return { mult: 0, blocked: true, hint: T('tool.none') };
     const tierIdx = TIER_ORDER.indexOf(tierId);
 
@@ -441,7 +441,7 @@
         'casco_titanio', 'casco_adamantita', 'casco_oricalco',
         'casco_coral', 'casco_boreal', 'casco_selva', 'casco_caldera',
         'casco_faraon', 'casco_glaciar', 'casco_abismal',
-        'casco_balaclava', 'casco_solar', 'casco_omega'
+        'casco_abyssea', 'casco_solar', 'casco_omega'
       ]
     },
     armor: {
@@ -530,7 +530,7 @@
   }
 
   function getArmorUpgradeMaterials(slot, targetItemId) {
-    const rec = Balaclava.RECIPES && Balaclava.RECIPES.find(r => r.out === targetItemId);
+    const rec = Abyssea.RECIPES && Abyssea.RECIPES.find(r => r.out === targetItemId);
     if (!rec) return null;
     const prevChain = ARMOR_CHAINS[slot] && ARMOR_CHAINS[slot].tiers;
     const prevIdx = prevChain ? prevChain.indexOf(targetItemId) - 1 : -1;
@@ -549,18 +549,18 @@
     };
   }
 
-  Balaclava.TOOL_TIERS = TIER_ORDER;
-  Balaclava.TIER_ORDER = TIER_ORDER;
-  Balaclava.TIER_META = TIER_META;
-  Balaclava.TOOLS = TOOLS;
-  Balaclava.ARMORS = ARMOR_CHAINS;
-  Balaclava.getToolStats = getToolStats;
-  Balaclava.getToolReach = getToolReach;
-  Balaclava.getNextTier = getNextTier;
-  Balaclava.getRequiredPickTier = getRequiredPickTier;
-  Balaclava.getToolEfficiency = getToolEfficiency;
-  Balaclava.isProgressiveArmorItem = isProgressiveArmorItem;
-  Balaclava.getArmorNextItem = getArmorNextItem;
-  Balaclava.getArmorTierIndex = getArmorTierIndex;
-  Balaclava.getArmorUpgradeMaterials = getArmorUpgradeMaterials;
+  Abyssea.TOOL_TIERS = TIER_ORDER;
+  Abyssea.TIER_ORDER = TIER_ORDER;
+  Abyssea.TIER_META = TIER_META;
+  Abyssea.TOOLS = TOOLS;
+  Abyssea.ARMORS = ARMOR_CHAINS;
+  Abyssea.getToolStats = getToolStats;
+  Abyssea.getToolReach = getToolReach;
+  Abyssea.getNextTier = getNextTier;
+  Abyssea.getRequiredPickTier = getRequiredPickTier;
+  Abyssea.getToolEfficiency = getToolEfficiency;
+  Abyssea.isProgressiveArmorItem = isProgressiveArmorItem;
+  Abyssea.getArmorNextItem = getArmorNextItem;
+  Abyssea.getArmorTierIndex = getArmorTierIndex;
+  Abyssea.getArmorUpgradeMaterials = getArmorUpgradeMaterials;
 })();

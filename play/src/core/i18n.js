@@ -1,16 +1,16 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const DEFAULT_LANG = 'en';
   const SUPPORTED_LANGS = ['en', 'es'];
-  const LANG_STORAGE_KEY = 'balaclava_lang';
+  const LANG_STORAGE_KEY = 'abyssea_lang';
 
   const STRINGS = {
     en: {
       // Meta / App
-      'app.title': 'BALACLAVA — Pixel Survival & Fantasy RPG',
+      'app.title': 'ABYSSEA — Pixel Survival & Fantasy RPG',
       'boot.loading': 'Loading pixel art...',
       'lang.name': 'English',
       'lang.en': 'English',
@@ -92,7 +92,7 @@
       'title.credits': 'Credits',
       'title.creditsSub': 'Created by LalleL · Vice Studios',
       'title.quit': 'Quit Game',
-      'title.quitSub': 'Save and close Balaclava',
+      'title.quitSub': 'Save and close Abyssea',
       'title.chooseSlot': 'Choose Save Slot',
       'title.slotTitle': 'Slot {slot}',
       'title.slotEmpty': 'Empty — New Adventure',
@@ -104,18 +104,18 @@
       'title.discordBlocked': 'Your browser blocked opening Discord. Link: {url}',
 
       // Intro Cinematic
-      'intro.slide1.title': 'THE BALACLAVA ARCHIPELAGO',
+      'intro.slide1.title': 'THE ABYSSEA ARCHIPELAGO',
       'intro.slide1.sub': 'A once-united realm, shattered into floating islands above the oceanic void...',
       'intro.slide1.hint': 'These lands hold ancient shrines, secrets, and forgotten dungeons.',
       'intro.slide2.title': 'CASTAWAY OF THE MIST',
       'intro.slide2.sub': 'You awaken on the sand after a fierce storm on the open sea...',
-      'intro.slide2.hint': 'You adjust your balaclava to the wind. Your trusty pickaxe and axe remain by your side.',
+      'intro.slide2.hint': 'You tighten your cloak against the sea breeze. Your trusty pickaxe and axe remain by your side.',
       'intro.slide3.title': 'FORGE YOUR LEGEND',
       'intro.slide3.sub': 'Gather, build, expand the islands, and awaken the elemental runes.',
       'intro.slide3.hint': 'Your journey to restore the archipelago begins today!',
       'intro.controls': '[ SPACE / CLICK to continue • {step}/{total} ]     [ ESC to skip ]',
       'intro.day1Title': 'DAY 1 — THE AWAKENING',
-      'intro.day1Sub': 'Balaclava Archipelago • [WASD] Move • [SPACE] Gather',
+      'intro.day1Sub': 'Abyssea Archipelago • [WASD] Move • [SPACE] Gather',
       'intro.wakeToast': 'You awaken on the shore! There is a message in a bottle near you.',
 
       // Credits & Quit
@@ -124,9 +124,9 @@
       'credits.creator': 'LalleL',
       'credits.studio': 'Vice Studios',
       'credits.musicLabel': 'Music & Soundscape',
-      'credits.musicAttribution': 'Includes works by Kevin MacLeod (incompetech.com) and Jason Shaw (audionautix.com) · CC BY 4.0',
+      'credits.musicAttribution': 'RPG Soundtrack by Juhani Junkala (SubspaceAudio · CC BY 4.0) & cynicmusic (CC0) via OpenGameArt.org',
       'quit.title': 'Quit Game',
-      'quit.confirmMsg': 'Are you sure you want to exit Balaclava? Your progress will be safely saved first.',
+      'quit.confirmMsg': 'Are you sure you want to exit Abyssea? Your progress will be safely saved first.',
       'quit.confirmBtn': 'Save & Quit',
       'quit.webFallbackTitle': 'Progress Saved',
       'quit.webFallbackMsg': 'Your game has been safely saved. Because your web browser restricts closing windows automatically, you may now close this tab safely.',
@@ -145,14 +145,16 @@
       'settings.tabControls': 'Controls',
       'settings.audioHeader': 'Audio & Ambience',
       'settings.musicThemeHeader': 'Music Theme',
-      'settings.musicThemeAdv': 'Adventure',
-      'settings.musicThemeAdvDesc': 'Classic orchestral exploration',
+      'settings.musicThemeAdv': 'RPG Adventure',
+      'settings.musicThemeAdvDesc': 'Dynamic fantasy RPG soundtrack that adapts to every biome',
       'settings.musicThemeChill': 'Full Chill',
-      'settings.musicThemeChillDesc': 'Serene ambient, soft piano and steady calm',
+      'settings.musicThemeChillDesc': 'Dreamy waterfalls, kalimba and serene sanctuary ambience',
+      'settings.musicThemeJovial': 'Jovial',
+      'settings.musicThemeJovialDesc': 'Playful acoustic foraging melody for island exploration',
       'settings.musicThemeLofi': 'Lo-Fi',
       'settings.musicThemeLofiDesc': 'Gentle lo-fi groove with vintage electric piano',
-      'settings.musicThemeMeadow': 'Meadow',
-      'settings.musicThemeMeadowDesc': 'Bright countryside melody for exploring',
+      'settings.musicThemeMeadow': 'RPG Village',
+      'settings.musicThemeMeadowDesc': 'Nostalgic fantasy harp and flute village melody',
       'settings.master': 'Master Volume',
       'settings.music': 'Music',
       'settings.sfx': 'Effects',
@@ -833,7 +835,7 @@
       'inv.hotbarFreeSlot': 'Slot [{slot}] Empty — Click with an item selected to assign',
       'inv.hotbarRemoveTip': '{name} x{qty} · Right-click to clear from hotbar',
 
-      'stats.heroTitle': 'Hero of Balaclava — Level {level}',
+      'stats.heroTitle': 'Hero of Abyssea — Level {level}',
       'stats.heroMeta': 'Experience: {xp}/{nextXp} · Day {day} ({phase}) · Astral Points: {sp}',
       'stats.openSkills': 'Open Astral Tree',
       'stats.combatSec': 'Combat Attributes',
@@ -1079,7 +1081,7 @@
       'enc.activatedTag': 'Activated',
       'enc.toFindTag': 'Undiscovered',
       'enc.effectLine': 'Effect: {detail}{dur}',
-      'enc.loreDesc': 'Ancestral chronicles of the Balaclava archipelago, its sealed pillars, and each biome\'s exclusive veins.',
+      'enc.loreDesc': 'Ancestral chronicles of the Abyssea archipelago, its sealed pillars, and each biome\'s exclusive veins.',
       'enc.loreCounts': '{ch} Chronicles · {bm} Biomes',
       'enc.biomesAtlasTitle': 'Atlas of Biomes & Exclusive Ores',
       'enc.searchPlaceholder': 'Filter Encyclopedia...',
@@ -1153,7 +1155,7 @@
     },
 
     es: {
-      'app.title': 'BALACLAVA — RPG Pixel Art de Supervivencia y Aventura',
+      'app.title': 'ABYSSEA — RPG Pixel Art de Supervivencia y Aventura',
       'boot.loading': 'Cargando pixel art...',
       'lang.name': 'Español',
       'lang.en': 'English',
@@ -1233,7 +1235,7 @@
       'title.credits': 'Créditos',
       'title.creditsSub': 'Creado por LalleL · Vice Studios',
       'title.quit': 'Salir del juego',
-      'title.quitSub': 'Guardar y cerrar Balaclava',
+      'title.quitSub': 'Guardar y cerrar Abyssea',
       'title.chooseSlot': 'Elegir Ranura',
       'title.slotTitle': 'Ranura {slot}',
       'title.slotEmpty': 'Vacía — Nueva Aventura',
@@ -1245,18 +1247,18 @@
       'title.discordBlocked': 'Tu navegador bloqueó abrir Discord. Enlace: {url}',
 
       // Intro Cinematic
-      'intro.slide1.title': 'EL ARCHIPIÉLAGO DE BALACLAVA',
+      'intro.slide1.title': 'EL ARCHIPIÉLAGO DE ABYSSEA',
       'intro.slide1.sub': 'Un reino que una vez estuvo unido, fracturado en islas flotantes sobre el vacío oceánico...',
       'intro.slide1.hint': 'Las tierras guardan santuarios antiguos, secretos y mazmorras olvidadas.',
       'intro.slide2.title': 'EL NÁUFRAGO DE LA NIEBLA',
       'intro.slide2.sub': 'Despiertas sobre la arena tras una furiosa tormenta en el mar abierto...',
-      'intro.slide2.hint': 'Ajustas tu balaclava al viento. Tu viejo pico y hacha siguen a tu lado.',
+      'intro.slide2.hint': 'Ajustas tu capa ante la brisa marina. Tu viejo pico y hacha siguen a tu lado.',
       'intro.slide3.title': 'FORJA TU LEYENDA',
       'intro.slide3.sub': 'Recolecta, construye, expande las islas y despierta las runas elementales.',
       'intro.slide3.hint': '¡Tu viaje para restaurar el archipiélago comienza hoy!',
       'intro.controls': '[ ESPACIO / CLIC para continuar • {step}/{total} ]     [ ESC para saltar ]',
       'intro.day1Title': 'DÍA 1 — EL DESPERTAR',
-      'intro.day1Sub': 'Archipiélago de Balaclava • [WASD] Moverse • [ESPACIO] Recolectar',
+      'intro.day1Sub': 'Archipiélago de Abyssea • [WASD] Moverse • [ESPACIO] Recolectar',
       'intro.wakeToast': '¡Despiertas en la orilla! Hay una botella con un mensaje cerca de ti.',
 
       'credits.title': 'Créditos',
@@ -1264,9 +1266,9 @@
       'credits.creator': 'LalleL',
       'credits.studio': 'Vice Studios',
       'credits.musicLabel': 'Música y Ambiente',
-      'credits.musicAttribution': 'Incluye pistas de Kevin MacLeod (incompetech.com) y Jason Shaw (audionautix.com) · CC BY 4.0',
+      'credits.musicAttribution': 'Banda sonora RPG por Juhani Junkala (SubspaceAudio · CC BY 4.0) y cynicmusic (CC0) vía OpenGameArt.org',
       'quit.title': 'Salir del juego',
-      'quit.confirmMsg': '¿Seguro que deseas salir de Balaclava? Tu partida se guardará de forma segura antes de cerrar.',
+      'quit.confirmMsg': '¿Seguro que deseas salir de Abyssea? Tu partida se guardará de forma segura antes de cerrar.',
       'quit.confirmBtn': 'Guardar y Salir',
       'quit.webFallbackTitle': 'Partida Guardada',
       'quit.webFallbackMsg': 'Tu progreso se ha guardado de forma segura. Como el navegador impide cerrar la pestaña automáticamente, ya puedes cerrarla con tranquilidad.',
@@ -1284,14 +1286,16 @@
       'settings.tabControls': 'Controles',
       'settings.audioHeader': 'Audio y Ambiente',
       'settings.musicThemeHeader': 'Estilo de Música',
-      'settings.musicThemeAdv': 'Aventura',
-      'settings.musicThemeAdvDesc': 'Exploración orquestal clásica',
+      'settings.musicThemeAdv': 'Aventura RPG',
+      'settings.musicThemeAdvDesc': 'Banda sonora RPG dinámica que se adapta a cada bioma',
       'settings.musicThemeChill': 'Full Chill',
-      'settings.musicThemeChillDesc': 'Ambiente sereno, piano suave y calma constante',
+      'settings.musicThemeChillDesc': 'Cascadas serenas, kalimba y calma de santuario',
+      'settings.musicThemeJovial': 'Alegre',
+      'settings.musicThemeJovialDesc': 'Melodía acústica alegre y aventurera para explorar islas',
       'settings.musicThemeLofi': 'Lo-Fi',
       'settings.musicThemeLofiDesc': 'Ritmo suave lo-fi con piano eléctrico vintage',
-      'settings.musicThemeMeadow': 'Pradera',
-      'settings.musicThemeMeadowDesc': 'Melodía campestre y luminosa para explorar',
+      'settings.musicThemeMeadow': 'Aldea RPG',
+      'settings.musicThemeMeadowDesc': 'Melodía nostálgica de arpa y flauta de aldea fantástica',
       'settings.master': 'Volumen General',
       'settings.music': 'Música',
       'settings.sfx': 'Efectos',
@@ -1959,7 +1963,7 @@
       'inv.hotbarFreeSlot': 'Ranura [{slot}] Libre — Clic con objeto seleccionado para asignar',
       'inv.hotbarRemoveTip': '{name} x{qty} · Clic derecho para quitar de barra',
 
-      'stats.heroTitle': 'Héroe de Balaclava — Nivel {level}',
+      'stats.heroTitle': 'Héroe de Abyssea — Nivel {level}',
       'stats.heroMeta': 'Experiencia: {xp}/{nextXp} · Día {day} ({phase}) · Puntos Astrales: {sp}',
       'stats.openSkills': 'Abrir Árbol Astral',
       'stats.combatSec': 'Atributos de Combate',
@@ -2205,7 +2209,7 @@
       'enc.activatedTag': 'Activado',
       'enc.toFindTag': 'Por hallar',
       'enc.effectLine': 'Efecto: {detail}{dur}',
-      'enc.loreDesc': 'Crónicas ancestrales del archipiélago Balaclava, sus pilares sellados y las vetas exclusivas de cada bioma.',
+      'enc.loreDesc': 'Crónicas ancestrales del archipiélago de Abyssea, sus pilares sellados y las vetas exclusivas de cada bioma.',
       'enc.loreCounts': '{ch} Crónicas · {bm} Biomas',
       'enc.biomesAtlasTitle': 'Atlas de Biomas y Minerales Exclusivos',
       'enc.searchPlaceholder': 'Filtrar en la Enciclopedia...',
@@ -2345,60 +2349,60 @@
       }
     };
 
-    if (Balaclava.CONST && Balaclava.CONST.BIOMES) {
-      for (const [k, v] of Object.entries(Balaclava.CONST.BIOMES)) snap.biomes[k] = { name: v.name, desc: v.desc };
+    if (Abyssea.CONST && Abyssea.CONST.BIOMES) {
+      for (const [k, v] of Object.entries(Abyssea.CONST.BIOMES)) snap.biomes[k] = { name: v.name, desc: v.desc };
     }
-    if (Balaclava.CONST && Balaclava.CONST.RARITIES) {
-      for (const [k, v] of Object.entries(Balaclava.CONST.RARITIES)) snap.rarities[k] = { name: v.name };
+    if (Abyssea.CONST && Abyssea.CONST.RARITIES) {
+      for (const [k, v] of Object.entries(Abyssea.CONST.RARITIES)) snap.rarities[k] = { name: v.name };
     }
-    if (Balaclava.TOOLS) {
-      for (const [k, v] of Object.entries(Balaclava.TOOLS)) snap.tools[k] = { name: v.name, role: v.role };
+    if (Abyssea.TOOLS) {
+      for (const [k, v] of Object.entries(Abyssea.TOOLS)) snap.tools[k] = { name: v.name, role: v.role };
     }
-    if (Balaclava.TIER_META) {
-      for (const [k, v] of Object.entries(Balaclava.TIER_META)) snap.toolTiers[k] = { name: v.name };
+    if (Abyssea.TIER_META) {
+      for (const [k, v] of Object.entries(Abyssea.TIER_META)) snap.toolTiers[k] = { name: v.name };
     }
-    if (Array.isArray(Balaclava.BUILDING_CATEGORIES)) {
-      for (const c of Balaclava.BUILDING_CATEGORIES) snap.buildingCategories[c.id] = { name: c.name };
+    if (Array.isArray(Abyssea.BUILDING_CATEGORIES)) {
+      for (const c of Abyssea.BUILDING_CATEGORIES) snap.buildingCategories[c.id] = { name: c.name };
     }
-    if (Balaclava.BUILDINGS) {
-      for (const [k, v] of Object.entries(Balaclava.BUILDINGS)) snap.buildings[k] = { name: v.name, desc: v.desc };
+    if (Abyssea.BUILDINGS) {
+      for (const [k, v] of Object.entries(Abyssea.BUILDINGS)) snap.buildings[k] = { name: v.name, desc: v.desc };
     }
-    if (Balaclava.TOOL_ENCHANTS) {
-      for (const [k, v] of Object.entries(Balaclava.TOOL_ENCHANTS)) snap.toolEnchants[k] = { name: v.name, desc: v.desc };
+    if (Abyssea.TOOL_ENCHANTS) {
+      for (const [k, v] of Object.entries(Abyssea.TOOL_ENCHANTS)) snap.toolEnchants[k] = { name: v.name, desc: v.desc };
     }
-    if (Balaclava.ARMOR_ENCHANTS) {
-      for (const [k, v] of Object.entries(Balaclava.ARMOR_ENCHANTS)) snap.armorEnchants[k] = { name: v.name, desc: v.desc };
+    if (Abyssea.ARMOR_ENCHANTS) {
+      for (const [k, v] of Object.entries(Abyssea.ARMOR_ENCHANTS)) snap.armorEnchants[k] = { name: v.name, desc: v.desc };
     }
-    if (Balaclava.PERMANENT_RELICS) {
-      for (const [k, v] of Object.entries(Balaclava.PERMANENT_RELICS)) snap.relics[k] = { name: v.name, desc: v.desc };
+    if (Abyssea.PERMANENT_RELICS) {
+      for (const [k, v] of Object.entries(Abyssea.PERMANENT_RELICS)) snap.relics[k] = { name: v.name, desc: v.desc };
     }
-    if (Array.isArray(Balaclava.SKILL_BRANCHES)) {
-      Balaclava.SKILL_BRANCHES.forEach((b, idx) => {
+    if (Array.isArray(Abyssea.SKILL_BRANCHES)) {
+      Abyssea.SKILL_BRANCHES.forEach((b, idx) => {
         snap.skillBranches[b.id] = { name: b.name, fullName: b.fullName };
         snap.branches[idx] = { name: b.name };
       });
     }
-    if (Balaclava.SKILLS) {
-      const list = Array.isArray(Balaclava.SKILLS) ? Balaclava.SKILLS : Object.values(Balaclava.SKILLS);
+    if (Abyssea.SKILLS) {
+      const list = Array.isArray(Abyssea.SKILLS) ? Abyssea.SKILLS : Object.values(Abyssea.SKILLS);
       for (const s of list) snap.skills[s.id] = { name: s.name, desc: s.desc };
     }
-    if (Balaclava.SPELLS) {
-      const list = Array.isArray(Balaclava.SPELLS) ? Balaclava.SPELLS : Object.values(Balaclava.SPELLS);
+    if (Abyssea.SPELLS) {
+      const list = Array.isArray(Abyssea.SPELLS) ? Abyssea.SPELLS : Object.values(Abyssea.SPELLS);
       for (const s of list) snap.spells[s.id] = { name: s.name, desc: s.desc };
     }
-    if (Balaclava.DUNGEON_DEFS) {
-      for (const [k, v] of Object.entries(Balaclava.DUNGEON_DEFS)) {
+    if (Abyssea.DUNGEON_DEFS) {
+      for (const [k, v] of Object.entries(Abyssea.DUNGEON_DEFS)) {
         snap.dungeons[k] = { name: v.name, bossName: v.boss ? v.boss.name : '' };
       }
     }
-    if (Balaclava.DUNGEON_GATES) {
-      for (const [k, v] of Object.entries(Balaclava.DUNGEON_GATES)) {
+    if (Abyssea.DUNGEON_GATES) {
+      for (const [k, v] of Object.entries(Abyssea.DUNGEON_GATES)) {
         snap.dungeonGates[k] = { name: v.name };
         if (!snap.dungeons[k]) snap.dungeons[k] = { name: v.name, bossName: '' };
       }
     }
-    if (Balaclava.ALTAR_DEFS) {
-      const list = Array.isArray(Balaclava.ALTAR_DEFS) ? Balaclava.ALTAR_DEFS : Object.values(Balaclava.ALTAR_DEFS);
+    if (Abyssea.ALTAR_DEFS) {
+      const list = Array.isArray(Abyssea.ALTAR_DEFS) ? Abyssea.ALTAR_DEFS : Object.values(Abyssea.ALTAR_DEFS);
       for (const a of list) {
         snap.altars[a.id] = {
           name: a.name,
@@ -2410,41 +2414,41 @@
         };
       }
     }
-    if (Balaclava.EASTER_EGG_DEFS) {
-      const list = Array.isArray(Balaclava.EASTER_EGG_DEFS) ? Balaclava.EASTER_EGG_DEFS : Object.values(Balaclava.EASTER_EGG_DEFS);
+    if (Abyssea.EASTER_EGG_DEFS) {
+      const list = Array.isArray(Abyssea.EASTER_EGG_DEFS) ? Abyssea.EASTER_EGG_DEFS : Object.values(Abyssea.EASTER_EGG_DEFS);
       for (const e of list) snap.easterEggs[e.id] = { name: e.name, hint: e.hint };
     }
-    if (Balaclava.ENEMY_DEFS) {
-      for (const [k, v] of Object.entries(Balaclava.ENEMY_DEFS)) snap.enemies[k] = { name: v.name, desc: v.desc || '' };
+    if (Abyssea.ENEMY_DEFS) {
+      for (const [k, v] of Object.entries(Abyssea.ENEMY_DEFS)) snap.enemies[k] = { name: v.name, desc: v.desc || '' };
     }
-    if (Array.isArray(Balaclava.STORY_CHAPTERS)) {
-      for (const c of Balaclava.STORY_CHAPTERS) {
+    if (Array.isArray(Abyssea.STORY_CHAPTERS)) {
+      for (const c of Abyssea.STORY_CHAPTERS) {
         snap.story[c.id] = { title: c.title, lore: c.lore, objective: c.objective, _origGetProgress: c.getProgress };
       }
     }
-    if (Array.isArray(Balaclava.NPCS)) {
-      for (const n of Balaclava.NPCS) {
+    if (Array.isArray(Abyssea.NPCS)) {
+      for (const n of Abyssea.NPCS) {
         const qm = {};
         for (const q of (n.quests || [])) qm[q.id] = { title: q.title, desc: q.desc };
         snap.npcs[n.id] = { name: n.name, personality: n.personality, greeting: n.greeting, quests: qm };
       }
     }
-    if (Array.isArray(Balaclava.GUILD_CONTRACTS)) {
-      for (const c of Balaclava.GUILD_CONTRACTS) snap.contracts[c.id] = { cat: c.cat, title: c.title, desc: c.desc };
+    if (Array.isArray(Abyssea.GUILD_CONTRACTS)) {
+      for (const c of Abyssea.GUILD_CONTRACTS) snap.contracts[c.id] = { cat: c.cat, title: c.title, desc: c.desc };
     }
-    if (Array.isArray(Balaclava.ACHIEVEMENTS)) {
-      for (const a of Balaclava.ACHIEVEMENTS) snap.achievements[a.id] = { name: a.name, desc: a.desc };
+    if (Array.isArray(Abyssea.ACHIEVEMENTS)) {
+      for (const a of Abyssea.ACHIEVEMENTS) snap.achievements[a.id] = { name: a.name, desc: a.desc };
     }
-    if (Balaclava.LORE) {
-      for (const c of (Balaclava.LORE.chronicle || [])) {
+    if (Abyssea.LORE) {
+      for (const c of (Abyssea.LORE.chronicle || [])) {
         snap.lore.chronicle[c.id] = { title: c.title, era: c.era, summary: c.summary, body: c.body };
       }
-      for (const b of (Balaclava.LORE.biomes || [])) {
+      for (const b of (Abyssea.LORE.biomes || [])) {
         snap.lore.biomes[b.id] = { name: b.name, minerals: b.minerals, desc: b.desc };
       }
     }
-    if (Balaclava.NODE_DISPLAY_NAMES) {
-      Object.assign(snap.nodeDisplayNames, Balaclava.NODE_DISPLAY_NAMES);
+    if (Abyssea.NODE_DISPLAY_NAMES) {
+      Object.assign(snap.nodeDisplayNames, Abyssea.NODE_DISPLAY_NAMES);
     } else {
       snap.nodeDisplayNames = {
         tree: 'Árbol Frondoso',
@@ -2489,12 +2493,12 @@
         meteor: 'Meteorito Estelar'
       };
     }
-    if (Balaclava.CROPS) {
-      for (const [k, v] of Object.entries(Balaclava.CROPS)) snap.crops[k] = { name: v.name };
+    if (Abyssea.CROPS) {
+      for (const [k, v] of Object.entries(Abyssea.CROPS)) snap.crops[k] = { name: v.name };
     }
-    if (Balaclava.ITEMS) {
+    if (Abyssea.ITEMS) {
       snap.items = {};
-      for (const [k, v] of Object.entries(Balaclava.ITEMS)) {
+      for (const [k, v] of Object.entries(Abyssea.ITEMS)) {
         snap.items[k] = { name: v.name, desc: v.desc, uses: v.uses, source: v.source };
       }
     }
@@ -2505,7 +2509,7 @@
 
   function applyCatalogLanguage(lang) {
     const snap = captureSpanishSnapshot();
-    const src = lang === 'es' ? snap : (Balaclava.I18N_DATA_EN || snap);
+    const src = lang === 'es' ? snap : (Abyssea.I18N_DATA_EN || snap);
 
     const copyFields = (target, patch, keys) => {
       if (!target || !patch) return;
@@ -2514,71 +2518,71 @@
       }
     };
 
-    if (Balaclava.CONST && Balaclava.CONST.BIOMES && src.biomes) {
-      for (const [id, b] of Object.entries(Balaclava.CONST.BIOMES)) copyFields(b, src.biomes[id], ['name', 'desc']);
+    if (Abyssea.CONST && Abyssea.CONST.BIOMES && src.biomes) {
+      for (const [id, b] of Object.entries(Abyssea.CONST.BIOMES)) copyFields(b, src.biomes[id], ['name', 'desc']);
     }
-    if (Balaclava.CONST && Balaclava.CONST.RARITIES && src.rarities) {
-      for (const [id, r] of Object.entries(Balaclava.CONST.RARITIES)) copyFields(r, src.rarities[id], ['name']);
+    if (Abyssea.CONST && Abyssea.CONST.RARITIES && src.rarities) {
+      for (const [id, r] of Object.entries(Abyssea.CONST.RARITIES)) copyFields(r, src.rarities[id], ['name']);
     }
-    if (Balaclava.TOOLS && src.tools) {
-      for (const [id, tool] of Object.entries(Balaclava.TOOLS)) copyFields(tool, src.tools[id], ['name', 'role']);
+    if (Abyssea.TOOLS && src.tools) {
+      for (const [id, tool] of Object.entries(Abyssea.TOOLS)) copyFields(tool, src.tools[id], ['name', 'role']);
     }
-    if (Balaclava.TIER_META && src.toolTiers) {
-      for (const [id, tm] of Object.entries(Balaclava.TIER_META)) copyFields(tm, src.toolTiers[id], ['name']);
+    if (Abyssea.TIER_META && src.toolTiers) {
+      for (const [id, tm] of Object.entries(Abyssea.TIER_META)) copyFields(tm, src.toolTiers[id], ['name']);
     }
-    if (Array.isArray(Balaclava.BUILDING_CATEGORIES) && src.buildingCategories) {
-      for (const c of Balaclava.BUILDING_CATEGORIES) copyFields(c, src.buildingCategories[c.id], ['name']);
+    if (Array.isArray(Abyssea.BUILDING_CATEGORIES) && src.buildingCategories) {
+      for (const c of Abyssea.BUILDING_CATEGORIES) copyFields(c, src.buildingCategories[c.id], ['name']);
     }
-    if (Balaclava.BUILDINGS && src.buildings) {
-      for (const [id, b] of Object.entries(Balaclava.BUILDINGS)) copyFields(b, src.buildings[id], ['name', 'desc']);
+    if (Abyssea.BUILDINGS && src.buildings) {
+      for (const [id, b] of Object.entries(Abyssea.BUILDINGS)) copyFields(b, src.buildings[id], ['name', 'desc']);
     }
-    if (Balaclava.TOOL_ENCHANTS && src.toolEnchants) {
-      for (const [id, e] of Object.entries(Balaclava.TOOL_ENCHANTS)) copyFields(e, src.toolEnchants[id], ['name', 'desc']);
+    if (Abyssea.TOOL_ENCHANTS && src.toolEnchants) {
+      for (const [id, e] of Object.entries(Abyssea.TOOL_ENCHANTS)) copyFields(e, src.toolEnchants[id], ['name', 'desc']);
     }
-    if (Balaclava.ARMOR_ENCHANTS && src.armorEnchants) {
-      for (const [id, e] of Object.entries(Balaclava.ARMOR_ENCHANTS)) copyFields(e, src.armorEnchants[id], ['name', 'desc']);
+    if (Abyssea.ARMOR_ENCHANTS && src.armorEnchants) {
+      for (const [id, e] of Object.entries(Abyssea.ARMOR_ENCHANTS)) copyFields(e, src.armorEnchants[id], ['name', 'desc']);
     }
-    if (Balaclava.PERMANENT_RELICS && src.relics) {
-      for (const [id, r] of Object.entries(Balaclava.PERMANENT_RELICS)) copyFields(r, src.relics[id], ['name', 'desc']);
+    if (Abyssea.PERMANENT_RELICS && src.relics) {
+      for (const [id, r] of Object.entries(Abyssea.PERMANENT_RELICS)) copyFields(r, src.relics[id], ['name', 'desc']);
     }
-    if (Array.isArray(Balaclava.SKILL_BRANCHES) && src.skillBranches) {
-      for (const b of Balaclava.SKILL_BRANCHES) copyFields(b, src.skillBranches[b.id], ['name', 'fullName']);
+    if (Array.isArray(Abyssea.SKILL_BRANCHES) && src.skillBranches) {
+      for (const b of Abyssea.SKILL_BRANCHES) copyFields(b, src.skillBranches[b.id], ['name', 'fullName']);
     }
-    if (Balaclava.SKILLS && src.skills) {
-      const list = Array.isArray(Balaclava.SKILLS) ? Balaclava.SKILLS : Object.values(Balaclava.SKILLS);
+    if (Abyssea.SKILLS && src.skills) {
+      const list = Array.isArray(Abyssea.SKILLS) ? Abyssea.SKILLS : Object.values(Abyssea.SKILLS);
       for (const s of list) copyFields(s, src.skills[s.id], ['name', 'desc']);
     }
-    if (Balaclava.SPELLS && src.spells) {
-      const list = Array.isArray(Balaclava.SPELLS) ? Balaclava.SPELLS : Object.values(Balaclava.SPELLS);
+    if (Abyssea.SPELLS && src.spells) {
+      const list = Array.isArray(Abyssea.SPELLS) ? Abyssea.SPELLS : Object.values(Abyssea.SPELLS);
       for (const s of list) copyFields(s, src.spells[s.id], ['name', 'desc']);
     }
-    if (Balaclava.DUNGEON_DEFS && src.dungeons) {
-      for (const [id, d] of Object.entries(Balaclava.DUNGEON_DEFS)) {
+    if (Abyssea.DUNGEON_DEFS && src.dungeons) {
+      for (const [id, d] of Object.entries(Abyssea.DUNGEON_DEFS)) {
         const patch = src.dungeons[id];
         if (!patch) continue;
         if (patch.name !== undefined) d.name = patch.name;
         if (d.boss && patch.bossName !== undefined) d.boss.name = patch.bossName;
       }
     }
-    if (Balaclava.DUNGEON_GATES) {
-      for (const [id, g] of Object.entries(Balaclava.DUNGEON_GATES)) {
+    if (Abyssea.DUNGEON_GATES) {
+      for (const [id, g] of Object.entries(Abyssea.DUNGEON_GATES)) {
         const patch = (src.dungeonGates && src.dungeonGates[id]) || (src.dungeons && src.dungeons[id]);
         if (patch && patch.name !== undefined) g.name = patch.name;
       }
     }
-    if (Balaclava.ALTAR_DEFS && src.altars) {
-      const list = Array.isArray(Balaclava.ALTAR_DEFS) ? Balaclava.ALTAR_DEFS : Object.values(Balaclava.ALTAR_DEFS);
+    if (Abyssea.ALTAR_DEFS && src.altars) {
+      const list = Array.isArray(Abyssea.ALTAR_DEFS) ? Abyssea.ALTAR_DEFS : Object.values(Abyssea.ALTAR_DEFS);
       for (const a of list) copyFields(a, src.altars[a.id], ['name', 'blessingName', 'blessingTitle', 'desc', 'effectDetail', 'durationText']);
     }
-    if (Balaclava.EASTER_EGG_DEFS && src.easterEggs) {
-      const list = Array.isArray(Balaclava.EASTER_EGG_DEFS) ? Balaclava.EASTER_EGG_DEFS : Object.values(Balaclava.EASTER_EGG_DEFS);
+    if (Abyssea.EASTER_EGG_DEFS && src.easterEggs) {
+      const list = Array.isArray(Abyssea.EASTER_EGG_DEFS) ? Abyssea.EASTER_EGG_DEFS : Object.values(Abyssea.EASTER_EGG_DEFS);
       for (const e of list) copyFields(e, src.easterEggs[e.id], ['name', 'hint']);
     }
-    if (Balaclava.ENEMY_DEFS && src.enemies) {
-      for (const [id, e] of Object.entries(Balaclava.ENEMY_DEFS)) copyFields(e, src.enemies[id], ['name', 'desc']);
+    if (Abyssea.ENEMY_DEFS && src.enemies) {
+      for (const [id, e] of Object.entries(Abyssea.ENEMY_DEFS)) copyFields(e, src.enemies[id], ['name', 'desc']);
     }
-    if (Array.isArray(Balaclava.STORY_CHAPTERS) && src.story) {
-      for (const c of Balaclava.STORY_CHAPTERS) {
+    if (Array.isArray(Abyssea.STORY_CHAPTERS) && src.story) {
+      for (const c of Abyssea.STORY_CHAPTERS) {
         const p = src.story[c.id];
         if (!p) continue;
         copyFields(c, p, ['title', 'lore', 'objective']);
@@ -2595,8 +2599,8 @@
         }
       }
     }
-    if (Array.isArray(Balaclava.NPCS) && src.npcs) {
-      for (const n of Balaclava.NPCS) {
+    if (Array.isArray(Abyssea.NPCS) && src.npcs) {
+      for (const n of Abyssea.NPCS) {
         const p = src.npcs[n.id];
         if (!p) continue;
         copyFields(n, p, ['name', 'personality', 'greeting']);
@@ -2605,33 +2609,33 @@
         }
       }
     }
-    if (Array.isArray(Balaclava.GUILD_CONTRACTS) && src.contracts) {
-      for (const c of Balaclava.GUILD_CONTRACTS) copyFields(c, src.contracts[c.id], ['cat', 'title', 'desc']);
+    if (Array.isArray(Abyssea.GUILD_CONTRACTS) && src.contracts) {
+      for (const c of Abyssea.GUILD_CONTRACTS) copyFields(c, src.contracts[c.id], ['cat', 'title', 'desc']);
     }
-    if (Array.isArray(Balaclava.ACHIEVEMENTS) && src.achievements) {
-      for (const a of Balaclava.ACHIEVEMENTS) copyFields(a, src.achievements[a.id], ['name', 'desc']);
+    if (Array.isArray(Abyssea.ACHIEVEMENTS) && src.achievements) {
+      for (const a of Abyssea.ACHIEVEMENTS) copyFields(a, src.achievements[a.id], ['name', 'desc']);
     }
-    if (Balaclava.LORE && src.lore) {
-      for (const c of (Balaclava.LORE.chronicle || [])) {
+    if (Abyssea.LORE && src.lore) {
+      for (const c of (Abyssea.LORE.chronicle || [])) {
         if (src.lore.chronicle) copyFields(c, src.lore.chronicle[c.id], ['title', 'era', 'summary', 'body']);
       }
-      for (const b of (Balaclava.LORE.biomes || [])) {
+      for (const b of (Abyssea.LORE.biomes || [])) {
         if (src.lore.biomes) copyFields(b, src.lore.biomes[b.id], ['name', 'minerals', 'desc']);
       }
     }
     if (src.nodeDisplayNames) {
-      if (!Balaclava.NODE_DISPLAY_NAMES) Balaclava.NODE_DISPLAY_NAMES = {};
-      for (const [k, v] of Object.entries(src.nodeDisplayNames)) Balaclava.NODE_DISPLAY_NAMES[k] = v;
+      if (!Abyssea.NODE_DISPLAY_NAMES) Abyssea.NODE_DISPLAY_NAMES = {};
+      for (const [k, v] of Object.entries(src.nodeDisplayNames)) Abyssea.NODE_DISPLAY_NAMES[k] = v;
     }
-    if (Balaclava.CROPS && src.crops) {
-      for (const [k, v] of Object.entries(Balaclava.CROPS)) copyFields(v, src.crops[k], ['name']);
+    if (Abyssea.CROPS && src.crops) {
+      for (const [k, v] of Object.entries(Abyssea.CROPS)) copyFields(v, src.crops[k], ['name']);
     }
-    if (Balaclava.ITEMS && src.items) {
-      for (const [k, item] of Object.entries(Balaclava.ITEMS)) copyFields(item, src.items[k], ['name', 'desc', 'uses', 'source']);
+    if (Abyssea.ITEMS && src.items) {
+      for (const [k, item] of Object.entries(Abyssea.ITEMS)) copyFields(item, src.items[k], ['name', 'desc', 'uses', 'source']);
     }
 
     // Sync active world entities / daily challenges if a game session is live
-    const game = Balaclava._game || Balaclava.game || (Balaclava.UI && Balaclava.UI.game);
+    const game = Abyssea._game || Abyssea.game || (Abyssea.UI && Abyssea.UI.game);
     if (game) {
       if (game.events && Array.isArray(game.events.dailyChallenges) && src.dailyChallenges) {
         for (const ch of game.events.dailyChallenges) copyFields(ch, src.dailyChallenges[ch.id], ['title', 'desc']);
@@ -2639,45 +2643,45 @@
       if (game.world && Array.isArray(game.world.nodes)) {
         for (const n of game.world.nodes) {
           if (n.kind === 'dungeon_gate' && n.dungeonId) {
-            const dDef = (Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[n.dungeonId]) || (Balaclava.DUNGEON_GATES && Balaclava.DUNGEON_GATES[n.dungeonId]);
+            const dDef = (Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[n.dungeonId]) || (Abyssea.DUNGEON_GATES && Abyssea.DUNGEON_GATES[n.dungeonId]);
             if (dDef && dDef.name) n.name = dDef.name;
-          } else if (n.kind === 'altar_shrine' && n.altarId && Balaclava.ALTAR_DEFS) {
-            const aList = Array.isArray(Balaclava.ALTAR_DEFS) ? Balaclava.ALTAR_DEFS : Object.values(Balaclava.ALTAR_DEFS);
+          } else if (n.kind === 'altar_shrine' && n.altarId && Abyssea.ALTAR_DEFS) {
+            const aList = Array.isArray(Abyssea.ALTAR_DEFS) ? Abyssea.ALTAR_DEFS : Object.values(Abyssea.ALTAR_DEFS);
             const a = aList.find(x => x.id === n.altarId);
             if (a) n.name = a.name;
-          } else if (n.kind === 'easter_egg' && (n.eeId || n.eggId) && Balaclava.EASTER_EGG_DEFS) {
+          } else if (n.kind === 'easter_egg' && (n.eeId || n.eggId) && Abyssea.EASTER_EGG_DEFS) {
             const eeKey = n.eeId || n.eggId;
-            const eList = Array.isArray(Balaclava.EASTER_EGG_DEFS) ? Balaclava.EASTER_EGG_DEFS : Object.values(Balaclava.EASTER_EGG_DEFS);
+            const eList = Array.isArray(Abyssea.EASTER_EGG_DEFS) ? Abyssea.EASTER_EGG_DEFS : Object.values(Abyssea.EASTER_EGG_DEFS);
             const ee = eList.find(x => x.id === eeKey);
             if (ee) { n.name = ee.name; n.hint = ee.hint; }
           } else if (n.kind === 'skeleton_king_shrine') {
             n.name = t('world.skeletonKing');
           } else if (n.kind === 'bone_totem' && n.totemIdx) {
             n.name = t('world.boneTotem' + n.totemIdx);
-          } else if (Balaclava.NODE_DISPLAY_NAMES && Balaclava.NODE_DISPLAY_NAMES[n.kind]) {
-            n.name = Balaclava.NODE_DISPLAY_NAMES[n.kind];
+          } else if (Abyssea.NODE_DISPLAY_NAMES && Abyssea.NODE_DISPLAY_NAMES[n.kind]) {
+            n.name = Abyssea.NODE_DISPLAY_NAMES[n.kind];
           }
         }
       }
-      if (game.combat && Array.isArray(game.combat.enemies) && Balaclava.ENEMY_DEFS) {
+      if (game.combat && Array.isArray(game.combat.enemies) && Abyssea.ENEMY_DEFS) {
         for (const e of game.combat.enemies) {
-          if (e.isBoss && game.activeDungeon && Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[game.activeDungeon.id]) {
-            e.name = Balaclava.DUNGEON_DEFS[game.activeDungeon.id].boss.name;
-          } else if (e.type && Balaclava.ENEMY_DEFS[e.type]) {
-            e.name = Balaclava.ENEMY_DEFS[e.type].name;
+          if (e.isBoss && game.activeDungeon && Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[game.activeDungeon.id]) {
+            e.name = Abyssea.DUNGEON_DEFS[game.activeDungeon.id].boss.name;
+          } else if (e.type && Abyssea.ENEMY_DEFS[e.type]) {
+            e.name = Abyssea.ENEMY_DEFS[e.type].name;
           }
         }
       }
-      if (game.activeDungeon && Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[game.activeDungeon.id]) {
-        const dDef = Balaclava.DUNGEON_DEFS[game.activeDungeon.id];
+      if (game.activeDungeon && Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[game.activeDungeon.id]) {
+        const dDef = Abyssea.DUNGEON_DEFS[game.activeDungeon.id];
         game.activeDungeon.name = dDef.name;
         if (game.activeDungeon.boss && dDef.boss) game.activeDungeon.boss.name = dDef.boss.name;
       }
       game.uiDirty = true;
     }
 
-    if (Balaclava.UI && typeof Balaclava.UI.syncLocalizedDefs === 'function') {
-      Balaclava.UI.syncLocalizedDefs();
+    if (Abyssea.UI && typeof Abyssea.UI.syncLocalizedDefs === 'function') {
+      Abyssea.UI.syncLocalizedDefs();
     }
   }
 
@@ -2710,15 +2714,15 @@
     if (opts.persist !== false) {
       try { localStorage.setItem(LANG_STORAGE_KEY, normalized); } catch (e) {}
     }
-    const UI = Balaclava.UI;
-    const game = Balaclava._game || Balaclava.game || (UI && UI.game);
+    const UI = Abyssea.UI;
+    const game = Abyssea._game || Abyssea.game || (UI && UI.game);
     if (game && game.settings) {
       game.settings.lang = normalized;
     }
     applyCatalogLanguage(normalized);
     applyDomTranslations(document);
-    if (Balaclava.MediaOverlay && typeof Balaclava.MediaOverlay.syncLanguage === 'function') {
-      Balaclava.MediaOverlay.syncLanguage();
+    if (Abyssea.MediaOverlay && typeof Abyssea.MediaOverlay.syncLanguage === 'function') {
+      Abyssea.MediaOverlay.syncLanguage();
     }
 
     if (UI) {
@@ -2792,7 +2796,7 @@
     return map[stationId] || stationId;
   }
 
-  Balaclava.I18n = {
+  Abyssea.I18n = {
     getStationName,
     DEFAULT_LANG,
     SUPPORTED_LANGS,

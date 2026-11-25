@@ -1,22 +1,22 @@
-// Balaclava - Native System Media Overlay (Windows GSMTC via Tauri v2)
+// Abyssea - Native System Media Overlay (Windows GSMTC via Tauri v2)
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
-  const GLOBAL_PREFS_KEY = 'balaclava_global_settings_v2';
+  const GLOBAL_PREFS_KEY = 'abyssea_global_settings_v2';
   const POLL_INTERVAL_MS = 2000;
   const CONTROL_REFRESH_DELAY_MS = 180;
 
-  let enabled = true;
+  let enabled = false;
   let initialized = false;
   let pollTimer = null;
   let inFlight = false;
   let lastInfo = { title: '', artist: '', status: '' };
 
   function tr(key, vars) {
-    if (Balaclava.I18n && typeof Balaclava.I18n.t === 'function') {
-      const val = Balaclava.I18n.t(key, vars);
+    if (Abyssea.I18n && typeof Abyssea.I18n.t === 'function') {
+      const val = Abyssea.I18n.t(key, vars);
       if (val && val !== key) return val;
     }
     const fallbacks = {
@@ -54,7 +54,7 @@
         }
       }
     } catch (_) {}
-    return true;
+    return false;
   }
 
   function writeEnabledPref(value) {
@@ -71,7 +71,7 @@
     } catch (_) {}
 
     try {
-      const g = Balaclava.game || (Balaclava.UI && Balaclava.UI.game);
+      const g = Abyssea.game || (Abyssea.UI && Abyssea.UI.game);
       if (g && g.settings) {
         g.settings.mediaOverlay = boolVal;
       }
@@ -277,7 +277,7 @@
     return enabled;
   }
 
-  Balaclava.MediaOverlay = {
+  Abyssea.MediaOverlay = {
     init,
     isEnabled,
     setEnabled,

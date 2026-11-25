@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
   const SQRT3 = Math.sqrt(3);
 
   // Pointy-top axial directions (clockwise starting East)
@@ -186,7 +186,7 @@
     };
   }
 
-  Balaclava.HexGrid = {
+  Abyssea.HexGrid = {
     HEX_DIRS,
     hexKey,
     hexDistance,

@@ -1,12 +1,12 @@
-// Balaclava - Main Entry Point
+// Abyssea - Main Entry Point
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   // Fallback seguro si no cargara discord_rpc.js
-  if (!Balaclava.actualizarDiscord) Balaclava.actualizarDiscord = () => {};
-  if (!Balaclava.initDiscord) Balaclava.initDiscord = () => {};
+  if (!Abyssea.actualizarDiscord) Abyssea.actualizarDiscord = () => {};
+  if (!Abyssea.initDiscord) Abyssea.initDiscord = () => {};
   if (!window.actualizarDiscord) window.actualizarDiscord = () => {};
 
   // Bloquear menú contextual (clic derecho) para experiencia inmersiva
@@ -24,18 +24,18 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     // 1. Inicializar Internacionalización
-    if (Balaclava.I18n && Balaclava.I18n.init) {
-      Balaclava.I18n.init();
+    if (Abyssea.I18n && Abyssea.I18n.init) {
+      Abyssea.I18n.init();
     }
 
     // 2. Inicializar Preferencias y Audio
-    if (Balaclava.Audio && Balaclava.Audio.loadPrefs) {
-      Balaclava.Audio.loadPrefs();
+    if (Abyssea.Audio && Abyssea.Audio.loadPrefs) {
+      Abyssea.Audio.loadPrefs();
     }
 
     const canvas = document.getElementById('game-canvas');
-    const game = new Balaclava.GameEngine(canvas);
-    Balaclava.game = game;
+    const game = new Abyssea.GameEngine(canvas);
+    Abyssea.game = game;
 
     function resize() {
       const cw = Math.max(1, Math.round(canvas.clientWidth || window.innerWidth));
@@ -61,17 +61,17 @@
     resize();
 
     // 3. Inicializar Interfaz, Discord Rich Presence y Media Overlay
-    Balaclava.UI.init(game);
-    if (typeof Balaclava.initDiscord === 'function') Balaclava.initDiscord();
-    if (Balaclava.MediaOverlay && typeof Balaclava.MediaOverlay.init === 'function') {
-      Balaclava.MediaOverlay.init();
+    Abyssea.UI.init(game);
+    if (typeof Abyssea.initDiscord === 'function') Abyssea.initDiscord();
+    if (Abyssea.MediaOverlay && typeof Abyssea.MediaOverlay.init === 'function') {
+      Abyssea.MediaOverlay.init();
     }
 
     const onFullscreenChange = () => {
       scheduleResizeSync();
-      if (Balaclava.UI && (Balaclava.UI.activeModal === 'title_settings' ||
-          (Balaclava.UI.activeModal === 'pause' && Balaclava.UI.pauseView === 'settings'))) {
-        Balaclava.UI.renderModal();
+      if (Abyssea.UI && (Abyssea.UI.activeModal === 'title_settings' ||
+          (Abyssea.UI.activeModal === 'pause' && Abyssea.UI.pauseView === 'settings'))) {
+        Abyssea.UI.renderModal();
       }
     };
     document.addEventListener('fullscreenchange', onFullscreenChange);
@@ -85,10 +85,10 @@
       const statusEl = document.getElementById('boot-status-text');
       const pctEl = document.getElementById('boot-percent-text');
       const legacyStatus = document.getElementById('assets-status');
-      const trBoot = (k, fb) => (Balaclava.I18n && Balaclava.I18n.t) ? Balaclava.I18n.t(k) : fb;
+      const trBoot = (k, fb) => (Abyssea.I18n && Abyssea.I18n.t) ? Abyssea.I18n.t(k) : fb;
 
       let assetsFinished = false;
-      const loadPromise = Balaclava.Assets.loadAll().then(() => {
+      const loadPromise = Abyssea.Assets.loadAll().then(() => {
         assetsFinished = true;
         if (legacyStatus) {
           legacyStatus.textContent = '';
@@ -98,8 +98,8 @@
 
       if (!bootEl || !fillEl) {
         loadPromise.then(() => {
-          if (Balaclava.Audio && typeof Balaclava.Audio.enterTitleMenu === 'function') Balaclava.Audio.enterTitleMenu();
-          if (Balaclava.UI && Balaclava.UI.triggerTitleIntro) Balaclava.UI.triggerTitleIntro();
+          if (Abyssea.Audio && typeof Abyssea.Audio.enterTitleMenu === 'function') Abyssea.Audio.enterTitleMenu();
+          if (Abyssea.UI && Abyssea.UI.triggerTitleIntro) Abyssea.UI.triggerTitleIntro();
         });
         return;
       }
@@ -141,11 +141,11 @@
 
         setTimeout(() => {
           bootEl.classList.add('is-leaving');
-          if (Balaclava.Audio && typeof Balaclava.Audio.enterTitleMenu === 'function') {
-            Balaclava.Audio.enterTitleMenu();
+          if (Abyssea.Audio && typeof Abyssea.Audio.enterTitleMenu === 'function') {
+            Abyssea.Audio.enterTitleMenu();
           }
-          if (Balaclava.UI && Balaclava.UI.triggerTitleIntro) {
-            Balaclava.UI.triggerTitleIntro();
+          if (Abyssea.UI && Abyssea.UI.triggerTitleIntro) {
+            Abyssea.UI.triggerTitleIntro();
           } else {
             const ts = document.getElementById('title-screen');
             if (ts) ts.classList.remove('title-booting');
@@ -165,8 +165,8 @@
         const normT = Math.min(1, elapsed / BOOT_SHOWCASE_MS);
         const easedT = 0.28 * normT + 0.72 * (1 - Math.pow(1 - normT, 2.4));
 
-        const assetProg = (Balaclava.Assets && Balaclava.Assets.getLoadProgress)
-          ? Balaclava.Assets.getLoadProgress()
+        const assetProg = (Abyssea.Assets && Abyssea.Assets.getLoadProgress)
+          ? Abyssea.Assets.getLoadProgress()
           : { ratio: assetsFinished ? 1 : 0.5 };
         const realCap = (assetsFinished && normT >= 1)
           ? 1
@@ -204,18 +204,18 @@
     document.querySelectorAll('[data-modal]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (game.isPlayerDead && game.isPlayerDead()) return;
-        Balaclava.UI.openModal(btn.getAttribute('data-modal'));
+        Abyssea.UI.openModal(btn.getAttribute('data-modal'));
       });
     });
 
     const closeBtn = document.getElementById('btn-close-modal');
     if (closeBtn) {
-      closeBtn.addEventListener('click', () => Balaclava.UI.closeModal());
+      closeBtn.addEventListener('click', () => Abyssea.UI.closeModal());
     }
     const backdrop = document.getElementById('modal-backdrop');
     if (backdrop) {
       backdrop.addEventListener('click', (e) => {
-        if (e.target.id === 'modal-backdrop') Balaclava.UI.closeModal();
+        if (e.target.id === 'modal-backdrop') Abyssea.UI.closeModal();
       });
     }
     const cancelBuild = document.getElementById('btn-cancel-build');
@@ -224,7 +224,7 @@
         if (game.isPlayerDead && game.isPlayerDead()) return;
         game.placingBuildingId = null;
         game.placingItemId = null;
-        Balaclava.UI.updateHUD(true);
+        Abyssea.UI.updateHUD(true);
       });
     }
     const exitDung = document.getElementById('btn-exit-dungeon');
@@ -247,7 +247,7 @@
       } catch (err) {
         if (now - _errThrottle > 2000) { _errThrottle = now; console.error('[UPDATE ERROR]', err); }
       }
-      const activeModal = Balaclava.UI ? Balaclava.UI.activeModal : null;
+      const activeModal = Abyssea.UI ? Abyssea.UI.activeModal : null;
       const opaqueFullscreenModal = activeModal === 'skills' || activeModal === 'map';
       if (!opaqueFullscreenModal) {
         try {
@@ -256,7 +256,7 @@
           if (now - _errThrottle > 2000) { _errThrottle = now; console.error('[RENDER ERROR]', err, err.stack); }
         }
         try {
-          if (game.started) Balaclava.UI.updateHUD();
+          if (game.started) Abyssea.UI.updateHUD();
         } catch (err) {
           if (now - _errThrottle > 2000) { _errThrottle = now; console.error('[HUD ERROR]', err); }
         }

@@ -9,32 +9,32 @@
  */
 window.BALACLAVA_SITE_CONFIG = {
   // 1. Enlace principal de descarga directa (GitHub Releases)
-  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v1.3.3/balaclava.exe',
+  downloadUrl: 'https://github.com/Lallelsito/Balaclava/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64-setup.exe',
 
-  // 2. Enlace alternativo / mirror opcional (déjalo vacío '' si no usas mirror)
-  mirrorUrl: '',
+  // 2. Enlace alternativo / mirror opcional (MSI installer)
+  mirrorUrl: 'https://github.com/Lallelsito/Balaclava/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64_en-US.msi',
 
   // 3. Versión actual mostrada en badges, hero y tarjetas de descarga
-  version: 'Beta 1.3.3',
-  versionLabel: 'Beta 1.3.3',
+  version: 'Beta 2.0.0 RC2',
+  versionLabel: 'Beta 2.0.0 RC2',
 
   // 4. Datos técnicos del archivo descargable
-  fileName: 'balaclava.exe',
-  fileSizeEs: '33.59 MB',
-  fileSizeEn: '33.59 MB',
-  releaseDateEs: '20 Nov 2026',
-  releaseDateEn: 'Nov 20, 2026',
+  fileName: 'Abyssea_2.0.0_x64-setup.exe',
+  fileSizeEs: '124.25 MB',
+  fileSizeEn: '124.25 MB',
+  releaseDateEs: '25 Nov 2026',
+  releaseDateEn: 'Nov 25, 2026',
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
 
   // 5. Enlaces oficiales de comunidad y apoyo
   downloadBaseOffset: 15,
-  githubRepo: 'LalleL/balaclava-web',
+  githubRepo: 'Lallelsito/Balaclava',
   webPlayersCounterUrl: 'https://balaclava-counter.000lallel.workers.dev',
   discordUrl: 'https://discord.gg/8wrsjRSMY2',
   kofiUrl: 'https://ko-fi.com/balaclava',
 
   // 6. Modo mantenimiento (pon true para pausar descargas y /play/, false para volver a abrir)
-  maintenanceMode: true,
+  maintenanceMode: false,
   maintenanceTitleEn: 'Update in Progress',
   maintenanceTitleEs: 'Actualización en Curso',
   maintenanceMsgEn: 'We are currently uploading a new Abyssea update. Downloads and browser play are temporarily paused — please check back in a few minutes!',

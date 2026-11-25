@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const ROOT = window.BALACLAVA_ROOT_BASE || '';
-  const GLOBAL_PREFS_KEY = 'balaclava_global_settings_v2';
-  const AUDIO_STORAGE_KEY = 'balaclava_audio_v1';
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const ROOT = window.ABYSSEA_ROOT_BASE || '';
+  const GLOBAL_PREFS_KEY = 'abyssea_global_settings_v2';
+  const AUDIO_STORAGE_KEY = 'abyssea_audio_v1';
 
   const SFX_PATHS = {
     bite: 'assets/audio/sfx/bite.wav',
@@ -48,9 +48,26 @@
       id: 'adventure',
       key: 'settings.musicThemeAdv',
       descKey: 'settings.musicThemeAdvDesc',
-      name: 'Aventura',
-      nameEn: 'Adventure',
-      file: 'assets/audio/music/overworld_glory.m4a'
+      name: 'Aventura RPG',
+      nameEn: 'RPG Adventure',
+      dynamicBiomes: true,
+      file: 'assets/audio/music/abyssea_overworld.mp3'
+    },
+    meadow: {
+      id: 'meadow',
+      key: 'settings.musicThemeMeadow',
+      descKey: 'settings.musicThemeMeadowDesc',
+      name: 'Aldea',
+      nameEn: 'Village',
+      file: 'assets/audio/music/abyssea_village.mp3'
+    },
+    jovial: {
+      id: 'jovial',
+      key: 'settings.musicThemeJovial',
+      descKey: 'settings.musicThemeJovialDesc',
+      name: 'Alegre',
+      nameEn: 'Jovial',
+      file: 'assets/audio/music/abyssea_jovial.mp3'
     },
     chill: {
       id: 'chill',
@@ -58,7 +75,7 @@
       descKey: 'settings.musicThemeChillDesc',
       name: 'Full Chill',
       nameEn: 'Full Chill',
-      file: 'assets/audio/music/peaceful_wholesome.m4a'
+      file: 'assets/audio/music/abyssea_chill.mp3'
     },
     lofi: {
       id: 'lofi',
@@ -67,28 +84,24 @@
       name: 'Lo-Fi',
       nameEn: 'Lo-Fi',
       file: 'assets/audio/music/lofi_full_loop.m4a'
-    },
-    meadow: {
-      id: 'meadow',
-      key: 'settings.musicThemeMeadow',
-      descKey: 'settings.musicThemeMeadowDesc',
-      name: 'Pradera',
-      nameEn: 'Meadow',
-      file: 'assets/audio/music/pleasant_creek.ogg'
     }
   };
 
   const MUSIC_PATHS = {
-    overworld: 'assets/audio/music/overworld_glory.m4a',
-    meadow: 'assets/audio/music/overworld_glory.m4a',
-    desert: 'assets/audio/music/overworld_glory.m4a',
-    dark_forest: 'assets/audio/music/overworld_glory.m4a',
-    ice_mountains: 'assets/audio/music/overworld_glory.m4a',
-    volcanic: 'assets/audio/music/overworld_glory.m4a',
-    night: 'assets/audio/music/overworld_glory.m4a',
-    title: 'assets/audio/music/moonlight_beach.m4a',
-    dungeon: 'assets/audio/music/dungeon_epic.m4a',
-    boss: 'assets/audio/music/dungeon_epic.m4a'
+    overworld: 'assets/audio/music/abyssea_overworld.mp3',
+    peaceful: 'assets/audio/music/abyssea_overworld.mp3',
+    meadow: 'assets/audio/music/abyssea_overworld.mp3',
+    desert: 'assets/audio/music/abyssea_desert_harbor.mp3',
+    ice: 'assets/audio/music/abyssea_ice_mountains.mp3',
+    ice_mountains: 'assets/audio/music/abyssea_ice_mountains.mp3',
+    dark_forest: 'assets/audio/music/abyssea_dark_marsh.mp3',
+    volcano: 'assets/audio/music/abyssea_volcano.mp3',
+    volcanic: 'assets/audio/music/abyssea_volcano.mp3',
+    night: 'assets/audio/music/abyssea_dark_marsh.mp3',
+    title: 'assets/audio/music/abyssea_title.mp3',
+    dungeon: 'assets/audio/music/abyssea_dungeon.mp3',
+    boss: 'assets/audio/music/abyssea_boss.mp3',
+    final_boss: 'assets/audio/music/abyssea_final_boss.mp3'
   };
 
   class SoundEngine {
@@ -555,10 +568,13 @@
       if (mood === 'title' && !this._previewThemeInTitle) {
         return MUSIC_PATHS.title;
       }
-      if (mood === 'dungeon' || mood === 'boss') {
+      if (mood === 'dungeon' || mood === 'boss' || mood === 'final_boss') {
         return MUSIC_PATHS[mood] || MUSIC_PATHS.dungeon;
       }
       const theme = MUSIC_THEMES[this.musicTheme] || MUSIC_THEMES.adventure;
+      if (theme.dynamicBiomes && mood && mood !== 'title' && MUSIC_PATHS[mood]) {
+        return MUSIC_PATHS[mood];
+      }
       return theme.file || MUSIC_PATHS.overworld;
     }
 
@@ -626,7 +642,7 @@
       if (this.mood === 'title') {
         this._previewThemeInTitle = true;
       }
-      if (this.mood !== 'dungeon' && this.mood !== 'boss') {
+      if (this.mood !== 'dungeon' && this.mood !== 'boss' && this.mood !== 'final_boss') {
         this.startMusic(true, { delayMs: 320, fadeOutMs: 420, fadeInMs: 3600 });
       }
     }
@@ -661,16 +677,18 @@
       this.mood = normalizedMood;
       let transitionOpts = opts;
       if (!transitionOpts) {
-        if ((prevMood === 'dungeon' || prevMood === 'boss') && normalizedMood !== 'dungeon' && normalizedMood !== 'boss') {
+        if ((prevMood === 'dungeon' || prevMood === 'boss' || prevMood === 'final_boss') && normalizedMood !== 'dungeon' && normalizedMood !== 'boss' && normalizedMood !== 'final_boss') {
           transitionOpts = { delayMs: 800, fadeOutMs: 420, fadeInMs: 4800 };
         } else if (prevMood === 'title' && normalizedMood !== 'title') {
           transitionOpts = { delayMs: 750, fadeOutMs: 380, fadeInMs: 4600 };
         } else if (normalizedMood === 'title') {
           transitionOpts = { delayMs: 480, fadeOutMs: 420, fadeInMs: 4200 };
-        } else if (normalizedMood === 'dungeon' || normalizedMood === 'boss') {
-          transitionOpts = { delayMs: 600, fadeOutMs: 380, fadeInMs: 4200 };
+        } else if (normalizedMood === 'boss' || normalizedMood === 'final_boss') {
+          transitionOpts = { delayMs: 260, fadeOutMs: 300, fadeInMs: 1800 };
+        } else if (normalizedMood === 'dungeon') {
+          transitionOpts = { delayMs: 520, fadeOutMs: 380, fadeInMs: 3600 };
         } else {
-          transitionOpts = { delayMs: 520, fadeOutMs: 420, fadeInMs: 4200 };
+          transitionOpts = { delayMs: 520, fadeOutMs: 650, fadeInMs: 3600 };
         }
       }
       this.startMusic(force, transitionOpts);
@@ -995,6 +1013,6 @@
     }
   }
 
-  Balaclava.Audio = new SoundEngine();
-  Balaclava.Audio.MUSIC_THEMES = MUSIC_THEMES;
+  Abyssea.Audio = new SoundEngine();
+  Abyssea.Audio.MUSIC_THEMES = MUSIC_THEMES;
 })();

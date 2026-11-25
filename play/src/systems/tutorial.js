@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const TUTORIAL_STEPS = [
     {
@@ -12,7 +12,7 @@
       desc_en: 'Move across your island using {moveKeys}. Use {dashKey} to dodge or roll nimbly.',
       hint: 'Explora tu pequeña isla inicial.',
       hint_en: 'Explore your small starting island.',
-      icon: 'assets/icons/balaclava_knight.png',
+      icon: 'assets/icons/abyssea_knight.png?v=1.6.3',
       check: (game, state) => {
         if (!state.startPos) state.startPos = { x: game.player.x, y: game.player.y };
         const dx = game.player.x - state.startPos.x;
@@ -25,7 +25,7 @@
         return movedDone && state.didDash;
       },
       getProgress: (game, state) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const moved = Math.min(100, Math.floor(((state.movedDist || 0) / 120) * 100));
         const dash = state.didDash ? (isEn ? '✓ Dash ready' : '✓ Esquive listo') : (isEn ? 'Press Space' : 'Pulsa Espacio');
         return isEn ? `Movement: ${moved}% · ${dash}` : `Movimiento: ${moved}% · ${dash}`;
@@ -46,7 +46,7 @@
         return wood >= 4 && stone >= 4;
       },
       getProgress: (game) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const wood = Math.min(4, game.inventory.madera || 0);
         const stone = Math.min(4, game.inventory.piedra || 0);
         return isEn ? `Wood: ${wood}/4 · Stone: ${stone}/4` : `Madera: ${wood}/4 · Piedra: ${stone}/4`;
@@ -62,11 +62,11 @@
       hint_en: 'The [Q] key lets you manage your gear and items at any time.',
       icon: 'assets/icons/backpack.png',
       check: (game, state) => {
-        if (Balaclava.UI && Balaclava.UI.activeModal === 'inventory') state.openedInv = true;
+        if (Abyssea.UI && Abyssea.UI.activeModal === 'inventory') state.openedInv = true;
         return !!state.openedInv;
       },
       getProgress: (game, state) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         if (isEn) return state.openedInv ? 'Inventory checked! ✓' : 'Open your inventory with [Q]';
         return state.openedInv ? '¡Inventario revisado! ✓' : 'Abre tu inventario con [Q]';
       }
@@ -84,7 +84,7 @@
         return game.hasBuilding('mesa_artesania');
       },
       getProgress: (game) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         if (isEn) return game.hasBuilding('mesa_artesania') ? 'Table built ✓' : 'Open build menu and place the table';
         return game.hasBuilding('mesa_artesania') ? 'Mesa construida ✓' : 'Abre el menú de construcción y coloca la mesa';
       }
@@ -99,7 +99,7 @@
       hint_en: 'The table lets you forge pickaxes, swords, gear, and torches.',
       icon: 'assets/icons/anvil.png',
       check: (game, state) => {
-        const ui = Balaclava.UI;
+        const ui = Abyssea.UI;
         const isCraftModalOpen = ui && (
           ui.activeModal === 'crafting' ||
           (ui.activeModal === 'building' && ui.modalData && (
@@ -145,8 +145,8 @@
         return hasCraftedOrUpgraded;
       },
       getProgress: (game, state) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
-        const ui = Balaclava.UI;
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
+        const ui = Abyssea.UI;
         const isCraftModalOpen = ui && (
           ui.activeModal === 'crafting' ||
           (ui.activeModal === 'building' && ui.modalData && (
@@ -172,11 +172,11 @@
       hint_en: 'The quest board guides your progression across the archipelago.',
       icon: 'assets/icons/trophy.png',
       check: (game, state) => {
-        if (Balaclava.UI && Balaclava.UI.activeModal === 'quests') state.openedQuests = true;
+        if (Abyssea.UI && Abyssea.UI.activeModal === 'quests') state.openedQuests = true;
         return !!state.openedQuests;
       },
       getProgress: (game, state) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         if (isEn) return state.openedQuests ? 'Quests checked! ✓' : 'Open the quest log';
         return state.openedQuests ? '¡Misiones consultadas! ✓' : 'Abre el registro de misiones';
       }
@@ -191,11 +191,11 @@
       hint_en: 'Every discovery in the world is automatically recorded in this compendium.',
       icon: 'assets/ui/ts_icon_05.png',
       check: (game, state) => {
-        if (Balaclava.UI && Balaclava.UI.activeModal === 'encyclopedia') state.openedEnc = true;
+        if (Abyssea.UI && Abyssea.UI.activeModal === 'encyclopedia') state.openedEnc = true;
         return !!state.openedEnc;
       },
       getProgress: (game, state) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         if (isEn) return state.openedEnc ? 'Encyclopedia browsed! ✓' : 'Open the Encyclopedia';
         return state.openedEnc ? '¡Enciclopedia explorada! ✓' : 'Abre la Enciclopedia';
       }
@@ -213,7 +213,7 @@
         return Array.isArray(game.unlockedPlots) && game.unlockedPlots.length >= 2;
       },
       getProgress: (game) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const count = Array.isArray(game.unlockedPlots) ? game.unlockedPlots.length : 1;
         const rec = game && game.tutorialSys && typeof game.tutorialSys.getRecommendedFirstPlot === 'function'
           ? game.tutorialSys.getRecommendedFirstPlot(game)
@@ -222,8 +222,10 @@
           ? game.economy.getPlotPrice(game, rec[0], rec[1])
           : 40;
         const coins = Math.floor((game && game.coins) || 0);
-        if (isEn) return `Islands: ${count}/2 · Recommended Plot (${rec ? rec[0] + ',' + rec[1] : '4,3'}): ${coins}/${price} coins`;
-        return `Islas: ${count}/2 · Isla Recomendada (${rec ? rec[0] + ',' + rec[1] : '4,3'}): ${coins}/${price} monedas`;
+        const C = (Abyssea.CONST && Abyssea.CONST.CENTER_PLOT !== undefined) ? Abyssea.CONST.CENTER_PLOT : 9;
+        const fallbackPlot = `${C},${Math.max(0, C - 1)}`;
+        if (isEn) return `Islands: ${count}/2 · Recommended Plot (${rec ? rec[0] + ',' + rec[1] : fallbackPlot}): ${coins}/${price} coins`;
+        return `Islas: ${count}/2 · Isla Recomendada (${rec ? rec[0] + ',' + rec[1] : fallbackPlot}): ${coins}/${price} monedas`;
       }
     },
     {
@@ -236,7 +238,7 @@
       hint_en: 'Earn experience to gain Skill Points and unlock new spells and trades.',
       icon: 'assets/icons/spellbook.png',
       check: (game, state) => {
-        const ui = Balaclava.UI;
+        const ui = Abyssea.UI;
         const isSkillsOpen = ui && ui.activeModal === 'skills';
         if (isSkillsOpen) state.openedSkills = true;
 
@@ -244,7 +246,7 @@
         return hasSkills || !!state.openedSkills;
       },
       getProgress: (game, state) => {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const count = Array.isArray(game.unlockedSkills) ? game.unlockedSkills.length : 0;
         if (count > 0) return isEn ? `Skills learned: ${count} ✓` : `Habilidades aprendidas: ${count} ✓`;
         if (state.openedSkills) return isEn ? 'Hold a star to learn a skill' : 'Mantén pulsada una estrella para aprenderla';
@@ -270,7 +272,7 @@
 
     getFormattedDesc(def, ui) {
       if (!def) return '';
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
       const rawDesc = (isEn && def.desc_en) ? def.desc_en : def.desc;
       const getLbl = (actionId, fallback) => {
         if (ui && typeof ui.getKeyLabel === 'function') {
@@ -302,8 +304,9 @@
     }
 
     getRecommendedFirstPlot(game) {
-      if (!game || !game.world || typeof game.world.isPlotUnlocked !== 'function') return [4, 3];
-      const gridPlots = (Balaclava.CONST && Balaclava.CONST.GRID_PLOTS) || 10;
+      const C = (Abyssea.CONST && Abyssea.CONST.CENTER_PLOT !== undefined) ? Abyssea.CONST.CENTER_PLOT : 9;
+      if (!game || !game.world || typeof game.world.isPlotUnlocked !== 'function') return [C, Math.max(0, C - 1)];
+      const gridPlots = (Abyssea.CONST && Abyssea.CONST.GRID_PLOTS) || 19;
       const candidates = [];
       for (let gy = 0; gy < gridPlots; gy++) {
         for (let gx = 0; gx < gridPlots; gx++) {
@@ -317,12 +320,12 @@
           const price = (game.economy && typeof game.economy.getPlotPrice === 'function')
             ? game.economy.getPlotPrice(game, gx, gy)
             : 40;
-          const distCenter = Math.abs(gx - 4) + Math.abs(gy - 4);
+          const distCenter = Math.abs(gx - C) + Math.abs(gy - C);
           const isStarterBiome = biomeId === 'pradera' ? 0 : 1;
           candidates.push({ gx, gy, price, distCenter, isStarterBiome });
         }
       }
-      if (!candidates.length) return [4, 3];
+      if (!candidates.length) return [C, Math.max(0, C - 1)];
       candidates.sort((a, b) => {
         if (a.isStarterBiome !== b.isStarterBiome) return a.isStarterBiome - b.isStarterBiome;
         if (a.price !== b.price) return a.price - b.price;
@@ -377,9 +380,9 @@
     }
 
     advance(game) {
-      if (Balaclava.Audio) {
-        Balaclava.Audio.play('levelup');
-        Balaclava.Audio.tone(523.25, 783.99, 0.22, 'triangle', 0.28);
+      if (Abyssea.Audio) {
+        Abyssea.Audio.play('levelup');
+        Abyssea.Audio.tone(523.25, 783.99, 0.22, 'triangle', 0.28);
       }
 
       this.step++;
@@ -391,7 +394,7 @@
       } else {
         const nextDef = this.getCurrentStepDef();
         if (nextDef && game.toast) {
-          const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+          const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
           const nTitle = (isEn && nextDef.title_en) ? nextDef.title_en : nextDef.title;
           const msg = isEn ? `Step complete! Next: ${nTitle}` : `¡Paso completado! Siguiente: ${nTitle}`;
           game.toast(msg, 'success');
@@ -406,7 +409,7 @@
         game.addCoins(60);
         game.gainXp(120);
         if (game.toast) {
-          const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+          const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
           const msg = isEn
             ? 'TUTORIAL COMPLETED! +60 Coins and +120 XP. The archipelago is yours!'
             : '¡TUTORIAL COMPLETADO! +60 Monedas y +120 XP. ¡El archipiélago es tuyo!';
@@ -422,7 +425,7 @@
       this.skipped = true;
       this.done = true;
       if (game) {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const msg = isEn
           ? 'Tutorial skipped. You can reactivate it from Settings if needed.'
           : 'Tutorial omitido. Puedes reactivarlo desde Ajustes si lo necesitas.';
@@ -439,7 +442,7 @@
       this.stepState = {};
       this.minimized = false;
       if (game) {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const msg = isEn ? 'Tutorial reset.' : 'Tutorial reiniciado.';
         if (game.toast) game.toast(msg, 'info');
         game.uiDirty = true;
@@ -447,6 +450,6 @@
     }
   }
 
-  Balaclava.TUTORIAL_STEPS = TUTORIAL_STEPS;
-  Balaclava.TutorialSystem = TutorialSystem;
+  Abyssea.TUTORIAL_STEPS = TUTORIAL_STEPS;
+  Abyssea.TutorialSystem = TutorialSystem;
 })();

@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { TILE_SIZE } = Balaclava.CONST;
-  const { randInt, pick, clamp } = Balaclava.Utils;
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { TILE_SIZE } = Abyssea.CONST;
+  const { randInt, pick, clamp } = Abyssea.Utils;
 
   const CROPS = {
     trigo: {
@@ -69,12 +69,12 @@
       if (game.getBuildingAtTile(tx, ty)) return false;
       game.world.tiles[ty][tx] = 2; // tilled soil
       game.stats.tilesTilled = (game.stats.tilesTilled || 0) + 1;
-      Balaclava.Audio.play('dig');
+      Abyssea.Audio.play('dig');
       game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, '#8d6e63', 7);
       // Occasional earthy find when tilling virgin soil
       if (Math.random() < 0.14) {
         const find = Math.random() < 0.65 ? 'cebo_gusano' : 'semillas_papa';
-        if (Balaclava.ITEMS[find]) {
+        if (Abyssea.ITEMS[find]) {
           game.spawnDrop((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, find, 1);
         }
       }
@@ -82,7 +82,7 @@
     }
 
     tillArea(game, tx, ty, tierId = 'basica') {
-      const idx = (Balaclava.TOOL_TIERS || []).indexOf(tierId);
+      const idx = (Abyssea.TOOL_TIERS || []).indexOf(tierId);
       const offsets = idx >= 4
         ? [[-1,-1],[0,-1],[1,-1],[-1,0],[0,0],[1,0],[-1,1],[0,1],[1,1]]
         : idx >= 3
@@ -105,7 +105,7 @@
     }
 
     plantSeed(game, tx, ty, seedItemId) {
-      const item = Balaclava.ITEMS[seedItemId];
+      const item = Abyssea.ITEMS[seedItemId];
       if (!item || !item.plantCrop) return false;
       if ((game.inventory[seedItemId] || 0) < 1) return false;
       if (!game.world.isTileUnlocked(tx, ty)) return false;
@@ -118,13 +118,13 @@
         const now = performance.now();
         if (now - this.lastUntilledWarnAt > 900) {
           this.lastUntilledWarnAt = now;
-          const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+          const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
           const msg = !game.toolTiers.azada
             ? T('farm.needHoeCraft')
             : T('farm.needHoeUse');
           game.addFloatingText((tx + 0.5) * TILE_SIZE, ty * TILE_SIZE, msg, '#ffcc80');
           game.toast(msg, 'warn');
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
         }
         return false;
       }
@@ -144,15 +144,15 @@
         yieldBonus: preFert ? (preFert.yieldBonus || 0) : 0,
         qualityBonus: preFert ? (preFert.qualityBonus || 0) : 0
       });
-      Balaclava.Audio.play('pickup');
+      Abyssea.Audio.play('pickup');
       if (game.triggerPlayerAction) game.triggerPlayerAction('hana_planting', 0.28, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
       game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, '#a5d6a7', 5);
-      game.addFloatingText((tx + 0.5) * TILE_SIZE, ty * TILE_SIZE, Balaclava.I18n ? Balaclava.I18n.t('farm.planted') : 'Plantado', '#a5d6a7');
+      game.addFloatingText((tx + 0.5) * TILE_SIZE, ty * TILE_SIZE, Abyssea.I18n ? Abyssea.I18n.t('farm.planted') : 'Plantado', '#a5d6a7');
       return true;
     }
 
     fertilizeTile(game, tx, ty, preferredId = null) {
-      const T = (k) => (Balaclava.I18n ? Balaclava.I18n.t(k) : k);
+      const T = (k) => (Abyssea.I18n ? Abyssea.I18n.t(k) : k);
       const FERTILIZER_EFFECTS = {
         compost_magico: { boost: 0.92, yieldBonus: 3, qualityBonus: 0.55, color: '#ce93d8', label: T('farm.fertMagic') },
         abono_dorado:   { boost: 0.70, yieldBonus: 2, qualityBonus: 0.35, color: '#ffd54f', label: T('farm.fertGold') },
@@ -178,7 +178,7 @@
         crop.yieldBonus = Math.max(crop.yieldBonus || 0, eff.yieldBonus);
         crop.qualityBonus = Math.max(crop.qualityBonus || 0, eff.qualityBonus);
         crop.stage = crop.progress >= 1 ? 3 : crop.progress >= 0.65 ? 2 : crop.progress >= 0.3 ? 1 : 0;
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         if (game.triggerPlayerAction) game.triggerPlayerAction('hana_planting', 0.28, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
         game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, eff.color, 12);
         game.addFloatingText((tx + 0.5) * TILE_SIZE, ty * TILE_SIZE, eff.label, eff.color);
@@ -191,7 +191,7 @@
       if (game.world.fertilizedTiles[key] && game.world.fertilizedTiles[key].id === fertId) return false;
       game.removeItem(fertId, 1);
       game.world.fertilizedTiles[key] = { id: fertId, boost: eff.boost, yieldBonus: eff.yieldBonus, qualityBonus: eff.qualityBonus };
-      Balaclava.Audio.play('cast');
+      Abyssea.Audio.play('cast');
       if (game.triggerPlayerAction) game.triggerPlayerAction('hana_planting', 0.28, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
       game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, eff.color, 10);
       game.addFloatingText((tx + 0.5) * TILE_SIZE, ty * TILE_SIZE, eff.label, eff.color);
@@ -202,7 +202,7 @@
       const crop = game.world.crops.find(c => c.tx === tx && c.ty === ty);
       if (!crop || crop.watered) return false;
       crop.watered = true;
-      Balaclava.Audio.play('cast');
+      Abyssea.Audio.play('cast');
       if (game.triggerPlayerAction) game.triggerPlayerAction('hana_watering', 0.36, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
       game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, '#4fc3f7', 8);
       return true;
@@ -232,7 +232,7 @@
       }
       game.gainXp(def.xp);
       game.stats.cropsHarvested++;
-      Balaclava.Audio.play('pickup');
+      Abyssea.Audio.play('pickup');
       if (game.triggerPlayerAction) game.triggerPlayerAction('hana_pick_up', 0.26, (tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE);
       game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, def.color, 10);
       return true;
@@ -242,7 +242,7 @@
       const mills = game.buildings.filter(b => b.type === 'molino');
       const plantations = game.buildings.filter(b => b.type === 'plantacion');
       const irrigators = game.buildings.filter(b => {
-        const def = Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS[b.type];
         return def && (def.cropBoost || def.autoWaterRadius);
       });
 
@@ -271,11 +271,11 @@
           }
         }
         for (const ir of irrigators) {
-          const defB = Balaclava.BUILDINGS[ir.type];
+          const defB = Abyssea.BUILDINGS[ir.type];
           const r = (defB.autoWaterRadius || 220) * (1 + (ir.level - 1) * 0.2);
           const bx = (ir.tx + defB.size * 0.5) * TILE_SIZE;
           const by = (ir.ty + defB.size * 0.5) * TILE_SIZE;
-          if (Balaclava.Utils.dist(bx, by, cx, cy) <= r) {
+          if (Abyssea.Utils.dist(bx, by, cx, cy) <= r) {
             if (defB.autoWaterRadius) c.watered = true;
             if (defB.cropBoost) speedMult += defB.cropBoost;
           }
@@ -291,54 +291,84 @@
       const baitMult = baitId === 'cebo_arcano' ? 3.2
         : baitId === 'cebo_volcanico' ? 2.6
         : baitId === 'cebo_dorado' ? 2.1
-        : baitId === 'cebo_gusano' ? 1.35 : 1.0;
+        : baitId === 'cebo_gusano' ? 1.35
+        : baitId === 'cebo_lombriz' ? 1.22 : 1.0;
       const rareScore = clamp((roll - (luck * 0.18 + (baitMult - 1) * 0.22)), 0, 1);
 
-      if (rareScore < 0.015) return { id: 'pez_legendario_kraken', diff: 0.95, xp: 120 };
-      if (rareScore < 0.035) return { id: 'cofre_hundido', diff: 0.84, xp: 55 };
-      if (rareScore < 0.065) return { id: 'perla', diff: 0.78, xp: 48 };
-      if (rareScore < 0.10) return { id: 'gema_marina', diff: 0.76, xp: 44 };
-      if (rareScore < 0.14) return { id: 'cangrejo_dorado', diff: 0.70, xp: 40 };
-      if (rareScore < 0.18) return { id: 'mapa_tesoro_item', diff: 0.68, xp: 38 };
-      if (rareScore < 0.22) return { id: 'pulpo', diff: 0.72, xp: 38 };
-      if (rareScore < 0.27) return { id: 'carpa_dorada', diff: 0.66, xp: 34 };
+      if (rareScore < 0.008) return { id: 'raya_singularidad', diff: 0.96, xp: 165 };
+      if (rareScore < 0.016) return { id: 'pez_legendario_kraken', diff: 0.95, xp: 120 };
+      if (rareScore < 0.026) return { id: 'leviatan_esmeralda', diff: 0.92, xp: 115 };
+      if (rareScore < 0.036) return { id: 'celacanto_ancestral', diff: 0.88, xp: 100 };
+      if (rareScore < 0.048) return { id: 'koi_solar_mitico', diff: 0.86, xp: 95 };
+      if (rareScore < 0.064) return { id: 'tiburon_cristal', diff: 0.78, xp: 75 };
+      if (rareScore < 0.080) return { id: 'mantarraya_celestial', diff: 0.75, xp: 70 };
+      if (rareScore < 0.095) return { id: 'cofre_hundido', diff: 0.84, xp: 55 };
+      if (rareScore < 0.115) return { id: 'perla', diff: 0.78, xp: 48 };
+      if (rareScore < 0.14) return { id: 'gema_marina', diff: 0.76, xp: 44 };
+      if (rareScore < 0.17) return { id: 'cangrejo_dorado', diff: 0.70, xp: 40 };
+      if (rareScore < 0.20) return { id: 'mapa_tesoro_item', diff: 0.68, xp: 38 };
+      if (rareScore < 0.24) return { id: 'pulpo', diff: 0.72, xp: 38 };
+      if (rareScore < 0.28) return { id: 'carpa_dorada', diff: 0.66, xp: 34 };
       if (rareScore < 0.32) return { id: 'pez_dorado', diff: 0.64, xp: 30 };
 
-      if (biome === 'tierras_volcanicas' && (tierIdx >= 3 || Math.random() < 0.55 || baitId === 'cebo_volcanico')) {
+      if ((biome === 'tierras_volcanicas' || biome === 'caldera_ceniza') && (tierIdx >= 3 || Math.random() < 0.62 || baitId === 'cebo_volcanico')) {
         return pick([
-          { id: 'pez_fenix_magma', diff: 0.82, xp: 50 },
-          { id: 'pez_lava', diff: 0.66, xp: 30 },
+          { id: 'pez_fenix_magma', diff: 0.82, xp: 52 },
+          { id: 'pez_lava', diff: 0.66, xp: 32 },
           { id: 'anguila', diff: 0.60, xp: 26 },
           { id: 'pez_globo', diff: 0.58, xp: 24 }
         ]);
       }
-      if (biome === 'bosque_oscuro') {
+      if (biome === 'archipielago_coral') {
         return pick([
-          { id: 'anguila_sombras', diff: 0.74, xp: 42 },
-          { id: 'pez_abismal', diff: 0.56, xp: 26 },
-          { id: 'bagre', diff: 0.44, xp: 20 },
-          { id: 'anguila', diff: 0.52, xp: 22 },
-          { id: 'medusa', diff: 0.48, xp: 20 },
-          { id: 'algas', diff: 0.20, xp: 9 }
+          { id: 'mantarraya_celestial', diff: 0.72, xp: 58 },
+          { id: 'pez_angel', diff: 0.46, xp: 24 },
+          { id: 'pez_payaso', diff: 0.40, xp: 20 },
+          { id: 'pez_cirujano', diff: 0.44, xp: 22 },
+          { id: 'pulpo', diff: 0.62, xp: 34 },
+          { id: 'perla', diff: 0.70, xp: 42 },
+          { id: 'concha_marina', diff: 0.34, xp: 18 }
         ]);
       }
-      if (biome === 'montanas_heladas') {
+      if (biome === 'cavernas_cristal' || biome === 'glaciar_profundo' || biome === 'montanas_heladas') {
         return pick([
-          { id: 'esturion_glacial', diff: 0.72, xp: 40 },
-          { id: 'pez_helado', diff: 0.52, xp: 24 },
+          { id: 'tiburon_cristal', diff: 0.76, xp: 64 },
+          { id: 'esturion_glacial', diff: 0.72, xp: 42 },
+          { id: 'pez_helado', diff: 0.52, xp: 25 },
           { id: 'trucha_arcoiris', diff: 0.44, xp: 20 },
-          { id: 'medusa', diff: 0.50, xp: 20 },
+          { id: 'medusa', diff: 0.50, xp: 22 },
           { id: 'pez_azul', diff: 0.40, xp: 16 }
         ]);
       }
-      if (biome === 'desierto') {
+      if (biome === 'selva_esmeralda' || biome === 'cienaga_putrida') {
         return pick([
+          { id: 'leviatan_esmeralda', diff: 0.86, xp: 88 },
+          { id: 'bagre', diff: 0.46, xp: 24 },
+          { id: 'anguila', diff: 0.54, xp: 26 },
+          { id: 'carpa_dorada', diff: 0.62, xp: 34 },
+          { id: 'pez_globo', diff: 0.54, xp: 24 },
+          { id: 'algas', diff: 0.22, xp: 10 }
+        ]);
+      }
+      if (biome === 'bosque_oscuro' || biome === 'necropolis_osea' || biome === 'tierras_malditas') {
+        return pick([
+          { id: 'celacanto_ancestral', diff: 0.84, xp: 85 },
+          { id: 'anguila_sombras', diff: 0.74, xp: 46 },
+          { id: 'pez_abismal', diff: 0.58, xp: 30 },
+          { id: 'bagre', diff: 0.44, xp: 20 },
+          { id: 'medusa', diff: 0.48, xp: 22 },
+          { id: 'algas', diff: 0.20, xp: 9 }
+        ]);
+      }
+      if (biome === 'desierto' || biome === 'dinastia_arena') {
+        return pick([
+          { id: 'koi_solar_mitico', diff: 0.82, xp: 80 },
+          { id: 'pez_dorado_solar', diff: 0.65, xp: 38 },
           { id: 'pez_cirujano', diff: 0.44, xp: 20 },
           { id: 'pez_payaso', diff: 0.42, xp: 18 },
-          { id: 'cangrejo_dungeness', diff: 0.38, xp: 17 },
+          { id: 'cangrejo_dorado', diff: 0.64, xp: 36 },
           { id: 'caracola_antigua', diff: 0.58, xp: 24 },
-          { id: 'concha_marina', diff: 0.34, xp: 18 },
-          { id: 'algas', diff: 0.18, xp: 8 }
+          { id: 'concha_marina', diff: 0.34, xp: 18 }
         ]);
       }
       return pick([
@@ -380,23 +410,43 @@
         }
       }
 
-      const tier = Balaclava.getToolStats('cana', game.toolTiers.cana);
+      const tier = Abyssea.getToolStats('cana', game.toolTiers.cana);
       const tierIdx = tier ? tier.tierIndex : 0;
       const lighthouseLuck = game.buildings.some(b => {
-        const d = Balaclava.BUILDINGS[b.type];
-        return d && d.auraLuck && Balaclava.Utils.dist((b.tx + 0.5) * TILE_SIZE, (b.ty + 0.5) * TILE_SIZE, wx, wy) <= 320;
+        const d = Abyssea.BUILDINGS[b.type];
+        return d && d.auraLuck && Abyssea.Utils.dist((b.tx + 0.5) * TILE_SIZE, (b.ty + 0.5) * TILE_SIZE, wx, wy) <= 320;
       }) ? 0.16 : 0;
       const luck = (game.mods.luckBonus || 0) + (tier ? tier.rareBonus : 0) + lighthouseLuck;
 
       let baitId = null;
-      if ((game.inventory.cebo_dorado || 0) > 0) baitId = 'cebo_dorado';
+      if ((game.inventory.cebo_arcano || 0) > 0) baitId = 'cebo_arcano';
+      else if ((game.inventory.cebo_volcanico || 0) > 0) baitId = 'cebo_volcanico';
+      else if ((game.inventory.cebo_dorado || 0) > 0) baitId = 'cebo_dorado';
       else if ((game.inventory.cebo_gusano || 0) > 0) baitId = 'cebo_gusano';
+      else if ((game.inventory.cebo_lombriz || 0) > 0) baitId = 'cebo_lombriz';
 
-      const baitSpeed = baitId === 'cebo_dorado' ? 0.65 : baitId === 'cebo_gusano' ? 0.80 : 1.0;
-      const baseWait = (2.6 - Math.min(1.1, tierIdx * 0.2)) * baitSpeed;
-      const waitTime = Math.max(1.2, baseWait + Math.random() * 1.1);
+      const baitSpeed = baitId === 'cebo_arcano' ? 0.52
+        : baitId === 'cebo_volcanico' ? 0.58
+        : baitId === 'cebo_dorado' ? 0.65
+        : baitId === 'cebo_gusano' ? 0.80
+        : baitId === 'cebo_lombriz' ? 0.86 : 1.0;
+      const lunarFishBonus = (typeof game.getLunarFishingLuckBonus === 'function') ? game.getLunarFishingLuckBonus() : 0;
+      const nearWhirlpool = (typeof game.getWhirlpoolNear === 'function') ? game.getWhirlpoolNear(wx, wy, 130) : null;
+      const effectiveLuck = luck + lunarFishBonus + (nearWhirlpool ? 0.85 : 0);
+      const baseWait = (2.6 - Math.min(1.1, tierIdx * 0.2)) * baitSpeed * (nearWhirlpool ? 0.72 : 1.0);
+      const waitTime = Math.max(1.0, baseWait + Math.random() * 1.1);
       const biome = game.world.getBiomeAtPixel(wx, wy);
-      const targetFish = this.rollTargetFish(biome, luck, baitId, tierIdx);
+      const targetFish = nearWhirlpool && Math.random() < 0.72
+        ? pick([
+            { id: 'mantarraya_celestial', diff: 0.74, xp: 75 },
+            { id: 'tiburon_cristal', diff: 0.78, xp: 80 },
+            { id: 'celacanto_ancestral', diff: 0.84, xp: 105 },
+            { id: 'koi_solar_mitico', diff: 0.84, xp: 100 },
+            { id: 'leviatan_esmeralda', diff: 0.88, xp: 120 },
+            { id: 'raya_singularidad', diff: 0.90, xp: 155 },
+            { id: 'cofre_hundido', diff: 0.78, xp: 70 }
+          ])
+        : this.rollTargetFish(biome, effectiveLuck, baitId, tierIdx);
       const diff = targetFish ? targetFish.diff : 0.35;
       // Rarity/difficulty sharply narrows the green skill zone
       const zoneWidth = clamp(0.32 - diff * 0.25 + tierIdx * 0.008 + (game.mods.fishWindow || 0) * 0.5, 0.075, 0.34);
@@ -472,7 +522,7 @@
       if (game.updatePlayerDirectionFromVector) {
         game.updatePlayerDirectionFromVector(wx - game.player.x, wy - game.player.y);
       }
-      Balaclava.Audio.play('cast');
+      Abyssea.Audio.play('cast');
     }
 
     beginReeling(game) {
@@ -488,10 +538,10 @@
       f.hitsDone = 0;
       f.mistakes = 0;
       f.progress = 0;
-      Balaclava.Audio.play('bite');
+      Abyssea.Audio.play('bite');
       if (game.spawnParticles) game.spawnParticles(f.wx, f.wy, '#80deea', 10);
       if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.35, 0.28, 0.9);
-      game.addFloatingText(f.wx, f.wy - 28, Balaclava.I18n ? Balaclava.I18n.t('fish.hooked') : '¡Enganchado! Pulsa [E] o Click en lo verde', '#80deea');
+      game.addFloatingText(f.wx, f.wy - 28, Abyssea.I18n ? Abyssea.I18n.t('fish.hooked') : '¡Enganchado! Pulsa [E] o Click en lo verde', '#80deea');
     }
 
     strikeFishingZone(game) {
@@ -502,7 +552,7 @@
         f.hitsDone++;
         f.progress = clamp(f.hitsDone / f.hitsReq, 0, 1);
         f.hitFlash = 0.25;
-        Balaclava.Audio.play('bite');
+        Abyssea.Audio.play('bite');
         game.spawnParticles(f.wx, f.wy, '#66bb6a', 10);
         if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.30, 0.24, 0.85);
         if (f.hitsDone >= f.hitsReq) {
@@ -512,18 +562,18 @@
         // Relocate green target zone cleanly for multi-hit rarer fish
         f.zoneStart = clamp(0.10 + Math.random() * (0.80 - f.zoneWidth), 0.08, 0.90 - f.zoneWidth);
         f.cursorSpeed *= 1.08;
-        game.addFloatingText(f.wx, f.wy - 24, Balaclava.I18n ? Balaclava.I18n.t('fish.pull', { cur: f.hitsDone, req: f.hitsReq }) : `¡Tirón ${f.hitsDone}/${f.hitsReq}!`, '#a5e6a1');
+        game.addFloatingText(f.wx, f.wy - 24, Abyssea.I18n ? Abyssea.I18n.t('fish.pull', { cur: f.hitsDone, req: f.hitsReq }) : `¡Tirón ${f.hitsDone}/${f.hitsReq}!`, '#a5e6a1');
         return true;
       }
       f.mistakes++;
       f.missFlash = 0.28;
-      Balaclava.Audio.play('error');
-      game.addFloatingText(f.wx, f.wy - 24, Balaclava.I18n ? Balaclava.I18n.t('fish.miss', { cur: f.mistakes, max: f.maxMistakes }) : `¡Falló! (${f.mistakes}/${f.maxMistakes})`, '#ef9a9a');
+      Abyssea.Audio.play('error');
+      game.addFloatingText(f.wx, f.wy - 24, Abyssea.I18n ? Abyssea.I18n.t('fish.miss', { cur: f.mistakes, max: f.maxMistakes }) : `¡Falló! (${f.mistakes}/${f.maxMistakes})`, '#ef9a9a');
       if (f.mistakes >= f.maxMistakes) {
         if (game.spawnParticles) game.spawnParticles(f.wx, f.wy, '#ef5350', 8);
         if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.36, 0.30, 0.9);
         this.fishing = null;
-        game.toast(Balaclava.I18n ? Balaclava.I18n.t('fish.lineSnapped') : 'El pez rompió el sedal tras fallar el momento.', 'warn');
+        game.toast(Abyssea.I18n ? Abyssea.I18n.t('fish.lineSnapped') : 'El pez rompió el sedal tras fallar el momento.', 'warn');
       }
       return false;
     }
@@ -533,7 +583,7 @@
       if (!f) return;
 
       f.rippleT += dt;
-      if (Balaclava.Utils.dist(game.player.x, game.player.y, f.wx, f.wy) > 240) {
+      if (Abyssea.Utils.dist(game.player.x, game.player.y, f.wx, f.wy) > 240) {
         this.fishing = null;
         return;
       }
@@ -609,11 +659,11 @@
         if (f.timer <= 0) {
           f.phase = 'bite';
           f.timer = 2.0;
-          Balaclava.Audio.play('bite');
+          Abyssea.Audio.play('bite');
           game.spawnParticles(f.wx, f.wy, '#81d4fa', 12);
           game.spawnParticles(f.wx, f.wy, '#ffd54f', 8);
           if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.38, 0.32, 0.95);
-          game.addFloatingText(f.wx, f.wy - 22, Balaclava.I18n ? Balaclava.I18n.t('fish.bite') : '¡PICA! ¡Click o Espacio!', '#ffd54f');
+          game.addFloatingText(f.wx, f.wy - 22, Abyssea.I18n ? Abyssea.I18n.t('fish.bite') : '¡PICA! ¡Click o Espacio!', '#ffd54f');
         }
         return;
       }
@@ -624,7 +674,7 @@
           if (game.spawnParticles) game.spawnParticles(f.wx, f.wy, '#81d4fa', 10);
           if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.38, 0.30, 0.9);
           this.fishing = null;
-          game.addFloatingText(game.player.x, game.player.y - 24, Balaclava.I18n ? Balaclava.I18n.t('fish.escaped') : 'Escapó el pez...', '#ef9a9a');
+          game.addFloatingText(game.player.x, game.player.y - 24, Abyssea.I18n ? Abyssea.I18n.t('fish.escaped') : 'Escapó el pez...', '#ef9a9a');
         }
         return;
       }
@@ -645,8 +695,8 @@
           if (game.spawnParticles) game.spawnParticles(f.wx, f.wy, '#81d4fa', 10);
           if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.38, 0.30, 0.9);
           this.fishing = null;
-          Balaclava.Audio.play('error');
-          game.addFloatingText(game.player.x, game.player.y - 26, Balaclava.I18n ? Balaclava.I18n.t('fish.slipped') : '¡Se soltó del anzuelo!', '#ef9a9a');
+          Abyssea.Audio.play('error');
+          game.addFloatingText(game.player.x, game.player.y - 26, Abyssea.I18n ? Abyssea.I18n.t('fish.slipped') : '¡Se soltó del anzuelo!', '#ef9a9a');
         }
       }
     }
@@ -662,17 +712,17 @@
       }
 
       const fishObj = f.targetFish || { id: 'pez_comun', xp: 14 };
-      const fishId = Balaclava.ITEMS[fishObj.id] ? fishObj.id : 'pez_comun';
+      const fishId = Abyssea.ITEMS[fishObj.id] ? fishObj.id : 'pez_comun';
       game.addItem(fishId, 1);
       game.stats.fishCaught++;
       game.gainXp(fishObj.xp || 16);
-      Balaclava.Audio.play('catch');
+      Abyssea.Audio.play('catch');
       if (game.triggerPlayerAction) game.triggerPlayerAction('hana_fish_catch', 0.55, f.wx, f.wy);
       if (game.spawnFishCatchLeap) {
         game.spawnFishCatchLeap(f.wx, f.wy, game.player.x, game.player.y - 14, fishId);
       }
       game.spawnParticles(f.wx, f.wy, '#ffd54f', 14);
-      const itemName = (Balaclava.ITEMS[fishId] && Balaclava.ITEMS[fishId].name) || 'Pez';
+      const itemName = (Abyssea.ITEMS[fishId] && Abyssea.ITEMS[fishId].name) || 'Pez';
       game.addFloatingText(game.player.x, game.player.y - 34, `¡Atrapado: ${itemName}!`, '#ffe082');
 
       // Chance for sunken treasure!
@@ -696,6 +746,6 @@
     }
   }
 
-  Balaclava.CROPS = CROPS;
-  Balaclava.FarmingAndFishing = FarmingAndFishing;
+  Abyssea.CROPS = CROPS;
+  Abyssea.FarmingAndFishing = FarmingAndFishing;
 })();

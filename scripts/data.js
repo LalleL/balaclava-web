@@ -1,5 +1,5 @@
 /**
- * Datos reales de Balaclava Beta 1.3.3 (extraídos del código del juego)
+ * Datos reales de Abyssea Beta 2.0.0 RC2 (extraídos del código del juego)
  * Soporta Español (es) e Inglés (en) sin mezclar idiomas.
  */
 window.BALACLAVA_DATA = {
@@ -8,10 +8,10 @@ window.BALACLAVA_DATA = {
     { key: 'biomes', num: '14', icon: 'assets/ui/rpg_compass.png', labelEs: 'Biomas', labelEn: 'Biomes', accent: '#81c784' },
     { key: 'dungeons', num: '75', icon: 'assets/icons_extra/llave_maestra.png', labelEs: 'Mazmorras', labelEn: 'Dungeons', accent: '#ff1744' },
     { key: 'relics', num: '92', icon: 'assets/sprites_v13/icons/relic_v13_52.png', labelEs: 'Reliquias', labelEn: 'Relics', accent: '#ffd54f' },
-    { key: 'items', num: '681', icon: 'assets/icons/backpack.png', labelEs: 'Objetos Únicos', labelEn: 'Unique Items', accent: '#ce93d8' },
+    { key: 'items', num: '710+', icon: 'assets/icons/backpack.png', labelEs: 'Objetos Únicos', labelEn: 'Unique Items', accent: '#ce93d8' },
     { key: 'skills', num: '345', icon: 'assets/icons/spellbook.png', labelEs: 'Nodos Astrales', labelEn: 'Astral Nodes', accent: '#64b5f6' },
-    { key: 'buildings', num: '93', icon: 'assets/sprites_extra/bld_omega_nexo.png', labelEs: 'Construcciones', labelEn: 'Buildings', accent: '#ffd54f' },
-    { key: 'recipes', num: '423', icon: 'assets/icons/anvil.png', labelEs: 'Recetas', labelEn: 'Recipes', accent: '#81c784' }
+    { key: 'buildings', num: '97', icon: 'assets/sprites_extra/bld_omega_nexo.png', labelEs: 'Construcciones', labelEn: 'Buildings', accent: '#ffd54f' },
+    { key: 'recipes', num: '441', icon: 'assets/icons/anvil.png', labelEs: 'Recetas', labelEn: 'Recipes', accent: '#81c784' }
   ],
 
   zones: [
@@ -730,6 +730,139 @@ window.BALACLAVA_DATA = {
   ],
 
   patchNotes: {
+    '2.0.0-rc2': {
+      id: '2.0.0-rc2',
+      label: 'Beta 2.0.0 RC2',
+      pill: 'BETA 2.0.0 RC2',
+      subtitleEs: 'Rework Visual HD Abyssea, Mascotas, Eventos, Ciclo Lunar y Re-Auditoría Total',
+      subtitleEn: 'Abyssea HD Texture Overhaul, Pets, Dynamic Events, Lunar Cycle & Full Re-Audit',
+      heroTitleEs: 'ABYSSEA — Notas de la Versión Beta 2.0.0 RC2',
+      heroTitleEn: 'ABYSSEA — Beta 2.0.0 RC2 Release Notes',
+      heroSubEs: 'Gran actualización integral con rework completo de texturas HD vectorizadas, rebrand oficial a Abyssea, mascotas activas, eventos dinámicos, ciclo lunar, encuentros marinos, hitboxes precisas, mapa mundial rediseñado y re-auditoría funcional completa.',
+      heroSubEn: 'Major overhaul introducing full vectorized HD textures, official Abyssea rebrand, active companion pets, dynamic events, 5-phase lunar cycle, marine encounters, zero-clipping hitboxes, redesigned World Map markers, and a full system-wide functional re-audit.',
+      sectionsEs: [
+        {
+          badge: 'REDISEÑO VISUAL Y ABYSSEA',
+          color: '#5be3d1',
+          icon: 'assets/icons/abyssea_core.png',
+          title: 'Rebrand Oficial a Abyssea, Texturas HD, Mapa Rediseñado y Hitboxes Precisas',
+          items: [
+            'Nuevo logo degradado continuo de biomas (esmeralda costero a abismo carmesí), iconos minimalistas monocromáticos blancos en el menú principal, diorama animado dividido y Discord Rich Presence actualizado a Beta 2.0.0 RC2.',
+            'Auditoría visual 1 por 1 en entradas de mazmorras, estructuras, nodos de los 14 biomas, cultivos, props e iconos + 42 sprites HD vectorizados nuevos para contenido RC2.',
+            'Restauración de spritesheets animados originales para ovejas (idle, caminar y pastar), vacas, cerdos, conejos y patos con movimiento orgánico suavizado.',
+            'Hitboxes y colisiones totalmente recalibradas para que Hana no pueda meterse dentro de ninguna roca, árbol, estructura, NPC o pared, y bordes entre biomas suavizados sin líneas ni cortes bruscos.',
+            'Mapa del Mundo rediseñado con etiquetas de precio compactas sin solapamientos y marcadores vectoriales minimalistas nítidos.'
+          ]
+        },
+        {
+          badge: 'ARCHIPIÉLAGO VIVO',
+          color: '#ffd54f',
+          icon: 'assets/icons/moon.png',
+          title: 'Mascotas Activas, Eventos Dinámicos, Ciclo Lunar y Encuentros Marinos',
+          items: [
+            '5 Mascotas Compañeras Activas (Limo Dorado, Cangrejo Coralino, Búho Astral, Espíritu Ígneo y Pez Linterna Abisal) que siguen a Hana recogiendo botín, lanzando ataques e iluminando, más Aldeanos Especialistas en tus cabañas.',
+            'Eventos Dinámicos Interactivos: Incursiones de Isla, Pulso Nocturno Abisal, Clima por Bioma (tormentas de arena, ventiscas, ceniza carmesí, lluvia ácida) y Barco Mercader Fantasma con tienda rotativa rara.',
+            'Ciclo Lunar de 5 fases (Luna Nueva, Cuarto Creciente, Luna Llena, Luna de Sangre y Eclipse Astral) afectando magia, cultivos, pesca exótica y Esencia Lunar.',
+            'Encuentros Marinos: Remolinos Abisales de pesca rara y el Jefe Costero Leviatán con 3 tentáculos destruibles que sueltan Perlas de Leviatán.'
+          ]
+        },
+        {
+          badge: 'COMBATE Y MAZMORRAS',
+          color: '#ff5252',
+          icon: 'assets/icons/sword.png',
+          title: 'Esquiva Perfecta, 6 Afijos Roguelike, Sinergias de Sets y Rebalance',
+          items: [
+            'Ventana de Esquiva Perfecta con breve invulnerabilidad, destello slow-mo, recuperación de energía y crítico garantizado en el siguiente golpe.',
+            '6 Afijos Roguelike de Mazmorra (Suelo Volcánico, Enemigos Veloces, Lluvia de Oro, Maná Infinito, Furia Crítica y Eco Vampírico) con recompensas extra.',
+            'Sinergias completas de sets de armadura (2/4/5 piezas) y Maestría del Bestiario revelando drops y bonos permanentes por especie.',
+            'Rebalance integral del daño de enemigos y jefes en los 14 biomas y 75 mazmorras eliminando golpes letales injustos.'
+          ]
+        },
+        {
+          badge: 'BASE, ECONOMÍA Y CALIDAD DE VIDA',
+          color: '#81c784',
+          icon: 'assets/icons/chest.png',
+          title: 'Salón de Trofeos, Balizas, Cetro de Traslado, Gremio y Modo Foto',
+          items: [
+            'Salón de Trofeos (Museo) con bonos permanentes globales y Balizas de Teletransporte para viaje rápido directo desde el Mapa del Mundo.',
+            'Cetro de Traslado para mover cofres y máquinas sin perder contenido, botón "Guardar iguales" en cofres y filtros por categoría en Cofres Logísticos.',
+            'Trampas de cebo automáticas en Muelles de Pesca, crianza en Estanques, Altar de Ofrendas a la carta, Preservación de Rareza y Catalizador de Reforja para las 62 armas, y Demanda Diaria Dinámica en el Mercado.',
+            'Contratos Semanales del Gremio con auras cosméticas para Hana, guía "¿Qué hago ahora?", soporte para mando (Gamepad API), overlay de música desactivado por defecto y Modo Foto mejorado (F9/F8/P + cámara WASD + captura PNG).'
+          ]
+        },
+        {
+          badge: 'RE-AUDITORÍA FUNCIONAL',
+          color: '#b388ff',
+          icon: 'assets/icons/anvil.png',
+          title: 'Correcciones Críticas de Estabilidad y 18 Recetas Nuevas',
+          items: [
+            'Corregidos el error al llenar inventario en addItem, modificadores al equipar mochilas, entrada/escalado del Abismo Infinito, inicialización Omega y consumo real de pociones/pergaminos de buff.',
+            'Reparadas todas las recetas de alquimia, rituales y legado, habilitados los 5 cebos y tablas de pesca/taladro en los 14 biomas, y añadidas 18 recetas nuevas para dar uso real a cada material.'
+          ]
+        }
+      ],
+      sectionsEn: [
+        {
+          badge: 'VISUAL OVERHAUL & ABYSSEA',
+          color: '#5be3d1',
+          icon: 'assets/icons/abyssea_core.png',
+          title: 'Official Abyssea Rebrand, HD Textures, Redesigned Map & Precision Hitboxes',
+          items: [
+            'New smooth continuous biome-gradient Abyssea logo (emerald coast to crimson abyss), monochrome white minimalist title icons, split animated archipelago diorama, and updated Discord Rich Presence for Beta 2.0.0 RC2.',
+            '1-by-1 visual quality audit across all dungeon gates, structures, 14-biome nodes, crops, props, and icons, plus 42 brand-new vectorized HD sprites for RC2 content.',
+            'Restored authentic animated multi-frame farm animal spritesheets (Tiny Swords sheep idle/walk/graze + 3x2 animated cow, pig, rabbit, and duck) with smooth organic movement.',
+            'Fully recalibrated zero-clipping hitboxes across rocks, trees, structures, NPCs, gates, and dungeons, plus seamless feathered biome borders with zero harsh lines or drips.',
+            'Redesigned World Map with compact non-overlapping island price pills, crisp minimalist vector markers, and matching SVG legend.'
+          ]
+        },
+        {
+          badge: 'LIVING ARCHIPELAGO',
+          color: '#ffd54f',
+          icon: 'assets/icons/moon.png',
+          title: 'Active Pets, Dynamic Events, Lunar Cycle & Marine Encounters',
+          items: [
+            '5 Active Companion Pets (Golden Slime, Coral Crab, Astral Owl, Ember Spirit, Abyssal Lanternfish) with auto-loot, combat projectiles, and light passives, plus Specialist Villagers roaming your cottages.',
+            'Dynamic Interactive Events: Island Raids, Abyssal Night Pulses, Biome Weather (Sandstorms, Blizzards, Crimson Ash, Acid Rain), and the Ghost Merchant Ship with rotating rare stock.',
+            '5-Phase Lunar Cycle (New Moon, Waxing Quarter, Full Moon, Blood Moon, Astral Eclipse) impacting magic, crops, exotic fishing, and Lunar Essence drops.',
+            'Marine Encounters: Deep-Sea Whirlpools with rare fishing luck and the Coastal Leviathan Boss with 3 destructible tentacles dropping Leviathan Pearls.'
+          ]
+        },
+        {
+          badge: 'COMBAT & DUNGEONS',
+          color: '#ff5252',
+          icon: 'assets/icons/sword.png',
+          title: 'Perfect Dodge, 6 Roguelike Affixes, Set Synergies & Combat Rebalance',
+          items: [
+            'Perfect Dodge timing window granting brief invulnerability, slow-mo flash, energy recovery, and a guaranteed critical strike.',
+            '6 Roguelike Dungeon Affixes (Volcanic Floor, Swift Foes, Rain of Gold, Infinite Mana, Critical Fury, Vampiric Echo) with bonus loot.',
+            'Full Armor Set Synergies (2/4/5 pieces) and Bestiary Mastery tiers revealing enemy drop tables and species damage bonuses.',
+            'Full combat damage rebalance across all 14 biomes and 75 dungeons eliminating unfair instant one-shots.'
+          ]
+        },
+        {
+          badge: 'BASE, ECONOMY & QOL',
+          color: '#81c784',
+          icon: 'assets/icons/chest.png',
+          title: 'Trophy Hall, Beacons, Relocator Scepter, Guild Shop & Photo Mode',
+          items: [
+            'Trophy Hall Museum with permanent archipelago-wide milestones and Archipelago Teleport Beacons for instant fast travel from the World Map.',
+            'Structure Relocator Scepter to move chests & machines without losing contents, Chest Stack-All button, and Logistic Chest category filters.',
+            'Fishing Dock automated bait traps, Fish Pond breeding, Offering Altar a-la-carte buffs, Rarity Preservation & Reforge Catalysts for all 62 weapons, and Daily Dynamic Market Demand.',
+            'Weekly Guild Contracts & Token Shop with cosmetic Hana auras, "What To Do Now?" guide, Gamepad API support, music overlay off by default, and Enhanced Photo Mode (F9/F8/P + WASD camera + PNG capture).'
+          ]
+        },
+        {
+          badge: 'FULL FUNCTIONAL RE-AUDIT',
+          color: '#b388ff',
+          icon: 'assets/icons/anvil.png',
+          title: 'Critical Stability Fixes & 18 New Utility Recipes',
+          items: [
+            'Fixed full-inventory addItem crash, backpack equip modifiers, Endless Abyss entry/scaling, Omega building init, and buff potion/scroll consumption.',
+            'Fixed all broken alchemy/ritual/legacy recipes, enabled all 5 baits and 14-biome fishing/auto-drill tables, and added 18 new recipes giving every material real gameplay utility.'
+          ]
+        }
+      ]
+    },
     '1.3.3': {
       id: '1.3.3',
       label: 'Beta 1.3.3',
@@ -1230,7 +1363,7 @@ window.BALACLAVA_DATA = {
 
   i18n: {
     es: {
-      pageTitle: 'ABYSSEA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 1.3.3)',
+      pageTitle: 'ABYSSEA — RPG Pixel-Art de Exploración, Automatización y Mazmorras (Beta 2.0.0 RC2)',
       ariaBrand: 'Abyssea Inicio',
       ariaNav: 'Navegación principal',
       ariaLang: 'Cambiar idioma Español / Inglés',
@@ -1250,10 +1383,10 @@ window.BALACLAVA_DATA = {
       heroBtnDownload: 'Descargar para Windows',
       heroBtnDiscord: 'Unirse a Discord',
       heroBtnKofi: 'Apoyar en Ko-fi',
-      heroBtnPatch: 'Notas Beta 1.3.3',
+      heroBtnPatch: 'Notas Beta 2.0.0 RC2',
       heroMetaPrefix: 'Gratis para Windows',
       heroDevCredit: 'Desarrollado por LalleL (Luveey)',
-      statsTitle: 'Todo el Contenido de Beta 1.3.3',
+      statsTitle: 'Todo el Contenido de Beta 2.0.0 RC2',
       worldTag: 'MUNDO ABIERTO · 19×19 DIRECCIONAL',
       worldTitle: 'Explora las 4 Zonas y 14 Biomas',
       worldSub: 'Progresión secuencial Zona I → II → III → IV con distribución climática coherente: la nieve al Este nunca toca la lava del Oeste.',
@@ -1283,7 +1416,7 @@ window.BALACLAVA_DATA = {
       relicClickHint: 'Haz clic en cualquier ranura de la cuadrícula para ver su efecto real y origen.',
       patchTag: 'HISTORIAL OFICIAL DE VERSIONES',
       patchTitle: 'Notas de la Versión',
-      patchSub: 'Selector idéntico al menú principal del juego: consulta todas las novedades de Beta 1.3.3 o el historial de versiones anteriores.',
+      patchSub: 'Selector idéntico al menú principal del juego: consulta todas las novedades de Beta 2.0.0 RC2 o el historial de versiones anteriores.',
       downloadTag: 'DESCARGA OFICIAL PARA ESCRITORIO',
       downloadTitle: 'Descarga e Instalación',
       downloadSub: 'Construido para Windows mediante Tauri 2. Descarga directa y sencilla para escritorio.',
@@ -1307,7 +1440,7 @@ window.BALACLAVA_DATA = {
       modalPlaceholderBody: 'El enlace de descarga de esta versión aún no se ha publicado. Cuando lo añadas en site-config.js, este botón iniciará la descarga directa para Windows.'
     },
     en: {
-      pageTitle: 'ABYSSEA — Pixel Action RPG, Automation & Dungeons (Beta 1.3.3)',
+      pageTitle: 'ABYSSEA — Pixel Action RPG, Automation & Dungeons (Beta 2.0.0 RC2)',
       ariaBrand: 'Abyssea Home',
       ariaNav: 'Main navigation',
       ariaLang: 'Switch language Spanish / English',
@@ -1327,10 +1460,10 @@ window.BALACLAVA_DATA = {
       heroBtnDownload: 'Download for Windows',
       heroBtnDiscord: 'Join Discord',
       heroBtnKofi: 'Support on Ko-fi',
-      heroBtnPatch: 'Beta 1.3.3 Notes',
+      heroBtnPatch: 'Beta 2.0.0 RC2 Notes',
       heroMetaPrefix: 'Free for Windows',
       heroDevCredit: 'Developed by LalleL (Luveey)',
-      statsTitle: 'Everything Inside Beta 1.3.3',
+      statsTitle: 'Everything Inside Beta 2.0.0 RC2',
       worldTag: 'OPEN WORLD · 19×19 DIRECTIONAL',
       worldTitle: 'Explore 4 Zones & 14 Biomes',
       worldSub: 'Sequential Zone I → II → III → IV progression with coherent climate borders: Eastern ice never touches Western lava.',
@@ -1360,7 +1493,7 @@ window.BALACLAVA_DATA = {
       relicClickHint: 'Click any chest grid cell to inspect its passive bonus and origin.',
       patchTag: 'OFFICIAL RELEASE HISTORY',
       patchTitle: 'Patch Notes',
-      patchSub: 'Mirrors the in-game version switcher: review every addition in Beta 1.3.3 or browse previous version history.',
+      patchSub: 'Mirrors the in-game version switcher: review every addition in Beta 2.0.0 RC2 or browse previous version history.',
       downloadTag: 'OFFICIAL DESKTOP RELEASE',
       downloadTitle: 'Download & Installation',
       downloadSub: 'Built for Windows desktop via Tauri 2. Fast and direct desktop release.',

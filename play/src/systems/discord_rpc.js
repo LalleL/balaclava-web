@@ -1,14 +1,33 @@
-// Balaclava - Discord Rich Presence Bridge (Tauri v2 Native IPC)
+// Abyssea - Discord Rich Presence Bridge (Tauri v2 Native IPC)
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const DISCORD_INVITE_URL = 'https://discord.gg/8wrsjRSMY2';
-  const APP_VERSION_LABEL = 'Beta 1.1.1';
+  const APP_VERSION_LABEL = 'Beta 2.0.0 RC2';
   const SESSION_START_SEC = Math.floor(Date.now() / 1000);
   const MIN_PUSH_INTERVAL_MS = 1200;
   const POLL_INTERVAL_MS = 2500;
+  const TOTAL_SKILLS_FALLBACK = 345;
+  const TOTAL_ISLANDS_FALLBACK = 361;
+
+  const BIOME_NAMES_EN = {
+    pradera: 'Emerald Meadow',
+    desierto: 'Golden Desert',
+    montanas_heladas: 'Frozen Mountains',
+    bosque_oscuro: 'Dark Forest',
+    tierras_volcanicas: 'Volcanic Lands',
+    archipielago_coral: 'Coral Archipelago',
+    cavernas_cristal: 'Crystal Caverns',
+    selva_esmeralda: 'Emerald Jungle',
+    caldera_ceniza: 'Ash Caldera',
+    dinastia_arena: 'Scarlet Sand Dynasty',
+    glaciar_profundo: 'Deep Glacier',
+    cienaga_putrida: 'Putrid Mire',
+    necropolis_osea: 'Bone Necropolis',
+    tierras_malditas: 'Abyssal Cursed Lands'
+  };
 
   let initialized = false;
   let lastSignature = '';
@@ -32,8 +51,8 @@
 
   function getLang() {
     try {
-      if (Balaclava.I18n && typeof Balaclava.I18n.getLanguage === 'function') {
-        return Balaclava.I18n.getLanguage() === 'en' ? 'en' : 'es';
+      if (Abyssea.I18n && typeof Abyssea.I18n.getLanguage === 'function') {
+        return Abyssea.I18n.getLanguage() === 'en' ? 'en' : 'es';
       }
     } catch (_) {}
     return 'es';
@@ -41,7 +60,7 @@
 
   function countUnlockedIslands(world) {
     if (!world || !Array.isArray(world.plotUnlocked)) {
-      return { unlocked: 1, total: 100 };
+      return { unlocked: 1, total: TOTAL_ISLANDS_FALLBACK };
     }
     let unlocked = 0;
     let total = 0;
@@ -53,12 +72,12 @@
         if (row[gx]) unlocked++;
       }
     }
-    return { unlocked: Math.max(1, unlocked), total: total || 100 };
+    return { unlocked: Math.max(1, unlocked), total: total || TOTAL_ISLANDS_FALLBACK };
   }
 
-  function getPlayerBiomeInfo(game) {
-    const BIOMES = (Balaclava.CONST && Balaclava.CONST.BIOMES) || {};
-    const TILE_SIZE = (Balaclava.CONST && Balaclava.CONST.TILE_SIZE) || 48;
+  function getPlayerBiomeInfo(game, isEn = false) {
+    const BIOMES = (Abyssea.CONST && Abyssea.CONST.BIOMES) || {};
+    const TILE_SIZE = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48;
     const world = game && game.world;
     const player = game && game.player;
     let biomeId = 'pradera';
@@ -74,9 +93,17 @@
     }
 
     const def = BIOMES[biomeId];
+    let name = (def && def.name) || biomeId;
+    if (isEn) {
+      if (Abyssea.I18n && typeof Abyssea.I18n.biomeName === 'function') {
+        name = Abyssea.I18n.biomeName(biomeId) || BIOME_NAMES_EN[biomeId] || name;
+      } else {
+        name = BIOME_NAMES_EN[biomeId] || name;
+      }
+    }
     return {
       id: biomeId,
-      name: (def && def.name) || biomeId
+      name
     };
   }
 
@@ -90,8 +117,8 @@
   }
 
   function buildPayload() {
-    const game = Balaclava.game;
-    const ui = Balaclava.UI;
+    const game = Abyssea.game;
+    const ui = Abyssea.UI;
     const lang = getLang();
     const isEn = lang === 'en';
     const activeModal = ui ? ui.activeModal : null;
@@ -101,8 +128,8 @@
         details: isEn ? 'In the Main Menu' : 'En el menú principal',
         state: isEn ? `Preparing an expedition · ${APP_VERSION_LABEL}` : `Preparando expedición · ${APP_VERSION_LABEL}`,
         startTimestamp: SESSION_START_SEC,
-        largeImage: 'balaclava_logo',
-        largeText: `Balaclava · ${APP_VERSION_LABEL}`,
+        largeImage: 'abyssea_logo',
+        largeText: `Abyssea · ${APP_VERSION_LABEL}`,
         smallImage: null,
         smallText: null,
         buttons: buildButtons(lang),
@@ -122,8 +149,8 @@
           ? `Respawning at camp · Lv.${lvl}`
           : `Reapareciendo en campamento · Nv.${lvl}`,
         startTimestamp: SESSION_START_SEC,
-        largeImage: 'balaclava_logo',
-        largeText: `Balaclava · ${APP_VERSION_LABEL}`,
+        largeImage: 'abyssea_logo',
+        largeText: `Abyssea · ${APP_VERSION_LABEL}`,
         smallImage: null,
         smallText: null,
         buttons: buildButtons(lang),
@@ -136,7 +163,7 @@
       const dungName = (dung.def && dung.def.name) || (isEn ? 'Dungeon' : 'Mazmorra');
       const dungBiome = (dung.def && dung.def.themeKey) || 'pradera';
       const boss = dung.boss;
-      const TILE_SIZE = (Balaclava.CONST && Balaclava.CONST.TILE_SIZE) || 48;
+      const TILE_SIZE = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48;
       const playerTx = game.player ? Math.floor(game.player.x / TILE_SIZE) : 0;
       const inBossRoom = Boolean(boss && !boss.dead && playerTx >= ((dung.bossRoomMinX || 34) - 2));
 
@@ -167,8 +194,8 @@
         details,
         state,
         startTimestamp: SESSION_START_SEC,
-        largeImage: 'balaclava_logo',
-        largeText: `Balaclava · ${APP_VERSION_LABEL}`,
+        largeImage: 'abyssea_logo',
+        largeText: `Abyssea · ${APP_VERSION_LABEL}`,
         smallImage: dungBiome,
         smallText: dungName,
         buttons: buildButtons(lang),
@@ -176,7 +203,8 @@
       };
     }
 
-    const biome = getPlayerBiomeInfo(game);
+    const biome = getPlayerBiomeInfo(game, isEn);
+    const totalSkills = (Array.isArray(Abyssea.SKILLS) && Abyssea.SKILLS.length) ? Abyssea.SKILLS.length : TOTAL_SKILLS_FALLBACK;
     let details = isEn ? `Exploring: ${biome.name}` : `Explorando: ${biome.name}`;
     let state = isEn
       ? `Lv.${lvl} · Day ${day} · Islands ${islands.unlocked}/${islands.total}`
@@ -186,23 +214,38 @@
       details = isEn ? `Paused · ${biome.name}` : `En pausa · ${biome.name}`;
     } else if (activeModal === 'skills') {
       const skillsCount = Array.isArray(game.unlockedSkills) ? game.unlockedSkills.length : 0;
-      details = isEn ? 'Astral Constellation' : 'Árbol Astral de Skills';
+      details = isEn ? 'Astral Skill Constellation' : 'Árbol Astral de Habilidades';
       state = isEn
-        ? `Lv.${lvl} · ${skillsCount} skills unlocked`
-        : `Nv.${lvl} · ${skillsCount} skills aprendidas`;
+        ? `Lv.${lvl} · ${skillsCount}/${totalSkills} stars unlocked`
+        : `Nv.${lvl} · ${skillsCount}/${totalSkills} estrellas`;
     } else if (activeModal === 'map') {
       details = isEn ? 'Archipelago Atlas' : 'Atlas del Archipiélago';
       state = isEn
         ? `${islands.unlocked}/${islands.total} islands · Lv.${lvl}`
         : `${islands.unlocked}/${islands.total} islas · Nv.${lvl}`;
+    } else if (activeModal === 'encyclopedia' || activeModal === 'bestiary' || activeModal === 'compendium') {
+      details = isEn ? 'Consulting the Encyclopedia' : 'Consultando la Enciclopedia';
+      state = isEn
+        ? `Lv.${lvl} · ${clearedCount} dungeons cleared`
+        : `Nv.${lvl} · ${clearedCount} mazmorras completadas`;
+    } else if (activeModal === 'quests') {
+      details = isEn ? 'Reviewing Quests & Chronicle' : 'Revisando misiones e historia';
+      state = isEn
+        ? `Lv.${lvl} · Day ${day} · ${biome.name}`
+        : `Nv.${lvl} · Día ${day} · ${biome.name}`;
+    } else if (activeModal === 'build' || activeModal === 'crafting') {
+      details = isEn ? `Building in ${biome.name}` : `Construyendo en ${biome.name}`;
+      state = isEn
+        ? `Lv.${lvl} · Islands ${islands.unlocked}/${islands.total}`
+        : `Nv.${lvl} · Islas ${islands.unlocked}/${islands.total}`;
     }
 
     return {
       details,
       state,
       startTimestamp: SESSION_START_SEC,
-      largeImage: 'balaclava_logo',
-      largeText: `Balaclava · ${APP_VERSION_LABEL}`,
+      largeImage: 'abyssea_logo',
+      largeText: `Abyssea · ${APP_VERSION_LABEL}`,
       smallImage: biome.id,
       smallText: biome.name,
       buttons: buildButtons(lang),
@@ -263,13 +306,13 @@
     }
   }
 
-  Balaclava.DiscordRPC = {
+  Abyssea.DiscordRPC = {
     init: initDiscord,
     update: actualizarDiscord,
     buildPayload,
     getStatus: getDiscordStatus
   };
-  Balaclava.initDiscord = initDiscord;
-  Balaclava.actualizarDiscord = actualizarDiscord;
+  Abyssea.initDiscord = initDiscord;
+  Abyssea.actualizarDiscord = actualizarDiscord;
   window.actualizarDiscord = actualizarDiscord;
 })();

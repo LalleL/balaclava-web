@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ABYSSEA — Pixel Survival & Fantasy RPG</title>
-  <link rel="icon" href="data:," />
+  <title>ABYSSEA — Beta 2.0.0 Release Candidate 2</title>
+  <link rel="icon" type="image/png" href="assets/icons/abyssea_core.png?v=1.6.3" />
+  <link rel="preload" as="image" href="assets/ui/abyssea_logo.png?v=2.0.0-rc2" />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/boldpixels_web/boldpixels.woff2" crossorigin />
   <link rel="preload" as="font" type="font/ttf" href="assets/fonts/monogram/monogram/ttf/monogram-extended-italic.ttf" crossorigin />
-  <link rel="stylesheet" href="styles/main.css?v=1.3.3a" />
-  <script src="../site-config.js?v=1.3.13"></script>
+  <link rel="stylesheet" href="styles/main.css?v=2.0.0-rc2" />
+  <script src="../site-config.js?v=2.0.0-rc2"></script>
   <script>
     if (window.BALACLAVA_SITE_CONFIG && window.BALACLAVA_SITE_CONFIG.maintenanceMode) {
       window.location.replace('../');
@@ -42,7 +43,7 @@
     </div>
     <div class="boot-stage">
       <div class="boot-title-wrap">
-        <div class="boot-title-wordmark">ABYSSEA</div>
+        <img class="boot-logo-img pixel-img" src="assets/ui/abyssea_logo.png?v=2.0.0-rc2" alt="ABYSSEA" />
       </div>
 
       <div class="boot-progress-block">
@@ -68,10 +69,13 @@
       <div class="title-logo-wrap">
         <div class="title-brand-row">
           <div class="title-brand-text">
-            <h1 class="title-main-heading">ABYSSEA</h1>
+            <h1 class="title-main-heading title-main-logo-heading" aria-label="ABYSSEA">
+              <img class="title-logo-img pixel-img" src="assets/ui/abyssea_logo.png?v=2.0.0-rc2" alt="ABYSSEA" />
+            </h1>
             <div class="title-logo-rule" aria-hidden="true">
+              <span class="logo-line logo-line-left"></span>
               <span class="logo-diamond"></span>
-              <span class="logo-line"></span>
+              <span class="logo-line logo-line-right"></span>
             </div>
           </div>
         </div>
@@ -81,7 +85,7 @@
       <div id="assets-status" class="assets-status hidden" data-i18n="title.loading">Loading world and pixel art textures...</div>
     </div>
     <div class="title-signature" aria-hidden="true">love you saraí &lt;3</div>
-    <div class="title-version" aria-hidden="true">Abyssea Beta v1.3.3</div>
+    <div class="title-version" aria-hidden="true">Abyssea Beta 2.0.0 Release Candidate 2</div>
   </div>
 
   <!-- In-Game HUD -->
@@ -246,7 +250,7 @@
     <div id="hud-controls-helper" class="hud-controls-helper hud-controls-hidden" aria-live="polite">
       <div class="controls-helper-grid">
         <div class="controls-helper-item">
-          <span class="ctrl-key-badge">WASD</span>
+          <span id="ctrl-move-key" class="ctrl-key-badge">WASD</span>
           <span class="ctrl-label" data-i18n="controls.move">Move</span>
         </div>
         <div class="controls-helper-item">
@@ -341,12 +345,12 @@
   </div>
 
   <!-- Scene Transition Overlay (Full-Screen Pixel Art Panorama) -->
-  <div id="balaclava-tooltip" class="balaclava-tooltip hidden" role="tooltip" aria-hidden="true"></div>
+  <div id="abyssea-tooltip" class="abyssea-tooltip hidden" role="tooltip" aria-hidden="true"></div>
   <div id="scene-transition" class="scene-transition hidden" aria-hidden="true">
     <canvas id="st-pixel-canvas" class="st-pixel-canvas" width="640" height="360"></canvas>
     <div class="st-stage">
       <div class="st-header">
-        <img id="scene-transition-icon" class="pixel-img st-icon" src="assets/icons/abyssea_core.png" width="24" height="24" alt="" />
+        <img id="scene-transition-icon" class="pixel-img st-icon" src="assets/icons/abyssea_core.png?v=1.6.3" width="24" height="24" alt="" />
         <div id="scene-transition-label" class="st-label">ABYSSEA</div>
       </div>
       <div id="scene-transition-sub" class="st-sub hidden"></div>
@@ -369,44 +373,46 @@
     </div>
   </div>
 
-  <script defer src="src/core/utils.js?v=1.3.3a"></script>
-  <script defer src="src/core/i18n_data_en.js?v=1.3.3a"></script>
-  <script defer src="src/core/i18n.js?v=1.3.3a"></script>
-  <script defer src="src/core/audio.js?v=1.3.3a"></script>
-  <script defer src="src/data/items.js?v=1.3.3a"></script>
-  <script defer src="src/data/tools.js?v=1.3.3a"></script>
-  <script defer src="src/data/buildings.js?v=1.3.3a"></script>
-  <script defer src="src/data/recipes.js?v=1.3.3a"></script>
-  <script defer src="src/data/enchants.js?v=1.3.3a"></script>
-  <script defer src="src/data/skills.js?v=1.3.3a"></script>
-  <script defer src="src/data/quests.js?v=1.3.3a"></script>
-  <script defer src="src/data/vfx_manifest.js?v=1.3.3a"></script>
-  <script defer src="src/core/assets.js?v=1.3.3a"></script>
-  <script defer src="src/core/sprites_atlas.js?v=1.3.3a"></script>
-  <script defer src="src/world/hex_grid.js?v=1.3.3a"></script>
-  <script defer src="src/world/world.js?v=1.3.3a"></script>
-  <script defer src="src/world/dungeons.js?v=1.3.3a"></script>
-  <script defer src="src/systems/farming.js?v=1.3.3a"></script>
-  <script defer src="src/systems/omega.js?v=1.3.3a"></script>
-  <script defer src="src/systems/automation.js?v=1.3.3a"></script>
-  <script defer src="src/systems/combat.js?v=1.3.3a"></script>
-  <script defer src="src/systems/economy.js?v=1.3.3a"></script>
-  <script defer src="src/systems/events.js?v=1.3.3a"></script>
-  <script defer src="src/systems/tutorial.js?v=1.3.3a"></script>
-  <script defer src="src/systems/save.js?v=1.3.3a"></script>
-  <script defer src="src/systems/discord_rpc.js?v=1.3.3a"></script>
-  <script defer src="src/systems/media_overlay.js?v=1.3.3a"></script>
-  <script defer src="src/engine/game.js?v=1.3.3c"></script>
-  <script defer src="src/ui/ui.js?v=1.3.3a"></script>
-  <script defer src="src/main.js?v=1.3.3a"></script>
-  <script defer src="../site-config.js?v=1.3.10"></script>
+  <script defer src="src/core/utils.js?v=2.0.0-rc2"></script>
+  <script defer src="src/core/i18n_data_en.js?v=2.0.0-rc2"></script>
+  <script defer src="src/core/i18n.js?v=2.0.0-rc2"></script>
+  <script defer src="src/core/audio.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/items.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/tools.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/buildings.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/recipes.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/enchants.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/skills.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/quests.js?v=2.0.0-rc2"></script>
+  <script defer src="src/data/vfx_manifest.js?v=2.0.0-rc2"></script>
+  <script defer src="src/core/assets.js?v=2.0.0-rc2"></script>
+  <script defer src="src/core/sprites_atlas.js?v=2.0.0-rc2"></script>
+  <script defer src="src/world/hex_grid.js?v=2.0.0-rc2"></script>
+  <script defer src="src/world/world.js?v=2.0.0-rc2"></script>
+  <script defer src="src/world/dungeons.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/farming.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/omega.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/automation.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/combat.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/economy.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/events.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/tutorial.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/save.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/discord_rpc.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/media_overlay.js?v=2.0.0-rc2"></script>
+  <script defer src="src/engine/game.js?v=2.0.0-rc2"></script>
+  <script defer src="src/ui/ui.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/v14_features.js?v=2.0.0-rc2"></script>
+  <script defer src="src/systems/v2_features.js?v=2.0.0-rc2"></script>
+  <script defer src="src/main.js?v=2.0.0-rc2"></script>
+  <script defer src="../site-config.js?v=2.0.0-rc2"></script>
   <script defer>
     window.addEventListener('DOMContentLoaded', () => {
       try {
         const cfg = window.BALACLAVA_SITE_CONFIG || {};
         const base = String(cfg.webPlayersCounterUrl || '').trim().replace(/\/+$/, '');
         if (!base || window.localStorage.getItem('balaclava_web_counted_v1')) return;
-        window.fetch(`${base}/hit`, { method: 'POST' })
+        window.fetch(base + '/hit', { method: 'POST' })
           .then((r) => (r.ok ? window.localStorage.setItem('balaclava_web_counted_v1', '1') : null))
           .catch(() => {});
       } catch (_) {}

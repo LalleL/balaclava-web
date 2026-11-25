@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const TOOL_ENCHANTS = {
     eficiencia: {
@@ -1239,8 +1239,8 @@
     };
   }
 
-  Balaclava.TOOL_ENCHANTS = TOOL_ENCHANTS;
-  Balaclava.ARMOR_ENCHANTS = ARMOR_ENCHANTS;
-  Balaclava.PERMANENT_RELICS = PERMANENT_RELICS;
-  Balaclava.getEnchantCost = getEnchantCost;
+  Abyssea.TOOL_ENCHANTS = TOOL_ENCHANTS;
+  Abyssea.ARMOR_ENCHANTS = ARMOR_ENCHANTS;
+  Abyssea.PERMANENT_RELICS = PERMANENT_RELICS;
+  Abyssea.getEnchantCost = getEnchantCost;
 })();

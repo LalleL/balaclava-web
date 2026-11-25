@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const BUILDING_CATEGORIES = [
     { id: 'produccion', name: 'Producción' },
@@ -43,7 +43,7 @@
       id: 'molino', name: 'Molino', category: 'produccion', size: 2, placeOn: 'land',
       cost: { madera: 16, piedra: 12, fibra_vegetal: 6 },
       desc: 'Muele trigo en harina automáticamente y acelera +30% los cultivos cercanos.',
-      sprite: 'bld_molino', badge: 'mill',
+      sprite: 'bld_molino', visualScale: 1.24, badge: 'mill',
       autoCycle: 9, autoConvert: { in: { trigo: 2 }, out: { harina: 2 } },
       auraCropSpeed: 0.30, station: 'molino', capacity: 40
     },
@@ -128,21 +128,21 @@
       id: 'corral', name: 'Corral', category: 'agricultura', size: 2, placeOn: 'land',
       cost: { madera: 16, fibra_vegetal: 8, trigo: 4 },
       desc: 'Cría ovejas y ganado que producen lana, cuero y carne periódicamente.',
-      sprite: 'Corral_Pen', badge: 'sheep',
+      sprite: 'Corral_Pen', visualScale: 1.06, badge: 'sheep',
       autoCycle: 13, autoProduce: { lana: 1, cuero: 1, carne: 1 }, capacity: 40
     },
     granja: {
       id: 'granja', name: 'Granja Completa', category: 'agricultura', size: 2, placeOn: 'land',
       cost: { tablon: 18, ladrillo: 8, trigo: 8 },
       desc: 'Produce trigo, huevos, leche y zanahorias de forma continua.',
-      sprite: 'bld_granja', badge: 'farm',
+      sprite: 'bld_granja', visualScale: 1.08, badge: 'farm',
       autoCycle: 12, autoProduce: { trigo: 2, huevo: 1, leche: 1 }, capacity: 50
     },
     estanque: {
       id: 'estanque', name: 'Estanque de Pesca', category: 'agricultura', size: 2, placeOn: 'land',
       cost: { piedra: 12, madera: 10, fibra_vegetal: 6 },
       desc: 'Captura peces automáticamente con redes y permite pescar desde tierra firme.',
-      sprite: 'Fish_Pond', badge: 'fish', visualScale: 1.10,
+      sprite: 'Fish_Pond', badge: 'fish', visualScale: 1.00,
       autoCycle: 14, autoFish: true, capacity: 30
     },
 
@@ -184,7 +184,7 @@
       id: 'torre_magica', name: 'Torre Mágica', category: 'especiales', size: 2, placeOn: 'land',
       cost: { piedra: 18, cristales: 4, cristales_magicos: 2 },
       desc: 'Dispara rayos arcanos automáticamente contra enemigos cercanos e ilumina la oscuridad.',
-      sprite: 'bld_torre_magica', badge: 'magic', visualScale: 1.15,
+      sprite: 'bld_torre_magica', badge: 'magic', visualScale: 1.28,
       turretRange: 280, turretDmg: 22, turretCooldown: 1.1
     },
     portal: {
@@ -221,7 +221,7 @@
       id: 'taladro', name: 'Taladro Automático', category: 'automatizacion', size: 2, placeOn: 'land',
       cost: { lingote_hierro: 8, lingote_cobre: 6, engrane: 3 },
       desc: 'Extrae minerales automáticamente según el bioma donde se coloque (carbón, hierro, oro, cristales, diamantes...).',
-      sprite: 'bld_taladro', badge: 'drill', visualScale: 1.12,
+      sprite: 'bld_taladro', badge: 'drill', visualScale: 1.20,
       autoCycle: 8, autoDrill: true, usesFuel: true, capacity: 60
     },
     recolector: {
@@ -397,7 +397,7 @@
   };
   BUILDINGS.faro_costero = {
     id: 'faro_costero', name: 'Faro Costero', category: 'especiales', placeOn: 'land', size: 2,
-    sprite: 'bld_faro_costero', visualScale: 1.15, badge: 'sun',
+    sprite: 'bld_faro_costero', visualScale: 1.24, badge: 'sun',
     cost: { ladrillo: 8, vidrio: 6, topacio: 1, carbon: 4 }, xp: 45,
     lightRadius: 290, auraLuck: 0.16,
     desc: 'Ilumina una amplia zona nocturna con radio de luz amplio y bendice la costa con +16% Suerte de pesca y botín.'
@@ -482,7 +482,7 @@
   };
   BUILDINGS.estatua_caballero = {
     id: 'estatua_caballero', name: 'Estatua Guardiana', category: 'fortificacion', placeOn: 'land', size: 1,
-    sprite: 'prop_angel', visualScale: 1.05, auraDmg: 0.12, cost: { piedra: 10, lingote_plata: 2 }, xp: 28,
+    sprite: 'prop_angel', visualScale: 1.18, auraDmg: 0.12, cost: { piedra: 10, lingote_plata: 2 }, xp: 28,
     desc: 'Escultura sagrada que inspira +12% de daño a los guerreros cercanos.'
   };
   BUILDINGS.estatua_dragon = {
@@ -493,7 +493,7 @@
   };
   BUILDINGS.fuente_plaza = {
     id: 'fuente_plaza', name: 'Fuente de la Plaza', category: 'fortificacion', placeOn: 'land', size: 2,
-    sprite: 'bld_fuente_plaza', visualScale: 1.0, warmRegenRadius: 160, cost: { piedra: 10, ladrillo: 4, perla: 1 }, xp: 30,
+    sprite: 'bld_fuente_plaza', visualScale: 1.18, warmRegenRadius: 160, cost: { piedra: 10, ladrillo: 4, perla: 1 }, xp: 30,
     desc: 'Fuente monumental sagrada de agua cristalina que restaura salud y energía rápidamente.'
   };
   BUILDINGS.banco_madera = {
@@ -541,7 +541,7 @@
   };
   BUILDINGS.observatorio_astral = {
     id: 'observatorio_astral', name: 'Observatorio Astral', category: 'especiales', placeOn: 'land', size: 2,
-    sprite: 'bld_observatorio_astral', visualScale: 1.12, lightRadius: 215, auraXp: 0.25, auraSpellPower: 0.10,
+    sprite: 'bld_observatorio_astral', visualScale: 1.24, lightRadius: 215, auraXp: 0.25, auraSpellPower: 0.10,
     autoCycle: 18, autoProduce: { polvo_estelar: 1, cristales: 1 }, capacity: 28,
     cost: { piedra: 16, vidrio: 8, zafiro: 2, polvo_estelar: 1 }, xp: 72,
     desc: 'Cúpula estelar que irradia +25% Experiencia cercana, +10% Poder Mágico y condensa polvo estelar.'
@@ -551,6 +551,18 @@
     sprite: 'bld_torre_rayos', visualScale: 1.15, lightRadius: 170, isLightningTurret: true, turretRange: 285, turretDmg: 36, turretRate: 1.45,
     cost: { lingote_acero: 5, cristales_magicos: 4, zafiro: 2 }, xp: 64,
     desc: 'Torre defensiva automática que lanza rayos en cadena contra enemigos que se acerquen a tus islas.'
+  };
+  BUILDINGS.salon_trofeos = {
+    id: 'salon_trofeos', name: 'Salón de Trofeos y Museo', category: 'especiales', placeOn: 'land', size: 2,
+    sprite: 'bld_salon_trofeos', visualScale: 1.18, lightRadius: 185, opensPanel: 'trophy_hall',
+    cost: { viga_madera: 6, marmol_oscuro: 4, lingote_oro: 4, cristales: 4 }, xp: 85,
+    desc: 'Exhibe trofeos de los 75 jefes y tus armas Singulares (0.1%). Cada vitrina completada otorga bonos pasivos permanentes globales.'
+  };
+  BUILDINGS.baliza_teletransporte = {
+    id: 'baliza_teletransporte', name: 'Baliza Rúnica de Viaje Rápido', category: 'especiales', placeOn: 'land', size: 1,
+    sprite: 'bld_baliza_teletransporte', visualScale: 1.12, lightRadius: 195, opensPanel: 'teleport_beacon', isTeleportBeacon: true,
+    cost: { piedra: 16, cristales_magicos: 3, lingote_plata: 4, polvo_estelar: 1 }, xp: 68,
+    desc: 'Conecta tu archipiélago en una red de teletransporte instantáneo desde el Mapa Mundial (M) entre bases, granjas y mazmorras.'
   };
 
   // Structures unlocked via the RPG Skill Tree (starter utility + village blocks stay accessible early).
@@ -607,7 +619,7 @@
     'plantacion', 'aspersor', 'colmena', 'jardin_mariposas', 'estanque', 'muelle_pesca', 'corral', 'granja', 'invernadero',
     'barriles_bodega', 'cofre_madera', 'cofre_hierro', 'cofre_dorado', 'basurero', 'casa_comercio', 'banco', 'tesoreria', 'biblioteca', 'estanteria_arcana',
     'cantera_piedra', 'taller_mecanico', 'alquimia', 'laboratorio', 'fundicion', 'taladro', 'tuberias_conduit', 'cofre_logistico', 'recolector', 'observatorio_astral', 'centro_investigacion',
-    'torre_magica', 'torre_rayos', 'balista', 'faro_costero', 'portal', 'monumento', 'altar', 'mazmorra_santuario',
+    'torre_magica', 'torre_rayos', 'balista', 'faro_costero', 'portal', 'baliza_teletransporte', 'portal_acuario', 'mesa_reforja', 'salon_trofeos', 'monumento', 'altar', 'mazmorra_santuario',
     'banco_madera', 'camino_piedra', 'camino_hierba', 'valla_madera', 'muro_madera', 'muro_piedra',
     'maceta_flores', 'farola_pueblo', 'brasero_eterno', 'brasero_magma', 'mesa_banquete',
     'puesto_mercado', 'cabana_aldeano', 'fuente_plaza', 'roble_milenario', 'estatua_caballero', 'estatua_dragon', 'estatua_rey_oseo'
@@ -616,6 +628,6 @@
     if (BUILDINGS[bId]) BUILDINGS[bId].sortOrder = idx + 1;
   });
 
-  Balaclava.BUILDING_CATEGORIES = BUILDING_CATEGORIES;
-  Balaclava.BUILDINGS = BUILDINGS;
+  Abyssea.BUILDING_CATEGORIES = BUILDING_CATEGORIES;
+  Abyssea.BUILDINGS = BUILDINGS;
 })();

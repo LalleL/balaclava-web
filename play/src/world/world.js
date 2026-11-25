@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { TILE_SIZE, PLOT_TILES, GRID_PLOTS, WORLD_TILES, CENTER_PLOT, BIOMES } = Balaclava.CONST;
-  const { hash2D, randInt, pick } = Balaclava.Utils;
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { TILE_SIZE, PLOT_TILES, GRID_PLOTS, WORLD_TILES, CENTER_PLOT, BIOMES } = Abyssea.CONST;
+  const { hash2D, randInt, pick } = Abyssea.Utils;
 
   function seededRand(seed) {
     let s = (seed >>> 0) || 1337;
@@ -232,12 +232,12 @@
     dig_spot: 'Zona de Excavación',
     meteor: 'Meteorito Estelar'
   };
-  Balaclava.NODE_DISPLAY_NAMES = Balaclava.NODE_DISPLAY_NAMES || Object.assign({}, NODE_DISPLAY_NAMES);
+  Abyssea.NODE_DISPLAY_NAMES = Abyssea.NODE_DISPLAY_NAMES || Object.assign({}, NODE_DISPLAY_NAMES);
 
   // Interactive Altars & Shrines (using artist FDA props)
   const ALTAR_DEFS = {
     altar_fortuna: {
-      id: 'altar_fortuna', name: 'Altar de la Fortuna', spriteKey: 'altar_gold', color: '#ffd54f',
+      id: 'altar_fortuna', name: 'Altar de la Fortuna', spriteKey: 'altar_fortuna', color: '#ffd54f',
       blessingName: 'Bendición de la Fortuna',
       blessingTitle: '¡Bendición de la Fortuna activada!',
       iconUrl: 'assets/icons_extra/buff_luck.png',
@@ -246,7 +246,7 @@
       effect: 'luck', buffDur: 90, cooldown: 150
     },
     altar_furia: {
-      id: 'altar_furia', name: 'Altar de Furia Bélica', spriteKey: 'altar_dark', color: '#ff5252',
+      id: 'altar_furia', name: 'Altar de Furia Bélica', spriteKey: 'altar_furia', color: '#ff5252',
       blessingName: 'Bendición de Furia Bélica',
       blessingTitle: '¡Bendición de Furia Bélica activada!',
       iconUrl: 'assets/icons_extra/buff_attack.png',
@@ -255,7 +255,7 @@
       effect: 'damage', buffDur: 75, cooldown: 150
     },
     fuente_sagrada: {
-      id: 'fuente_sagrada', name: 'Fuente de Curación Sagrada', spriteKey: 'healing_fountain', color: '#4dd0e1',
+      id: 'fuente_sagrada', name: 'Fuente de Curación Sagrada', spriteKey: 'fuente_sagrada', color: '#4dd0e1',
       blessingName: 'Bendición de Aguas Cristalinas',
       blessingTitle: '¡Bendición de la Fuente Sagrada activada!',
       iconUrl: 'assets/icons_extra/buff_regen.png',
@@ -264,7 +264,7 @@
       effect: 'heal', cooldown: 60
     },
     altar_sabio: {
-      id: 'altar_sabio', name: 'Santuario del Sabio', spriteKey: 'altar_shrine', color: '#80deea',
+      id: 'altar_sabio', name: 'Santuario del Sabio', spriteKey: 'altar_sabio', color: '#80deea',
       blessingName: 'Bendición del Sabio',
       blessingTitle: '¡Bendición del Sabio activada!',
       iconUrl: 'assets/icons_extra/buff_xp.png',
@@ -273,7 +273,7 @@
       effect: 'wisdom', buffDur: 75, cooldown: 140
     },
     altar_sacrificio: {
-      id: 'altar_sacrificio', name: 'Altar del Pacto Carmesí', spriteKey: 'altar_ritual', color: '#ce93d8',
+      id: 'altar_sacrificio', name: 'Altar del Pacto Carmesí', spriteKey: 'altar_sacrificio', color: '#ce93d8',
       blessingName: 'Pacto del Altar Carmesí',
       blessingTitle: '¡Bendición del Pacto Carmesí activada!',
       iconUrl: 'assets/icons/heart_crimson.png',
@@ -282,7 +282,7 @@
       effect: 'sacrifice', cooldown: 120
     },
     altar_arcanista: {
-      id: 'altar_arcanista', name: 'Altar de Canalización Arcana', spriteKey: 'altar_arcane', color: '#ba68c8',
+      id: 'altar_arcanista', name: 'Altar de Canalización Arcana', spriteKey: 'altar_arcanista', color: '#ba68c8',
       blessingName: 'Sobrecarga Arcana',
       blessingTitle: '¡Sobrecarga Arcana activada!',
       iconUrl: 'assets/icons/mana_orb.png',
@@ -291,7 +291,7 @@
       effect: 'arcane', buffDur: 85, cooldown: 145
     },
     altar_cazador: {
-      id: 'altar_cazador', name: 'Altar Esmeralda del Cazador', spriteKey: 'altar_emerald', color: '#66bb6a',
+      id: 'altar_cazador', name: 'Altar Esmeralda del Cazador', spriteKey: 'altar_cazador', color: '#66bb6a',
       blessingName: 'Instinto del Cazador',
       blessingTitle: '¡Instinto del Cazador activado!',
       iconUrl: 'assets/icons_extra/buff_attack.png',
@@ -303,18 +303,18 @@
 
   // 12 Memorable Easter Egg & Secret Structures scattered across distant islands
   const EASTER_EGG_DEFS = {
-    ee_excalibur:   { id: 'ee_excalibur',   name: 'Espada Antigua en la Roca',    biome: 'pradera',            spriteKey: 'ee_sword_legend',  baseSprite: 'node_boulder',    color: '#ffd54f', hint: '¡Una hoja mítica clavada desde eras olvidadas!' },
-    ee_arbol:       { id: 'ee_arbol',       name: 'Árbol Milenario Luminoso',     biome: 'bosque_oscuro',      spriteKey: 'ee_crystal',       baseSprite: 'ee_log',          color: '#a5d6a7', hint: 'Savia sagrada brilla entre raíces ancestrales.' },
-    ee_naufragio:   { id: 'ee_naufragio',   name: 'Restos del Galeón Perdido',    biome: 'desierto',           spriteKey: 'ee_treasure',      baseSprite: 'ee_log',          color: '#ffe082', hint: 'Cofres encallados de antiguos navegantes.' },
-    ee_forja:       { id: 'ee_forja',       name: 'Forja Enana Abandonada',       biome: 'montanas_heladas',   spriteKey: 'node_forge_stone', baseSprite: 'ee_lantern',      color: '#80deea', hint: 'Brasas rúnicas todavía guardan metal enano.' },
-    ee_crater:      { id: 'ee_crater',      name: 'Cráter del Astro Dorado',      biome: 'tierras_volcanicas', spriteKey: 'ee_crystal',       baseSprite: 'node_keep_stone', color: '#ff8a65', hint: 'Fragmentos celestes incrustados en roca negra.' },
-    ee_obelisco:    { id: 'ee_obelisco',    name: 'Obelisco Solar Oculto',        biome: 'desierto',           spriteKey: 'prop_rune_pillar', baseSprite: 'ee_well',         color: '#ffca28', hint: 'Runas antiguas zumban bajo el sol abrasador.' },
-    ee_monolito:    { id: 'ee_monolito',    name: 'Autómata Relojero Dormido',    biome: 'montanas_heladas',   spriteKey: 'ee_device',        baseSprite: 'node_forge_stone',color: '#90caf9', hint: 'Engranajes arcanos esperan ser reactivados.' },
-    ee_caldero:     { id: 'ee_caldero',     name: 'Caldero de la Bruja Sabia',    biome: 'bosque_oscuro',      spriteKey: 'ee_cauldron',      baseSprite: 'ee_lantern',      color: '#ce93d8', hint: 'Un brebaje violeta burbujea sin fuego.' },
-    ee_observatorio:{ id: 'ee_observatorio',name: 'Astrolabio Antiguo Caído',     biome: 'montanas_heladas',   spriteKey: 'altar_arcane',     baseSprite: 'node_keep_stone', color: '#4fc3f7', hint: 'Un aparato celeste mide eclipses olvidados.' },
-    ee_totem:       { id: 'ee_totem',       name: 'Tótem de la Flora Antigua',    biome: 'pradera',            spriteKey: 'altar_emerald',    baseSprite: 'ee_log',          color: '#81c784', hint: 'Enredaderas doradas protegen semillas arcanas.' },
-    ee_fuente_mana: { id: 'ee_fuente_mana', name: 'Manantial de Éter Puro',       biome: 'bosque_oscuro',      spriteKey: 'well_mana_strip',  baseSprite: 'ee_well',         color: '#4dd0e1', hint: 'Aguas luminiscentes cargan grimorios vacíos.' },
-    ee_altar_guardian:{id:'ee_altar_guardian',name:'Trono del Centinela Volcánico',biome: 'tierras_volcanicas', spriteKey: 'altar_volcano',   baseSprite: 'node_forge_stone',color: '#ff5252', hint: 'Cenizas antiguas aún guardan tesoros rúnicos.' }
+    ee_excalibur:   { id: 'ee_excalibur',   name: 'Espada Antigua en la Roca',    biome: 'pradera',            spriteKey: 'ee_sword_rock',    baseSprite: null, color: '#ffd54f', hint: '¡Una hoja mítica clavada desde eras olvidadas!' },
+    ee_arbol:       { id: 'ee_arbol',       name: 'Árbol Milenario Luminoso',     biome: 'bosque_oscuro',      spriteKey: 'ee_arbol_cristal', baseSprite: null, color: '#a5d6a7', hint: 'Savia sagrada brilla entre raíces ancestrales.' },
+    ee_naufragio:   { id: 'ee_naufragio',   name: 'Restos del Galeón Perdido',    biome: 'desierto',           spriteKey: 'ee_naufragio',     baseSprite: null, color: '#ffe082', hint: 'Cofres encallados de antiguos navegantes.' },
+    ee_forja:       { id: 'ee_forja',       name: 'Forja Enana Abandonada',       biome: 'montanas_heladas',   spriteKey: 'node_forge_stone', baseSprite: null, color: '#80deea', hint: 'Brasas rúnicas todavía guardan metal enano.' },
+    ee_crater:      { id: 'ee_crater',      name: 'Cráter del Astro Dorado',      biome: 'tierras_volcanicas', spriteKey: 'meteor_gold',      baseSprite: null, color: '#ff8a65', hint: 'Fragmentos celestes incrustados en roca negra.' },
+    ee_obelisco:    { id: 'ee_obelisco',    name: 'Obelisco Solar Oculto',        biome: 'desierto',           spriteKey: 'prop_rune_pillar', baseSprite: null, color: '#ffca28', hint: 'Runas antiguas zumban bajo el sol abrasador.' },
+    ee_monolito:    { id: 'ee_monolito',    name: 'Autómata Relojero Dormido',    biome: 'montanas_heladas',   spriteKey: 'ee_monolito',      baseSprite: null, color: '#90caf9', hint: 'Engranajes arcanos esperan ser reactivados.' },
+    ee_caldero:     { id: 'ee_caldero',     name: 'Caldero de la Bruja Sabia',    biome: 'bosque_oscuro',      spriteKey: 'ee_caldero',       baseSprite: null, color: '#ce93d8', hint: 'Un brebaje violeta burbujea sin fuego.' },
+    ee_observatorio:{ id: 'ee_observatorio',name: 'Astrolabio Antiguo Caído',     biome: 'montanas_heladas',   spriteKey: 'ee_well',          baseSprite: null, color: '#4fc3f7', hint: 'Un pozo ancestral refleja eclipses olvidados.' },
+    ee_totem:       { id: 'ee_totem',       name: 'Tótem de la Flora Antigua',    biome: 'pradera',            spriteKey: 'altar_cazador',    baseSprite: null, color: '#81c784', hint: 'Enredaderas doradas protegen semillas arcanas.' },
+    ee_fuente_mana: { id: 'ee_fuente_mana', name: 'Manantial de Éter Puro',       biome: 'bosque_oscuro',      spriteKey: 'ee_fuente_mana',   baseSprite: null, color: '#4dd0e1', hint: 'Aguas luminiscentes cargan grimorios vacíos.' },
+    ee_altar_guardian:{id:'ee_altar_guardian',name:'Trono del Centinela Volcánico',biome: 'tierras_volcanicas', spriteKey: 'ee_altar_guardian',baseSprite: null, color: '#ff5252', hint: 'Cenizas antiguas aún guardan tesoros rúnicos.' }
   };
 
   class WorldManager {
@@ -328,6 +328,16 @@
       this.crops = [];
       this.sheep = [];
       this.nextNodeId = 1;
+      this._unlockVersion = 1;
+      this._visualBiomeGrid = null;
+      this._visualBiomeVer = -1;
+      this._nodeIndexVer = -1;
+      this._nodeIndexLen = -1;
+      this._nodeIndexRef = null;
+      this._nodeByTile = new Map();
+      this._nodeChunks = new Map();
+      this._landmarkNodes = [];
+      this._altarNodes = [];
       this.spawnTimer = 0;
       this.worldSeed = 0;
       this.dungeonGatePlots = {};
@@ -354,8 +364,18 @@
       this.crops = [];
       this.sheep = [];
       this.nextNodeId = 1;
+      this._unlockVersion = 1;
+      this._visualBiomeGrid = null;
+      this._visualBiomeVer = -1;
+      this._nodeIndexVer = -1;
+      this._nodeIndexLen = -1;
+      this._nodeIndexRef = null;
+      this._nodeByTile = new Map();
+      this._nodeChunks = new Map();
+      this._landmarkNodes = [];
+      this._altarNodes = [];
 
-      const outerOrder = Balaclava.CONST.BIOME_ORDER ? [...Balaclava.CONST.BIOME_ORDER] : ['pradera', 'desierto', 'montanas_heladas', 'bosque_oscuro', 'tierras_volcanicas'];
+      const outerOrder = Abyssea.CONST.BIOME_ORDER ? [...Abyssea.CONST.BIOME_ORDER] : ['pradera', 'desierto', 'montanas_heladas', 'bosque_oscuro', 'tierras_volcanicas'];
       this.biomeOrder = outerOrder;
       this.fertilizedTiles = {};
 
@@ -576,8 +596,8 @@
       this.npcOffsets = {};
       const eldrinSpots = [[3, 3], [8, 3], [3, 8], [8, 8], [4, 3], [8, 4]];
       this.npcOffsets.eldrin = eldrinSpots[Math.floor(rng() * eldrinSpots.length)];
-      if (Array.isArray(Balaclava.NPCS)) {
-        for (const npc of (Balaclava.NPCS || [])) {
+      if (Array.isArray(Abyssea.NPCS)) {
+        for (const npc of (Abyssea.NPCS || [])) {
           if (npc.id === 'eldrin') {
             this.npcPlots[npc.id] = [C, C];
             continue;
@@ -606,14 +626,14 @@
       const C = CENTER_PLOT || 9;
       const id = typeof npcOrId === 'string' ? npcOrId : npcOrId.id;
       if (this.npcPlots && this.npcPlots[id]) return this.npcPlots[id];
-      const def = Balaclava.NPCS && Balaclava.NPCS.find(n => n.id === id);
+      const def = Abyssea.NPCS && Abyssea.NPCS.find(n => n.id === id);
       return def ? def.plot : [C, C];
     }
 
     getNpcTileOffset(npcOrId) {
       const id = typeof npcOrId === 'string' ? npcOrId : npcOrId.id;
       if (this.npcOffsets && this.npcOffsets[id]) return this.npcOffsets[id];
-      const def = Balaclava.NPCS && Balaclava.NPCS.find(n => n.id === id);
+      const def = Abyssea.NPCS && Abyssea.NPCS.find(n => n.id === id);
       return def ? def.tileOffset : [6, 5];
     }
 
@@ -714,10 +734,8 @@
               + (archIdx === 4 ? 0.80 : 0.48) * Math.cos(ang * 3 - shapeRoll * 6)
               + (wFbm - 0.5) * 1.75;
             isLand = rad <= lobe;
-            // Preserve crisp ocean margins while allowing rare organic capes to extend outward
-            if (edgeDist === 0) {
-              isLand = (archIdx === 0 && rad <= lobe - 0.45 && wFbm > 0.62);
-            }
+            // Keep crisp ocean margins on outer plot edge (never sprout stray 1-tile teeth)
+            if (edgeDist === 0) isLand = false;
             // Sculpted coastal cove carving natural sea bays into island flanks
             if (archIdx === 2 || (shapeRoll > 0.28 && shapeRoll < 0.78 && !hasLandmark)) {
               const bDist = archIdx === 2 ? 3.2 : 3.9;
@@ -764,7 +782,7 @@
       }
 
       // Guarantee no 1-tile wide spikes, single-faced blocks or isolated bottlenecks without faces
-      for (let pass = 0; pass < 2; pass++) {
+      for (let pass = 0; pass < 3; pass++) {
         for (let ly = 0; ly < PLOT_TILES; ly++) {
           for (let lx = 0; lx < PLOT_TILES; lx++) {
             if (!land[ly][lx]) continue;
@@ -778,6 +796,26 @@
               land[ly][lx] = 0;
             }
           }
+        }
+      }
+
+      // Re-verify connectivity after spike pruning so no stray 1x1 block is left disconnected
+      const vis2 = Array.from({ length: PLOT_TILES }, () => new Uint8Array(PLOT_TILES));
+      const q2 = [[5, 5]];
+      vis2[5][5] = 1;
+      for (let qi = 0; qi < q2.length; qi++) {
+        const [cx, cy] = q2[qi];
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const nx = cx + dx, ny = cy + dy;
+          if (nx >= 0 && ny >= 0 && nx < PLOT_TILES && ny < PLOT_TILES && land[ny][nx] && !vis2[ny][nx]) {
+            vis2[ny][nx] = 1;
+            q2.push([nx, ny]);
+          }
+        }
+      }
+      for (let ly = 0; ly < PLOT_TILES; ly++) {
+        for (let lx = 0; lx < PLOT_TILES; lx++) {
+          if (land[ly][lx] && !vis2[ly][lx]) land[ly][lx] = 0;
         }
       }
 
@@ -835,8 +873,8 @@
     }
 
     ensureNpcLandPads(onlyPlot = null) {
-      if (!Array.isArray(Balaclava.NPCS)) return;
-      for (const npc of (Balaclava.NPCS || [])) {
+      if (!Array.isArray(Abyssea.NPCS)) return;
+      for (const npc of (Abyssea.NPCS || [])) {
         const [ngx, ngy] = this.getNpcPlot(npc);
         if (onlyPlot && (ngx !== onlyPlot[0] || ngy !== onlyPlot[1])) continue;
         if (!onlyPlot && !this.isPlotUnlocked(ngx, ngy)) continue;
@@ -858,11 +896,99 @@
       }
     }
 
+    _ensureNodeIndex() {
+      if (this._nodeIndexRef === this.nodes && this._nodeIndexLen === this.nodes.length && this._nodeByTile && this._nodeChunks) {
+        return;
+      }
+      this._nodeIndexRef = this.nodes;
+      this._nodeIndexLen = this.nodes.length;
+      const byTile = new Map();
+      const chunks = new Map();
+      const landmarks = [];
+      const altars = [];
+      const lmKinds = { dungeon_gate: 1, altar_shrine: 1, easter_egg: 1, secret_chest: 1, skeleton_king_shrine: 1 };
+      for (let i = 0; i < this.nodes.length; i++) {
+        const n = this.nodes[i];
+        if (!n) continue;
+        byTile.set(((n.ty & 0xfff) << 12) | (n.tx & 0xfff), n);
+        const cx = Math.floor((n.x || 0) / 256);
+        const cy = Math.floor((n.y || 0) / 256);
+        const ck = ((cy & 0xfff) << 12) | (cx & 0xfff);
+        let bucket = chunks.get(ck);
+        if (!bucket) { bucket = []; chunks.set(ck, bucket); }
+        bucket.push(n);
+        if (lmKinds[n.kind]) landmarks.push(n);
+        if (n.kind === 'altar_shrine') altars.push(n);
+      }
+      this._nodeByTile = byTile;
+      this._nodeChunks = chunks;
+      this._landmarkNodes = landmarks;
+      this._altarNodes = altars;
+    }
+
+    _indexPushNode(n) {
+      if (!n) return;
+      if (this._nodeIndexRef !== this.nodes || this._nodeIndexLen !== this.nodes.length - 1 || !this._nodeByTile || !this._nodeChunks) {
+        this._nodeIndexLen = -1;
+        return;
+      }
+      this._nodeIndexLen = this.nodes.length;
+      this._nodeByTile.set(((n.ty & 0xfff) << 12) | (n.tx & 0xfff), n);
+      const cx = Math.floor((n.x || 0) / 256);
+      const cy = Math.floor((n.y || 0) / 256);
+      const ck = ((cy & 0xfff) << 12) | (cx & 0xfff);
+      let bucket = this._nodeChunks.get(ck);
+      if (!bucket) { bucket = []; this._nodeChunks.set(ck, bucket); }
+      bucket.push(n);
+      if (n.kind === 'dungeon_gate' || n.kind === 'altar_shrine' || n.kind === 'easter_egg' || n.kind === 'secret_chest' || n.kind === 'skeleton_king_shrine') {
+        this._landmarkNodes.push(n);
+      }
+      if (n.kind === 'altar_shrine') this._altarNodes.push(n);
+    }
+
+    queryNodesInRect(minX, minY, maxX, maxY, out = null) {
+      this._ensureNodeIndex();
+      const res = out || [];
+      if (out) res.length = 0;
+      const cMinX = Math.floor(minX / 256);
+      const cMaxX = Math.floor(maxX / 256);
+      const cMinY = Math.floor(minY / 256);
+      const cMaxY = Math.floor(maxY / 256);
+      for (let cy = cMinY; cy <= cMaxY; cy++) {
+        const yBits = (cy & 0xfff) << 12;
+        for (let cx = cMinX; cx <= cMaxX; cx++) {
+          const bucket = this._nodeChunks.get(yBits | (cx & 0xfff));
+          if (!bucket) continue;
+          for (let i = 0; i < bucket.length; i++) res.push(bucket[i]);
+        }
+      }
+      return res;
+    }
+
+    isTileInStructureClearance(tx, ty, skipNode = null) {
+      if (!Array.isArray(this.nodes) || this.nodes.length === 0) return false;
+      this._ensureNodeIndex();
+      const list = this._landmarkNodes;
+      for (let i = 0; i < list.length; i++) {
+        const n = list[i];
+        if (!n || n === skipNode) continue;
+        if (n.kind === 'dungeon_gate') {
+          if (Math.abs(tx - n.tx) <= 2 && (n.ty - ty) >= -1 && (n.ty - ty) <= 3) return true;
+        } else if (n.kind === 'altar_shrine' || n.kind === 'easter_egg') {
+          if (Math.hypot(tx - n.tx, ty - n.ty) < 2.2) return true;
+        } else if (n.kind === 'secret_chest' || n.kind === 'skeleton_king_shrine') {
+          if (Math.hypot(tx - n.tx, ty - n.ty) < 2.1) return true;
+        }
+      }
+      return false;
+    }
+
     // Guarantee landmark structures (dungeons, altars, easter eggs, secret chests) are centered on the island and surrounded by solid land.
-    ensureStructureCenteringAndLandPads(onlyPlot = null) {
+    ensureStructureCenteringAndLandPads(onlyPlot = null, skipLavaPrune = false) {
       if (!Array.isArray(this.nodes)) return;
-      const specialKinds = ['dungeon_gate', 'altar_shrine', 'easter_egg', 'secret_chest'];
-      const targetNodes = this.nodes.filter(n => specialKinds.includes(n.kind));
+      this._ensureNodeIndex();
+      const targetNodes = this._landmarkNodes.filter(n => n && (n.kind === 'dungeon_gate' || n.kind === 'altar_shrine' || n.kind === 'easter_egg' || n.kind === 'secret_chest'));
+      const movedOrCleaned = [];
 
       for (const n of targetNodes) {
         const gx = Math.floor(n.tx / PLOT_TILES);
@@ -882,6 +1008,7 @@
           n.ty = oy + targetLy;
           n.x = n.tx * TILE_SIZE + TILE_SIZE / 2;
           n.y = n.ty * TILE_SIZE + TILE_SIZE / 2;
+          this._nodeIndexLen = -1;
         }
 
         // Guarantee generous solid 5x5 land pad around the structure so it never touches water
@@ -896,15 +1023,33 @@
             }
           }
         }
-
-        // Remove any resource nodes (trees, rocks, bushes) clipping in front of or inside the structure
-        this.nodes = this.nodes.filter(other => {
-          if (other === n || other.kind === 'puzzle_pillar' || other.kind === 'bone_totem' || other.kind === 'easter_egg') return true;
-          const dist = Math.hypot(other.tx - n.tx, other.ty - n.ty);
-          return dist >= 2.2;
-        });
+        movedOrCleaned.push(n);
       }
 
+      if (movedOrCleaned.length > 0) {
+        const protectedKinds = new Set(['puzzle_pillar', 'bone_totem', 'easter_egg', 'dungeon_gate', 'altar_shrine', 'secret_chest', 'skeleton_king_shrine']);
+        this.nodes = this.nodes.filter(other => {
+          if (!other || protectedKinds.has(other.kind)) return true;
+          for (let i = 0; i < movedOrCleaned.length; i++) {
+            const n = movedOrCleaned[i];
+            if (other === n) return true;
+            if (Math.abs(other.tx - n.tx) > 3 || Math.abs(other.ty - n.ty) > 3) continue;
+            if (n.kind === 'dungeon_gate') {
+              if (Math.abs(other.tx - n.tx) <= 2 && (n.ty - other.ty) >= -1 && (n.ty - other.ty) <= 3) return false;
+            } else if (Math.hypot(other.tx - n.tx, other.ty - n.ty) < 2.2) {
+              return false;
+            }
+          }
+          return true;
+        });
+        this._nodeIndexLen = -1;
+      }
+
+      if (skipLavaPrune) return;
+      this.pruneOrphanLava();
+    }
+
+    pruneOrphanLava() {
       // Prune tiny orphan 1-tile or 2-tile lava scraps clipped by landmark pads or borders (keep cohesive >=3-tile calderas)
       const visitedLava = new Uint8Array(WORLD_TILES * WORLD_TILES);
       for (let ty = 0; ty < WORLD_TILES; ty++) {
@@ -935,8 +1080,9 @@
     stitchUnlockedBorders() {
       this.connectorTiles = new Set();
       const seed = (this.worldSeed || 901);
+      const tilesToClear = new Set();
       const clearNode = (tx, ty) => {
-        this.nodes = this.nodes.filter(n => n.tx !== tx || n.ty !== ty || (n.kind !== 'fish_spot' && n.kind !== 'rock'));
+        tilesToClear.add(((ty & 0xfff) << 12) | (tx & 0xfff));
       };
       const setLandOrConnector = (x, y, asConnectorIfLocked = false, tileVal = 1) => {
         if (!this.tiles[y] || this.tiles[y][x] === undefined) return;
@@ -944,7 +1090,9 @@
         const pgy = Math.floor(y / PLOT_TILES);
         const unlocked = this.isPlotUnlocked(pgx, pgy);
         if (unlocked) {
-          if (tileVal === 3 && this.tiles[y][x] === 1) return;
+          const cur = this.tiles[y][x];
+          if (cur === 2) return; // Never erase player-tilled farmland when stitching newly unlocked borders
+          if (tileVal === 3 && (cur === 1 || cur === 5)) return;
           this.tiles[y][x] = tileVal;
           clearNode(x, y);
         } else if (asConnectorIfLocked) {
@@ -1039,10 +1187,6 @@
                   setLandOrConnector(ox + PLOT_TILES + d, ky, false, 3);
                 }
               }
-              if (by - 1 >= oy + 1 && hash2D(gx + 5, gy + 13, seed + 383) < 0.5) {
-                setLandOrConnector(ox + PLOT_TILES - 3, by - 1, false, 1);
-                setLandOrConnector(ox + PLOT_TILES + 2, by + 2, false, 1);
-              }
             }
             ensureConnectedWalkable(ox + 5, oy + 5, (gx + 1) * PLOT_TILES + 5, oy + 5);
           }
@@ -1087,10 +1231,6 @@
                   setLandOrConnector(kx, oy + PLOT_TILES + d, false, 3);
                 }
               }
-              if (bx - 1 >= ox + 1 && hash2D(gx + 21, gy + 3, seed + 503) < 0.5) {
-                setLandOrConnector(bx - 1, oy + PLOT_TILES - 3, false, 1);
-                setLandOrConnector(bx + 2, oy + PLOT_TILES + 2, false, 1);
-              }
             }
             ensureConnectedWalkable(ox + 5, oy + 5, ox + 5, (gy + 1) * PLOT_TILES + 5);
           }
@@ -1113,7 +1253,7 @@
                     const ty = oy + PLOT_TILES + dy;
                     if (!this.isTileUnlocked(tx, ty)) continue;
                     const n = hash2D(tx, ty, seed + 947);
-                    if (Math.hypot(tx - cx, ty - cy) <= fillRad + (n - 0.5) * 0.9) {
+                    if (Math.hypot(tx - cx, ty - cy) <= fillRad + (n - 0.5) * 0.35) {
                       setLandOrConnector(tx, ty, false, 1);
                     }
                   }
@@ -1158,6 +1298,118 @@
             }
           }
         }
+      }
+
+      if (tilesToClear.size > 0 && this.nodes.length > 0) {
+        this.nodes = this.nodes.filter(n => {
+          if (!n || (n.kind !== 'fish_spot' && n.kind !== 'rock')) return true;
+          return !tilesToClear.has(((n.ty & 0xfff) << 12) | (n.tx & 0xfff));
+        });
+        this._nodeIndexLen = -1;
+      }
+
+      this.pruneStrayLandTiles();
+    }
+
+    // Remove stray 1x1 isolated land blocks and 1-tile jagged fingers across unlocked islands (runs on generation & save load)
+    pruneStrayLandTiles(buildings = null, crops = null) {
+      const prot = new Set();
+      if (Array.isArray(this.terraformedTiles)) {
+        for (const p of this.terraformedTiles) if (p) prot.add(`${p[0]},${p[1]}`);
+      }
+      if (Array.isArray(buildings)) {
+        for (const b of buildings) {
+          if (!b || !Number.isFinite(b.tx) || !Number.isFinite(b.ty)) continue;
+          const bDef = Abyssea.BUILDINGS && Abyssea.BUILDINGS[b.type];
+          const sz = Math.max(1, (bDef && bDef.size) || 1);
+          for (let dy = 0; dy < sz; dy++) {
+            for (let dx = 0; dx < sz; dx++) {
+              prot.add(`${b.tx + dx},${b.ty + dy}`);
+            }
+          }
+        }
+      }
+      const cropList = Array.isArray(crops) ? crops : this.crops;
+      if (Array.isArray(cropList)) {
+        for (const c of cropList) {
+          if (c && Number.isFinite(c.tx) && Number.isFinite(c.ty)) prot.add(`${c.tx},${c.ty}`);
+        }
+      }
+      const keepKinds = new Set(['dungeon_gate', 'altar_shrine', 'easter_egg', 'secret_chest', 'skeleton_king_shrine', 'puzzle_pillar', 'bone_totem']);
+      if (Array.isArray(this.nodes)) {
+        for (const n of this.nodes) if (n && keepKinds.has(n.kind)) prot.add(`${n.tx},${n.ty}`);
+      }
+      if (Array.isArray(Abyssea.NPCS)) {
+        for (const npc of Abyssea.NPCS) {
+          const [ngx, ngy] = this.getNpcPlot(npc);
+          const [nlx, nly] = this.getNpcTileOffset(npc);
+          prot.add(`${ngx * PLOT_TILES + nlx},${ngy * PLOT_TILES + nly}`);
+        }
+      }
+      const hasLand = (x, y) => {
+        if (x < 0 || y < 0 || x >= WORLD_TILES || y >= WORLD_TILES) return false;
+        if (!this.isTileUnlocked(x, y)) return false;
+        const v = this.tiles[y]?.[x];
+        return v === 1 || v === 2 || v === 3 || v === 4;
+      };
+      // Pass 1: prune 1-tile spikes / isolated 1x1 dots
+      for (let pass = 0; pass < 4; pass++) {
+        for (let ty = 0; ty < WORLD_TILES; ty++) {
+          for (let tx = 0; tx < WORLD_TILES; tx++) {
+            if (this.tiles[ty][tx] !== 1 || !this.isTileUnlocked(tx, ty)) continue;
+            const lx = tx % PLOT_TILES, ly = ty % PLOT_TILES;
+            if (lx >= 4 && lx <= 7 && ly >= 4 && ly <= 7) continue;
+            if (prot.has(`${tx},${ty}`)) continue;
+            // Never remove tile touching a wooden bridge
+            if (this.tiles[ty - 1]?.[tx] === 3 || this.tiles[ty + 1]?.[tx] === 3 || this.tiles[ty]?.[tx - 1] === 3 || this.tiles[ty]?.[tx + 1] === 3) continue;
+            const nUp = hasLand(tx, ty - 1) ? 1 : 0;
+            const nDn = hasLand(tx, ty + 1) ? 1 : 0;
+            const nLt = hasLand(tx - 1, ty) ? 1 : 0;
+            const nRt = hasLand(tx + 1, ty) ? 1 : 0;
+            const cnt = nUp + nDn + nLt + nRt;
+            if (cnt <= 1 || (!nLt && !nRt && (nUp || nDn)) || (!nUp && !nDn && (nLt || nRt))) {
+              this.tiles[ty][tx] = 0;
+            }
+          }
+        }
+      }
+      // Pass 2: remove any remaining tiny disconnected land islets (<= 3 tiles without protected entities)
+      const vis = new Uint8Array(WORLD_TILES * WORLD_TILES);
+      for (let ty = 0; ty < WORLD_TILES; ty++) {
+        for (let tx = 0; tx < WORLD_TILES; tx++) {
+          const k0 = ty * WORLD_TILES + tx;
+          if (vis[k0] || !hasLand(tx, ty)) continue;
+          const comp = [[tx, ty]];
+          vis[k0] = 1;
+          let hasProt = prot.has(`${tx},${ty}`);
+          for (let i = 0; i < comp.length; i++) {
+            const [cx, cy] = comp[i];
+            const lx = cx % PLOT_TILES, ly = cy % PLOT_TILES;
+            if (lx >= 4 && lx <= 7 && ly >= 4 && ly <= 7) hasProt = true;
+            for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+              const nx = cx + dx, ny = cy + dy;
+              if (!hasLand(nx, ny)) continue;
+              const nk = ny * WORLD_TILES + nx;
+              if (vis[nk]) continue;
+              vis[nk] = 1;
+              if (prot.has(`${nx},${ny}`)) hasProt = true;
+              comp.push([nx, ny]);
+            }
+          }
+          if (!hasProt && comp.length <= 3) {
+            for (const [cx, cy] of comp) this.tiles[cy][cx] = 0;
+          }
+        }
+      }
+      // Remove any non-aquatic resource node stranded on water, or fish_spot stranded on land
+      if (Array.isArray(this.nodes)) {
+        this.nodes = this.nodes.filter(n => {
+          if (!n || keepKinds.has(n.kind)) return true;
+          const v = this.tiles[n.ty]?.[n.tx];
+          if (n.kind === 'fish_spot') return v === 0;
+          return v !== undefined && v !== 0;
+        });
+        this._nodeIndexLen = -1;
       }
     }
 
@@ -1209,13 +1461,14 @@
     }
 
     getBiomeAtPixel(px, py) {
-      const gx = Balaclava.Utils.clamp(Math.floor(px / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
-      const gy = Balaclava.Utils.clamp(Math.floor(py / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
+      const gx = Abyssea.Utils.clamp(Math.floor(px / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
+      const gy = Abyssea.Utils.clamp(Math.floor(py / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
       return this.plotBiomes[gy][gx];
     }
 
     _rebuildVisualBiomeGrid() {
-      const sig = `${this.worldSeed || 901}:${this.plotBiomes.map(r => r.map(b => (b || 'p')[0]).join('')).join('')}`;
+      const uSig = (this.plotUnlocked || []).map(r => (r || []).map(u => u ? '1' : '0').join('')).join('');
+      const sig = `${this.worldSeed || 901}:${this.plotBiomes.map(r => r.map(b => (b || 'p')[0]).join('')).join('')}:${uSig}`;
       const size = WORLD_TILES * WORLD_TILES;
       const out = new Array(size);
       const seed = (this.worldSeed || 901);
@@ -1232,52 +1485,96 @@
             out[ty * WORLD_TILES + tx] = baseBiome;
             continue;
           }
-          const nx0 = this._smoothNoise2D(tx * 0.11, ty * 0.11, seed + 587);
-          const nx1 = this._smoothNoise2D(tx * 0.24, ty * 0.24, seed + 613);
-          const nx2 = this._smoothNoise2D(tx * 0.52, ty * 0.52, seed + 641);
-          const ny0 = this._smoothNoise2D(tx * 0.11, ty * 0.11, seed + 659);
-          const ny1 = this._smoothNoise2D(tx * 0.24, ty * 0.24, seed + 677);
-          const ny2 = this._smoothNoise2D(tx * 0.52, ty * 0.52, seed + 709);
-          const wx = tx + 0.5 + (nx0 - 0.5) * 4.8 + (nx1 - 0.5) * 3.4 + (nx2 - 0.5) * 1.6;
-          const wy = ty + 0.5 + (ny0 - 0.5) * 4.8 + (ny1 - 0.5) * 3.4 + (ny2 - 0.5) * 1.6;
+          const nx0 = this._smoothNoise2D(tx * 0.09, ty * 0.09, seed + 587);
+          const nx1 = this._smoothNoise2D(tx * 0.19, ty * 0.19, seed + 613);
+          const ny0 = this._smoothNoise2D(tx * 0.09, ty * 0.09, seed + 659);
+          const ny1 = this._smoothNoise2D(tx * 0.19, ty * 0.19, seed + 677);
+          const wx = tx + 0.5 + (nx0 - 0.5) * 4.4 + (nx1 - 0.5) * 2.2;
+          const wy = ty + 0.5 + (ny0 - 0.5) * 4.4 + (ny1 - 0.5) * 2.2;
           const ngx = Math.min(GRID_PLOTS - 1, Math.max(0, Math.floor(wx / PLOT_TILES)));
           const ngy = Math.min(GRID_PLOTS - 1, Math.max(0, Math.floor(wy / PLOT_TILES)));
-          let picked = this.plotBiomes[ngy]?.[ngx] || baseBiome;
-          // Slight natural pixel dither right along different biome boundaries
-          if (picked !== baseBiome) {
-            const h = hash2D(tx, ty, seed + 787);
-            const dxEdge = Math.abs(wx - Math.round(wx / PLOT_TILES) * PLOT_TILES);
-            const dyEdge = Math.abs(wy - Math.round(wy / PLOT_TILES) * PLOT_TILES);
-            if (Math.min(dxEdge, dyEdge) < 0.85 && h < 0.26) picked = baseBiome;
+          // Never allow locked neighboring biome plots to bleed ground/tree biomes onto unlocked land
+          const selfUnlocked = Boolean(this.plotUnlocked[gy]?.[gx]);
+          const nbUnlocked = Boolean(this.plotUnlocked[ngy]?.[ngx]);
+          if (selfUnlocked && !nbUnlocked) {
+            out[ty * WORLD_TILES + tx] = baseBiome;
+          } else {
+            out[ty * WORLD_TILES + tx] = this.plotBiomes[ngy]?.[ngx] || baseBiome;
           }
-          out[ty * WORLD_TILES + tx] = picked;
         }
       }
-      this._visualBiomeGrid = out;
+      // Smooth out any isolated 1-tile biome specks/peninsulas (< 2 matching cardinal neighbors)
+      const smoothed = out.slice();
+      for (let ty = 1; ty < WORLD_TILES - 1; ty++) {
+        for (let tx = 1; tx < WORLD_TILES - 1; tx++) {
+          const gx = Math.floor(tx / PLOT_TILES), gy = Math.floor(ty / PLOT_TILES);
+          const selfUnlocked = Boolean(this.plotUnlocked[gy]?.[gx]);
+          const idx = ty * WORLD_TILES + tx;
+          const b = out[idx];
+          const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+          let same = 0;
+          const counts = {};
+          let bestB = b, bestC = 0;
+          for (const [dx, dy] of dirs) {
+            const nx = tx + dx, ny = ty + dy;
+            if (selfUnlocked && !this.plotUnlocked[Math.floor(ny / PLOT_TILES)]?.[Math.floor(nx / PLOT_TILES)]) continue;
+            const nb = out[ny * WORLD_TILES + nx];
+            if (nb === b) same++;
+            counts[nb] = (counts[nb] || 0) + 1;
+            if (counts[nb] > bestC) { bestC = counts[nb]; bestB = nb; }
+          }
+          if (same <= 1 && bestC >= 3) smoothed[idx] = bestB;
+        }
+      }
+      this._visualBiomeGrid = smoothed;
       this._visualBiomeSig = sig;
+      this._visualBiomeVer = this._unlockVersion || 0;
     }
 
     getVisualBiomeAtTile(tx, ty) {
       const cx = Math.min(WORLD_TILES - 1, Math.max(0, Math.floor(tx)));
       const cy = Math.min(WORLD_TILES - 1, Math.max(0, Math.floor(ty)));
-      const sig = `${this.worldSeed || 901}:${this.plotBiomes.map(r => r.map(b => (b || 'p')[0]).join('')).join('')}`;
-      if (!this._visualBiomeGrid || this._visualBiomeSig !== sig) {
+      const curVer = this._unlockVersion || 0;
+      if (!this._visualBiomeGrid || this._visualBiomeVer !== curVer) {
         this._rebuildVisualBiomeGrid();
       }
       return this._visualBiomeGrid[cy * WORLD_TILES + cx] || 'pradera';
     }
 
-    unlockPlot(gx, gy, isStarter = false) {
+    isBiomeUnlocked(biomeId) {
+      const curVer = this._unlockVersion || 0;
+      if (!this._unlockedBiomesSet || this._unlockedBiomesVer !== curVer) {
+        const s = new Set();
+        if (Array.isArray(this.plotUnlocked)) {
+          for (let gy = 0; gy < GRID_PLOTS; gy++) {
+            const row = this.plotUnlocked[gy];
+            if (!row) continue;
+            for (let gx = 0; gx < GRID_PLOTS; gx++) {
+              if (row[gx] && this.plotBiomes[gy]?.[gx]) s.add(this.plotBiomes[gy][gx]);
+            }
+          }
+        }
+        this._unlockedBiomesSet = s;
+        this._unlockedBiomesVer = curVer;
+      }
+      return this._unlockedBiomesSet.has(biomeId);
+    }
+
+    unlockPlot(gx, gy, isStarter = false, deferFinalize = false) {
       if (gx < 0 || gy < 0 || gx >= GRID_PLOTS || gy >= GRID_PLOTS) return false;
       if (this.plotUnlocked[gy][gx]) return false;
       this.plotUnlocked[gy][gx] = true;
+      if (!deferFinalize) {
+        this._unlockVersion = (this._unlockVersion || 0) + 1;
+        this._visualBiomeGrid = null;
+      }
 
       const biome = this.plotBiomes[gy][gx];
       const ox = gx * PLOT_TILES;
       const oy = gy * PLOT_TILES;
 
-      // Seamlessly bridge adjoining unlocked islands
-      this.stitchUnlockedBorders();
+      // Seamlessly bridge adjoining unlocked islands (deferred once during bulk /unlock plots)
+      if (!deferFinalize) this.stitchUnlockedBorders();
 
       // Seed-varied placement helper inside plot bounds so structures never appear on the same tile
       const plotRng = seededRand((this.worldSeed || 42) + gx * 97 + gy * 193 + 17);
@@ -1347,9 +1644,16 @@
           name: 'Cofre Secreto Sellado (Activa los 3 Pilares)'
         });
         for (let pIdx = 0; pIdx < 3; pIdx++) {
-          const [px, py] = pickInteriorSpot(4, 7, 2.1);
-          if (this.tiles[py] && this.tiles[py][px] !== undefined) this.tiles[py][px] = 1;
-          this.nodes = this.nodes.filter(n => n.tx !== px || n.ty !== py);
+          const [px, py] = pickInteriorSpot(3, 8, 2.35);
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const tx = px + dx, ty = py + dy;
+              if (this.tiles[ty] && tx >= ox + 1 && tx <= ox + PLOT_TILES - 2 && ty >= oy + 1 && ty <= oy + PLOT_TILES - 2) {
+                if (this.tiles[ty][tx] === 0 || this.tiles[ty][tx] === 4) this.tiles[ty][tx] = 1;
+              }
+            }
+          }
+          this.nodes = this.nodes.filter(n => !(n.tx === px && n.ty === py && n.kind !== 'secret_chest' && n.kind !== 'puzzle_pillar'));
           this.spawnSpecialNode(px, py, 'puzzle_pillar', biome, {
             secretIdx,
             pillarIdx: pIdx + 1,
@@ -1360,7 +1664,7 @@
       }
 
       // Ensure any landmark on this plot is firmly centered with solid land and zero clipping nodes
-      this.ensureStructureCenteringAndLandPads([gx, gy]);
+      this.ensureStructureCenteringAndLandPads([gx, gy], deferFinalize);
 
       // Check if this plot hosts the Giant Skeleton King Sanctum & 3 Bone Totems (bosque_oscuro)
       if (this.skeletonKingPlot && this.skeletonKingPlot[0] === gx && this.skeletonKingPlot[1] === gy && !isStarter) {
@@ -1375,7 +1679,7 @@
           }
         }
         const [skx, sky] = pickInteriorSpot(4, 7, 2.2);
-        const T = (k) => (Balaclava.I18n ? Balaclava.I18n.t(k) : k);
+        const T = (k) => (Abyssea.I18n ? Abyssea.I18n.t(k) : k);
         this.spawnSpecialNode(skx, sky, 'skeleton_king_shrine', biome, {
           name: T('world.skeletonKing'),
           state: 'sleeping',
@@ -1399,7 +1703,7 @@
         for (let attempt = 0; attempt < 16; attempt++) {
           const cx = ox + randInt(2, PLOT_TILES - 3);
           const cy = oy + randInt(2, PLOT_TILES - 3);
-          if (this.tiles[cy][cx] === 1 && !this.getNodeAtTile(cx, cy)) {
+          if (this.tiles[cy][cx] === 1 && !this.getNodeAtTile(cx, cy) && !this.isTileInStructureClearance(cx, cy)) {
             this.spawnSpecialNode(cx, cy, 'chest', biome);
             break;
           }
@@ -1408,14 +1712,20 @@
       if (!isStarter) {
         if (Math.random() < 0.08) {
           const dx = ox + randInt(2, PLOT_TILES - 3), dy = oy + randInt(2, PLOT_TILES - 3);
-          if (this.tiles[dy] && this.tiles[dy][dx] === 1 && !this.getNodeAtTile(dx, dy)) {
+          if (this.tiles[dy] && this.tiles[dy][dx] === 1 && !this.getNodeAtTile(dx, dy) && !this.isTileInStructureClearance(dx, dy)) {
             this.spawnSpecialNode(dx, dy, 'dig_spot', biome);
           }
         }
         if (biome !== 'pradera' && Math.random() < 0.5) {
-          const rx = ox + randInt(2, 9), ry = oy + randInt(2, 9);
-          if (this.tiles[ry] && this.tiles[ry][rx] === 1 && !this.getNodeAtTile(rx, ry)) {
-            this.spawnSpecialNode(rx, ry, 'ruin_pillar', biome);
+          for (let rTry = 0; rTry < 8; rTry++) {
+            const rx = ox + randInt(2, 9), ry = oy + randInt(2, 8);
+            const onSolidLand = this.tiles[ry] && this.tiles[ry][rx] === 1
+              && this.tiles[ry + 1] && this.tiles[ry + 1][rx] === 1
+              && this.tiles[ry][rx - 1] === 1 && this.tiles[ry][rx + 1] === 1;
+            if (onSolidLand && !this.getNodeAtTile(rx, ry) && !this.isTileInStructureClearance(rx, ry)) {
+              this.spawnSpecialNode(rx, ry, 'ruin_pillar', biome);
+              break;
+            }
           }
         }
       } else {
@@ -1481,12 +1791,18 @@
           tierras_malditas: [],
           tierras_volcanicas: []
         }[biome] ?? ['sheep'];
-        if (faunaPool.length && Math.random() < 0.72) {
-          this.spawnAnimal(ox + randInt(3, 8), oy + randInt(3, 8), pick(faunaPool));
-        }
-        if (faunaPool.length > 1 && Math.random() < 0.42) {
-          this.spawnAnimal(ox + randInt(3, 8), oy + randInt(3, 8), pick(faunaPool));
-        }
+        const spawnSafeAnimal = () => {
+          for (let tries = 0; tries < 18; tries++) {
+            const ax = ox + randInt(2, PLOT_TILES - 3);
+            const ay = oy + randInt(2, PLOT_TILES - 3);
+            if (this.tiles[ay]?.[ax] === 1 && !this.getNodeAtTile(ax, ay) && !this.isTileInStructureClearance(ax, ay)) {
+              this.spawnAnimal(ax, ay, pick(faunaPool));
+              return;
+            }
+          }
+        };
+        if (faunaPool.length && Math.random() < 0.72) spawnSafeAnimal();
+        if (faunaPool.length > 1 && Math.random() < 0.42) spawnSafeAnimal();
       }
 
       // Spawn fishing spots on water border
@@ -1498,6 +1814,33 @@
         }
       }
       return true;
+    }
+
+    // Fast batched unlock for /unlock plots (stitches borders, rebuilds biome grid, and prunes orphan lava ONCE!)
+    unlockAllPlots() {
+      const toPopulate = [];
+      for (let gy = 0; gy < GRID_PLOTS; gy++) {
+        for (let gx = 0; gx < GRID_PLOTS; gx++) {
+          if (!this.plotUnlocked[gy] || !this.plotUnlocked[gy][gx]) {
+            this.plotUnlocked[gy][gx] = true;
+            toPopulate.push([gx, gy]);
+          }
+        }
+      }
+      if (toPopulate.length === 0) return 0;
+      this._unlockVersion = (this._unlockVersion || 0) + 1;
+      this._visualBiomeGrid = null;
+      this.stitchUnlockedBorders();
+      this._rebuildVisualBiomeGrid();
+      for (let i = 0; i < toPopulate.length; i++) {
+        const [gx, gy] = toPopulate[i];
+        this.plotUnlocked[gy][gx] = false;
+        this.unlockPlot(gx, gy, false, true);
+      }
+      this.pruneOrphanLava();
+      this._nodeIndexLen = -1;
+      this._ensureNodeIndex();
+      return toPopulate.length;
     }
 
     spawnAnimal(tx, ty, kind = 'sheep') {
@@ -1537,14 +1880,19 @@
     }
 
     getNodeAtTile(tx, ty) {
-      return this.nodes.find(n => n.tx === tx && n.ty === ty);
+      this._ensureNodeIndex();
+      return this._nodeByTile.get(((ty & 0xfff) << 12) | (tx & 0xfff));
     }
 
     spawnSpecialNode(tx, ty, kind, biome, extra = {}) {
       if (tx < 0 || ty < 0 || tx >= WORLD_TILES || ty >= WORLD_TILES) return null;
       const existing = this.getNodeAtTile(tx, ty);
       if (existing && (existing.kind === 'dungeon_gate' || existing.kind === 'altar_shrine' || existing.kind === 'easter_egg' || existing.kind === 'chest' || existing.kind === 'secret_chest')) return null;
-      if (existing) this.nodes = this.nodes.filter(n => n !== existing);
+      if (existing) {
+        const idx = this.nodes.indexOf(existing);
+        if (idx !== -1) this.nodes.splice(idx, 1);
+        this._nodeIndexLen = -1;
+      }
       const node = {
         id: this.nextNodeId++,
         tx, ty,
@@ -1559,6 +1907,7 @@
         ...extra
       };
       this.nodes.push(node);
+      this._indexPushNode(node);
       return node;
     }
 
@@ -1651,9 +2000,10 @@
       if (tx < 0 || ty < 0 || tx >= WORLD_TILES || ty >= WORLD_TILES) return null;
       if (this.tiles[ty][tx] !== 1) return null;
       if (this.getNodeAtTile(tx, ty)) return null;
+      if (this.isTileInStructureClearance(tx, ty)) return null;
 
       // Avoid NPC spawn tiles (using dynamic procedural NPC plots & seed offsets)
-      for (const npc of (Balaclava.NPCS || [])) {
+      for (const npc of (Abyssea.NPCS || [])) {
         const nPlot = this.getNpcPlot(npc);
         const [offX, offY] = this.getNpcTileOffset(npc);
         const nx = nPlot[0] * PLOT_TILES + offX;
@@ -1720,7 +2070,7 @@
         meteor:         { hp: 55, tool: 'pico', drops: [{ id: 'diamantes', min: 2, max: 3 }, { id: 'polvo_estelar', min: 1, max: 2 }, { id: 'cristales_magicos', min: 2, max: 4 }, { id: 'obsidiana_bruta', min: 1, max: 2, chance: 0.65 }, { id: 'gema_alma', min: 1, max: 1, chance: 0.35 }, { id: 'onice', min: 1, max: 1, chance: 0.28 }, { id: 'fragmentos_antiguos', min: 1, max: 1, chance: 0.5 }], xp: 65 }
       };
 
-      const activeNodeNames = Balaclava.NODE_DISPLAY_NAMES || NODE_DISPLAY_NAMES;
+      const activeNodeNames = Abyssea.NODE_DISPLAY_NAMES || NODE_DISPLAY_NAMES;
       this.NODE_DISPLAY_NAMES = activeNodeNames;
 
       const d = defs[kind];
@@ -1757,6 +2107,7 @@
         variant: randInt(0, 3)
       };
       this.nodes.push(node);
+      this._indexPushNode(node);
       return node;
     }
 
@@ -1767,6 +2118,7 @@
       const isFree = (tx, ty) => {
         if (!this.tiles[ty] || this.tiles[ty][tx] !== 1) return false;
         if (this.getNodeAtTile(tx, ty)) return false;
+        if (this.isTileInStructureClearance(tx, ty)) return false;
         if (occupiedBuildingTiles && occupiedBuildingTiles.has(tx + ',' + ty)) return false;
         if (this.crops.some(c => c.tx === tx && c.ty === ty)) return false;
         return true;
@@ -1801,7 +2153,7 @@
       if (!spot) return false;
       const [tx, ty] = spot;
 
-      const C = Balaclava.CONST.CENTER_PLOT || 9;
+      const C = Abyssea.CONST.CENTER_PLOT || 9;
       const plotDist = Math.hypot(gx - C, gy - C);
 
       if (plotDist > 0 && Math.random() < 0.018) {
@@ -1815,7 +2167,7 @@
         if (plotDist >= 0.9) pool.push('iron_vein', 'iron_vein', 'malachite_vein', 'malachite_vein', 'silver_vein');
         if (plotDist >= 1.2) pool.push('silver_vein', 'gold_vein', 'jade_vein');
       } else if (biome === 'desierto') {
-        pool.push('cactus', 'cactus', 'rock', 'copper_vein', 'tin_vein', 'star_sand_vein', 'star_sand_vein', 'gold_vein', 'malachite_vein', 'amber_vein');
+        pool.push('tree', 'tree', 'cactus', 'cactus', 'rock', 'copper_vein', 'tin_vein', 'star_sand_vein', 'star_sand_vein', 'gold_vein', 'malachite_vein', 'amber_vein');
         if (plotDist >= 2.2) pool.push('silver_vein', 'gold_vein', 'sulfur_vein', 'amber_vein', 'platinum_vein', 'jade_vein');
       } else if (biome === 'montanas_heladas') {
         pool.push('tree', 'tree', 'rock', 'iron_vein', 'silver_vein', 'ice_crystal', 'ice_crystal', 'gold_vein', 'platinum_vein', 'azurite_vein', 'sapphire_node');
@@ -1824,26 +2176,26 @@
         pool.push('giant_tree', 'giant_tree', 'mushroom_node', 'mushroom_node', 'herb_patch', 'wild_crop_patch', 'iron_vein', 'silver_vein', 'jade_vein', 'amethyst_vein', 'abyssal_crystal_vein');
         if (plotDist >= 2.4) pool.push('crystal_node', 'bloodstone_vein', 'mithril_vein', 'titanium_vein');
       } else if (biome === 'tierras_volcanicas') {
-        pool.push('volcanic_rock', 'volcanic_rock', 'sulfur_vein', 'coal_vein', 'gold_vein', 'platinum_vein', 'obsidian_vein', 'mithril_vein', 'titanium_vein', 'ruby_node', 'magma_core_vein', 'adamantite_vein', 'orichalcum_vein', 'diamond_vein');
+        pool.push('tree', 'tree', 'volcanic_rock', 'volcanic_rock', 'sulfur_vein', 'coal_vein', 'gold_vein', 'platinum_vein', 'obsidian_vein', 'mithril_vein', 'titanium_vein', 'ruby_node', 'magma_core_vein', 'adamantite_vein', 'orichalcum_vein', 'diamond_vein');
         if (plotDist >= 2.8) pool.push('orichalcum_vein', 'diamond_vein', 'meteor');
       } else if (biome === 'archipielago_coral') {
-        pool.push('cactus', 'herb_patch', 'coral_abisal_node', 'coral_abisal_node', 'coral_abisal_node', 'perla_turquesa_node', 'perla_turquesa_node', 'star_sand_vein', 'amber_vein', 'gold_vein', 'sapphire_node', 'platinum_vein');
+        pool.push('tree', 'tree', 'herb_patch', 'coral_abisal_node', 'coral_abisal_node', 'coral_abisal_node', 'perla_turquesa_node', 'perla_turquesa_node', 'star_sand_vein', 'amber_vein', 'gold_vein', 'sapphire_node', 'platinum_vein');
       } else if (biome === 'cavernas_cristal') {
-        pool.push('tree', 'cuarzo_boreal_node', 'cuarzo_boreal_node', 'cuarzo_boreal_node', 'celestita_node', 'celestita_node', 'ice_crystal', 'sapphire_node', 'amethyst_vein', 'mithril_vein', 'titanium_vein', 'diamond_vein');
+        pool.push('tree', 'tree', 'cuarzo_boreal_node', 'cuarzo_boreal_node', 'cuarzo_boreal_node', 'celestita_node', 'celestita_node', 'ice_crystal', 'sapphire_node', 'amethyst_vein', 'mithril_vein', 'titanium_vein', 'diamond_vein');
       } else if (biome === 'selva_esmeralda') {
-        pool.push('giant_tree', 'madera_ferrea_node', 'madera_ferrea_node', 'madera_ferrea_node', 'jade_ancestral_node', 'jade_ancestral_node', 'bush', 'wild_crop_patch', 'emerald_vein', 'emerald_vein', 'jade_vein', 'adamantite_vein');
+        pool.push('giant_tree', 'giant_tree', 'madera_ferrea_node', 'madera_ferrea_node', 'madera_ferrea_node', 'jade_ancestral_node', 'jade_ancestral_node', 'bush', 'wild_crop_patch', 'emerald_vein', 'emerald_vein', 'jade_vein', 'adamantite_vein');
       } else if (biome === 'caldera_ceniza') {
-        pool.push('volcanic_rock', 'escoria_caldera_node', 'escoria_caldera_node', 'escoria_caldera_node', 'cristal_carmesi_node', 'obsidian_vein', 'magma_core_vein', 'orichalcum_vein', 'ruby_node', 'sulfur_vein', 'titanium_vein', 'meteor');
+        pool.push('tree', 'tree', 'volcanic_rock', 'escoria_caldera_node', 'escoria_caldera_node', 'escoria_caldera_node', 'cristal_carmesi_node', 'obsidian_vein', 'magma_core_vein', 'orichalcum_vein', 'ruby_node', 'sulfur_vein', 'titanium_vein', 'meteor');
       } else if (biome === 'dinastia_arena') {
-        pool.push('cactus', 'pirita_solar_node', 'pirita_solar_node', 'pirita_solar_node', 'agata_roja_node', 'agata_roja_node', 'gold_vein', 'amber_vein', 'orichalcum_vein', 'diamond_vein', 'ruby_node', 'platinum_vein');
+        pool.push('tree', 'tree', 'cactus', 'pirita_solar_node', 'pirita_solar_node', 'pirita_solar_node', 'agata_roja_node', 'agata_roja_node', 'gold_vein', 'amber_vein', 'orichalcum_vein', 'diamond_vein', 'ruby_node', 'platinum_vein');
       } else if (biome === 'glaciar_profundo') {
-        pool.push('hielo_eterno_node', 'hielo_eterno_node', 'hielo_eterno_node', 'bismuto_astral_node', 'bismuto_astral_node', 'cuarzo_boreal_node', 'azurite_vein', 'mithril_vein', 'titanium_vein', 'sapphire_node', 'platinum_vein', 'meteor');
+        pool.push('tree', 'tree', 'hielo_eterno_node', 'hielo_eterno_node', 'hielo_eterno_node', 'bismuto_astral_node', 'bismuto_astral_node', 'cuarzo_boreal_node', 'azurite_vein', 'mithril_vein', 'titanium_vein', 'sapphire_node', 'platinum_vein', 'meteor');
       } else if (biome === 'cienaga_putrida') {
-        pool.push('giant_tree', 'mushroom_node', 'resina_toxica_node', 'resina_toxica_node', 'resina_toxica_node', 'flor_pantano_node', 'flor_pantano_node', 'bloodstone_vein', 'adamantite_vein', 'emerald_vein', 'amethyst_vein');
+        pool.push('giant_tree', 'giant_tree', 'mushroom_node', 'resina_toxica_node', 'resina_toxica_node', 'resina_toxica_node', 'flor_pantano_node', 'flor_pantano_node', 'bloodstone_vein', 'adamantite_vein', 'emerald_vein', 'amethyst_vein');
       } else if (biome === 'necropolis_osea') {
-        pool.push('hueso_fosil_node', 'hueso_fosil_node', 'hueso_fosil_node', 'plata_maldita_node', 'plata_maldita_node', 'abyssal_crystal_vein', 'bloodstone_vein', 'mithril_vein', 'obsidian_vein', 'silver_vein', 'diamond_vein');
+        pool.push('tree', 'tree', 'hueso_fosil_node', 'hueso_fosil_node', 'hueso_fosil_node', 'plata_maldita_node', 'plata_maldita_node', 'abyssal_crystal_vein', 'bloodstone_vein', 'mithril_vein', 'obsidian_vein', 'silver_vein', 'diamond_vein');
       } else {
-        pool.push('cristal_carmesi_node', 'cristal_carmesi_node', 'cristal_carmesi_node', 'marmol_oscuro_node', 'marmol_oscuro_node', 'abyssal_crystal_vein', 'obsidian_vein', 'diamond_vein', 'magma_core_vein', 'orichalcum_vein', 'adamantite_vein', 'meteor');
+        pool.push('tree', 'tree', 'cristal_carmesi_node', 'cristal_carmesi_node', 'cristal_carmesi_node', 'marmol_oscuro_node', 'marmol_oscuro_node', 'abyssal_crystal_vein', 'obsidian_vein', 'diamond_vein', 'magma_core_vein', 'orichalcum_vein', 'adamantite_vein', 'meteor');
       }
       const kind = pick(pool);
       return !!this.spawnNodeAtTile(tx, ty, kind, biome);
@@ -1854,7 +2206,7 @@
       const spot = this._pickFreePlotTile(gx, gy, occupiedBuildingTiles);
       if (!spot) return null;
       const [tx, ty] = spot;
-      const C = Balaclava.CONST.CENTER_PLOT || 9;
+      const C = Abyssea.CONST.CENTER_PLOT || 9;
       const plotDist = Math.hypot(gx - C, gy - C);
 
       const poolByBiome = {
@@ -1887,11 +2239,11 @@
     }
 
     update(dt, gameState) {
-      // Decay altar cooldowns
-      for (const n of this.nodes) {
-        if (n.kind === 'altar_shrine' && n.cooldownLeft > 0) {
-          n.cooldownLeft = Math.max(0, n.cooldownLeft - dt);
-        }
+      this._ensureNodeIndex();
+      // Decay altar cooldowns (only the ~7 altars, not all 5,000+ nodes)
+      for (let i = 0; i < this._altarNodes.length; i++) {
+        const n = this._altarNodes[i];
+        if (n && n.cooldownLeft > 0) n.cooldownLeft = Math.max(0, n.cooldownLeft - dt);
       }
 
       // Gentle empty-tile resource generation (~7.3s => 1.3x faster mineral/tree regen)
@@ -1912,51 +2264,101 @@
         }
       }
 
-      // Node hit bounce decay
-      for (const n of this.nodes) {
-        if (n.hitAnim > 0) n.hitAnim = Math.max(0, n.hitAnim - dt * 5);
+      // Node hit bounce decay (only near player where hits happen)
+      const plX = (gameState && gameState.player) ? gameState.player.x : 0;
+      const plY = (gameState && gameState.player) ? gameState.player.y : 0;
+      const nearNodes = this.queryNodesInRect(plX - 900, plY - 900, plX + 900, plY + 900);
+      for (let i = 0; i < nearNodes.length; i++) {
+        const n = nearNodes[i];
+        if (n && n.hitAnim > 0) n.hitAnim = Math.max(0, n.hitAnim - dt * 5);
       }
 
-      // Passive animals gentle wandering & flee response
-      for (const s of this.sheep) {
+      // Passive animals gentle wandering & flee response (only simulate animals within active range of player)
+      if (!this._animalSpeeds) {
+        this._animalSpeeds = { vaca: 18, cow: 18, sheep: 24, cerdo: 25, pig: 25, pato: 28, duck: 28, conejo: 31, rabbit: 31 };
+      }
+      const animalSpeeds = this._animalSpeeds;
+      const gRef = Abyssea.game;
+      const hasSolidCheck = !!(gRef && typeof gRef.isSolidWorldObstacle === 'function');
+      const pad = 10;
+      const canAnimalStand = (px, py, curX, curY) => {
+        const tx0 = Math.floor((px - pad) / TILE_SIZE);
+        const tx1 = Math.floor((px + pad) / TILE_SIZE);
+        const ty0 = Math.floor((py - 8) / TILE_SIZE);
+        const ty1 = Math.floor((py + 8) / TILE_SIZE);
+        if (!(this.isTileWalkable(tx0, ty0) && this.isTileWalkable(tx1, ty0) &&
+              this.isTileWalkable(tx0, ty1) && this.isTileWalkable(tx1, ty1))) return false;
+        if (hasSolidCheck && gRef.isSolidWorldObstacle(px, py, curX, curY, 10, 6)) return false;
+        return true;
+      };
+      for (let si = 0; si < this.sheep.length; si++) {
+        const s = this.sheep[si];
         if (s.shearCooldown > 0) s.shearCooldown = Math.max(0, s.shearCooldown - dt);
         if (s.milkCooldown > 0) s.milkCooldown = Math.max(0, s.milkCooldown - dt);
         if (s.petCooldown > 0) s.petCooldown = Math.max(0, s.petCooldown - dt);
         if (s.hitFlash > 0) s.hitFlash = Math.max(0, s.hitFlash - dt);
+        if (Math.abs(s.x - plX) > 1250 || Math.abs(s.y - plY) > 1250) continue;
+        const aKind = s.kind || s.species || 'sheep';
+        const baseSpd = animalSpeeds[aKind] || 24;
+        if (s.wanderAngle === undefined) s.wanderAngle = Math.random() * Math.PI * 2;
+        if (s.targetVx === undefined) { s.targetVx = s.vx || 0; s.targetVy = s.vy || 0; }
         if (s.fleeTimer > 0) {
           s.fleeTimer = Math.max(0, s.fleeTimer - dt);
+          s.grazing = false;
+          s.targetVx = s.vx; s.targetVy = s.vy;
         } else {
           s.timer -= dt;
           if (s.timer <= 0) {
-            s.timer = randInt(2, 5);
-            if (Math.random() < 0.55) {
-              const ang = Math.random() * Math.PI * 2;
-              s.vx = Math.cos(ang) * 26;
-              s.vy = Math.sin(ang) * 26;
+            if (Math.random() < 0.68) {
+              // Smooth natural stroll (2.2s - 4.4s)
+              s.timer = 2.2 + Math.random() * 2.2;
+              s.grazing = false;
+              s.wanderAngle += (Math.random() - 0.5) * 1.45;
+              s.turnRate = (Math.random() - 0.5) * 0.35;
+              const spd = baseSpd * (0.85 + Math.random() * 0.28);
+              s.targetVx = Math.cos(s.wanderAngle) * spd;
+              s.targetVy = Math.sin(s.wanderAngle) * spd;
             } else {
-              s.vx = 0; s.vy = 0;
+              // Calm grazing / idle pause (1.4s - 2.9s) so sheep visibly eat grass and farm animals rest smoothly
+              s.timer = 1.4 + Math.random() * 1.5;
+              s.grazing = Math.random() < 0.65;
+              s.turnRate = 0;
+              s.targetVx = 0;
+              s.targetVy = 0;
             }
+          } else if (Math.abs(s.targetVx) + Math.abs(s.targetVy) > 1 && s.turnRate) {
+            s.wanderAngle += s.turnRate * dt;
+            const curSpd = Math.hypot(s.targetVx, s.targetVy) || baseSpd;
+            s.targetVx = Math.cos(s.wanderAngle) * curSpd;
+            s.targetVy = Math.sin(s.wanderAngle) * curSpd;
+          }
+          const lerpRate = Math.min(1, dt * 4.4);
+          s.vx += (s.targetVx - s.vx) * lerpRate;
+          s.vy += (s.targetVy - s.vy) * lerpRate;
+          if (Math.abs(s.targetVx) < 0.5 && Math.abs(s.targetVy) < 0.5 && Math.hypot(s.vx, s.vy) < 2.2) {
+            s.vx = 0; s.vy = 0;
           }
         }
-        if (Math.abs(s.vx) > 2) s.facing = s.vx >= 0 ? 1 : -1;
-        const pad = 10;
-        const canAnimalStand = (px, py) => (
-          this.isTileWalkable(Math.floor((px - pad) / TILE_SIZE), Math.floor((py - 8) / TILE_SIZE)) &&
-          this.isTileWalkable(Math.floor((px + pad) / TILE_SIZE), Math.floor((py - 8) / TILE_SIZE)) &&
-          this.isTileWalkable(Math.floor((px - pad) / TILE_SIZE), Math.floor((py + 8) / TILE_SIZE)) &&
-          this.isTileWalkable(Math.floor((px + pad) / TILE_SIZE), Math.floor((py + 8) / TILE_SIZE))
-        );
+        if (Math.abs(s.vx) > 4.5) s.facing = s.vx >= 0 ? 1 : -1;
         const nx = s.x + s.vx * dt;
         const ny = s.y + s.vy * dt;
         let moved = false;
-        if (canAnimalStand(nx, s.y)) { s.x = nx; moved = true; } else { s.vx = -s.vx; }
-        if (canAnimalStand(s.x, ny)) { s.y = ny; moved = true; } else { s.vy = -s.vy; }
-        if (!moved && !canAnimalStand(s.x, s.y)) {
+        let blocked = false;
+        if (canAnimalStand(nx, s.y, s.x, s.y)) { s.x = nx; moved = true; } else { s.vx = -s.vx * 0.5; s.targetVx = -s.targetVx; blocked = true; }
+        if (canAnimalStand(s.x, ny, s.x, s.y)) { s.y = ny; moved = true; } else { s.vy = -s.vy * 0.5; s.targetVy = -s.targetVy; blocked = true; }
+        if (blocked) {
+          s.wanderAngle = Math.atan2(s.targetVy || -s.vy, s.targetVx || -s.vx) + (Math.random() - 0.5) * 0.45;
+        }
+        const curSpeed = Math.hypot(s.vx, s.vy);
+        s.animTime = (s.animTime || 0) + dt * (curSpeed > 3.5 ? (1.0 + curSpeed / Math.max(12, baseSpd)) : 0.75);
+        if (!moved && !canAnimalStand(s.x, s.y, s.x, s.y)) {
           const pCx = (Math.floor(s.x / (PLOT_TILES * TILE_SIZE)) * PLOT_TILES + 5) * TILE_SIZE;
           const pCy = (Math.floor(s.y / (PLOT_TILES * TILE_SIZE)) * PLOT_TILES + 5) * TILE_SIZE;
           const ang = Math.atan2(pCy - s.y, pCx - s.x);
-          s.vx = Math.cos(ang) * 28;
-          s.vy = Math.sin(ang) * 28;
+          s.wanderAngle = ang;
+          s.vx = Math.cos(ang) * baseSpd;
+          s.vy = Math.sin(ang) * baseSpd;
+          s.targetVx = s.vx; s.targetVy = s.vy;
           const fx = s.x + s.vx * dt;
           const fy = s.y + s.vy * dt;
           if (this.isTileWalkable(Math.floor(fx / TILE_SIZE), Math.floor(fy / TILE_SIZE))) {
@@ -1985,97 +2387,79 @@
 
       let res = null;
       if (biome === 'pradera') {
-        if (roll < 24) {
-          res = { kind: 'tuft', col: h2 % 4, row: (h2 >>> 2) % 3, size: 18 + (h2 % 6), ox, oy, sway: true };
-        } else if (roll < 35) {
-          res = { kind: 'flowers', palette: h2 % 4, count: 2 + (h2 % 3), ox, oy, sway: true };
-        } else if (roll < 44) {
-          const natKeys = ['nat_flower', 'nat_leaf', 'deco_fern_1', 'deco_fern_2'];
-          res = { kind: 'sprite', key: natKeys[h2 % natKeys.length], size: 22 + (h2 % 6), ox, oy, sway: true };
-        } else if (roll < 53) {
-          const shKeys = ['nat_mushroom', 'deco_bush_1', 'deco_shroom_1', 'deco_shroom_2'];
-          res = { kind: 'sprite', key: shKeys[h2 % shKeys.length], size: (h2 % 4 === 1) ? 23 : 20, ox, oy, sway: false };
-        } else if (roll < 56) {
-          res = { kind: 'sprite', key: 'deco_pebble_1', size: 16 + (h2 % 4), ox, oy, sway: false };
+        if (roll < 8) {
+          res = { kind: 'sprite', key: 'nat_flower', size: 22 + (h2 % 5), ox, oy, sway: true };
+        } else if (roll < 15) {
+          res = { kind: 'sprite', key: (h2 % 2 === 0) ? 'deco_fern_1' : 'nat_mushroom', size: 22 + (h2 % 5), ox, oy, sway: (h2 % 2 === 0) };
+        } else if (roll < 22) {
+          res = { kind: 'sprite', key: (h2 % 2 === 0) ? 'nat_leaf' : 'deco_pebble_1', size: 20 + (h2 % 4), ox, oy, sway: false };
         }
       } else if (biome === 'desierto') {
-        if (roll < 14) {
+        if (roll < 12) {
           res = { kind: 'blade', color: '#d4a348', highlight: '#f3d17c', ox, oy, sway: true };
-        } else if (roll < 22) {
-          res = { kind: 'sprite', key: 'deco_thorn_bush', size: 19 + (h2 % 5), ox, oy, sway: true };
-        } else if (roll < 27) {
+        } else if (roll < 19) {
           res = { kind: 'succulent', ox, oy };
-        } else if (roll < 31) {
-          res = { kind: 'sprite', key: 'deco_pebble_1', size: 16 + (h2 % 4), ox, oy, sway: false };
+        } else if (roll < 24) {
+          res = { kind: 'sprite', key: 'deco_pebble_1', size: 20 + (h2 % 4), ox, oy, sway: false };
         }
       } else if (biome === 'bosque_oscuro') {
-        if (roll < 16) {
-          const bKeys = ['deco_dark_bush', 'deco_berry_bush', 'deco_thorn_bush'];
-          res = { kind: 'sprite', key: bKeys[h2 % bKeys.length], size: 20 + (h2 % 6), ox, oy, sway: true };
-        } else if (roll < 30) {
+        if (roll < 11) {
           const gKeys = ['deco_glow_shroom_b', 'deco_glow_shroom_g', 'deco_shroom_p'];
-          res = { kind: 'sprite', key: gKeys[h2 % gKeys.length], size: 17 + (h2 % 5), ox, oy, glow: true };
-        } else if (roll < 41) {
-          const mKeys = ['nat_mushroom', 'deco_shroom_2', 'deco_shroom_3'];
-          res = { kind: 'sprite', key: mKeys[h2 % mKeys.length], size: 19 + (h2 % 4), ox, oy, sway: false };
-        } else if (roll < 49) {
+          res = { kind: 'sprite', key: gKeys[h2 % gKeys.length], size: 23 + (h2 % 5), ox, oy, glow: true };
+        } else if (roll < 18) {
           const uKeys = ['undead_bones', 'undead_dead_arm', 'undead_grave'];
-          res = { kind: 'sprite', key: uKeys[h2 % uKeys.length], size: uKeys[h2 % uKeys.length] === 'undead_grave' ? 24 : 18, ox, oy, sway: false };
-        } else if (roll < 58) {
+          const uKey = uKeys[h2 % uKeys.length];
+          const uSize = uKey === 'undead_grave' ? (38 + (h2 % 5)) : (uKey === 'undead_bones' ? (30 + (h2 % 5)) : (28 + (h2 % 4)));
+          res = { kind: 'sprite', key: uKey, size: uSize, ox, oy, sway: false };
+        } else if (roll < 25) {
           res = { kind: 'blade', color: '#2e6f56', highlight: '#65b891', ox, oy, sway: true };
         }
       } else if (biome === 'montanas_heladas') {
-        if (roll < 15) {
+        if (roll < 11) {
           res = { kind: 'blade', color: '#5b8fa8', highlight: '#b8e3f5', ox, oy, sway: true };
+        } else if (roll < 18) {
+          res = { kind: 'sprite', key: 'deco_pebble_1', size: 20 + (h2 % 4), ox, oy, sway: false };
         } else if (roll < 24) {
-          res = { kind: 'sprite', key: 'deco_pebble_1', size: 17 + (h2 % 4), ox, oy, sway: false };
-        } else if (roll < 30) {
-          res = { kind: 'sprite', key: 'deco_glow_shroom_b', size: 17 + (h2 % 4), ox, oy, glow: true };
-        } else if (roll < 35) {
-          res = { kind: 'sprite', key: 'deco_fern_1', size: 20, ox, oy, sway: true };
+          res = { kind: 'sprite', key: 'deco_glow_shroom_b', size: 23 + (h2 % 5), ox, oy, glow: true };
         }
       } else if (biome === 'tierras_volcanicas' || biome === 'caldera_ceniza') {
-        if (roll < 13) {
+        if (roll < 10) {
           res = { kind: 'blade', color: '#5c4138', highlight: '#e65100', ox, oy, sway: true };
-        } else if (roll < 21) {
-          res = { kind: 'sprite', key: 'deco_thorn_bush', size: 19 + (h2 % 4), ox, oy, sway: false };
-        } else if (roll < 26) {
-          res = { kind: 'sprite', key: 'deco_shroom_r', size: 17 + (h2 % 4), ox, oy, glow: true };
-        } else if (roll < 31) {
-          res = { kind: 'sprite', key: 'deco_pebble_1', size: 17 + (h2 % 4), ox, oy, sway: false };
+        } else if (roll < 17) {
+          res = { kind: 'sprite', key: 'deco_shroom_r', size: 23 + (h2 % 5), ox, oy, glow: true };
+        } else if (roll < 23) {
+          res = { kind: 'sprite', key: 'deco_pebble_1', size: 20 + (h2 % 4), ox, oy, sway: false };
         }
       } else if (biome === 'archipielago_coral' || biome === 'dinastia_arena') {
-        if (roll < 15) {
+        if (roll < 11) {
           res = { kind: 'blade', color: biome === 'archipielago_coral' ? '#26a69a' : '#c76c32', highlight: biome === 'archipielago_coral' ? '#80cbc4' : '#ffab40', ox, oy, sway: true };
-        } else if (roll < 23) {
+        } else if (roll < 18) {
           res = { kind: 'succulent', ox, oy };
-        } else if (roll < 30) {
-          res = { kind: 'sprite', key: 'deco_pebble_1', size: 16 + (h2 % 4), ox, oy, sway: false };
+        } else if (roll < 24) {
+          res = { kind: 'sprite', key: 'deco_pebble_1', size: 20 + (h2 % 4), ox, oy, sway: false };
         }
       } else if (biome === 'cavernas_cristal' || biome === 'glaciar_profundo') {
-        if (roll < 16) {
+        if (roll < 12) {
           res = { kind: 'blade', color: '#4589b0', highlight: '#80deea', ox, oy, sway: true };
-        } else if (roll < 27) {
-          res = { kind: 'sprite', key: 'deco_glow_shroom_b', size: 18 + (h2 % 4), ox, oy, glow: true };
-        } else if (roll < 34) {
-          res = { kind: 'sprite', key: 'deco_pebble_1', size: 16 + (h2 % 4), ox, oy, sway: false };
+        } else if (roll < 19) {
+          res = { kind: 'sprite', key: 'deco_glow_shroom_b', size: 23 + (h2 % 5), ox, oy, glow: true };
+        } else if (roll < 24) {
+          res = { kind: 'sprite', key: 'deco_pebble_1', size: 20 + (h2 % 4), ox, oy, sway: false };
         }
       } else if (biome === 'selva_esmeralda' || biome === 'cienaga_putrida') {
-        if (roll < 22) {
-          res = { kind: 'tuft', col: h2 % 4, row: (h2 >>> 2) % 3, size: 19 + (h2 % 6), ox, oy, sway: true };
-        } else if (roll < 34) {
-          res = { kind: 'sprite', key: biome === 'selva_esmeralda' ? 'deco_fern_1' : 'deco_glow_shroom_g', size: 20 + (h2 % 5), ox, oy, glow: biome === 'cienaga_putrida', sway: true };
-        } else if (roll < 43) {
-          res = { kind: 'sprite', key: 'deco_shroom_p', size: 18 + (h2 % 4), ox, oy, glow: true };
+        if (roll < 14) {
+          res = { kind: 'flowers', palette: h2 % 4, count: 2 + (h2 % 2), ox, oy, sway: true };
+        } else if (roll < 24) {
+          res = { kind: 'sprite', key: biome === 'selva_esmeralda' ? 'deco_glow_shroom_g' : 'deco_shroom_p', size: 23 + (h2 % 5), ox, oy, glow: true };
         }
       } else if (biome === 'necropolis_osea' || biome === 'tierras_malditas') {
-        if (roll < 15) {
+        if (roll < 13) {
           const uKeys = ['undead_bones', 'undead_dead_arm', 'undead_grave'];
-          res = { kind: 'sprite', key: uKeys[h2 % uKeys.length], size: 20 + (h2 % 5), ox, oy, sway: false };
-        } else if (roll < 26) {
-          res = { kind: 'sprite', key: biome === 'tierras_malditas' ? 'deco_shroom_r' : 'deco_shroom_p', size: 18 + (h2 % 4), ox, oy, glow: true };
-        } else if (roll < 32) {
-          res = { kind: 'sprite', key: 'deco_thorn_bush', size: 19 + (h2 % 4), ox, oy, sway: false };
+          const uKey = uKeys[h2 % uKeys.length];
+          const uSize = uKey === 'undead_grave' ? (38 + (h2 % 6)) : (uKey === 'undead_bones' ? (30 + (h2 % 5)) : (28 + (h2 % 4)));
+          res = { kind: 'sprite', key: uKey, size: uSize, ox, oy, sway: false };
+        } else if (roll < 23) {
+          res = { kind: 'sprite', key: biome === 'tierras_malditas' ? 'deco_shroom_r' : 'deco_shroom_p', size: 23 + (h2 % 5), ox, oy, glow: true };
         }
       }
 
@@ -2085,11 +2469,11 @@
     }
   }
 
-  Balaclava.getPlotBiome = getPlotBiome;
-  Balaclava.getPlotBasePrice = getPlotBasePrice;
-  Balaclava.DUNGEON_GATES = DUNGEON_GATES;
-  Balaclava.NODE_DISPLAY_NAMES = Balaclava.NODE_DISPLAY_NAMES || NODE_DISPLAY_NAMES;
-  Balaclava.ALTAR_DEFS = ALTAR_DEFS;
-  Balaclava.EASTER_EGG_DEFS = EASTER_EGG_DEFS;
-  Balaclava.WorldManager = WorldManager;
+  Abyssea.getPlotBiome = getPlotBiome;
+  Abyssea.getPlotBasePrice = getPlotBasePrice;
+  Abyssea.DUNGEON_GATES = DUNGEON_GATES;
+  Abyssea.NODE_DISPLAY_NAMES = Abyssea.NODE_DISPLAY_NAMES || NODE_DISPLAY_NAMES;
+  Abyssea.ALTAR_DEFS = ALTAR_DEFS;
+  Abyssea.EASTER_EGG_DEFS = EASTER_EGG_DEFS;
+  Abyssea.WorldManager = WorldManager;
 })();

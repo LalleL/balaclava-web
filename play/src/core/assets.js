@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
-  const BASE = window.BALACLAVA_ASSET_BASE || 'assets/packs/';
-  const ROOT = window.BALACLAVA_ROOT_BASE || '';
+  const BASE = window.ABYSSEA_ASSET_BASE || 'assets/packs/';
+  const ROOT = window.ABYSSEA_ROOT_BASE || '';
   const HANA_DIR = 'assets/sprites_extra/hana_caraka/';
   const PATHS = {
     // Hana Caraka - Unique Hero (all 33 animations + avatar)
@@ -111,25 +111,37 @@
     tile_2: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Tileset/Tilemap_color2.png',
     tile_5: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Tileset/Tilemap_color5.png',
     tile_flat: BASE + 'Tiny Swords/Tiny Swords (Update 010)/Terrain/Ground/Tilemap_Flat.png',
-    biome_archipielago_coral: ROOT + 'assets/sprites_v13/biomes/archipielago_coral.png',
-    biome_selva_esmeralda:    ROOT + 'assets/sprites_v13/biomes/selva_esmeralda.png',
-    biome_cavernas_cristal:   ROOT + 'assets/sprites_v13/biomes/cavernas_cristal.png',
-    biome_caldera_ceniza:     ROOT + 'assets/sprites_v13/biomes/caldera_ceniza.png',
-    biome_cienaga_putrida:    ROOT + 'assets/sprites_v13/biomes/cienaga_putrida.png',
-    biome_dinastia_arena:     ROOT + 'assets/sprites_v13/biomes/dinastia_arena.png',
-    biome_glaciar_profundo:   ROOT + 'assets/sprites_v13/biomes/glaciar_profundo.png',
-    biome_necropolis_osea:    ROOT + 'assets/sprites_v13/biomes/necropolis_osea.png',
-    biome_tierras_malditas:   ROOT + 'assets/sprites_v13/biomes/tierras_malditas.png',
+    biome_pradera:            ROOT + 'assets/icons_tiers_v14/biomes/pradera.png?v=1.6.2',
+    biome_desierto:           ROOT + 'assets/icons_tiers_v14/biomes/desierto.png?v=1.6.2',
+    biome_bosque_oscuro:      ROOT + 'assets/icons_tiers_v14/biomes/bosque_oscuro.png?v=1.6.2',
+    biome_montanas_heladas:   ROOT + 'assets/icons_tiers_v14/biomes/montanas_heladas.png?v=1.6.2',
+    biome_tierras_volcanicas: ROOT + 'assets/icons_tiers_v14/biomes/tierras_volcanicas.png?v=1.6.2',
+    biome_archipielago_coral: ROOT + 'assets/icons_tiers_v14/biomes/archipielago_coral.png?v=1.6.2',
+    biome_selva_esmeralda:    ROOT + 'assets/icons_tiers_v14/biomes/selva_esmeralda.png?v=1.6.2',
+    biome_cavernas_cristal:   ROOT + 'assets/icons_tiers_v14/biomes/cavernas_cristal.png?v=1.6.2',
+    biome_caldera_ceniza:     ROOT + 'assets/icons_tiers_v14/biomes/caldera_ceniza.png?v=1.6.2',
+    biome_cienaga_putrida:    ROOT + 'assets/icons_tiers_v14/biomes/cienaga_putrida.png?v=1.6.2',
+    biome_dinastia_arena:     ROOT + 'assets/icons_tiers_v14/biomes/dinastia_arena.png?v=1.6.2',
+    biome_glaciar_profundo:   ROOT + 'assets/icons_tiers_v14/biomes/glaciar_profundo.png?v=1.6.2',
+    biome_necropolis_osea:    ROOT + 'assets/icons_tiers_v14/biomes/necropolis_osea.png?v=1.6.2',
+    biome_tierras_malditas:   ROOT + 'assets/icons_tiers_v14/biomes/tierras_malditas.png?v=1.6.2',
     water_bg: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Tileset/Water Background color.png',
-    water_foam: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Tileset/Water Foam.png',
-    bridge: BASE + 'Tiny Swords/Tiny Swords (Update 010)/Terrain/Bridge/Bridge_All.png',
+    water_foam: ROOT + 'assets/icons_tiers_v14/world/water_foam_4f.png?v=1.6.2',
+    bridge: ROOT + 'assets/icons_tiers_v14/world/bridge_h.png?v=1.6.2',
+    bridge_v: ROOT + 'assets/icons_tiers_v14/world/bridge_v.png?v=1.6.2',
+    bridge_h_mid: ROOT + 'assets/icons_tiers_v14/world/bridge_h_mid.png?v=1.6.2',
+    bridge_h_l: ROOT + 'assets/icons_tiers_v14/world/bridge_h_l.png?v=1.6.2',
+    bridge_h_r: ROOT + 'assets/icons_tiers_v14/world/bridge_h_r.png?v=1.6.2',
+    bridge_v_mid: ROOT + 'assets/icons_tiers_v14/world/bridge_v_mid.png?v=1.6.2',
+    bridge_v_t: ROOT + 'assets/icons_tiers_v14/world/bridge_v_t.png?v=1.6.2',
+    bridge_v_b: ROOT + 'assets/icons_tiers_v14/world/bridge_v_b.png?v=1.6.2',
 
     tree1: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree1.png',
     tree2: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree2.png',
     tree3: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree3.png',
     tree4: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree4.png',
-    bush1: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Decorations/Bushes/Bushe1.png',
-    bush2: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Decorations/Bushes/Bushe2.png',
+    bush1: ROOT + 'assets/icons_tiers_v14/flora/deco_berry_bush.png?v=1.6.8',
+    bush2: ROOT + 'assets/icons_tiers_v14/flora/deco_dark_bush.png?v=1.6.8',
     rock1: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock1.png',
     rock2: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock2.png',
     rock3: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock3.png',
@@ -137,6 +149,7 @@
     gold2: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 2.png',
     sheep_idle: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Meat/Sheep/Sheep_Idle.png',
     sheep_move: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Meat/Sheep/Sheep_Move.png',
+    sheep_grass: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Meat/Sheep/Sheep_Grass.png',
 
     b_house1_blue: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/House1.png',
     b_house2_blue: BASE + 'Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/House2.png',
@@ -251,13 +264,13 @@
           else if (v && typeof v === 'object') collectMapUrls(v);
         });
       };
-      collectMapUrls(Balaclava.UI_URLS);
-      collectMapUrls(Balaclava.NPC_PORTRAIT_URLS);
-      collectMapUrls(Balaclava.TOOL_PNG_MAP);
-      collectMapUrls(Balaclava.SKILL_ICON_POOL);
-      collectMapUrls(Balaclava.SKILL_ICON_URLS);
-      collectMapUrls(Balaclava.ITEM_PNG_MAP);
-      collectMapUrls(Balaclava.BUFF_ICON_URLS);
+      collectMapUrls(Abyssea.UI_URLS);
+      collectMapUrls(Abyssea.NPC_PORTRAIT_URLS);
+      collectMapUrls(Abyssea.TOOL_PNG_MAP);
+      collectMapUrls(Abyssea.SKILL_ICON_POOL);
+      collectMapUrls(Abyssea.SKILL_ICON_URLS);
+      collectMapUrls(Abyssea.ITEM_PNG_MAP);
+      collectMapUrls(Abyssea.BUFF_ICON_URLS);
 
       this._coreTotal = Math.max(1, pathEntries.length + uiAndToolUrls.size);
       this._coreLoaded = 0;
@@ -313,10 +326,11 @@
     getBuildingImg(spriteKey) {
       const CHEST_MAP = { chest_wood: 'wood_closed', chest_sapphire: 'sapphire_closed', chest_gold: 'gold_closed' };
       if (CHEST_MAP[spriteKey] && this.chestImages && this.chestImages[CHEST_MAP[spriteKey]]) return this.chestImages[CHEST_MAP[spriteKey]];
+      const ex = this.extraImages && this.extraImages[spriteKey];
+      if (ex && (!ex.tagName || ex.complete && (ex.naturalWidth > 0 || ex.width > 0))) return ex;
       const mapped = BUILDING_IMG_MAP[spriteKey];
       if (mapped && this.images[mapped]) return this.images[mapped];
-      if (this.extraImages && this.extraImages[spriteKey]) return this.extraImages[spriteKey];
-      return this.images[spriteKey] || null;
+      return ex || this.images[spriteKey] || null;
     }
 
     // Build tinted 192x192 9-slice tilemaps per biome without getImageData (safe on file://).
@@ -343,19 +357,19 @@
       const t5 = this.images.tile_5;
       const flat = this.images.tile_flat;
 
-      // 3x3 64px tile blocks = 192x192 (all 14 biomes)
-      this.biomeTiles.pradera = makeSheet(t1, 0, 0, 192, 192, null);
-      this.biomeTiles.desierto = flat ? makeSheet(flat, 320, 0, 192, 192, null) : makeSheet(t1, 0, 0, 192, 192, 'rgba(235, 190, 95, 0.55)');
-      this.biomeTiles.bosque_oscuro = makeSheet(t5 || t1, 0, 0, 192, 192, 'rgba(38, 24, 72, 0.36)');
-      this.biomeTiles.montanas_heladas = makeSheet(t5 || t1, 0, 0, 192, 192, 'rgba(218, 245, 255, 0.65)');
-      this.biomeTiles.tierras_volcanicas = makeSheet(t2 || t1, 0, 0, 192, 192, 'rgba(42, 18, 22, 0.66)');
-      const v13Biomes = [
+      // 3x3 64px tile blocks (192x192) + optional row 3 interior variants (192x256)
+      const allBiomes = [
+        'pradera', 'desierto', 'bosque_oscuro', 'montanas_heladas', 'tierras_volcanicas',
         'archipielago_coral', 'selva_esmeralda', 'cavernas_cristal', 'caldera_ceniza',
         'cienaga_putrida', 'dinastia_arena', 'glaciar_profundo', 'necropolis_osea', 'tierras_malditas'
       ];
-      for (const b of v13Biomes) {
+      for (const b of allBiomes) {
         const img = this.images['biome_' + b];
-        if (img) this.biomeTiles[b] = makeSheet(img, 0, 0, 192, 192, null);
+        if (img) {
+          const sw = img.naturalWidth || img.width || 192;
+          const sh = img.naturalHeight || img.height || 256;
+          this.biomeTiles[b] = makeSheet(img, 0, 0, sw, sh, null);
+        }
       }
     }
 
@@ -386,11 +400,11 @@
     }
 
     getToolImg(toolId, tierId = 'basica') {
-      const map = Balaclava.TOOL_PNG_MAP && Balaclava.TOOL_PNG_MAP[toolId];
+      const map = Abyssea.TOOL_PNG_MAP && Abyssea.TOOL_PNG_MAP[toolId];
       if (map) {
         const rawUrl = (tierId === 'basica' || !tierId) ? map.basica : map[tierId];
         if (rawUrl) {
-          const ROOT = window.BALACLAVA_ROOT_BASE || '';
+          const ROOT = window.ABYSSEA_ROOT_BASE || '';
           const resolved = (ROOT && rawUrl.startsWith('assets/')) ? (ROOT + rawUrl) : rawUrl;
           const enc = encodeURI(resolved);
           const img = this.preloadedUrls && (this.preloadedUrls[enc] || this.preloadedUrls[encodeURI(rawUrl)]);
@@ -860,7 +874,7 @@
           'bRRRb.....',
           '.bbb......'
         ],
-        balaclava_core: [
+        abyssea_core: [
           '.......WW.',
           '......Wssb',
           '.....Wssb.',
@@ -980,9 +994,9 @@
     }
   }
 
-  Balaclava.Assets = new AssetManager();
+  Abyssea.Assets = new AssetManager();
 
-  Balaclava.SKINS = [
+  Abyssea.SKINS = [
     {
       id: 'hana',
       name: 'Hana Caraka',

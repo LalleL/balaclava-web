@@ -1,7 +1,26 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+
+  // One-time seamless migration of legacy localStorage keys from previous brand to Abyssea
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const legacyPrefix = 'balaclava' + '_';
+      const keysToMigrate = [];
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const k = window.localStorage.key(i);
+        if (k && k.startsWith(legacyPrefix)) keysToMigrate.push(k);
+      }
+      for (const oldKey of keysToMigrate) {
+        const newKey = 'abyssea_' + oldKey.slice(legacyPrefix.length);
+        if (window.localStorage.getItem(newKey) === null) {
+          const val = window.localStorage.getItem(oldKey);
+          if (val !== null) window.localStorage.setItem(newKey, val);
+        }
+      }
+    }
+  } catch (_) {}
 
   const TILE_SIZE = 48;
   const PLOT_TILES = 12;
@@ -225,7 +244,7 @@
     return checkPt(hb.cx, hb.cy, bodyR) || checkPt(e.x, e.y, hb.radius + halfW);
   }
 
-  Balaclava.CONST = {
+  Abyssea.CONST = {
     TILE_SIZE,
     PLOT_TILES,
     PLOT_PX,
@@ -256,7 +275,7 @@
     }
   };
 
-  Balaclava.Utils = {
+  Abyssea.Utils = {
     clamp,
     lerp,
     dist,

@@ -9,9 +9,9 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const ITEMS = Balaclava.ITEMS || {};
-  const BUILDINGS = Balaclava.BUILDINGS || {};
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const ITEMS = Abyssea.ITEMS || {};
+  const BUILDINGS = Abyssea.BUILDINGS || {};
   const SAFE_MAX = 9e15; // below Number.MAX_SAFE_INTEGER
 
   // ==================== CONFIG ====================
@@ -99,7 +99,7 @@
   regItem('lingote_omega', { name: 'Lingote Omega', rarity: 'legendario', sellValue: 900, icon: 'lingote_omega', desc: 'Aleación definitiva forjada con singularidad y los biomas avanzados.', source: 'Fundidora Omega', uses: 'Equipamiento Tier 23 Omega, sobrecarga infinita' });
   regItem('materia_comprimida', { name: 'Materia Comprimida', rarity: 'legendario', sellValue: 600, icon: 'materia_comprimida', category: 'especiales', desc: 'Residuo exótico de islas ascendidas, Condensadores de Materia y del Abismo Infinito.', source: 'Abismo Infinito / Islas ascendidas / Condensador de Materia', uses: 'Sobrecarga, ascensión, mejoras definitivas' });
 
-  const DUNGEON_DEFS = Balaclava.DUNGEON_DEFS || {};
+  const DUNGEON_DEFS = Abyssea.DUNGEON_DEFS || {};
   Object.values(DUNGEON_DEFS).forEach(d => {
     if (!d || !d.boss) return;
     regItem('cristal_datos_' + d.id, { name: `Cristal de Datos: ${d.boss.name}`, rarity: 'epico', category: 'especiales', sellValue: 400, icon: 'cristal_datos', desc: `Registro de combate de ${d.boss.name}. Se inserta en la Cámara de Simulación.`, source: 'Cámara de Simulación (tras derrotar al jefe)', uses: 'Cámara de Simulación de Jefes' });
@@ -262,7 +262,7 @@
 
   // ==================== helpers ====================
   const plotKeyOf = (tx, ty) => {
-    const P = (Balaclava.CONST && Balaclava.CONST.PLOT_TILES) || 12;
+    const P = (Abyssea.CONST && Abyssea.CONST.PLOT_TILES) || 12;
     return Math.floor(tx / P) + ',' + Math.floor(ty / P);
   };
   function mulberry32(a) {
@@ -346,7 +346,22 @@
   // ==================== nexus storage (per island, transactional) ====================
     nexusData(plot) {
       let n = this.state.nexus[plot];
-      if (!n) n = this.state.nexus[plot] = { items: {}, energy: 0, level: 1, stat: { in: {}, out: {}, lastProd: 0, lastCons: 0, lastDeficit: 0 } };
+      if (!n || typeof n !== 'object') {
+        n = this.state.nexus[plot] = { items: {}, energy: 0, level: 1, stat: { in: {}, out: {}, lastProd: 0, lastCons: 0, lastDeficit: 0 } };
+      } else {
+        if (!n.items || typeof n.items !== 'object') n.items = {};
+        if (!Number.isFinite(n.energy)) n.energy = 0;
+        if (!Number.isFinite(n.level)) n.level = 1;
+        if (!n.stat || typeof n.stat !== 'object') {
+          n.stat = { in: {}, out: {}, lastProd: 0, lastCons: 0, lastDeficit: 0 };
+        } else {
+          if (!n.stat.in) n.stat.in = {};
+          if (!n.stat.out) n.stat.out = {};
+          if (!Number.isFinite(n.stat.lastProd)) n.stat.lastProd = 0;
+          if (!Number.isFinite(n.stat.lastCons)) n.stat.lastCons = 0;
+          if (!Number.isFinite(n.stat.lastDeficit)) n.stat.lastDeficit = 0;
+        }
+      }
       return n;
     }
     nexusCapacity(plot, nexusB) {
@@ -567,7 +582,7 @@
               if (typeof game.spawnFx === 'function') {
                 game.spawnFx('pvfx_star_burst_pickup', d.x, d.y - 6, 0, 0.36, 0.85, 0.85, { blend: 'lighter' });
               }
-              if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+              if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
               game.drops.splice(i, 1);
             }
           }
@@ -660,7 +675,7 @@
 
     biomeOf(game, b) {
       try {
-        const T = (Balaclava.CONST && Balaclava.CONST.TILE_SIZE) || 48;
+        const T = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48;
         return game.world.getBiomeAtPixel((b.tx + 0.5) * T, (b.ty + 0.5) * T);
       } catch (e) { return 'pradera'; }
     }
@@ -836,7 +851,7 @@
         const crops = this.matureCropsIn(game, e).slice(0, 3 * (lvlIdx(e.b) + 1));
         if (!crops.length) { o.timer = 0; break; }
         for (const c of crops) {
-          const def = Balaclava.CROPS && Balaclava.CROPS[c.cropId];
+          const def = Abyssea.CROPS && Abyssea.CROPS[c.cropId];
           if (!def) continue;
           const yieldMap = { [def.yieldId]: def.minQty || 1 };
           if (!this.nexusCanAdd(net.plot, yieldMap)) { this.setState(e.b, 'almacen_lleno', 'Nexo lleno.'); return; }
@@ -854,7 +869,7 @@
 
   // ==================== boss simulation chamber ====================
     canMakeCrystal(game, did) {
-      if (!Balaclava.DUNGEON_DEFS[did]) return { ok: false, reason: 'Jefe desconocido' };
+      if (!Abyssea.DUNGEON_DEFS[did]) return { ok: false, reason: 'Jefe desconocido' };
       if (!(game.clearedDungeons || []).includes(did)) return { ok: false, reason: 'Aún no has derrotado a este jefe.' };
       const k = this.state.bossKills[did] || 0;
       if (k < CFG.crystalKillsRequired) return { ok: false, reason: `Derrótalo ${CFG.crystalKillsRequired} veces (${k}/${CFG.crystalKillsRequired}).` };
@@ -879,7 +894,7 @@
       return { ok: true };
     }
     simRewards(did, rng) {
-      const def = Balaclava.DUNGEON_DEFS[did]; const out = {};
+      const def = Abyssea.DUNGEON_DEFS[did]; const out = {};
       const f = CFG.simQtyFactor * (1 + this.getMod('simOutput'));
       for (const [id, q] of Object.entries((def && def.boss && def.boss.drops) || {})) {
         const it = ITEMS[id]; if (!it || it.equipSlot || /reliquia|relic/.test(id)) continue; // never unique gear
@@ -892,7 +907,7 @@
     }
     advanceChamber(game, net, e, work) {
       const o = e.b.omega; let budget = work, guard = 0;
-      const cyc = CFG.simCycleSec * (Balaclava.DUNGEON_DEFS[o.crystal.did] ? 1 : 1);
+      const cyc = CFG.simCycleSec * (Abyssea.DUNGEON_DEFS[o.crystal.did] ? 1 : 1);
       o.progress = o.progress || 0;
       this.setState(e.b, 'activa', 'Simulando combate');
       while (guard++ < 200) {
@@ -967,11 +982,11 @@
     overloadKeyInfo(game, key) {
       // key: 'tool:<id>' or '<itemId>'
       if (key.startsWith('tool:')) {
-        const id = key.slice(5); const T = Balaclava.TOOLS && Balaclava.TOOLS[id];
+        const id = key.slice(5); const T = Abyssea.TOOLS && Abyssea.TOOLS[id];
         if (!T) return null;
         const tier = game.toolTiers && game.toolTiers[id];
         if (!tier) return null;
-        const idx = Balaclava.TIER_ORDER ? Balaclava.TIER_ORDER.indexOf(tier) : 14;
+        const idx = Abyssea.TIER_ORDER ? Abyssea.TIER_ORDER.indexOf(tier) : 14;
         const cat = (id === 'espada' || id === 'arco') ? 'damage' : 'tool';
         return { key, name: T.name, cat, tierIdx: idx };
       }
@@ -1099,7 +1114,7 @@
       return this.abyssScaling(floor, mods);
     }
     abyssDungeonFor(floor) {
-      const list = Balaclava.DUNGEON_TIER_LIST || Object.keys(Balaclava.DUNGEON_DEFS);
+      const list = Abyssea.DUNGEON_TIER_LIST || Object.keys(Abyssea.DUNGEON_DEFS);
       return list[(floor - 1) % list.length];
     }
     enterAbyss(game) {
@@ -1130,7 +1145,7 @@
 
   // ==================== ascension ====================
     plotKeyOf(tx, ty) { return plotKeyOf(tx, ty); }
-    islandKey(x, y) { const T = (Balaclava.CONST && Balaclava.CONST.TILE_SIZE) || 48; return plotKeyOf(Math.floor(x / T), Math.floor(y / T)); }
+    islandKey(x, y) { const T = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48; return plotKeyOf(Math.floor(x / T), Math.floor(y / T)); }
     ascensionRank(plot) { return this.state.ascension[plot] || 0; }
     ascensionInfo(game, plot) {
       const rank = this.ascensionRank(plot);
@@ -1208,18 +1223,18 @@
   OmegaSystem.RESEARCH_CATEGORIES = CATS;
   OmegaSystem.plotKeyOf = plotKeyOf;
 
-  Balaclava.OmegaSystem = OmegaSystem;
-  Balaclava.OMEGA_CONFIG = CFG;
+  Abyssea.OmegaSystem = OmegaSystem;
+  Abyssea.OMEGA_CONFIG = CFG;
 
   // Tool overload scaling is applied by wrapping getToolStats (tooltips + combat stay consistent).
-  if (typeof Balaclava.getToolStats === 'function' && !Balaclava.getToolStats.__omega) {
-    const orig = Balaclava.getToolStats;
+  if (typeof Abyssea.getToolStats === 'function' && !Abyssea.getToolStats.__omega) {
+    const orig = Abyssea.getToolStats;
     const wrapped = function (toolId, tierId) {
       const s = orig(toolId, tierId);
-      const rt = Balaclava.OmegaRuntime;
+      const rt = Abyssea.OmegaRuntime;
       return rt ? rt.scaleToolStats(toolId, s) : s;
     };
     wrapped.__omega = true;
-    Balaclava.getToolStats = wrapped;
+    Abyssea.getToolStats = wrapped;
   }
 })();

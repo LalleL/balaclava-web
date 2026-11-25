@@ -1,9 +1,9 @@
 (function () {
   'use strict';
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   // Auto-curated sprite sheet manifest generated from assets v2
-  Balaclava.VFX_V2 = {
+  Abyssea.VFX_V2 = {
   "pvfx_arcane_beam": {
     "path": "assets/vfx_v2/pvfx/arcane_beam.png",
     "fw": 168,
@@ -2438,7 +2438,7 @@
 };
 
   // Pixel-exact bottom padding ratio (0.0..0.45) measured per enemy sprite frame so ground enemies stand flush on their shadow
-  Balaclava.ENEMY_FOOT_PADS = {
+  Abyssea.ENEMY_FOOT_PADS = {
   "slime": 0.313,
   "golden_slime": 0.313,
   "skeleton": 0.104,
@@ -2532,7 +2532,7 @@
 };
 
   // Cohesive pixel-art skill icons for Constellation Skill Tree
-  Balaclava.SKILL_V2_ICONS = [
+  Abyssea.SKILL_V2_ICONS = [
   "assets/icons_skills_v2/skill_1.png",
   "assets/icons_skills_v2/skill_2.png",
   "assets/icons_skills_v2/skill_3.png",
@@ -2581,7 +2581,7 @@
 ];
 
   // Beta 1.3.0 Super Pixel Effects Gigapack VFX sheets
-  Object.assign(Balaclava.VFX_V2, {
+  Object.assign(Abyssea.VFX_V2, {
     sp_epic_explosion_orange:     { path: "assets/vfx_v13/sp_epic_explosion_orange.png",     fw: 128, fh: 128, cols: 13, rows: 1, frames: 13, dur: 0.78, px: 0.5, py: 0.55, loop: false },
     sp_stylized_explosion_violet: { path: "assets/vfx_v13/sp_stylized_explosion_violet.png", fw: 96,  fh: 96,  cols: 10, rows: 1, frames: 10, dur: 0.60, px: 0.5, py: 0.55, loop: false },
     sp_frost_explosion_cyan:      { path: "assets/vfx_v13/sp_frost_explosion_cyan.png",      fw: 96,  fh: 96,  cols: 10, rows: 1, frames: 10, dur: 0.60, px: 0.5, py: 0.55, loop: false },
@@ -2600,6 +2600,37 @@
     sp_scifi_charge:              { path: "assets/vfx_v13/sp_scifi_charge.png",              fw: 96,  fh: 96,  cols: 12, rows: 1, frames: 12, dur: 0.72, px: 0.5, py: 0.70, loop: false },
     sp_skull_smoke:               { path: "assets/vfx_v13/sp_skull_smoke.png",               fw: 64,  fh: 64,  cols: 12, rows: 1, frames: 12, dur: 0.66, px: 0.5, py: 0.65, loop: false },
     sp_splatter_red:              { path: "assets/vfx_v13/sp_splatter_red.png",              fw: 64,  fh: 64,  cols: 10, rows: 1, frames: 10, dur: 0.50, px: 0.5, py: 0.55, loop: false },
-    sp_fire_loop_orange:          { path: "assets/vfx_v13/sp_fire_loop_orange.png",          fw: 80,  fh: 128, cols: 3,  rows: 2, frames: 5,  dur: 0.50, px: 0.5, py: 0.85, loop: true  }
+    sp_fire_loop_orange:          { path: "assets/vfx_v13/sp_fire_loop_orange.png",          fw: 80,  fh: 128, cols: 3,  rows: 2, frames: 5,  dur: 0.50, px: 0.5, py: 0.85, loop: true  },
+    // v1.5.8 Curated Multi-Frame Mob Combat VFX Sheets (Free_Pixel_Effects_Pack + VFX_Free_Pack)
+    fpe_magicspell:      { path: "assets/vfx_v2/mob_vfx/fpe_magicspell.png",      fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
+    fpe_bluefire:        { path: "assets/vfx_v2/mob_vfx/fpe_bluefire.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.65, px: 0.5, py: 0.5, loop: false },
+    fpe_casting:         { path: "assets/vfx_v2/mob_vfx/fpe_casting.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.72, px: 0.5, py: 0.5, loop: false },
+    fpe_magickahit:      { path: "assets/vfx_v2/mob_vfx/fpe_magickahit.png",      fw: 100, fh: 100, cols: 8, rows: 3, frames: 20, dur: 0.52, px: 0.5, py: 0.5, loop: false },
+    fpe_flamelash:       { path: "assets/vfx_v2/mob_vfx/fpe_flamelash.png",       fw: 100, fh: 100, cols: 8, rows: 3, frames: 22, dur: 0.55, px: 0.5, py: 0.5, loop: false },
+    fpe_firespin:        { path: "assets/vfx_v2/mob_vfx/fpe_firespin.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.70, px: 0.5, py: 0.5, loop: false },
+    fpe_circle:          { path: "assets/vfx_v2/mob_vfx/fpe_circle.png",          fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.78, px: 0.5, py: 0.5, loop: false },
+    fpe_brightfire:      { path: "assets/vfx_v2/mob_vfx/fpe_brightfire.png",      fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.66, px: 0.5, py: 0.5, loop: false },
+    fpe_weaponhit:       { path: "assets/vfx_v2/mob_vfx/fpe_weaponhit.png",       fw: 100, fh: 100, cols: 8, rows: 3, frames: 18, dur: 0.45, px: 0.5, py: 0.5, loop: false },
+    fpe_fire:            { path: "assets/vfx_v2/mob_vfx/fpe_fire.png",            fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
+    fpe_nebula:          { path: "assets/vfx_v2/mob_vfx/fpe_nebula.png",          fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.72, px: 0.5, py: 0.5, loop: false },
+    fpe_vortex:          { path: "assets/vfx_v2/mob_vfx/fpe_vortex.png",          fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.74, px: 0.5, py: 0.5, loop: false },
+    fpe_phantom:         { path: "assets/vfx_v2/mob_vfx/fpe_phantom.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.60, px: 0.5, py: 0.5, loop: false },
+    fpe_sunburn:         { path: "assets/vfx_v2/mob_vfx/fpe_sunburn.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.66, px: 0.5, py: 0.5, loop: false },
+    fpe_felspell:        { path: "assets/vfx_v2/mob_vfx/fpe_felspell.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.72, px: 0.5, py: 0.5, loop: false },
+    fpe_midnight:        { path: "assets/vfx_v2/mob_vfx/fpe_midnight.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
+    fpe_freezing:        { path: "assets/vfx_v2/mob_vfx/fpe_freezing.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.70, px: 0.5, py: 0.5, loop: false },
+    fpe_bubbles:         { path: "assets/vfx_v2/mob_vfx/fpe_bubbles.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
+    vfp_blood:           { path: "assets/vfx_v2/mob_vfx/vfp_blood.png",           fw: 69,  fh: 60,  cols: 8, rows: 3, frames: 20, dur: 0.46, px: 0.5, py: 0.5, loop: false },
+    vfp_bighit:          { path: "assets/vfx_v2/mob_vfx/vfp_bighit.png",          fw: 120, fh: 119, cols: 8, rows: 2, frames: 12, dur: 0.52, px: 0.5, py: 0.5, loop: false },
+    vfp_charged:         { path: "assets/vfx_v2/mob_vfx/vfp_charged.png",         fw: 104, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.68, px: 0.5, py: 0.5, loop: false },
+    vfp_ditherfire:      { path: "assets/vfx_v2/mob_vfx/vfp_ditherfire.png",      fw: 120, fh: 57,  cols: 8, rows: 3, frames: 20, dur: 0.64, px: 0.5, py: 0.5, loop: false },
+    vfp_eldenring:       { path: "assets/vfx_v2/mob_vfx/vfp_eldenring.png",       fw: 119, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.72, px: 0.5, py: 0.5, loop: false },
+    vfp_electric_shield: { path: "assets/vfx_v2/mob_vfx/vfp_electric_shield.png", fw: 120, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.68, px: 0.5, py: 0.5, loop: false },
+    vfp_explosion:       { path: "assets/vfx_v2/mob_vfx/vfp_explosion.png",       fw: 120, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.65, px: 0.5, py: 0.5, loop: false },
+    vfp_fastfire:        { path: "assets/vfx_v2/mob_vfx/vfp_fastfire.png",        fw: 108, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.62, px: 0.5, py: 0.5, loop: false },
+    vfp_magma:           { path: "assets/vfx_v2/mob_vfx/vfp_magma.png",           fw: 120, fh: 59,  cols: 8, rows: 3, frames: 20, dur: 0.65, px: 0.5, py: 0.5, loop: false },
+    vfp_tentacles:       { path: "assets/vfx_v2/mob_vfx/vfp_tentacles.png",       fw: 120, fh: 89,  cols: 8, rows: 3, frames: 22, dur: 0.74, px: 0.5, py: 0.5, loop: false },
+    vfp_vortex:          { path: "assets/vfx_v2/mob_vfx/vfp_vortex.png",          fw: 119, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.72, px: 0.5, py: 0.5, loop: false },
+    vfp_kaboom:          { path: "assets/vfx_v2/mob_vfx/vfp_kaboom.png",          fw: 120, fh: 97,  cols: 8, rows: 3, frames: 20, dur: 0.62, px: 0.5, py: 0.5, loop: false }
   });
 })();

@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { TILE_SIZE, PLOT_TILES } = Balaclava.CONST;
-  const { dist, randInt, pick } = Balaclava.Utils;
-  const clamp = Balaclava.Utils.clamp || ((v, a, b) => Math.max(a, Math.min(b, v)));
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { TILE_SIZE, PLOT_TILES } = Abyssea.CONST;
+  const { dist, randInt, pick } = Abyssea.Utils;
+  const clamp = Abyssea.Utils.clamp || ((v, a, b) => Math.max(a, Math.min(b, v)));
 
   const ENEMY_DEFS = {
     slime: {
@@ -853,187 +853,195 @@
     if (enemy && enemy.isMiniBoss) {
       if (enemy.ranged || /mage|shaman|necro/i.test(t)) {
         return {
-          behavior: 'ranged_fan', windupVfx: 'pvfx_magic_circle', meleeVfx: 'pa_slash1_purple',
-          specialVfx: 'pvfx_arcane_burst', audio: 'magic',
-          proj: { vfxKey: 'pvfx_magic_missile', impactVfx: 'pvfx_arcane_burst', color: '#ce93d8', speed: 245, count: 5, spread: 0.22 },
+          behavior: 'ranged_fan', windupVfx: 'fpe_circle', meleeVfx: 'pa_slash1_purple',
+          hitVfx: 'fpe_magickahit', specialVfx: 'fpe_magicspell', trailColor: '#ce93d8', audio: 'magic',
+          proj: { vfxKey: 'pvfx_magic_missile', impactVfx: 'fpe_magickahit', color: '#ce93d8', speed: 245, count: 5, spread: 0.22 },
           status: { kind: 'curse', dur: 2.0 }
         };
       }
       if (/golem|brute|orc|mace|rock/i.test(t)) {
         return {
-          behavior: 'leaper', windupVfx: 'pvfx_power_up_aura', meleeVfx: 'pvfx_hammer_smash',
-          specialVfx: 'aw_earth_rockspike', audio: 'bomb',
-          proj: { vfxKey: 'pvfx_rock_shatter', impactVfx: 'aw_hit_heavy', color: '#ffab91', speed: 215, count: 6, spread: 0 },
+          behavior: 'leaper', windupVfx: 'vfp_charged', meleeVfx: 'pvfx_hammer_smash',
+          hitVfx: 'vfp_bighit', specialVfx: 'vfp_eldenring', trailColor: '#ffab91', audio: 'bomb',
+          proj: { vfxKey: 'pvfx_rock_shatter', impactVfx: 'vfp_bighit', color: '#ffab91', speed: 215, count: 6, spread: 0 },
           status: { kind: 'bleed', dur: 2.2, tickDmg: 3 }
         };
       }
       return {
-        behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_sword_combo',
-        specialVfx: 'aw_slash_spin', audio: 'slash',
-        proj: { vfxKey: 'pvfx_wind_blade', impactVfx: 'pvfx_hit_spark', color: '#ffd54f', speed: 255, count: 3, spread: 0.24 },
+        behavior: 'charger', windupVfx: 'vfp_charged', meleeVfx: 'pvfx_sword_combo',
+        hitVfx: 'fpe_weaponhit', specialVfx: 'aw_slash_spin', trailColor: '#ffd54f', audio: 'slash',
+        proj: { vfxKey: 'pvfx_wind_blade', impactVfx: 'fpe_weaponhit', color: '#ffd54f', speed: 255, count: 3, spread: 0.24 },
         status: { kind: 'bleed', dur: 2.0, tickDmg: 3 }
       };
     }
 
     switch (t) {
       case 'slime':
-        return { behavior: 'leaper', windupVfx: 'pvfx_bubble_burst', meleeVfx: 'pvfx_water_splash', specialVfx: 'pvfx_bubble_burst', audio: 'hit' };
+        return { behavior: 'leaper', windupVfx: 'fpe_bubbles', meleeVfx: 'pvfx_water_splash', hitVfx: 'fpe_bubbles', specialVfx: 'fpe_bubbles', trailColor: '#66bb6a', audio: 'hit' };
       case 'golden_slime':
-        return { behavior: 'leaper', windupVfx: 'pvfx_treasure_glint', meleeVfx: 'pvfx_star_burst_pickup', specialVfx: 'aw_explosion_energy', audio: 'hit' };
+        return { behavior: 'leaper', windupVfx: 'vfp_eldenring', meleeVfx: 'pvfx_star_burst_pickup', hitVfx: 'fpe_sunburn', specialVfx: 'vfp_eldenring', trailColor: '#ffd54f', audio: 'hit' };
       case 'slime_blue':
       case 'frost_jelly':
         return {
-          behavior: 'leaper', windupVfx: 'aw_ice_castfrost', meleeVfx: 'pvfx_snowball_impact', specialVfx: 'pvfx_frost_nova', audio: 'magic',
-          proj: t === 'frost_jelly' ? { vfxKey: 'pvfx_ice_shard', impactVfx: 'aw_ice_impact', color: '#80deea', speed: 205, radial: 4 } : null,
+          behavior: 'leaper', windupVfx: 'fpe_bluefire', meleeVfx: 'pvfx_snowball_impact', hitVfx: 'fpe_freezing', specialVfx: 'fpe_freezing', trailColor: '#4fc3f7', audio: 'magic',
+          proj: t === 'frost_jelly' ? { vfxKey: 'aw_ice_spear', impactVfx: 'fpe_freezing', color: '#80deea', speed: 215, radial: 4 } : null,
           status: { kind: 'slow', dur: 1.9 }
         };
       case 'slime_red':
       case 'crimson_jelly':
         return {
-          behavior: 'leaper', windupVfx: 'pvfx_burning_aura', meleeVfx: 'pa_blood2', specialVfx: 'pvfx_lava_burst', audio: 'bomb',
-          proj: t === 'crimson_jelly' ? { vfxKey: 'aw_fire_fireball', impactVfx: 'pvfx_fireball_impact', color: '#ff5252', speed: 210, radial: 4 } : null,
+          behavior: 'leaper', windupVfx: 'fpe_firespin', meleeVfx: 'fpe_flamelash', hitVfx: 'vfp_fastfire', specialVfx: 'vfp_magma', trailColor: '#ff5722', audio: 'bomb',
+          proj: t === 'crimson_jelly' ? { vfxKey: 'aw_fire_fireball', impactVfx: 'fpe_brightfire', color: '#ff5252', speed: 215, radial: 4 } : null,
           status: { kind: 'burn', dur: 2.1, tickDmg: 3 }
         };
       case 'slime_toxic':
         return {
-          behavior: 'leaper', windupVfx: 'pvfx_poison_cloud', meleeVfx: 'aw_poison_splash', specialVfx: 'pvfx_acid_splash', audio: 'hit',
-          leavesPool: true, poolColor: '#7cb342', status: { kind: 'poison', dur: 2.2, tickDmg: 3 }
+          behavior: 'leaper', windupVfx: 'fpe_felspell', meleeVfx: 'aw_poison_splash', hitVfx: 'pvfx_acid_splash', specialVfx: 'fpe_felspell', trailColor: '#76ff03', audio: 'hit',
+          leavesPool: true, poolColor: '#7cb342', poolVfx: 'fpe_felspell', status: { kind: 'poison', dur: 2.2, tickDmg: 3 }
         };
       case 'void_jelly':
         return {
-          behavior: 'blink_caster', windupVfx: 'pvfx_blink_out', meleeVfx: 'dark_vfx1', specialVfx: 'pvfx_void_implosion', audio: 'magic',
-          proj: { vfxKey: 'mp9_dark_bolt', impactVfx: 'aw_explosion_dark', color: '#ab47bc', speed: 220, radial: 4 },
+          behavior: 'blink_caster', windupVfx: 'vfp_vortex', meleeVfx: 'fpe_midnight', hitVfx: 'vfp_tentacles', specialVfx: 'fpe_nebula', trailColor: '#ab47bc', audio: 'magic',
+          proj: { vfxKey: 'mp9_dark_bolt', impactVfx: 'fpe_midnight', color: '#ab47bc', speed: 225, radial: 4 },
           status: { kind: 'curse', dur: 2.0 }
         };
       case 'mushroom_mob':
       case 'mushroom_purple':
         return {
-          behavior: 'spore_burst', windupVfx: t === 'mushroom_purple' ? 'pvfx_curse' : 'pvfx_poison_cloud',
-          meleeVfx: 'pvfx_spore_burst', specialVfx: 'pvfx_spore_burst', audio: 'magic',
-          leavesPool: true, poolColor: t === 'mushroom_purple' ? '#ab47bc' : '#9ccc65',
+          behavior: 'spore_burst', windupVfx: t === 'mushroom_purple' ? 'fpe_vortex' : 'fpe_felspell',
+          meleeVfx: 'pvfx_spore_burst', hitVfx: 'pvfx_acid_splash', specialVfx: t === 'mushroom_purple' ? 'fpe_midnight' : 'fpe_felspell',
+          trailColor: t === 'mushroom_purple' ? '#ba68c8' : '#9ccc65', audio: 'magic',
+          leavesPool: true, poolColor: t === 'mushroom_purple' ? '#ab47bc' : '#9ccc65', poolVfx: 'fpe_felspell',
           status: { kind: 'poison', dur: 2.2, tickDmg: 3 }
         };
       case 'skeleton':
-        return { behavior: 'melee_combo', meleeVfx: 'pa_slash1_blue', specialVfx: 'pvfx_hit_spark', audio: 'slash' };
+        return { behavior: 'melee_combo', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pa_slash1_blue', hitVfx: 'fpe_weaponhit', specialVfx: 'aw_slash_diagonal', trailColor: '#cfd8dc', audio: 'slash' };
       case 'skel_swordsman':
-        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_sword_combo', specialVfx: 'aw_slash_diagonal', audio: 'slash' };
+        return { behavior: 'charger', windupVfx: 'vfp_charged', meleeVfx: 'pvfx_sword_combo', hitVfx: 'fpe_weaponhit', specialVfx: 'aw_slash_heavy', trailColor: '#b0bec5', audio: 'slash' };
       case 'skel_spearman':
-        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_spear_thrust', specialVfx: 'aw_thrust_stab', audio: 'slash' };
+        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_spear_thrust', hitVfx: 'fpe_weaponhit', specialVfx: 'aw_thrust_stab', trailColor: '#cfd8dc', audio: 'slash' };
       case 'dark_lancer':
         return {
-          behavior: 'charger', windupVfx: 'dark_vfx1', meleeVfx: 'aw_thrust_stab', specialVfx: 'aw_shadow_spikes', audio: 'slash',
+          behavior: 'charger', windupVfx: 'fpe_midnight', meleeVfx: 'aw_thrust_stab', hitVfx: 'vfp_blood', specialVfx: 'vfp_tentacles', trailColor: '#7c4dff', audio: 'slash',
           status: { kind: 'bleed', dur: 2.0, tickDmg: 3 }
         };
       case 'grave_revenant':
         return {
-          behavior: 'melee_combo', windupVfx: 'pvfx_curse', meleeVfx: 'pa_slash1_purple', specialVfx: 'pvfx_soul_drain', audio: 'slash',
+          behavior: 'melee_combo', windupVfx: 'fpe_phantom', meleeVfx: 'pa_slash1_purple', hitVfx: 'fpe_midnight', specialVfx: 'pvfx_soul_drain', trailColor: '#ab47bc', audio: 'slash',
           status: { kind: 'bleed', dur: 2.2, tickDmg: 3 }
         };
       case 'zombie':
       case 'sand_ghoul':
         return {
           behavior: 'melee_combo',
+          windupVfx: t === 'sand_ghoul' ? 'fpe_sunburn' : 'fpe_felspell',
           meleeVfx: 'aw_claw_swipe',
+          hitVfx: t === 'sand_ghoul' ? 'fpe_weaponhit' : 'vfp_blood',
           specialVfx: t === 'sand_ghoul' ? 'pvfx_dust_puff' : 'pvfx_poison_cloud',
+          trailColor: t === 'sand_ghoul' ? '#d7ccc8' : '#66bb6a',
           audio: 'hit',
           status: t === 'zombie' ? { kind: 'poison', dur: 1.8, tickDmg: 2 } : null
         };
       case 'rat':
-        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_punch_swoosh', specialVfx: 'pvfx_hit_spark', audio: 'hit' };
+        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_claw_swipe', hitVfx: 'fpe_weaponhit', specialVfx: 'pvfx_hit_spark', trailColor: '#bcaaa4', audio: 'hit' };
       case 'rat_giant':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_bleeding', specialVfx: 'aw_claw_swipe', audio: 'slash',
+          behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_claw_swipe', hitVfx: 'vfp_blood', specialVfx: 'vfp_bighit', trailColor: '#ef5350', audio: 'slash',
           status: { kind: 'bleed', dur: 2.2, tickDmg: 3 }
         };
       case 'wolf':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_claw_swipe', specialVfx: 'pa_rogue1', audio: 'slash',
+          behavior: 'charger', windupVfx: 'fpe_bluefire', meleeVfx: 'aw_claw_swipe', hitVfx: 'vfp_blood', specialVfx: 'fpe_freezing', trailColor: '#81d4fa', audio: 'slash',
           status: { kind: 'bleed', dur: 1.8, tickDmg: 2 }
         };
       case 'shadow_wolf':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_blink_out', meleeVfx: 'pvfx_shadow_claw', specialVfx: 'aw_explosion_dark', audio: 'slash',
+          behavior: 'charger', windupVfx: 'fpe_midnight', meleeVfx: 'pvfx_shadow_claw', hitVfx: 'vfp_blood', specialVfx: 'fpe_vortex', trailColor: '#7c4dff', audio: 'slash',
           status: { kind: 'bleed', dur: 2.2, tickDmg: 3 }
         };
       case 'toxic_hound':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_acid_splash', meleeVfx: 'aw_claw_swipe', specialVfx: 'aw_poison_splash', audio: 'slash',
+          behavior: 'charger', windupVfx: 'fpe_felspell', meleeVfx: 'aw_claw_swipe', hitVfx: 'pvfx_acid_splash', specialVfx: 'fpe_felspell', trailColor: '#9ccc65', audio: 'slash',
           status: { kind: 'poison', dur: 2.2, tickDmg: 3 }
         };
       case 'orc':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_power_up_aura', meleeVfx: 'pvfx_axe_smear', specialVfx: 'aw_slash_heavy', audio: 'slash',
+          behavior: 'charger', windupVfx: 'vfp_charged', meleeVfx: 'pvfx_axe_smear', hitVfx: 'vfp_bighit', specialVfx: 'aw_slash_heavy', trailColor: '#ff7043', audio: 'slash',
           status: { kind: 'bleed', dur: 2.0, tickDmg: 3 }
         };
       case 'golem':
       case 'rock_golem':
         return {
-          behavior: 'leaper', windupVfx: 'pvfx_rock_shatter', meleeVfx: 'pvfx_hammer_smash',
-          specialVfx: t === 'rock_golem' ? 'aw_earth_rockspike' : 'pvfx_ground_slam', audio: 'bomb'
+          behavior: 'leaper', windupVfx: t === 'golem' ? 'fpe_freezing' : 'vfp_eldenring',
+          meleeVfx: 'pvfx_hammer_smash', hitVfx: 'vfp_bighit',
+          specialVfx: t === 'rock_golem' ? 'aw_earth_rockspike' : 'fpe_freezing',
+          trailColor: t === 'rock_golem' ? '#a1887f' : '#80deea', audio: 'bomb'
         };
       case 'tunneling_mole':
         return {
-          behavior: 'burrower', windupVfx: 'pvfx_dust_puff', meleeVfx: 'pvfx_rock_shatter',
-          specialVfx: 'pvfx_earth_spike', pillarVfx: 'pvfx_fissure', audio: 'bomb'
+          behavior: 'burrower', windupVfx: 'pvfx_dust_puff', meleeVfx: 'pvfx_rock_shatter', hitVfx: 'vfp_bighit',
+          specialVfx: 'pvfx_earth_spike', pillarVfx: 'pvfx_fissure', trailColor: '#a1887f', audio: 'bomb'
         };
       case 'mimic':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_treasure_glint', meleeVfx: 'pvfx_crit_hit', specialVfx: 'pa_blood3', audio: 'crit',
+          behavior: 'charger', windupVfx: 'vfp_eldenring', meleeVfx: 'pvfx_crit_hit', hitVfx: 'vfp_blood', specialVfx: 'vfp_bighit', trailColor: '#ffd54f', audio: 'crit',
           status: { kind: 'bleed', dur: 2.2, tickDmg: 3 }
         };
       case 'scorpion':
       case 'royal_scarab':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_thrust_stab', specialVfx: 'aw_poison_splash', audio: 'slash',
-          proj: t === 'royal_scarab' ? { vfxKey: 'pvfx_poison_dart', impactVfx: 'pvfx_acid_splash', color: '#ffd54f', speed: 225, count: 3, spread: 0.25 } : null,
+          behavior: 'charger', windupVfx: 'fpe_sunburn', meleeVfx: 'aw_thrust_stab', hitVfx: 'pvfx_acid_splash', specialVfx: 'fpe_sunburn', trailColor: '#ffa726', audio: 'slash',
+          proj: t === 'royal_scarab' ? { vfxKey: 'pvfx_poison_dart', impactVfx: 'fpe_sunburn', color: '#ffd54f', speed: 230, count: 3, spread: 0.25 } : null,
           status: { kind: 'poison', dur: 2.1, tickDmg: 3 }
         };
       case 'cobra':
       case 'vine_snake':
         return {
           behavior: 'ranged_single',
-          windupVfx: t === 'vine_snake' ? 'pvfx_vine_snare' : 'pvfx_poison_cloud',
+          windupVfx: t === 'vine_snake' ? 'fpe_felspell' : 'pvfx_poison_cloud',
           meleeVfx: 'aw_claw_swipe',
-          specialVfx: t === 'vine_snake' ? 'pvfx_vine_snare' : 'pvfx_acid_splash',
-          audio: 'magic',
-          proj: { vfxKey: 'pvfx_poison_dart', impactVfx: t === 'vine_snake' ? 'pvfx_vine_snare' : 'pvfx_acid_splash', color: '#8bc34a', speed: 230 },
+          hitVfx: t === 'vine_snake' ? 'pvfx_vine_snare' : 'pvfx_acid_splash',
+          specialVfx: t === 'vine_snake' ? 'pvfx_vine_snare' : 'fpe_felspell',
+          trailColor: '#8bc34a', audio: 'magic',
+          proj: { vfxKey: 'pvfx_poison_dart', impactVfx: t === 'vine_snake' ? 'pvfx_vine_snare' : 'fpe_felspell', color: '#8bc34a', speed: 235 },
           status: t === 'vine_snake' ? { kind: 'slow', dur: 1.9 } : { kind: 'poison', dur: 2.0, tickDmg: 3 }
         };
       case 'spider':
       case 'cave_spider':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_claw_swipe', specialVfx: 'pvfx_dust_puff', audio: 'slash',
-          proj: { vfxKey: 'pvfx_wind_blade', impactVfx: 'pvfx_dust_puff', color: '#eceff1', speed: 215, kind: 'web' },
+          behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_claw_swipe', hitVfx: 'vfp_blood', specialVfx: 'pvfx_dust_puff', trailColor: '#cfd8dc', audio: 'slash',
+          proj: { vfxKey: 'pvfx_wind_blade', impactVfx: 'pvfx_dust_puff', color: '#eceff1', speed: 220, kind: 'web' },
           status: { kind: 'slow', dur: 1.7 }
         };
       case 'beetle':
-        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_hit_spark', specialVfx: 'pvfx_rock_shatter', audio: 'hit' };
+        return { behavior: 'charger', windupVfx: 'fpe_sunburn', meleeVfx: 'fpe_weaponhit', hitVfx: 'vfp_bighit', specialVfx: 'pvfx_rock_shatter', trailColor: '#aed581', audio: 'hit' };
       case 'beetle_fire':
       case 'lava_ant':
         return {
-          behavior: 'charger', windupVfx: 'pvfx_burning_aura', meleeVfx: 'pa_slash2_fire', specialVfx: 'pvfx_lava_burst', audio: 'bomb',
+          behavior: 'charger', windupVfx: 'fpe_firespin', meleeVfx: 'fpe_flamelash', hitVfx: 'vfp_fastfire', specialVfx: 'vfp_magma', trailColor: '#ff7043', audio: 'bomb',
           status: { kind: 'burn', dur: 2.1, tickDmg: 3 }
         };
       case 'acid_ant':
         return {
-          behavior: 'ranged_single', windupVfx: 'pvfx_acid_splash', meleeVfx: 'aw_poison_splash', specialVfx: 'pvfx_acid_splash', audio: 'magic',
-          proj: { vfxKey: 'pvfx_poison_dart', impactVfx: 'pvfx_acid_splash', color: '#a5d6a7', speed: 225 },
-          leavesPool: true, poolColor: '#8bc34a', status: { kind: 'poison', dur: 2.1, tickDmg: 3 }
+          behavior: 'ranged_single', windupVfx: 'fpe_felspell', meleeVfx: 'aw_poison_splash', hitVfx: 'pvfx_acid_splash', specialVfx: 'fpe_felspell', trailColor: '#a5d6a7', audio: 'magic',
+          proj: { vfxKey: 'pvfx_poison_dart', impactVfx: 'fpe_felspell', color: '#a5d6a7', speed: 230 },
+          leavesPool: true, poolColor: '#8bc34a', poolVfx: 'fpe_felspell', status: { kind: 'poison', dur: 2.1, tickDmg: 3 }
         };
       case 'goblin':
-        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pa_slash1_red', specialVfx: 'pvfx_hit_spark', audio: 'slash' };
+        return { behavior: 'charger', windupVfx: 'fpe_firespin', meleeVfx: 'fpe_flamelash', hitVfx: 'fpe_weaponhit', specialVfx: 'vfp_fastfire', trailColor: '#ff7043', audio: 'slash' };
       case 'goblin_raider':
-        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_sword_combo', specialVfx: 'aw_slash_diagonal', audio: 'slash' };
+        return { behavior: 'charger', windupVfx: 'pvfx_dash_dust', meleeVfx: 'pvfx_sword_combo', hitVfx: 'vfp_blood', specialVfx: 'aw_slash_diagonal', trailColor: '#ff8a65', audio: 'slash' };
       case 'goblin_tnt':
       case 'goblin_barrel':
       case 'goblin_sapper':
         return {
           behavior: 'bomber',
-          windupVfx: 'pvfx_smoke_bomb',
-          meleeVfx: 'pvfx_small_explosion',
-          specialVfx: t === 'goblin_barrel' ? 'pvfx_big_explosion' : 'aw_explosion_debris',
-          bombRadius: t === 'goblin_barrel' ? 66 : 48,
-          audio: 'bomb',
+          windupVfx: 'fpe_firespin',
+          meleeVfx: 'fpe_brightfire',
+          hitVfx: 'vfp_explosion',
+          specialVfx: t === 'goblin_barrel' ? 'vfp_explosion' : 'fpe_brightfire',
+          bombRadius: t === 'goblin_barrel' ? 66 : 52,
+          trailColor: '#ff7043', audio: 'bomb',
           status: { kind: 'burn', dur: 1.6, tickDmg: 2 }
         };
       case 'goblin_archer':
@@ -1041,21 +1049,21 @@
       case 'brittle_archer':
       case 'skel_crossbow':
         return {
-          behavior: 'ranged_single', windupVfx: 'pvfx_hit_spark', meleeVfx: 'pvfx_arrow_impact', audio: 'slash',
+          behavior: 'ranged_single', windupVfx: 'pvfx_hit_spark', meleeVfx: 'fpe_weaponhit', hitVfx: 'fpe_weaponhit', trailColor: '#cfd8dc', audio: 'slash',
           proj: {
-            vfxKey: 'pvfx_arrow_impact',
-            impactVfx: 'pvfx_hit_spark',
-            color: '#cfd8dc',
-            speed: t === 'skel_crossbow' ? 285 : 245,
+            vfxKey: 'pvfx_wind_blade',
+            impactVfx: 'fpe_weaponhit',
+            color: '#e0e0e0',
+            speed: t === 'skel_crossbow' ? 285 : 250,
             count: t === 'skel_crossbow' ? 2 : 1,
             spread: 0.14
           }
         };
       case 'goblin_shaman':
         return {
-          behavior: 'ranged_fan', windupVfx: 'pvfx_thunder_cloud', meleeVfx: 'pvfx_static_burst',
-          specialVfx: 'pvfx_lightning_strike', audio: 'thunder',
-          proj: { vfxKey: 'aw_lightning_orb', impactVfx: 'pvfx_static_burst', color: '#80deea', speed: 225, count: 3, spread: 0.24 },
+          behavior: 'ranged_fan', windupVfx: 'vfp_electric_shield', meleeVfx: 'pvfx_static_burst', hitVfx: 'pvfx_lightning_strike',
+          specialVfx: 'pvfx_lightning_strike', trailColor: '#40c4ff', audio: 'thunder',
+          proj: { vfxKey: 'aw_lightning_orb', impactVfx: 'pvfx_static_burst', color: '#80deea', speed: 235, count: 3, spread: 0.24 },
           status: { kind: 'shock', dur: 1.8 }
         };
       case 'skeleton_mage':
@@ -1063,12 +1071,14 @@
       case 'cultist': {
         const dark = t !== 'skeleton_mage';
         return {
-          behavior: 'ranged_fan', windupVfx: 'pvfx_magic_circle', meleeVfx: dark ? 'aw_explosion_dark' : 'pvfx_arcane_burst', audio: 'magic',
+          behavior: 'ranged_fan', windupVfx: dark ? 'fpe_circle' : 'fpe_casting', meleeVfx: dark ? 'fpe_midnight' : 'fpe_magicspell',
+          hitVfx: dark ? 'fpe_vortex' : 'fpe_magickahit', specialVfx: dark ? 'vfp_tentacles' : 'fpe_magicspell',
+          trailColor: dark ? '#ce93d8' : '#7e57c2', audio: 'magic',
           proj: {
             vfxKey: dark ? 'mp9_dark_bolt' : 'pvfx_magic_missile',
-            impactVfx: dark ? 'aw_explosion_dark' : 'pvfx_arcane_burst',
+            impactVfx: dark ? 'fpe_midnight' : 'fpe_magickahit',
             color: dark ? '#ce93d8' : '#7e57c2',
-            speed: 220,
+            speed: 225,
             count: 3,
             spread: 0.22,
             homing: dark ? 1.15 : 0
@@ -1082,15 +1092,16 @@
       case 'flaming_skull':
         return {
           behavior: (t === 'imp' || t === 'fire_elem') ? 'ranged_fan' : 'ranged_single',
-          windupVfx: 'aw_fire_castflame',
-          meleeVfx: 'soggy_fire_slash',
-          specialVfx: t === 'fire_elem' ? 'pvfx_fire_pillar' : 'soggy_fireclouds',
-          audio: 'magic',
+          windupVfx: 'fpe_firespin',
+          meleeVfx: 'fpe_flamelash',
+          hitVfx: 'vfp_fastfire',
+          specialVfx: t === 'magma' ? 'vfp_magma' : (t === 'fire_elem' ? 'fpe_fire' : 'fpe_brightfire'),
+          trailColor: '#ff7043', audio: 'magic',
           proj: {
             vfxKey: t === 'flaming_skull' ? 'soggy_fireball' : 'aw_fire_fireball',
-            impactVfx: 'pvfx_fireball_impact',
+            impactVfx: t === 'magma' ? 'vfp_magma' : 'fpe_brightfire',
             color: '#ff7043',
-            speed: 235,
+            speed: 240,
             count: t === 'imp' ? 3 : 1,
             spread: 0.22
           },
@@ -1100,29 +1111,31 @@
       case 'wisp_green':
         return {
           behavior: 'ranged_single',
-          windupVfx: t === 'wisp_green' ? 'pvfx_leaf_storm' : 'aw_arcane_charge',
-          meleeVfx: t === 'wisp_green' ? 'pvfx_leaf_gust' : 'pvfx_arcane_burst',
-          audio: 'magic',
+          windupVfx: t === 'wisp_green' ? 'fpe_felspell' : 'fpe_casting',
+          meleeVfx: t === 'wisp_green' ? 'pvfx_leaf_gust' : 'fpe_magickahit',
+          hitVfx: t === 'wisp_green' ? 'pvfx_leaf_storm' : 'fpe_magicspell',
+          trailColor: t === 'wisp_green' ? '#81c784' : '#4fc3f7', audio: 'magic',
           proj: {
-            vfxKey: t === 'wisp_green' ? 'pvfx_wind_blade' : 'px_energy_bolt',
-            impactVfx: t === 'wisp_green' ? 'pvfx_leaf_storm' : 'pvfx_arcane_burst',
+            vfxKey: t === 'wisp_green' ? 'pvfx_wind_blade' : 'pvfx_arcane_orb_projectile',
+            impactVfx: t === 'wisp_green' ? 'fpe_felspell' : 'fpe_magickahit',
             color: t === 'wisp_green' ? '#81c784' : '#4fc3f7',
-            speed: 228
+            speed: 235
           }
         };
       case 'floating_eye':
       case 'ghastly_eye':
         return {
           behavior: 'beam_caster',
-          windupVfx: t === 'ghastly_eye' ? 'pvfx_void_implosion' : 'aw_arcane_charge',
-          meleeVfx: 'pvfx_arcane_burst',
-          specialVfx: t === 'ghastly_eye' ? 'pvfx_void_implosion' : 'pvfx_arcane_beam',
-          audio: 'magic',
+          windupVfx: t === 'ghastly_eye' ? 'vfp_vortex' : 'fpe_casting',
+          meleeVfx: 'fpe_magickahit',
+          hitVfx: t === 'ghastly_eye' ? 'fpe_nebula' : 'fpe_magicspell',
+          specialVfx: t === 'ghastly_eye' ? 'fpe_nebula' : 'pvfx_arcane_beam',
+          trailColor: t === 'ghastly_eye' ? '#ba68c8' : '#80d8ff', audio: 'magic',
           proj: {
             vfxKey: t === 'ghastly_eye' ? 'mp9_dark_bolt' : 'aw_arcane_missile',
-            impactVfx: t === 'ghastly_eye' ? 'aw_explosion_dark' : 'aw_arcane_impact',
+            impactVfx: t === 'ghastly_eye' ? 'fpe_vortex' : 'fpe_magickahit',
             color: t === 'ghastly_eye' ? '#ba68c8' : '#80d8ff',
-            speed: 250,
+            speed: 255,
             homing: 1.35
           },
           status: t === 'ghastly_eye' ? { kind: 'curse', dur: 2.0 } : null
@@ -1132,9 +1145,11 @@
       case 'plague_bat':
         return {
           behavior: 'vampire_swoop',
-          windupVfx: 'pvfx_dash_dust',
-          meleeVfx: t === 'vampire_bat' ? 'pvfx_soul_drain' : t === 'plague_bat' ? 'pvfx_poison_cloud' : 'pvfx_blood_splat',
-          specialVfx: t === 'plague_bat' ? 'pvfx_poison_cloud' : 'pvfx_blood_splat',
+          windupVfx: t === 'plague_bat' ? 'fpe_felspell' : (t === 'vampire_bat' ? 'sp_spell_attack_red' : 'pvfx_dash_dust'),
+          meleeVfx: t === 'vampire_bat' ? 'pvfx_soul_drain' : t === 'plague_bat' ? 'fpe_felspell' : 'aw_claw_swipe',
+          hitVfx: t === 'plague_bat' ? 'pvfx_acid_splash' : 'vfp_blood',
+          specialVfx: t === 'plague_bat' ? 'pvfx_poison_cloud' : 'vfp_blood',
+          trailColor: t === 'plague_bat' ? '#ba68c8' : (t === 'vampire_bat' ? '#ef5350' : '#9575cd'),
           lifesteal: t === 'vampire_bat' ? 0.35 : 0,
           audio: 'slash',
           status: t === 'plague_bat' ? { kind: 'poison', dur: 2.1, tickDmg: 3 } : (t === 'vampire_bat' ? { kind: 'bleed', dur: 1.8, tickDmg: 2 } : null)
@@ -1143,69 +1158,107 @@
       case 'ghost_spectral':
         return {
           behavior: 'blink_caster',
-          windupVfx: 'pvfx_blink_out',
-          meleeVfx: 'aw_explosion_dark',
+          windupVfx: 'fpe_phantom',
+          meleeVfx: 'fpe_bluefire',
+          hitVfx: 'fpe_phantom',
           specialVfx: 'pvfx_teleport_in',
-          audio: 'magic',
-          proj: { vfxKey: 'pvfx_ice_shard', impactVfx: 'pvfx_snowball_impact', color: '#b39ddb', speed: 225, count: t === 'ghost_spectral' ? 3 : 1, spread: 0.22 },
+          trailColor: '#b39ddb', audio: 'magic',
+          proj: { vfxKey: 'pvfx_ice_shard', impactVfx: 'fpe_bluefire', color: '#b39ddb', speed: 230, count: t === 'ghost_spectral' ? 3 : 1, spread: 0.22 },
           status: { kind: 'slow', dur: 1.8 }
         };
-      // ── Beta 1.3.0: Perfiles de combate + Gigapack VFX para +18 enemigos ──
+      // ── Biome Tier 2-14 Specialized Mob VFX Profiles ──
       case 'enemy_coral_crab':
-        return { behavior: 'charger', windupVfx: 'sp_spell_defense_blue', meleeVfx: 'sp_impact_blue', specialVfx: 'sp_frost_explosion_cyan', audio: 'hit' };
+        return { behavior: 'charger', windupVfx: 'fpe_bubbles', meleeVfx: 'aw_water_splash', hitVfx: 'fpe_bubbles', specialVfx: 'pvfx_tidal_wave', trailColor: '#26c6da', audio: 'hit' };
       case 'enemy_coral_cobra':
-        return { behavior: 'ranged_single', windupVfx: 'sp_spell_defense_blue', meleeVfx: 'sp_impact_blue', audio: 'magic', proj: { vfxKey: 'aw_ice_spear', impactVfx: 'sp_impact_blue', color: '#4dd0e1', speed: 245 } };
+        return { behavior: 'ranged_single', windupVfx: 'fpe_bubbles', meleeVfx: 'sp_impact_blue', hitVfx: 'fpe_bubbles', trailColor: '#4dd0e1', audio: 'magic', proj: { vfxKey: 'aw_ice_spear', impactVfx: 'fpe_bubbles', color: '#4dd0e1', speed: 245 } };
       case 'enemy_cristal_eye':
-        return { behavior: 'ranged_fan', windupVfx: 'sp_scifi_charge', meleeVfx: 'sp_impact_violet', specialVfx: 'sp_lightning_strike_violet', audio: 'magic', proj: { vfxKey: 'aw_arcane_missile', impactVfx: 'sp_impact_violet', color: '#e040fb', speed: 255, count: 3, spread: 0.22 } };
+        return { behavior: 'ranged_fan', windupVfx: 'vfp_electric_shield', meleeVfx: 'fpe_magickahit', hitVfx: 'fpe_nebula', specialVfx: 'sp_lightning_strike_violet', trailColor: '#e040fb', audio: 'magic', proj: { vfxKey: 'aw_arcane_missile', impactVfx: 'fpe_magickahit', color: '#e040fb', speed: 255, count: 3, spread: 0.22 } };
       case 'enemy_selva_spider':
-        return { behavior: 'charger', windupVfx: 'sp_spell_haste_green', meleeVfx: 'sp_spell_poison_green', specialVfx: 'sp_spell_poison_green', audio: 'slash', status: { kind: 'poison', dur: 2.2, tickDmg: 4 } };
+        return { behavior: 'charger', windupVfx: 'fpe_felspell', meleeVfx: 'aw_claw_swipe', hitVfx: 'pvfx_acid_splash', specialVfx: 'fpe_felspell', trailColor: '#00e676', audio: 'slash', status: { kind: 'poison', dur: 2.2, tickDmg: 4 } };
       case 'enemy_selva_plant':
-        return { behavior: 'ranged_fan', windupVfx: 'sp_spell_poison_green', meleeVfx: 'sp_spell_poison_green', audio: 'magic', proj: { vfxKey: 'pvfx_poison_dart', impactVfx: 'sp_spell_poison_green', color: '#00e676', speed: 235, count: 3, spread: 0.24 }, status: { kind: 'poison', dur: 2.4, tickDmg: 4 } };
+        return { behavior: 'ranged_fan', windupVfx: 'fpe_felspell', meleeVfx: 'pvfx_vine_snare', hitVfx: 'fpe_felspell', trailColor: '#00e676', audio: 'magic', proj: { vfxKey: 'pvfx_poison_dart', impactVfx: 'fpe_felspell', color: '#00e676', speed: 235, count: 3, spread: 0.24 }, status: { kind: 'poison', dur: 2.4, tickDmg: 4 } };
       case 'enemy_fire_slime':
-        return { behavior: 'leaper', windupVfx: 'sp_fire_loop_orange', meleeVfx: 'sp_epic_explosion_orange', specialVfx: 'sp_epic_explosion_orange', audio: 'bomb', status: { kind: 'burn', dur: 2.2, tickDmg: 4 } };
+        return { behavior: 'leaper', windupVfx: 'fpe_firespin', meleeVfx: 'vfp_fastfire', hitVfx: 'fpe_brightfire', specialVfx: 'vfp_magma', trailColor: '#ff5722', audio: 'bomb', status: { kind: 'burn', dur: 2.2, tickDmg: 4 } };
       case 'enemy_ember_bat':
-        return { behavior: 'ranged_single', windupVfx: 'sp_fire_loop_orange', meleeVfx: 'sp_spell_attack_red', audio: 'fire', proj: { vfxKey: 'aw_fire_fireball', impactVfx: 'sp_epic_explosion_orange', color: '#ff5722', speed: 255 }, status: { kind: 'burn', dur: 2.0, tickDmg: 4 } };
+        return { behavior: 'ranged_single', windupVfx: 'fpe_firespin', meleeVfx: 'fpe_flamelash', hitVfx: 'vfp_fastfire', trailColor: '#ff5722', audio: 'fire', proj: { vfxKey: 'aw_fire_fireball', impactVfx: 'fpe_brightfire', color: '#ff5722', speed: 255 }, status: { kind: 'burn', dur: 2.0, tickDmg: 4 } };
       case 'enemy_bomb_black':
-        return { behavior: 'bomber', windupVfx: 'sp_fire_loop_orange', meleeVfx: 'sp_epic_explosion_orange', specialVfx: 'sp_epic_explosion_orange', bombRadius: 58, audio: 'bomb', status: { kind: 'burn', dur: 2.2, tickDmg: 4 } };
+        return { behavior: 'bomber', windupVfx: 'fpe_firespin', meleeVfx: 'fpe_brightfire', hitVfx: 'vfp_explosion', specialVfx: 'vfp_explosion', bombRadius: 62, trailColor: '#ff7043', audio: 'bomb', status: { kind: 'burn', dur: 2.2, tickDmg: 4 } };
       case 'enemy_dragon_whelp':
-        return { behavior: 'ranged_fan', windupVfx: 'sp_spell_attack_red', meleeVfx: 'sp_epic_explosion_orange', specialVfx: 'sp_fire_loop_orange', audio: 'fire', proj: { vfxKey: 'aw_fire_fireball', impactVfx: 'sp_epic_explosion_orange', color: '#ffab00', speed: 265, count: 3, spread: 0.2 }, status: { kind: 'burn', dur: 2.5, tickDmg: 5 } };
+        return { behavior: 'ranged_fan', windupVfx: 'vfp_ditherfire', meleeVfx: 'fpe_flamelash', hitVfx: 'fpe_brightfire', specialVfx: 'fpe_fire', trailColor: '#ffab00', audio: 'fire', proj: { vfxKey: 'soggy_fireball', impactVfx: 'vfp_explosion', color: '#ffab00', speed: 265, count: 3, spread: 0.2 }, status: { kind: 'burn', dur: 2.5, tickDmg: 5 } };
       case 'enemy_glaciar_whelp':
-        return { behavior: 'ranged_fan', windupVfx: 'sp_spell_defense_blue', meleeVfx: 'sp_frost_explosion_cyan', specialVfx: 'sp_impact_blue', audio: 'magic', proj: { vfxKey: 'aw_ice_spear', impactVfx: 'sp_frost_explosion_cyan', color: '#4fc3f7', speed: 260, count: 3, spread: 0.2 }, status: { kind: 'slow', dur: 2.2 } };
+        return { behavior: 'ranged_fan', windupVfx: 'fpe_bluefire', meleeVfx: 'fpe_freezing', hitVfx: 'fpe_freezing', specialVfx: 'sp_frost_explosion_cyan', trailColor: '#4fc3f7', audio: 'magic', proj: { vfxKey: 'aw_ice_spear', impactVfx: 'fpe_freezing', color: '#4fc3f7', speed: 260, count: 3, spread: 0.2 }, status: { kind: 'slow', dur: 2.2 } };
       case 'enemy_pantano_slime':
-        return { behavior: 'leaper', windupVfx: 'sp_spell_poison_green', meleeVfx: 'sp_spell_poison_green', specialVfx: 'sp_skull_smoke', audio: 'hit', leavesPool: true, poolColor: '#76ff03', status: { kind: 'poison', dur: 2.5, tickDmg: 5 } };
+        return { behavior: 'leaper', windupVfx: 'fpe_felspell', meleeVfx: 'aw_poison_splash', hitVfx: 'fpe_felspell', specialVfx: 'sp_skull_smoke', trailColor: '#76ff03', audio: 'hit', leavesPool: true, poolColor: '#76ff03', poolVfx: 'fpe_felspell', status: { kind: 'poison', dur: 2.5, tickDmg: 5 } };
       case 'enemy_pantano_shroom':
-        return { behavior: 'spore_burst', windupVfx: 'sp_skull_smoke', meleeVfx: 'sp_spell_poison_green', specialVfx: 'sp_spell_poison_green', audio: 'magic', leavesPool: true, poolColor: '#aeea00', status: { kind: 'poison', dur: 2.6, tickDmg: 5 } };
+        return { behavior: 'spore_burst', windupVfx: 'sp_skull_smoke', meleeVfx: 'fpe_felspell', hitVfx: 'pvfx_acid_splash', specialVfx: 'fpe_felspell', trailColor: '#aeea00', audio: 'magic', leavesPool: true, poolColor: '#aeea00', poolVfx: 'fpe_felspell', status: { kind: 'poison', dur: 2.6, tickDmg: 5 } };
       case 'enemy_dark_bat':
-        return { behavior: 'charger', windupVfx: 'sp_spell_absorb_violet', meleeVfx: 'sp_impact_violet', specialVfx: 'sp_skull_smoke', audio: 'slash', status: { kind: 'bleed', dur: 2.0, tickDmg: 4 } };
+        return { behavior: 'charger', windupVfx: 'fpe_midnight', meleeVfx: 'pvfx_shadow_claw', hitVfx: 'vfp_blood', specialVfx: 'sp_skull_smoke', trailColor: '#9575cd', audio: 'slash', status: { kind: 'bleed', dur: 2.0, tickDmg: 4 } };
       case 'enemy_necro_skull':
-        return { behavior: 'ranged_fan', windupVfx: 'sp_skull_smoke', meleeVfx: 'sp_lightning_burst_violet', specialVfx: 'sp_spell_absorb_violet', audio: 'curse', proj: { vfxKey: 'mp9_dark_bolt', impactVfx: 'sp_impact_violet', color: '#b388ff', speed: 265, count: 3, spread: 0.22 }, status: { kind: 'curse', dur: 2.2 } };
+        return { behavior: 'ranged_fan', windupVfx: 'fpe_circle', meleeVfx: 'fpe_phantom', hitVfx: 'fpe_midnight', specialVfx: 'vfp_tentacles', trailColor: '#b388ff', audio: 'curse', proj: { vfxKey: 'mp9_dark_bolt', impactVfx: 'fpe_midnight', color: '#b388ff', speed: 265, count: 3, spread: 0.22 }, status: { kind: 'curse', dur: 2.2 } };
       case 'enemy_biter_red':
-        return { behavior: 'charger', windupVfx: 'sp_spell_attack_red', meleeVfx: 'sp_splatter_red', specialVfx: 'sp_spell_death_red', audio: 'slash', status: { kind: 'bleed', dur: 2.4, tickDmg: 6 } };
+        return { behavior: 'charger', windupVfx: 'sp_spell_attack_red', meleeVfx: 'aw_claw_swipe', hitVfx: 'vfp_blood', specialVfx: 'vfp_blood', trailColor: '#ff1744', audio: 'slash', status: { kind: 'bleed', dur: 2.4, tickDmg: 6 } };
       case 'enemy_bat_horned':
-        return { behavior: 'ranged_fan', windupVfx: 'sp_spell_death_red', meleeVfx: 'sp_splatter_red', specialVfx: 'sp_stylized_explosion_violet', audio: 'curse', proj: { vfxKey: 'aw_fire_fireball', impactVfx: 'sp_splatter_red', color: '#ff1744', speed: 275, count: 3, spread: 0.2 }, status: { kind: 'bleed', dur: 2.4, tickDmg: 6 } };
+        return { behavior: 'ranged_fan', windupVfx: 'fpe_firespin', meleeVfx: 'vfp_blood', hitVfx: 'fpe_brightfire', specialVfx: 'fpe_nebula', trailColor: '#ff1744', audio: 'curse', proj: { vfxKey: 'aw_fire_fireball', impactVfx: 'vfp_blood', color: '#ff1744', speed: 275, count: 3, spread: 0.2 }, status: { kind: 'bleed', dur: 2.4, tickDmg: 6 } };
       case 'enemy_abismo_wisp':
-        return { behavior: 'blink_caster', windupVfx: 'sp_scifi_warp', meleeVfx: 'sp_lightning_strike_violet', specialVfx: 'sp_stylized_explosion_violet', audio: 'magic', proj: { vfxKey: 'mp9_dark_bolt', impactVfx: 'sp_stylized_explosion_violet', color: '#aa00ff', speed: 270, radial: 5 }, status: { kind: 'curse', dur: 2.4 } };
+        return { behavior: 'blink_caster', windupVfx: 'vfp_vortex', meleeVfx: 'vfp_tentacles', hitVfx: 'fpe_nebula', specialVfx: 'fpe_vortex', trailColor: '#aa00ff', audio: 'magic', proj: { vfxKey: 'mp9_dark_bolt', impactVfx: 'fpe_nebula', color: '#aa00ff', speed: 270, radial: 5 }, status: { kind: 'curse', dur: 2.4 } };
       case 'enemy_abismo_goblin':
-        return { behavior: 'melee_combo', windupVfx: 'sp_spell_attack_red', meleeVfx: 'sp_splatter_red', specialVfx: 'sp_spell_death_red', audio: 'slash', status: { kind: 'bleed', dur: 2.2, tickDmg: 5 } };
+        return { behavior: 'melee_combo', windupVfx: 'fpe_midnight', meleeVfx: 'pvfx_shadow_claw', hitVfx: 'vfp_blood', specialVfx: 'vfp_tentacles', trailColor: '#d500f9', audio: 'slash', status: { kind: 'bleed', dur: 2.2, tickDmg: 5 } };
       default:
-        return { behavior: 'melee_combo', meleeVfx: 'aw_claw_swipe', specialVfx: 'pvfx_hit_spark', audio: 'hit' };
+        return { behavior: 'melee_combo', windupVfx: 'pvfx_dash_dust', meleeVfx: 'aw_claw_swipe', hitVfx: 'fpe_weaponhit', specialVfx: 'vfp_bighit', trailColor: '#ff8a80', audio: 'hit' };
     }
   }
 
-  function spawnStrikeVfx(game, key, x, y, angle = 0, scale = 0.85) {
+  function pickVfxBlend(key) {
+    if (!key) return 'source-over';
+    if (/blood|splatter|dark|shadow|midnight|tentacle|poison|acid|felspell|spore|dust|rock|earth|fissure|smoke|skull|vine|curse|vfp_explosion|vfp_kaboom|vfp_magma|vfp_fastfire|vfp_ditherfire|vfp_vortex|vfp_bighit|fpe_vortex|fpe_phantom|fpe_weaponhit/i.test(key)) {
+      return 'source-over';
+    }
+    return 'lighter';
+  }
+
+  function spawnStrikeVfx(game, key, x, y, angle = 0, scale = 1.0, opts = null) {
     if (!game || !game.spawnFx || !key) return;
-    game.spawnFx(key, x, y, angle, 0.32, scale, 0.96, { blend: 'lighter' });
+    const meta = Abyssea.VFX_V2 && Abyssea.VFX_V2[key];
+    const baseDur = (opts && opts.dur) ? opts.dur : (meta && meta.dur ? clamp(meta.dur * 0.85, 0.38, 0.84) : 0.44);
+    const norm = meta ? (meta.fw >= 100 ? 0.82 : meta.fw >= 64 ? 1.05 : 1.38) : 1.15;
+    const finalScale = Math.max(0.45, scale * norm);
+    const blend = (opts && opts.blend) || pickVfxBlend(key);
+    const alpha = (opts && opts.alpha != null) ? opts.alpha : 0.98;
+    game.spawnFx(key, x, y, angle, baseDur, finalScale, alpha, Object.assign({ blend }, opts || {}));
+  }
+
+  function beginMobWindup(game, e, prof, attackKind, dur, extra = null) {
+    e.state = 'windup';
+    e.attackKind = attackKind;
+    e.windupMax = dur;
+    e.windupTimer = dur;
+    if (extra) Object.assign(e, extra);
+    const wKey = prof.windupVfx || 'fpe_casting';
+    spawnStrikeVfx(game, wKey, e.x, e.y - 6, e.targetAngle || 0, e.isMiniBoss ? 1.15 : 0.88, {
+      dur: Math.max(0.36, dur * 1.05),
+      follow: e,
+      offY: -6
+    });
+    if (game.spawnParticles) {
+      game.spawnParticles(e.x, e.y - 4, prof.trailColor || e.color || '#ffd54f', e.isMiniBoss ? 10 : 6);
+    }
   }
 
   function executeMeleeStrike(game, enemy, angle, dmgMult = 1) {
     const prof = getMobProfile(enemy);
-    const hitX = (enemy.x + game.player.x) * 0.5;
-    const hitY = (enemy.y + game.player.y) * 0.5;
-    spawnStrikeVfx(game, prof.meleeVfx || 'aw_claw_swipe', hitX, hitY - 4, angle, 0.82);
-    if (prof.specialVfx && prof.behavior === 'spore_burst') {
-      spawnStrikeVfx(game, prof.specialVfx, enemy.x, enemy.y, 0, 0.95);
+    const hitX = enemy.x + Math.cos(angle) * Math.min(28, dist(enemy.x, enemy.y, game.player.x, game.player.y) * 0.65);
+    const hitY = enemy.y + Math.sin(angle) * Math.min(28, dist(enemy.x, enemy.y, game.player.x, game.player.y) * 0.65);
+    spawnStrikeVfx(game, prof.meleeVfx || 'aw_claw_swipe', hitX, hitY - 4, angle, enemy.isMiniBoss ? 1.25 : 1.05);
+    if (prof.hitVfx) {
+      spawnStrikeVfx(game, prof.hitVfx, game.player.x, game.player.y - 6, angle, enemy.isMiniBoss ? 1.05 : 0.85, { dur: 0.42 });
     }
-    if (Balaclava.Audio) Balaclava.Audio.play(prof.audio || 'hit');
+    if (prof.specialVfx && prof.behavior === 'spore_burst') {
+      spawnStrikeVfx(game, prof.specialVfx, enemy.x, enemy.y, 0, 1.12);
+    }
+    if (game.spawnParticles) {
+      game.spawnParticles(game.player.x, game.player.y - 4, prof.trailColor || enemy.color || '#ff8a80', enemy.isMiniBoss ? 11 : 7);
+    }
+    if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'hit');
     const dmg = Math.max(1, Math.round((enemy.dmg || 8) * dmgMult));
     game.damagePlayer(dmg, { status: prof.status || null });
     if (prof.lifesteal && enemy.hp > 0 && enemy.maxHp) {
@@ -1215,32 +1268,38 @@
 
   function fireMobVolley(game, enemy, angle, opts = {}) {
     const prof = getMobProfile(enemy);
-    const pCfg = prof.proj || { vfxKey: 'px_energy_bolt', impactVfx: 'pvfx_hit_spark', color: enemy.color || '#ff7043', speed: 225 };
+    const pCfg = prof.proj || { vfxKey: 'px_energy_bolt', impactVfx: 'fpe_magickahit', color: enemy.color || '#ff7043', speed: 225 };
     const count = opts.count || pCfg.count || 1;
     const spread = opts.spread !== undefined ? opts.spread : (pCfg.spread || 0.20);
     const spd = (opts.speed || pCfg.speed || 225) * (opts.speedMult || 1);
     const dmg = Math.max(1, Math.round((enemy.dmg || 10) * (opts.dmgMult || 0.90)));
-    if (prof.windupVfx) spawnStrikeVfx(game, prof.windupVfx, enemy.x, enemy.y - 6, angle, 0.65);
-    if (Balaclava.Audio) Balaclava.Audio.play(prof.audio || 'magic');
+    const muzzleX = enemy.x + Math.cos(angle) * 16;
+    const muzzleY = enemy.y + Math.sin(angle) * 16 - 4;
+    spawnStrikeVfx(game, prof.windupVfx || 'fpe_casting', muzzleX, muzzleY, angle, 0.78, { dur: 0.36 });
+    if (game.spawnParticles) {
+      game.spawnParticles(muzzleX, muzzleY, pCfg.color || prof.trailColor || '#ffd54f', 6);
+    }
+    if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'magic');
 
     const projOpts = {
       vfxKey: pCfg.vfxKey,
-      impactVfx: pCfg.impactVfx,
+      impactVfx: pCfg.impactVfx || prof.hitVfx || 'fpe_magickahit',
       kind: pCfg.kind || null,
       homing: pCfg.homing || 0,
-      status: prof.status || null
+      status: prof.status || null,
+      trailColor: pCfg.color || prof.trailColor || enemy.color || '#ff7043'
     };
     if (pCfg.radial && pCfg.radial > 1) {
       for (let k = 0; k < pCfg.radial; k++) {
         const a = angle + (k / pCfg.radial) * Math.PI * 2;
-        game.spawnEnemyProjectile(enemy.x, enemy.y, Math.cos(a) * spd, Math.sin(a) * spd, dmg, pCfg.color || enemy.color, projOpts);
+        game.spawnEnemyProjectile(enemy.x, enemy.y - 4, Math.cos(a) * spd, Math.sin(a) * spd, dmg, pCfg.color || enemy.color, projOpts);
       }
       return;
     }
     const half = (count - 1) / 2;
     for (let k = 0; k < count; k++) {
       const a = angle + (k - half) * spread;
-      game.spawnEnemyProjectile(enemy.x, enemy.y, Math.cos(a) * spd, Math.sin(a) * spd, dmg, pCfg.color || enemy.color, projOpts);
+      game.spawnEnemyProjectile(muzzleX, muzzleY, Math.cos(a) * spd, Math.sin(a) * spd, dmg, pCfg.color || enemy.color, projOpts);
     }
   }
 
@@ -1257,7 +1316,7 @@
         if (z.timer >= (z.delay || 0.85) && z.timer < (z.duration || 1.75)) {
           if (!z.erupted) {
             z.erupted = true;
-            if (Balaclava.Audio) Balaclava.Audio.play('bomb');
+            if (Abyssea.Audio) Abyssea.Audio.play('bomb');
             if (game.shake) game.shake(0.18, 4);
             for (const tFrac of [0.15, 0.5, 0.85]) {
               const ex = z.x + (z.x2 - z.x) * tFrac;
@@ -1281,16 +1340,25 @@
         }
         if (z.timer >= (z.duration || 1.75)) hazards.splice(hi, 1);
       } else if (z.kind === 'meteor' || z.kind === 'bomb' || z.kind === 'pillar') {
+        if (!z.detonated) {
+          z._fuseSparkCd = (z._fuseSparkCd || 0) - dt;
+          if (z._fuseSparkCd <= 0 && game.spawnParticles) {
+            z._fuseSparkCd = 0.14;
+            game.spawnParticles(z.x, z.y - 4, z.color || '#ffab40', 3);
+          }
+        }
         if (!z.detonated && z.timer >= (z.delay || 0.95)) {
           z.detonated = true;
           const r = z.radius || 54;
-          if (Balaclava.Audio) Balaclava.Audio.play(z.kind === 'pillar' ? 'thunder' : 'bomb');
-          if (game.spawnShockwave) game.spawnShockwave(z.x, z.y, r + 16, z.color || '#ff5252');
-          if (game.spawnFx) {
-            const vfx = z.vfxKey || (z.kind === 'bomb' ? 'pvfx_big_explosion' : z.kind === 'pillar' ? 'pvfx_fire_pillar' : 'pvfx_meteor_strike');
-            game.spawnFx(vfx, z.x, z.y - (z.kind === 'pillar' ? 14 : 4), 0, 0.52, r >= 60 ? 1.15 : 0.9, 0.98, { blend: 'lighter' });
+          if (Abyssea.Audio) Abyssea.Audio.play(z.kind === 'pillar' ? 'thunder' : 'bomb');
+          if (game.spawnShockwave) game.spawnShockwave(z.x, z.y, r + 22, z.color || '#ff5252');
+          const vfx = z.vfxKey || (z.kind === 'bomb' ? 'vfp_explosion' : z.kind === 'pillar' ? 'fpe_fire' : 'pvfx_meteor_strike');
+          spawnStrikeVfx(game, vfx, z.x, z.y - (z.kind === 'pillar' ? 14 : 6), 0, r >= 60 ? 1.32 : 1.08, { dur: 0.62 });
+          if (z.kind === 'bomb' || z.kind === 'meteor') {
+            spawnStrikeVfx(game, 'pvfx_shockwave_ring', z.x, z.y, 0, r >= 60 ? 1.15 : 0.92, { dur: 0.44 });
           }
-          if (game.shake) game.shake(0.18, 4);
+          if (game.spawnParticles) game.spawnParticles(z.x, z.y, z.color || '#ff7043', 16);
+          if (game.shake) game.shake(0.18, 4.5);
           if (dist(pPx, pPy, z.x, z.y) <= r && (!game.activeDungeon || game.activeDungeon.hasLineOfSight(z.x, z.y, pPx, pPy))) {
             game.damagePlayer(Math.round(z.dmg || (themeFallback && themeFallback.boss ? themeFallback.boss.dmg * 1.1 : 18)), { isMagic: true, status: z.status || null });
           }
@@ -1305,9 +1373,11 @@
         }
         if (z.timer >= (z.duration || (z.oneShot ? (z.delay || 0.95) + 0.15 : 2.8))) hazards.splice(hi, 1);
       } else {
-        if (z.vfxKey && !z._vfxSpawned && game.spawnFx) {
-          z._vfxSpawned = true;
-          game.spawnFx(z.vfxKey, z.x, z.y, 0, Math.min(1.1, z.duration || 1.2), 0.95, 0.82, { blend: 'lighter' });
+        z._vfxCd = (z._vfxCd || 0) - dt;
+        if (z.vfxKey && z._vfxCd <= 0 && game.spawnFx) {
+          z._vfxCd = 0.85;
+          spawnStrikeVfx(game, z.vfxKey, z.x, z.y, 0, Math.max(0.85, (z.radius || 44) / 44), { dur: 0.82, alpha: 0.82 });
+          if (game.spawnParticles) game.spawnParticles(z.x, z.y, z.color || '#8bc34a', 4);
         }
         z.tickCd = (z.tickCd || 0) - dt;
         if (z.tickCd <= 0) {
@@ -1323,6 +1393,7 @@
 
   function renderHazards(ctx, hazards, time, fallbackColor = '#ff5252') {
     if (!Array.isArray(hazards) || hazards.length === 0) return;
+    const tNow = time || 0;
     ctx.save();
     for (const z of hazards) {
       if (!z) continue;
@@ -1332,19 +1403,18 @@
         if (z.timer < (z.delay || 0.85)) {
           const p = clamp(z.timer / Math.max(0.05, z.delay || 0.85), 0, 1);
           ctx.save();
-          ctx.strokeStyle = 'rgba(255, 82, 82, 0.35)';
-          ctx.lineWidth = halfW * 2;
-          ctx.beginPath();
-          ctx.moveTo(z.x, z.y);
-          ctx.lineTo(z.x2, z.y2);
-          ctx.stroke();
-          ctx.strokeStyle = `rgba(255, 193, 7, ${0.45 + 0.45 * p})`;
-          ctx.lineWidth = Math.max(3, halfW * 2 * p);
-          ctx.setLineDash([10, 6]);
-          ctx.beginPath();
-          ctx.moveTo(z.x, z.y);
-          ctx.lineTo(z.x2, z.y2);
-          ctx.stroke();
+          ctx.lineCap = 'round';
+          ctx.strokeStyle = 'rgba(255, 61, 0, 0.24)';
+          ctx.lineWidth = halfW * 2.1;
+          ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x2, z.y2); ctx.stroke();
+          ctx.strokeStyle = `rgba(255, 193, 7, ${(0.38 + 0.55 * p).toFixed(2)})`;
+          ctx.lineWidth = Math.max(4, halfW * 1.9 * p);
+          ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x2, z.y2); ctx.stroke();
+          ctx.strokeStyle = '#fff8e1';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([12, 8]);
+          ctx.lineDashOffset = -tNow * 64;
+          ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x2, z.y2); ctx.stroke();
           ctx.restore();
         } else {
           const fade = clamp(1 - (z.timer - (z.delay || 0.85)) / Math.max(0.1, (z.duration || 1.75) - (z.delay || 0.85)), 0.15, 1);
@@ -1353,16 +1423,10 @@
           ctx.strokeStyle = col;
           ctx.lineWidth = halfW * 2;
           ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(z.x, z.y);
-          ctx.lineTo(z.x2, z.y2);
-          ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x2, z.y2); ctx.stroke();
           ctx.strokeStyle = '#fff3e0';
           ctx.lineWidth = Math.max(4, halfW * 0.65);
-          ctx.beginPath();
-          ctx.moveTo(z.x, z.y);
-          ctx.lineTo(z.x2, z.y2);
-          ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(z.x, z.y); ctx.lineTo(z.x2, z.y2); ctx.stroke();
           ctx.restore();
         }
       } else {
@@ -1370,27 +1434,55 @@
         if ((z.kind === 'meteor' || z.kind === 'bomb' || z.kind === 'pillar') && !z.detonated) {
           const dly = z.delay || 1.0;
           const p = clamp(z.timer / Math.max(0.05, dly), 0, 1);
-          ctx.fillStyle = z.kind === 'pillar' ? 'rgba(128, 222, 234, 0.16)' : 'rgba(255, 61, 0, 0.18)';
+          const isPillar = z.kind === 'pillar';
+          const grad = ctx.createRadialGradient(z.x, z.y, 4, z.x, z.y, r);
+          grad.addColorStop(0, isPillar ? 'rgba(128, 222, 234, 0.34)' : 'rgba(255, 82, 82, 0.36)');
+          grad.addColorStop(1, isPillar ? 'rgba(128, 222, 234, 0.06)' : 'rgba(255, 61, 0, 0.08)');
+          ctx.fillStyle = grad;
           ctx.beginPath(); ctx.arc(z.x, z.y, r, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = z.kind === 'pillar' ? `rgba(128, 222, 234, ${0.20 + p * 0.36})` : `rgba(255, 82, 82, ${0.22 + p * 0.34})`;
-          ctx.beginPath(); ctx.arc(z.x, z.y, Math.max(4, r * p), 0, Math.PI * 2); ctx.fill();
+          // Expanding danger fill ring synced to detonation progress
+          ctx.fillStyle = isPillar ? `rgba(128, 222, 234, ${(0.18 + p * 0.36).toFixed(2)})` : `rgba(255, 82, 82, ${(0.20 + p * 0.38).toFixed(2)})`;
+          ctx.beginPath(); ctx.arc(z.x, z.y, Math.max(5, r * p), 0, Math.PI * 2); ctx.fill();
+          // Crisp outer perimeter + rotating reticle ticks
           ctx.strokeStyle = col;
-          ctx.lineWidth = 2.5;
+          ctx.lineWidth = 2.6;
           ctx.beginPath(); ctx.arc(z.x, z.y, r, 0, Math.PI * 2); ctx.stroke();
+          ctx.save();
+          ctx.translate(z.x, z.y);
+          ctx.rotate(tNow * (2.6 + p * 3.5));
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.72)';
+          ctx.lineWidth = 2;
+          for (let k = 0; k < 4; k++) {
+            const a = (k * Math.PI) / 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * (r - 7), Math.sin(a) * (r - 7));
+            ctx.lineTo(Math.cos(a) * (r + 2), Math.sin(a) * (r + 2));
+            ctx.stroke();
+          }
+          ctx.restore();
           if (z.kind === 'bomb') {
-            ctx.fillStyle = (Math.floor((time || 0) * 14) % 2 === 0) ? '#ff5252' : '#ffd54f';
-            ctx.beginPath(); ctx.arc(z.x, z.y - 4, 7, 0, Math.PI * 2); ctx.fill();
+            const flash = (Math.floor(tNow * (10 + p * 18)) % 2 === 0);
+            ctx.fillStyle = '#1f161a';
+            ctx.beginPath(); ctx.arc(z.x, z.y - 3, 9, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = flash ? '#ff5252' : '#ffd54f';
+            ctx.beginPath(); ctx.arc(z.x, z.y - 4, 6.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(z.x + 3, z.y - 11, 3, 3);
           }
         } else {
           const left = Math.max(0, (z.duration || 2) - z.timer);
-          const alpha = clamp(left / 0.6, 0.2, 0.9);
+          const alpha = clamp(left / 0.6, 0.18, 0.92);
           ctx.save();
           ctx.globalAlpha = alpha;
-          ctx.fillStyle = z.fillColor || 'rgba(255, 87, 34, 0.26)';
+          const pGrad = ctx.createRadialGradient(z.x, z.y, 4, z.x, z.y, r);
+          pGrad.addColorStop(0, z.fillColor || 'rgba(139, 195, 74, 0.42)');
+          pGrad.addColorStop(1, 'rgba(0, 0, 0, 0.04)');
+          ctx.fillStyle = pGrad;
           ctx.beginPath(); ctx.arc(z.x, z.y, r, 0, Math.PI * 2); ctx.fill();
           ctx.strokeStyle = col;
-          ctx.lineWidth = 2;
-          ctx.setLineDash([6, 4]);
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([7, 5]);
+          ctx.lineDashOffset = -tNow * 24;
           ctx.beginPath(); ctx.arc(z.x, z.y, r, 0, Math.PI * 2); ctx.stroke();
           ctx.restore();
         }
@@ -1440,16 +1532,24 @@
           e.leapStartY = e.y;
           e.leapTargetX = e.targetX !== undefined ? e.targetX : px;
           e.leapTargetY = e.targetY !== undefined ? e.targetY : py;
-          spawnStrikeVfx(game, prof.windupVfx || 'pvfx_dust_puff', e.x, e.y, 0, 0.78);
+          spawnStrikeVfx(game, 'pvfx_dust_puff', e.x, e.y + 4, 0, 0.92);
+          if (game.spawnParticles) game.spawnParticles(e.x, e.y + 4, prof.trailColor || e.color || '#ffd54f', 7);
         } else if (e.attackKind === 'charge' || e.attackKind === 'swoop' || e.attackKind === 'dash') {
           e.state = 'dash';
           e.dashHit = false;
           e.dashTimer = e.attackKind === 'swoop' ? 0.34 : 0.38;
+          e._dashTrailCd = 0;
           const mult = e.attackKind === 'swoop' ? 3.55 : (e.isMiniBoss ? 3.3 : 3.15);
           e.dashVx = Math.cos(dAng) * e.speed * mult;
           e.dashVy = Math.sin(dAng) * e.speed * mult;
-          spawnStrikeVfx(game, prof.windupVfx || 'pvfx_dash_dust', e.x, e.y, dAng, 0.8);
-          if (game.spawnParticles) game.spawnParticles(e.x, e.y, '#ff8a80', 6);
+          spawnStrikeVfx(game, 'aw_dash_wind', e.x, e.y, dAng, 1.05);
+          if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.trailColor || '#ff8a80', 9);
+        } else if (e.attackKind === 'cast') {
+          if (hasLos) {
+            fireMobVolley(game, e, Math.atan2(py - e.y, px - e.x));
+          }
+          e.state = 'chase';
+          e.atkCd = prof.behavior === 'ranged_fan' ? 2.1 : 1.7;
         } else if (e.attackKind === 'bomb') {
           const bx = e.targetX !== undefined ? e.targetX : px;
           const by = e.targetY !== undefined ? e.targetY : py;
@@ -1461,15 +1561,15 @@
               timer: 0,
               delay: 1.05,
               oneShot: true,
-              radius: prof.bombRadius || 52,
+              radius: prof.bombRadius || 54,
               dmg: Math.max(8, Math.round((e.dmg || 12) * 1.45)),
               color: '#ff7043',
-              vfxKey: prof.specialVfx || prof.meleeVfx || 'pvfx_big_explosion',
+              vfxKey: prof.specialVfx || prof.meleeVfx || 'vfp_explosion',
               status: prof.status || { kind: 'burn', dur: 1.6, tickDmg: 2 }
             });
-            spawnStrikeVfx(game, prof.windupVfx || 'pvfx_smoke_bomb', e.x, e.y - 8, dAng, 0.75);
-            if (game.spawnParticles) game.spawnParticles(bx, by, '#ffab40', 8);
-            if (Balaclava.Audio) Balaclava.Audio.play('magic');
+            spawnStrikeVfx(game, 'pvfx_smoke_bomb', e.x, e.y - 8, dAng, 0.92);
+            if (game.spawnParticles) game.spawnParticles(bx, by, '#ffab40', 10);
+            if (Abyssea.Audio) Abyssea.Audio.play('magic');
           }
           e.state = 'chase';
           e.specialAtkCd = 3.1 + Math.random() * 1.6;
@@ -1479,8 +1579,8 @@
             e.burrowTimer = 0.85;
             e._burrowed = true;
             e._burrowPuffCd = 0;
-            spawnStrikeVfx(game, prof.windupVfx || 'pvfx_dust_puff', e.x, e.y, 0, 0.95);
-            if (Balaclava.Audio) Balaclava.Audio.play('hit');
+            spawnStrikeVfx(game, prof.windupVfx || 'pvfx_dust_puff', e.x, e.y, 0, 1.08);
+            if (Abyssea.Audio) Abyssea.Audio.play('hit');
           } else {
             e.state = 'chase';
             e.specialAtkCd = 1.6;
@@ -1490,15 +1590,18 @@
             e._beamProgress = 0;
             const raySin = Math.sin(dAng);
             const rayCos = Math.cos(dAng);
-            for (let step = 52; step <= 235; step += 62) {
+            spawnStrikeVfx(game, prof.windupVfx || 'fpe_casting', e.x + rayCos * 18, e.y + raySin * 18, dAng, 0.95);
+            for (let step = 48; step <= 238; step += 56) {
               const bx = e.x + rayCos * step;
               const by = e.y + raySin * step;
               if (ctx.isDungeon && ctx.hasLos && !ctx.hasLos(e.x, e.y, bx, by)) break;
-              spawnStrikeVfx(game, prof.specialVfx || 'pvfx_arcane_beam', bx, by, dAng, 0.82);
+              spawnStrikeVfx(game, prof.specialVfx || 'pvfx_arcane_beam', bx, by, dAng, 0.98);
+              if (game.spawnParticles) game.spawnParticles(bx, by, prof.trailColor || '#80d8ff', 4);
             }
             const fwd = (px - e.x) * rayCos + (py - e.y) * raySin;
             const perp = Math.abs((px - e.x) * raySin - (py - e.y) * rayCos);
             if (fwd >= -10 && fwd <= 255 && perp <= 24) {
+              if (prof.hitVfx) spawnStrikeVfx(game, prof.hitVfx, px, py - 4, dAng, 0.95);
               game.damagePlayer(Math.max(4, Math.round((e.dmg || 10) * 1.25)), { isMagic: true, status: prof.status || null });
             }
             fireMobVolley(game, e, dAng, { count: 1, dmgMult: 0.78, speedMult: 1.15 });
@@ -1508,7 +1611,8 @@
           e.specialAtkCd = 3.3 + Math.random() * 1.5;
         } else if (e.attackKind === 'blink') {
           if (hasLos) {
-            spawnStrikeVfx(game, prof.windupVfx || 'pvfx_blink_out', e.x, e.y, 0, 0.85);
+            spawnStrikeVfx(game, prof.windupVfx || 'vfp_vortex', e.x, e.y, 0, 1.0);
+            if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.trailColor || '#b388ff', 10);
             let blinked = false;
             const baseAng = Math.random() * Math.PI * 2;
             for (let attempt = 0; attempt < 8; attempt++) {
@@ -1525,7 +1629,10 @@
                 break;
               }
             }
-            if (blinked) spawnStrikeVfx(game, prof.specialVfx || 'pvfx_teleport_in', e.x, e.y, 0, 0.9);
+            if (blinked) {
+              spawnStrikeVfx(game, prof.specialVfx || 'pvfx_teleport_in', e.x, e.y, 0, 1.05);
+              if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, 44, prof.trailColor || '#ce93d8');
+            }
             if (!ctx.isDungeon || !ctx.hasLos || ctx.hasLos(e.x, e.y, px, py)) {
               fireMobVolley(game, e, Math.atan2(py - e.y, px - e.x), { dmgMult: 0.95 });
             }
@@ -1534,8 +1641,10 @@
           e.specialAtkCd = 3.2 + Math.random() * 1.6;
         } else if (e.attackKind === 'spore') {
           if (hasLos) {
-            spawnStrikeVfx(game, prof.specialVfx || 'aw_poison_splash', e.x, e.y, 0, 1.05);
-            if (d < 72) executeMeleeStrike(game, e, dAng, 1.18);
+            spawnStrikeVfx(game, prof.specialVfx || 'fpe_felspell', e.x, e.y, 0, 1.24);
+            if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, 68, prof.poolColor || '#8bc34a');
+            if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.poolColor || '#8bc34a', 14);
+            if (d < 74) executeMeleeStrike(game, e, dAng, 1.18);
             if (prof.proj) fireMobVolley(game, e, dAng, { dmgMult: 0.82 });
             if (prof.leavesPool && hazards) {
               hazards.push({
@@ -1544,11 +1653,11 @@
                 y: e.y,
                 timer: 0,
                 duration: 3.0,
-                radius: 44,
+                radius: 46,
                 dmg: Math.max(6, Math.round((e.dmg || 10) * 0.9)),
                 color: prof.poolColor || '#8bc34a',
-                fillColor: 'rgba(139, 195, 74, 0.24)',
-                vfxKey: prof.specialVfx || 'aw_poison_splash',
+                fillColor: 'rgba(139, 195, 74, 0.28)',
+                vfxKey: prof.poolVfx || prof.specialVfx || 'fpe_felspell',
                 status: prof.status || { kind: 'poison', dur: 2.0, tickDmg: 3 }
               });
             }
@@ -1557,11 +1666,15 @@
           e.specialAtkCd = 3.4 + Math.random() * 1.6;
         } else if (e.attackKind === 'cleave') {
           if (hasLos) {
-            spawnStrikeVfx(game, prof.specialVfx || prof.meleeVfx || 'aw_slash_heavy', e.x + Math.cos(dAng) * 20, e.y + Math.sin(dAng) * 20, dAng, 0.95);
-            if (d < 62) {
+            const cx = e.x + Math.cos(dAng) * 24;
+            const cy = e.y + Math.sin(dAng) * 24;
+            spawnStrikeVfx(game, prof.specialVfx || prof.meleeVfx || 'aw_slash_heavy', cx, cy, dAng, 1.18);
+            if (game.spawnShockwave) game.spawnShockwave(cx, cy, 46, prof.trailColor || '#ffb74d');
+            if (game.spawnParticles) game.spawnParticles(cx, cy, prof.trailColor || '#ffb74d', 10);
+            if (d < 64) {
               executeMeleeStrike(game, e, dAng, 1.25);
-            } else if (Balaclava.Audio) {
-              Balaclava.Audio.play(prof.audio || 'slash');
+            } else if (Abyssea.Audio) {
+              Abyssea.Audio.play(prof.audio || 'slash');
             }
           }
           e.state = 'chase';
@@ -1575,7 +1688,7 @@
           e.specialAtkCd = 2.6 + Math.random() * 1.2;
         } else if (e.attackKind === 'miniboss_pillars') {
           if (hazards && hasLos) {
-            const pillarVfx = (ctx.bossTheme && ctx.bossTheme.pillarVfx) || prof.pillarVfx || prof.specialVfx || 'pvfx_fire_pillar';
+            const pillarVfx = (ctx.bossTheme && ctx.bossTheme.pillarVfx) || prof.pillarVfx || prof.specialVfx || 'fpe_fire';
             const pillarCol = (ctx.bossTheme && ctx.bossTheme.color) || e.color || '#ff7043';
             for (let k = 0; k < 2; k++) {
               const angOff = k === 0 ? 0 : Math.random() * Math.PI * 2;
@@ -1590,7 +1703,7 @@
                   timer: 0,
                   delay: 0.9,
                   oneShot: true,
-                  radius: 52,
+                  radius: 54,
                   dmg: Math.max(10, Math.round((e.dmg || 14) * 1.25)),
                   color: pillarCol,
                   vfxKey: pillarVfx,
@@ -1598,7 +1711,7 @@
                 });
               }
             }
-            spawnStrikeVfx(game, prof.windupVfx || 'pvfx_magic_circle', e.x, e.y, 0, 0.9);
+            spawnStrikeVfx(game, prof.windupVfx || 'fpe_circle', e.x, e.y, 0, 1.08);
           }
           e.state = 'chase';
           e.specialAtkCd = 3.0 + Math.random() * 1.3;
@@ -1616,18 +1729,20 @@
       moveVy = Math.sin(bAng) * e.speed * 1.8;
       e._burrowPuffCd = (e._burrowPuffCd || 0) - dt;
       if (e._burrowPuffCd <= 0) {
-        e._burrowPuffCd = 0.22;
-        spawnStrikeVfx(game, 'pvfx_dust_puff', e.x, e.y, 0, 0.65);
+        e._burrowPuffCd = 0.18;
+        spawnStrikeVfx(game, 'pvfx_dust_puff', e.x, e.y, 0, 0.78);
+        if (game.spawnParticles) game.spawnParticles(e.x, e.y + 4, '#a1887f', 4);
       }
       if (e.burrowTimer <= 0) {
         e._burrowed = false;
         e.state = 'chase';
         e.specialAtkCd = 3.6 + Math.random() * 1.6;
-        spawnStrikeVfx(game, prof.specialVfx || 'pvfx_earth_spike', e.x, e.y, 0, 1.05);
-        if (prof.pillarVfx) spawnStrikeVfx(game, prof.pillarVfx, e.x, e.y + 6, 0, 0.85);
-        if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, 52, '#a1887f');
-        if (Balaclava.Audio) Balaclava.Audio.play(prof.audio || 'bomb');
-        if (d < 56 && e.atkCd <= 0) {
+        spawnStrikeVfx(game, prof.specialVfx || 'pvfx_earth_spike', e.x, e.y, 0, 1.22);
+        if (prof.pillarVfx) spawnStrikeVfx(game, prof.pillarVfx, e.x, e.y + 6, 0, 1.02);
+        if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, 58, '#a1887f');
+        if (game.spawnParticles) game.spawnParticles(e.x, e.y, '#bcaaa4', 14);
+        if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'bomb');
+        if (d < 58 && e.atkCd <= 0) {
           e.atkCd = 1.0;
           executeMeleeStrike(game, e, bAng, 1.3);
         }
@@ -1636,11 +1751,20 @@
       e.dashTimer -= dt;
       moveVx = e.dashVx || 0;
       moveVy = e.dashVy || 0;
-      if (d < (e.isMiniBoss ? 44 : 36) && e.atkCd <= 0 && !e.dashHit) {
+      e._dashTrailCd = (e._dashTrailCd || 0) - dt;
+      if (e._dashTrailCd <= 0) {
+        e._dashTrailCd = 0.085;
+        const dashAng = Math.atan2(moveVy, moveVx);
+        spawnStrikeVfx(game, 'pvfx_dash_dust', e.x, e.y + 4, dashAng, 0.68, { dur: 0.28, alpha: 0.78 });
+        if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.trailColor || e.color || '#ffab91', 3);
+      }
+      if (d < (e.isMiniBoss ? 46 : 38) && e.atkCd <= 0 && !e.dashHit) {
         e.dashHit = true;
         e.atkCd = 1.05;
-        executeMeleeStrike(game, e, Math.atan2(py - e.y, px - e.x), e.isMiniBoss ? 1.4 : 1.28);
-        if (prof.specialVfx) spawnStrikeVfx(game, prof.specialVfx, e.x, e.y, Math.atan2(moveVy, moveVx), 0.9);
+        const hitAng = Math.atan2(py - e.y, px - e.x);
+        executeMeleeStrike(game, e, hitAng, e.isMiniBoss ? 1.4 : 1.28);
+        if (prof.specialVfx) spawnStrikeVfx(game, prof.specialVfx, e.x, e.y, Math.atan2(moveVy, moveVx), 1.08);
+        if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, 44, prof.trailColor || e.color || '#ff8a80');
       }
       if (e.dashTimer <= 0) {
         e.state = 'chase';
@@ -1660,10 +1784,12 @@
       if (e.leapProg >= 1) {
         e.state = 'chase';
         e.specialAtkCd = (e.isMiniBoss ? 2.5 : 3.2) + Math.random() * 1.8;
-        const landR = e.isMiniBoss ? 68 : 50;
-        if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, landR, e.color || '#66bb6a');
-        spawnStrikeVfx(game, prof.specialVfx || 'pvfx_ground_slam', e.x, e.y, 0, e.isMiniBoss ? 1.15 : 0.92);
-        if (Balaclava.Audio) Balaclava.Audio.play(prof.audio || 'hit');
+        const landR = e.isMiniBoss ? 72 : 54;
+        if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, landR + 8, prof.trailColor || e.color || '#66bb6a');
+        spawnStrikeVfx(game, prof.specialVfx || 'pvfx_ground_slam', e.x, e.y, 0, e.isMiniBoss ? 1.32 : 1.08);
+        spawnStrikeVfx(game, 'pvfx_shockwave_ring', e.x, e.y + 4, 0, e.isMiniBoss ? 1.15 : 0.9, { dur: 0.42 });
+        if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.trailColor || e.color || '#a5d6a7', e.isMiniBoss ? 18 : 12);
+        if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'hit');
         if (dist(e.x, e.y, px, py) < landR + 4 && e.atkCd <= 0) {
           e.atkCd = 1.05;
           executeMeleeStrike(game, e, Math.atan2(py - e.y, px - e.x), e.isMiniBoss ? 1.35 : 1.24);
@@ -1671,13 +1797,14 @@
         if (e.isMiniBoss) {
           const radCount = e.enraged ? 8 : 6;
           const bt = ctx.bossTheme;
-          const projCol = (bt && bt.color) || e.color || '#ff5252';
+          const projCol = (bt && bt.color) || prof.trailColor || e.color || '#ff5252';
           for (let k = 0; k < radCount; k++) {
             const ra = (k / radCount) * Math.PI * 2;
             game.spawnEnemyProjectile(e.x, e.y, Math.cos(ra) * 215, Math.sin(ra) * 215, Math.round((e.dmg || 14) * 0.8), projCol, {
               vfxKey: (bt && bt.projVfx) || (prof.proj && prof.proj.vfxKey) || 'aw_arcane_missile',
-              impactVfx: (bt && bt.projImpactVfx) || 'pvfx_hit_spark',
-              status: (bt && bt.status) || prof.status || null
+              impactVfx: (bt && bt.projImpactVfx) || prof.hitVfx || 'fpe_magickahit',
+              status: (bt && bt.status) || prof.status || null,
+              trailColor: projCol
             });
           }
         }
@@ -1688,11 +1815,11 @@
             y: e.y,
             timer: 0,
             duration: 2.8,
-            radius: 42,
+            radius: 44,
             dmg: Math.max(5, Math.round((e.dmg || 10) * 0.85)),
             color: prof.poolColor || '#8bc34a',
-            fillColor: 'rgba(139, 195, 74, 0.22)',
-            vfxKey: prof.specialVfx || 'aw_poison_splash',
+            fillColor: 'rgba(139, 195, 74, 0.26)',
+            vfxKey: prof.poolVfx || prof.specialVfx || 'fpe_felspell',
             status: prof.status || { kind: 'poison', dur: 1.9, tickDmg: 3 }
           });
         }
@@ -1703,36 +1830,30 @@
 
       if (hasLos && e.isMiniBoss && e.specialAtkCd <= 0 && d < 320) {
         const roll = Math.random();
-        e.state = 'windup';
-        e.windupMax = 0.55;
-        e.windupTimer = 0.55;
-        e.targetAngle = ang;
-        e.targetX = px;
-        e.targetY = py;
-        if (roll < 0.34) e.attackKind = 'miniboss_fan';
-        else if (roll < 0.62 && ctx.isDungeon && hazards) e.attackKind = 'miniboss_pillars';
-        else if (roll < 0.82 && d < 220) e.attackKind = 'leap';
-        else e.attackKind = 'dash';
+        const kind = roll < 0.34 ? 'miniboss_fan'
+          : (roll < 0.62 && ctx.isDungeon && hazards) ? 'miniboss_pillars'
+          : (roll < 0.82 && d < 220) ? 'leap' : 'dash';
+        beginMobWindup(game, e, prof, kind, 0.55, { targetAngle: ang, targetX: px, targetY: py });
       } else if (hasLos && !e.isMiniBoss && e.specialAtkCd <= 0) {
         const b = prof.behavior;
         if (b === 'bomber' && d > 48 && d < 250 && hazards) {
-          e.state = 'windup'; e.attackKind = 'bomb'; e.windupMax = 0.50; e.windupTimer = 0.50; e.targetX = px; e.targetY = py;
+          beginMobWindup(game, e, prof, 'bomb', 0.50, { targetX: px, targetY: py, targetAngle: ang });
         } else if (b === 'burrower' && d > 55 && d < 240) {
-          e.state = 'windup'; e.attackKind = 'burrow'; e.windupMax = 0.42; e.windupTimer = 0.42;
+          beginMobWindup(game, e, prof, 'burrow', 0.42, { targetAngle: ang });
         } else if (b === 'beam_caster' && d > 45 && d < 270) {
-          e.state = 'windup'; e.attackKind = 'beam'; e.windupMax = 0.68; e.windupTimer = 0.68; e.targetAngle = ang; e.beamAngle = ang;
+          beginMobWindup(game, e, prof, 'beam', 0.68, { targetAngle: ang, beamAngle: ang });
         } else if (b === 'blink_caster' && d > 40 && d < 260) {
-          e.state = 'windup'; e.attackKind = 'blink'; e.windupMax = 0.40; e.windupTimer = 0.40;
+          beginMobWindup(game, e, prof, 'blink', 0.42, { targetAngle: ang });
         } else if (b === 'vampire_swoop' && d > 50 && d < 200) {
-          e.state = 'windup'; e.attackKind = 'swoop'; e.windupMax = 0.36; e.windupTimer = 0.36; e.targetAngle = ang;
+          beginMobWindup(game, e, prof, 'swoop', 0.38, { targetAngle: ang });
         } else if (b === 'spore_burst' && d < 125) {
-          e.state = 'windup'; e.attackKind = 'spore'; e.windupMax = 0.48; e.windupTimer = 0.48; e.targetAngle = ang;
+          beginMobWindup(game, e, prof, 'spore', 0.48, { targetAngle: ang });
         } else if (b === 'charger' && d > 55 && d < 185) {
-          e.state = 'windup'; e.attackKind = 'charge'; e.windupMax = 0.44; e.windupTimer = 0.44; e.targetAngle = ang;
+          beginMobWindup(game, e, prof, 'charge', 0.44, { targetAngle: ang });
         } else if (b === 'leaper' && d > 55 && d < 190) {
-          e.state = 'windup'; e.attackKind = 'leap'; e.windupMax = 0.44; e.windupTimer = 0.44; e.targetX = px; e.targetY = py;
+          beginMobWindup(game, e, prof, 'leap', 0.44, { targetX: px, targetY: py, targetAngle: ang });
         } else if (b === 'melee_combo' && d < 66) {
-          e.state = 'windup'; e.attackKind = 'cleave'; e.windupMax = 0.34; e.windupTimer = 0.34; e.targetAngle = ang;
+          beginMobWindup(game, e, prof, 'cleave', 0.36, { targetAngle: ang });
         }
       }
 
@@ -1752,8 +1873,9 @@
             moveVy = Math.sin(strafeAng) * e.speed * 0.45;
           }
           if (hasLos && e.atkCd <= 0) {
-            e.atkCd = prof.behavior === 'ranged_fan' ? 2.15 : 1.75;
-            fireMobVolley(game, e, ang);
+            beginMobWindup(game, e, prof, 'cast', prof.behavior === 'ranged_fan' ? 0.40 : 0.32, { targetAngle: ang });
+            moveVx = 0;
+            moveVy = 0;
           }
         } else {
           if (hasLos && prof.proj && d > 95 && d < 210 && e.atkCd <= 0 && !e.ranged) {
@@ -1809,7 +1931,7 @@
     return { moveVx, moveVy, handledMove };
   }
 
-  Balaclava.EnemyAttacks = {
+  Abyssea.EnemyAttacks = {
     getMobProfile,
     getBossTheme,
     spawnStrikeVfx,
@@ -1947,13 +2069,13 @@
 
       // Campfires, braziers, lighthouses and streetlamps push back nearby enemy spawns
       const nearSafeFire = game.buildings.some(b => {
-        const bDef = Balaclava.BUILDINGS[b.type];
+        const bDef = Abyssea.BUILDINGS[b.type];
         return bDef && bDef.lightRadius && dist(x, y, (b.tx + 0.5) * TILE_SIZE, (b.ty + 0.5) * TILE_SIZE) < bDef.lightRadius * 0.78;
       });
       if (nearSafeFire && !forceType) return null;
 
       // Scale enemy strength & danger level nonlinearly with biome tier, distance AND player level
-      const center = Balaclava.CONST.CENTER_PLOT !== undefined ? Balaclava.CONST.CENTER_PLOT : 9;
+      const center = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       const plotDist = Math.hypot(plot[0] - center, plot[1] - center);
       const pLv = Math.max(1, (game.player && game.player.level) || 1);
       const biomeTierMap = {
@@ -1963,27 +2085,30 @@
       };
       const biomeTier = biomeTierMap[biome] || 0;
 
-      const ranges = (Balaclava.CONST && Balaclava.CONST.BIOME_LEVEL_RANGES) || {
+      const ranges = (Abyssea.CONST && Abyssea.CONST.BIOME_LEVEL_RANGES) || {
         pradera: [1, 15], desierto: [16, 45], montanas_heladas: [46, 95], bosque_oscuro: [65, 115], tierras_volcanicas: [85, 145],
         archipielago_coral: [110, 185], cavernas_cristal: [150, 235], selva_esmeralda: [195, 290], caldera_ceniza: [240, 350],
         dinastia_arena: [290, 410], glaciar_profundo: [340, 465], cienaga_putrida: [380, 510], necropolis_osea: [425, 555], tierras_malditas: [470, 600]
       };
       const [minLv, maxLv] = ranges[biome] || [1, 15];
-      const maxCap = (Balaclava.CONST && Balaclava.CONST.MAX_ENEMY_LEVEL) || 600;
+      const maxCap = (Abyssea.CONST && Abyssea.CONST.MAX_ENEMY_LEVEL) || 600;
       const pProg = clamp(((pLv - 1) / 45) + (plotDist / 10) * 0.4, 0, 1);
       const dangerLv = clamp(Math.round(minLv + pProg * (maxLv - minLv)), minLv, Math.min(maxCap, maxLv));
       const effLv = Math.max(0, dangerLv - 1);
-      let hpScale = 1 + effLv * 0.28 + Math.pow(effLv, 1.25) * 0.05;
-      let dmgScale = 1 + effLv * 0.09 + Math.pow(effLv, 1.08) * 0.02;
-      let spdScale = 1 + Math.min(0.65, effLv * 0.012 + biomeTier * 0.025);
+      // Balanced progressive scaling across all 14 biomes:
+      // HP scales with sword DPS curve (3 -> 1,328+); DMG scales smoothly against player armor (16 -> 686 DEF, 122 -> 3,055 HP)
+      let hpScale = 1 + effLv * 0.24 + Math.pow(effLv, 1.22) * 0.04;
+      let dmgScale = 1 + effLv * 0.032 + biomeTier * 1.15;
+      let spdScale = 1 + Math.min(0.55, effLv * 0.008 + biomeTier * 0.022);
       const xpScale = 1 + effLv * 0.28 + Math.pow(effLv, 1.2) * 0.05;
 
-      // 5-7.5x difficulty multiplier for Biome 3+ across Zones II, III & IV
+      // Progressive Zone II-IV toughness multiplier without double-multiplying damage into instant one-shots
       if (biomeTier >= 2) {
-        const biomeMult = biomeTier === 2 ? 5.2 : biomeTier === 3 ? 5.6 : biomeTier === 4 ? 6.0 : (6.15 + Math.min(1.4, (biomeTier - 4) * 0.15));
-        hpScale *= biomeMult;
-        dmgScale *= (biomeMult * 0.85);
-        spdScale *= 1.15;
+        const biomeHpMult = biomeTier === 2 ? 2.2 : biomeTier === 3 ? 2.8 : biomeTier === 4 ? 3.4 : (3.6 + Math.min(2.4, (biomeTier - 4) * 0.28));
+        const biomeDmgMult = biomeTier === 2 ? 1.18 : biomeTier === 3 ? 1.24 : biomeTier === 4 ? 1.30 : (1.35 + Math.min(0.45, (biomeTier - 4) * 0.05));
+        hpScale *= biomeHpMult;
+        dmgScale *= biomeDmgMult;
+        spdScale *= 1.08;
       }
 
       // Keep early biomes (pradera / desierto) gentler at night and starter days approachable
@@ -2068,6 +2193,18 @@
       const px = game.player.x;
       const py = game.player.y;
 
+      const pad = 9;
+      const isPosWalkable = (pxCheck, pyCheck) => {
+        if (!Number.isFinite(pxCheck) || !Number.isFinite(pyCheck)) return false;
+        const w = game.world;
+        const tx0 = Math.floor((pxCheck - pad) / TILE_SIZE);
+        const tx1 = Math.floor((pxCheck + pad) / TILE_SIZE);
+        const ty0 = Math.floor((pyCheck - pad) / TILE_SIZE);
+        const ty1 = Math.floor((pyCheck + pad) / TILE_SIZE);
+        return w.isTileWalkable(tx0, ty0) && w.isTileWalkable(tx1, ty0) &&
+               w.isTileWalkable(tx0, ty1) && w.isTileWalkable(tx1, ty1);
+      };
+
       for (let i = this.enemies.length - 1; i >= 0; i--) {
         const e = this.enemies[i];
         if (e.hitFlash > 0) e.hitFlash = Math.max(0, e.hitFlash - dt);
@@ -2103,18 +2240,6 @@
             game.spawnFx(stKey, e.x, e.y - 12, 0, 0.48, 0.75, 0.9, { follow: e, offY: -12, blend: 'lighter' });
           }
         }
-
-        const pad = 9;
-        const isPosWalkable = (pxCheck, pyCheck) => {
-          if (!Number.isFinite(pxCheck) || !Number.isFinite(pyCheck)) return false;
-          const checkPts = [
-            [pxCheck - pad, pyCheck - pad],
-            [pxCheck + pad, pyCheck - pad],
-            [pxCheck - pad, pyCheck + pad],
-            [pxCheck + pad, pyCheck + pad]
-          ];
-          return checkPts.every(([cx, cy]) => game.world.isTileWalkable(Math.floor(cx / TILE_SIZE), Math.floor(cy / TILE_SIZE)));
-        };
 
         const aiStep = stepMobAI(game, e, dt, {
           isDungeon: false,
@@ -2152,6 +2277,17 @@
         }
       }
       let dmg = rawDmg;
+      // RC2: Guaranteed Crit x2.2 from Perfect Dodge!
+      if (allowProc && game && game.player && game.player.guaranteedCritNext) {
+        game.player.guaranteedCritNext = false;
+        isCrit = true;
+        dmg = Math.round(dmg * 2.2);
+      }
+      // RC2: Bestiary Mastery Damage Bonus (+5% / +10% / +15% at 25 / 100 / 250 kills)
+      if (game && typeof game.getBestiaryMastery === 'function' && enemy.type) {
+        const bm = game.getBestiaryMastery(enemy.type);
+        if (bm && bm.dmgBonus > 0) dmg = Math.round(dmg * (1 + bm.dmgBonus));
+      }
       if ((enemy.isBoss || enemy.isMiniBoss) && (game.mods.bossDmg || game.mods.bossDmgBonus)) {
         dmg = Math.round(dmg * (1 + (game.mods.bossDmg || 0) + (game.mods.bossDmgBonus || 0)));
       }
@@ -2164,7 +2300,7 @@
       }
       const activeSlot = game.hotbar && game.hotbar[game.activeSlot];
       const activeToolId = activeSlot && activeSlot.kind === 'tool' ? activeSlot.id : null;
-      const activeItemDef = activeSlot && activeSlot.kind === 'item' ? Balaclava.ITEMS[activeSlot.id] : null;
+      const activeItemDef = activeSlot && activeSlot.kind === 'item' ? Abyssea.ITEMS[activeSlot.id] : null;
       const tb = activeToolId && typeof game.getToolEnchantBonuses === 'function' ? game.getToolEnchantBonuses(activeToolId) : null;
       if (tb && tb.fireDmg > 0) {
         dmg = Math.round(dmg * (1 + tb.fireDmg));
@@ -2178,20 +2314,32 @@
         dmg += extraLight;
         game.spawnFx('pvfx_lightning_strike', enemy.x, enemy.y + 4, 0, 0.42, 0.92, 0.98, { blend: 'lighter' });
         game.spawnFx('pvfx_static_burst', enemy.x, enemy.y - 6, 0, 0.34, 1.0, 0.9, { blend: 'lighter' });
-        Balaclava.Audio.play('thunder');
-        game.addFloatingText(enemy.x, enemy.y - 40, Balaclava.I18n ? Balaclava.I18n.t('combat.lightningProc', { dmg: extraLight }) : `¡Rayo +${extraLight}!`, '#80d8ff');
+        Abyssea.Audio.play('thunder');
+        game.addFloatingText(enemy.x, enemy.y - 40, Abyssea.I18n ? Abyssea.I18n.t('combat.lightningProc', { dmg: extraLight }) : `¡Rayo +${extraLight}!`, '#80d8ff');
       }
       if (allowProc && tb && tb.procChance > 0 && Math.random() < Math.min(0.65, tb.procChance)) {
         const extraDmg = Math.max(2, Math.round(dmg * (tb.procDmgMult || 0.25)));
         dmg += extraDmg;
         game.spawnFx('pvfx_arcane_burst', enemy.x, enemy.y, knockAng, 0.32, 0.95, 0.92, { blend: 'lighter' });
-        game.addFloatingText(enemy.x, enemy.y - 36, Balaclava.I18n ? Balaclava.I18n.t('combat.furyProc', { dmg: extraDmg }) : `¡Furia +${extraDmg}!`, '#4fc3f7');
+        game.addFloatingText(enemy.x, enemy.y - 36, Abyssea.I18n ? Abyssea.I18n.t('combat.furyProc', { dmg: extraDmg }) : `¡Furia +${extraDmg}!`, '#4fc3f7');
       }
       enemy.hp -= dmg;
       enemy.hitFlash = 0.16;
       if (isCrit && game.spawnFx) {
         game.spawnFx('aw_hit_critical', enemy.x, enemy.y - 6, knockAng, 0.28, 0.85, 0.98, { blend: 'lighter' });
         game.spawnFx('px_crit_star', enemy.x, enemy.y - 18, 0, 0.34, 0.95, 0.95, { blend: 'lighter' });
+        // RC2: Glacial Armor Set Synergy — Crits freeze nearby enemies in an AoE nova!
+        if (allowProc && game.mods && game.mods.synergyGlacial) {
+          game.spawnShockwave(enemy.x, enemy.y, 110, '#4fc3f7');
+          const nearFoes = game.activeDungeon
+            ? [...(game.activeDungeon.enemies || []), ...(game.activeDungeon.boss ? [game.activeDungeon.boss] : [])]
+            : (this.enemies || []);
+          for (const nf of nearFoes) {
+            if (nf && !nf._dead && dist(enemy.x, enemy.y, nf.x, nf.y) <= 115) {
+              nf.slowTimer = Math.max(nf.slowTimer || 0, 2.8);
+            }
+          }
+        }
       } else if (allowProc && game.spawnFx) {
         game.spawnFx('aw_hit_spark_medium', enemy.x, enemy.y - 4, knockAng, 0.20, 0.72, 0.88);
       }
@@ -2207,8 +2355,8 @@
       if (canStep(Math.floor((enemy.x + kdx) / TILE_SIZE), Math.floor(enemy.y / TILE_SIZE))) enemy.x += kdx;
       if (canStep(Math.floor(enemy.x / TILE_SIZE), Math.floor((enemy.y + kdy) / TILE_SIZE))) enemy.y += kdy;
 
-      Balaclava.Audio.play(isCrit ? 'crit' : 'hit');
-      game.addFloatingText(enemy.x, enemy.y - 22, isCrit && Balaclava.I18n ? Balaclava.I18n.t('combat.critFloat', { dmg }) : (isCrit ? '¡CRIT! ' : '') + '-' + dmg, isCrit ? '#ffd54f' : '#ff8a65');
+      Abyssea.Audio.play(isCrit ? 'crit' : 'hit');
+      game.addFloatingText(enemy.x, enemy.y - 22, isCrit && Abyssea.I18n ? Abyssea.I18n.t('combat.critFloat', { dmg }) : (isCrit ? '¡CRIT! ' : '') + '-' + dmg, isCrit ? '#ffd54f' : '#ff8a65');
       game.spawnParticles(enemy.x, enemy.y, enemy.color || '#ff5252', 6);
 
       if (enemy.hp <= 0) {
@@ -2232,14 +2380,14 @@
       if (game.world.isTileWalkable(Math.floor(nx / TILE_SIZE), Math.floor(animal.y / TILE_SIZE))) animal.x = nx;
       if (game.world.isTileWalkable(Math.floor(animal.x / TILE_SIZE), Math.floor(ny / TILE_SIZE))) animal.y = ny;
 
-      Balaclava.Audio.play('hit');
-      game.addFloatingText(animal.x, animal.y - 22, isCrit && Balaclava.I18n ? Balaclava.I18n.t('combat.critFloat', { dmg }) : (isCrit ? '¡CRIT! ' : '') + '-' + dmg, isCrit ? '#ffd54f' : '#ffb74d');
+      Abyssea.Audio.play('hit');
+      game.addFloatingText(animal.x, animal.y - 22, isCrit && Abyssea.I18n ? Abyssea.I18n.t('combat.critFloat', { dmg }) : (isCrit ? '¡CRIT! ' : '') + '-' + dmg, isCrit ? '#ffd54f' : '#ffb74d');
       game.spawnParticles(animal.x, animal.y, '#ef9a9a', 5);
 
       if (animal.hp <= 0) {
         animal._dead = true;
         game.world.sheep = game.world.sheep.filter(s => s !== animal);
-        Balaclava.Audio.play('pickup');
+        Abyssea.Audio.play('pickup');
         game.gainXp(animal.xp || 10);
         game.spawnParticles(animal.x, animal.y, '#ffe082', 9);
         const drops = Array.isArray(animal.drops) && animal.drops.length
@@ -2254,8 +2402,13 @@
     }
 
     onEnemyKilled(game, enemy) {
-      Balaclava.Audio.play('enemy_die');
+      Abyssea.Audio.play('enemy_die');
       game.stats.kills++;
+      game.stats.enemiesKilled = (game.stats.enemiesKilled || 0) + 1;
+      if (enemy.type) {
+        if (!game.stats.killsByEnemy) game.stats.killsByEnemy = {};
+        game.stats.killsByEnemy[enemy.type] = (game.stats.killsByEnemy[enemy.type] || 0) + 1;
+      }
       if (enemy.biome) {
         game.stats.killsByBiome[enemy.biome] = (game.stats.killsByBiome[enemy.biome] || 0) + 1;
       } else if (game.activeDungeon) {
@@ -2263,6 +2416,36 @@
         game.stats.killsByBiome[b] = (game.stats.killsByBiome[b] || 0) + 1;
       }
       game.recordEncyclopedia('enemies', enemy.type);
+
+      // RC2: Lunar Blood Moon / Astral Eclipse nocturnal exclusive Esencia Lunar drop!
+      if (!game.activeDungeon && typeof game.getLunarPhase === 'function' && typeof game.getDayPhase === 'function') {
+        const dp = game.getDayPhase().phase;
+        const lp = game.getLunarPhase();
+        if ((dp === 'noche' || dp === 'atardecer') && (lp.id === 'luna_sangre' || lp.id === 'eclipse_astral')) {
+          if (Math.random() < 0.36) {
+            game.spawnDrop(enemy.x, enemy.y, 'esencia_lunar', 1);
+          }
+        }
+      }
+      // RC2: Bestiary Mastery extra drop bonus
+      if (typeof game.getBestiaryMastery === 'function' && enemy.type && enemy.drops) {
+        const bm = game.getBestiaryMastery(enemy.type);
+        if (bm && bm.dropBonus > 0 && Math.random() < bm.dropBonus) {
+          const dropKeys = Object.keys(enemy.drops);
+          if (dropKeys.length > 0) game.spawnDrop(enemy.x, enemy.y, pick(dropKeys), 1);
+        }
+      }
+      // RC2: Cursed/Abyssal Armor Set Synergy — Homing spectral bolt on kill!
+      if (game.mods && game.mods.synergyCursed && typeof game.spawnPlayerProjectile === 'function') {
+        const nearFoes = game.activeDungeon
+          ? [...(game.activeDungeon.enemies || []), ...(game.activeDungeon.boss ? [game.activeDungeon.boss] : [])]
+          : (this.enemies || []);
+        const nxt = nearFoes.find(f => f && !f._dead && f !== enemy && dist(enemy.x, enemy.y, f.x, f.y) <= 320);
+        if (nxt) {
+          const a = Math.atan2(nxt.y - enemy.y, nxt.x - enemy.x);
+          game.spawnPlayerProjectile(enemy.x, enemy.y, Math.cos(a) * 440, Math.sin(a) * 440, Math.max(24, Math.round(35 + (game.player.level || 1) * 3)), '#ce93d8', false, { life: 1.0, homing: true });
+        }
+      }
 
       if (game.mods.killHeal) {
         game.healPlayer(game.mods.killHeal, 0);
@@ -2280,7 +2463,7 @@
 
       if (enemy.isBoss && game.activeDungeon) {
         const dung = game.activeDungeon;
-        if (dung.id === 'eclipse_carmesi' || (Balaclava.BOSS_SPRITE_PATHS && Balaclava.BOSS_SPRITE_PATHS[dung.id] && Balaclava.BOSS_SPRITE_PATHS[dung.id].multiRow)) {
+        if (dung.id === 'eclipse_carmesi' || (Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[dung.id] && Abyssea.BOSS_SPRITE_PATHS[dung.id].multiRow)) {
           dung.deadBossGhost = {
             id: dung.id,
             x: enemy.x,
@@ -2344,18 +2527,18 @@
         if (typeof dung.spawnExitPortal === 'function') {
           dung.spawnExitPortal(game);
         }
-        Balaclava.Audio.play('levelup');
-        game.toast(Balaclava.I18n ? Balaclava.I18n.t('dungeon.bossVictoryToast', { boss: enemy.name }) : `¡VICTORIA! Derrotaste a ${enemy.name}. ¡Abre el Cofre del Jefe y usa el Portal de Salida!`, 'success');
+        Abyssea.Audio.play('levelup');
+        game.toast(Abyssea.I18n ? Abyssea.I18n.t('dungeon.bossVictoryToast', { boss: enemy.name }) : `¡VICTORIA! Derrotaste a ${enemy.name}. ¡Abre el Cofre del Jefe y usa el Portal de Salida!`, 'success');
         if (game.economy && typeof game.economy.getBiomeUnlockProgress === 'function' && typeof game.economy.getBiomeProgressionOrder === 'function') {
-          const gate = Balaclava.DUNGEON_GATES && Balaclava.DUNGEON_GATES[dung.id];
+          const gate = Abyssea.DUNGEON_GATES && Abyssea.DUNGEON_GATES[dung.id];
           const bId = (gate && gate.biome) || (dung.def && dung.def.themeKey);
           if (bId) {
             const curProg = game.economy.getBiomeUnlockProgress(game, bId);
             const order = game.economy.getBiomeProgressionOrder(game);
             const nextB = order[order.indexOf(bId) + 1];
-            const nextBName = nextB && Balaclava.CONST && Balaclava.CONST.BIOMES && Balaclava.CONST.BIOMES[nextB] ? Balaclava.CONST.BIOMES[nextB].name : null;
+            const nextBName = nextB && Abyssea.CONST && Abyssea.CONST.BIOMES && Abyssea.CONST.BIOMES[nextB] ? Abyssea.CONST.BIOMES[nextB].name : null;
             if (curProg && curProg.complete && nextBName) {
-              const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+              const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
               game.toast(
                 isEn
                   ? `${curProg.biomeName} mastered (${curProg.unlocked}/${curProg.total} islands · ${curProg.dungeonsDone}/${curProg.dungeonsTotal} dungeons)! ${nextBName} unlocked!`
@@ -2396,6 +2579,6 @@
     }
   }
 
-  Balaclava.ENEMY_DEFS = ENEMY_DEFS;
-  Balaclava.CombatSystem = CombatSystem;
+  Abyssea.ENEMY_DEFS = ENEMY_DEFS;
+  Abyssea.CombatSystem = CombatSystem;
 })();

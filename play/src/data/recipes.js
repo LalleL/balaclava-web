@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   // All crafting, smelting, forging, cooking, alchemy and tech recipes.
   const RECIPES = [
@@ -206,7 +206,7 @@
     { id: 'r_casco_platino', out: 'casco_platino', qty: 1, station: 'forja', in: { casco_oro: 1, lingote_platino: 4, cuero: 2 }, xp: 72 },
     { id: 'r_casco_cristal', out: 'casco_cristal', qty: 1, station: 'forja', in: { casco_acero: 1, zafiro: 2, cristales_magicos: 3 }, xp: 94 },
     { id: 'r_casco_mitrilo', out: 'casco_mitrilo', qty: 1, station: 'forja', in: { casco_cristal: 1, lingotes_especiales: 4, amatista: 2 }, xp: 134 },
-    { id: 'r_casco_balaclava', out: 'casco_balaclava', qty: 1, station: 'forja', in: { casco_abismal: 1, lingote_celestial: 12, escamas_dragon: 10, polvo_estelar: 10, cristal_carmesi: 5 }, xp: 405 },
+    { id: 'r_casco_abyssea', out: 'casco_abyssea', qty: 1, station: 'forja', in: { casco_abismal: 1, lingote_celestial: 12, escamas_dragon: 10, polvo_estelar: 10, cristal_carmesi: 5 }, xp: 405 },
     { id: 'r_escudo_madera', out: 'escudo_madera', qty: 1, station: 'mesa_artesania', in: { tablon: 4, piedra: 2, fibra_vegetal: 2 }, xp: 16 },
     { id: 'r_escudo_hierro', out: 'escudo_hierro', qty: 1, station: 'forja', in: { escudo_cobre: 1, lingote_hierro: 5, tablon: 2 }, xp: 36 },
     { id: 'r_escudo_oro', out: 'escudo_oro', qty: 1, station: 'forja', in: { escudo_plata: 1, lingote_oro: 5, tablon: 2 }, xp: 64 },
@@ -237,7 +237,7 @@
     { id: 'r_polvo_estelar', out: 'polvo_estelar', qty: 1, station: 'investigacion', in: { cristales_magicos: 3, amatista: 1, esencia_oscura: 2 }, xp: 65 },
     { id: 'r_perg_furia', out: 'pergamino_furia', qty: 1, station: 'investigacion', in: { tela: 2, tinta_arcana: 0, rubi: 1, cera_abeja: 2 }, xp: 48 },
     { id: 'r_perg_escudo', out: 'pergamino_escudo', qty: 1, station: 'investigacion', in: { tela: 2, zafiro: 1, cera_abeja: 2 }, xp: 48 },
-    { id: 'r_nucleo', out: 'nucleo_balaclava', qty: 1, station: 'investigacion', in: { fragmentos_antiguos: 5, diamantes: 5, esmeraldas: 5, lingotes_especiales: 5, esencia_oscura: 5 }, xp: 500 },
+    { id: 'r_nucleo', out: 'nucleo_abyssea', qty: 1, station: 'investigacion', in: { fragmentos_antiguos: 5, diamantes: 5, esmeraldas: 5, lingotes_especiales: 5, esencia_oscura: 5 }, xp: 500 },
 
     // === COCINA GOURMET (10 RECETAS) ===
     { id: 'r_pan', out: 'pan', qty: 2, station: 'cocina', in: { harina: 2 }, xp: 8 },
@@ -316,7 +316,7 @@
     { id: 'r_casco_adam', out: 'casco_adamantita', qty: 1, station: 'forja', in: { casco_titanio: 1, lingote_adamantita: 16, diamantes: 8 }, xp: 120 },
     { id: 'r_escudo_adam', out: 'escudo_adamantita', qty: 1, station: 'forja', in: { escudo_titanio: 1, lingote_adamantita: 16, obsidiana_refinada: 6 }, xp: 125 },
     { id: 'r_botas_adam', out: 'botas_adamantita', qty: 1, station: 'forja', in: { botas_titanio: 1, lingote_adamantita: 16, cuero: 12 }, xp: 110 },
-    { id: 'r_casco_solar', out: 'casco_solar', qty: 1, station: 'forja', in: { casco_balaclava: 1, lingote_celestial: 18, runa_luz: 8, gema_alma: 4, bismuto_astral: 6 }, xp: 480 },
+    { id: 'r_casco_solar', out: 'casco_solar', qty: 1, station: 'forja', in: { casco_abyssea: 1, lingote_celestial: 18, runa_luz: 8, gema_alma: 4, bismuto_astral: 6 }, xp: 480 },
     { id: 'r_escudo_solar', out: 'escudo_solar', qty: 1, station: 'forja', in: { escudo_eclipse: 1, lingote_celestial: 14, runa_luz: 6, obsidiana_refinada: 12, cristal_carmesi: 5 }, xp: 425 },
     { id: 'r_botas_solar', out: 'botas_solar', qty: 1, station: 'investigacion', in: { lingote_celestial: 16, lingote_oricalco: 6, runa_aire: 6, seda_arana: 12 }, xp: 210 },
     { id: 'r_sombrero_mago', out: 'sombrero_mago', qty: 1, station: 'investigacion', in: { tela: 6, amatista: 2, tinta_arcana: 2, runa_aire: 1 }, xp: 88 },
@@ -490,7 +490,27 @@
     { id: 'r_anillo_diam', out: 'anillo_diamante', qty: 1, station: 'yunque_runico', in: { lingote_platino: 3, diamantes: 2 }, xp: 120 },
     { id: 'r_anillo_esmer', out: 'anillo_esmeralda', qty: 1, station: 'yunque_runico', in: { lingote_plata: 3, esmeraldas: 2 }, xp: 85 },
     { id: 'r_colgante_cal', out: 'colgante_calavera', qty: 1, station: 'yunque_runico', in: { huesos: 10, esencia_oscura: 3, rubi: 2 }, xp: 155 },
-    { id: 'r_llave_maestra', out: 'llave_maestra_mazmorra', qty: 1, station: 'yunque_runico', in: { llave_dorada: 1, llave_zafiro: 1, llave_rubi: 1, lingote_celestial: 1 }, xp: 150 }
+    { id: 'r_llave_maestra', out: 'llave_maestra_mazmorra', qty: 1, station: 'yunque_runico', in: { llave_dorada: 1, llave_zafiro: 1, llave_rubi: 1, lingote_celestial: 1 }, xp: 150 },
+
+    // === BETA 2.0.0 RC2: NUEVAS HERRAMIENTAS, MASCOTAS Y USOS PARA MATERIALES DE MONSTRUOS/EXPLORACIÓN ===
+    { id: 'r_cetro_traslado', out: 'cetro_traslado', qty: 1, station: 'taller', in: { viga_madera: 4, madera_refinada: 4, lingote_oro: 3, cristales_magicos: 2, engrane: 3 }, xp: 95 },
+    { id: 'r_catalizador_reforja', out: 'catalizador_reforja', qty: 1, station: 'yunque_runico', in: { cristales_magicos: 3, esencia_lunar: 2, polvo_estelar: 2, corazon_golem: 1 }, xp: 145 },
+    { id: 'r_catalizador_reforja_llave', out: 'catalizador_reforja', qty: 1, station: 'yunque_runico', in: { llave_maestra_mazmorra: 1, diamantes: 2, aleacion_ignea: 2 }, xp: 155 },
+    { id: 'r_catalizador_golem', out: 'catalizador_reforja', qty: 1, station: 'mesa_encantamientos', in: { nucleo_golem_puro: 1, cuarzo_lunar: 2, esencia_oscura: 2 }, xp: 140 },
+    { id: 'r_banquete_trigo_dorado', out: 'banquete_real', qty: 2, station: 'cocina', in: { trigo_dorado: 2, miel: 2, queso: 2 }, xp: 90 },
+    { id: 'r_elixir_veneno_escorpion', out: 'pocion_veneno_res', qty: 2, station: 'alquimia', in: { aguijon_escorpion: 3, saco_veneno: 2, vidrio: 2 }, xp: 70 },
+    { id: 'r_pocion_nocturna_alas', out: 'pocion_nocturna', qty: 2, station: 'alquimia', in: { ala_murcielago: 3, resina_antigua: 2, vidrio: 2 }, xp: 58 },
+    { id: 'r_pergamino_furia_cuerno', out: 'pergamino_furia', qty: 2, station: 'mesa_hechiceria', in: { cuerno_demonio: 1, diente_goblin: 4, tinta_arcana: 1 }, xp: 85 },
+    { id: 'r_cebo_arcano_marino', out: 'cebo_arcano', qty: 3, station: 'alquimia', in: { concha_marina: 3, caracola_antigua: 1, esencia_lunar: 1 }, xp: 75 },
+    { id: 'r_llave_jefe_forja', out: 'llave_jefe', qty: 1, station: 'forja', in: { llave_esqueleto: 2, lingote_oro: 2, marmol_oscuro: 2 }, xp: 72 },
+    { id: 'r_cofre_huevo_dragon', out: 'elixir_supremo', qty: 3, station: 'alquimia', in: { huevo_dragon: 1, aleacion_ignea: 2, miel: 3 }, xp: 165 },
+    { id: 'r_reliquia_vacio_catalizador', out: 'catalizador_reforja', qty: 2, station: 'mesa_hechiceria', in: { reliquia_vacio: 1, polvo_estelar: 2 }, xp: 185 },
+    { id: 'r_pet_limo_dorado', out: 'pet_limo_dorado', qty: 1, station: 'artesania', in: { gel: 10, lingote_oro: 3, miel: 2, diente_goblin: 3 }, xp: 80 },
+    { id: 'r_pet_cangrejo_coral', out: 'pet_cangrejo_coral', qty: 1, station: 'alquimia', in: { concha_marina: 5, caracola_antigua: 2, perla: 2, cangrejo_dorado: 1 }, xp: 105 },
+    { id: 'r_pet_buho_astral', out: 'pet_buho_astral', qty: 1, station: 'mesa_hechiceria', in: { pluma_oscura: 5, ala_murcielago: 4, esencia_lunar: 2, cuarzo_lunar: 2 }, xp: 125 },
+    { id: 'r_pet_espiritu_igneo', out: 'pet_espiritu_igneo', qty: 1, station: 'yunque_runico', in: { esencia_magma: 3, aleacion_ignea: 3, cuerno_demonio: 2, rubi: 2 }, xp: 150 },
+    { id: 'r_pet_pez_linterna', out: 'pet_pez_linterna', qty: 1, station: 'alquimia', in: { perla_leviatan: 1, coral_brillante: 4, pez_abismal: 2, esencia_lunar: 2 }, xp: 165 },
+    { id: 'r_acunar_trofeo_goblin', out: '_coin', qty: 280, station: 'forja', in: { diente_goblin: 6, resina_antigua: 3 }, xp: 40 }
   ];
 
   // Assign rarity-scaled build / craft / cook durations uniformly (applied to all items)
@@ -541,7 +561,7 @@
       } else if (r.out === '_coin') {
         r.craftTime = r.in && (r.in.lingote_platino || r.in.lingote_oro) ? 4.2 : 2.5;
       } else {
-        const outItem = Balaclava.ITEMS && Balaclava.ITEMS[r.out];
+        const outItem = Abyssea.ITEMS && Abyssea.ITEMS[r.out];
         const rar = (outItem && outItem.rarity) || 'comun';
         r.craftTime = RARITY_CRAFT_TIME[rar] || 2.0;
       }
@@ -554,7 +574,7 @@
   const recipeProgScore = (r) => {
     if (r.toolUnlock) return 10 + (r.xp || 0);
     if (r.out === '_coin') return 3500 + (r.xp || 0);
-    const outItem = Balaclava.ITEMS && Balaclava.ITEMS[r.out];
+    const outItem = Abyssea.ITEMS && Abyssea.ITEMS[r.out];
     if (outItem && outItem.tier) return 4000 + outItem.tier * 120 + (r.xp || 0);
     const rar = outItem ? (RARITY_RANK[outItem.rarity] || 0) : 0;
     const ingCount = Object.values(r.in || {}).reduce((a, b) => a + b, 0);
@@ -562,5 +582,5 @@
   };
   RECIPES.sort((a, b) => recipeProgScore(a) - recipeProgScore(b));
 
-  Balaclava.RECIPES = RECIPES;
+  Abyssea.RECIPES = RECIPES;
 })();

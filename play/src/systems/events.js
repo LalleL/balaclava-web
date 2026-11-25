@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { PLOT_TILES, TILE_SIZE } = Balaclava.CONST;
-  const { pick, randInt } = Balaclava.Utils;
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { PLOT_TILES, TILE_SIZE } = Abyssea.CONST;
+  const { pick, randInt } = Abyssea.Utils;
 
   const DAILY_EVENTS = {
     lluvia_fertil: {
@@ -73,7 +73,7 @@
     }
 
     generateDailyChallenges() {
-      const en = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en' && Balaclava.I18N_DATA_EN && Balaclava.I18N_DATA_EN.dailyChallenges;
+      const en = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en' && Abyssea.I18N_DATA_EN && Abyssea.I18N_DATA_EN.dailyChallenges;
       const base = [
         { id: 'dc_gather', title: 'Desafío de Recolector', desc: 'Recolecta 40 recursos de cualquier tipo', target: 40, type: 'gather', progress: 0, rewardCoins: 90, rewardXp: 80, claimed: false },
         { id: 'dc_craft',  title: 'Desafío de Artesano',   desc: 'Fabrica 8 objetos en tus estaciones',     target: 8,  type: 'craft',  progress: 0, rewardCoins: 110, rewardXp: 95, claimed: false },
@@ -97,13 +97,13 @@
       ch.claimed = true;
       game.addCoins(ch.rewardCoins);
       game.gainXp(ch.rewardXp);
-      Balaclava.Audio.play('levelup');
-      game.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.challengeDone', { coins: ch.rewardCoins, xp: ch.rewardXp }) : `¡Desafío completado! +${ch.rewardCoins} monedas y +${ch.rewardXp} Experiencia`, 'success');
+      Abyssea.Audio.play('levelup');
+      game.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.challengeDone', { coins: ch.rewardCoins, xp: ch.rewardXp }) : `¡Desafío completado! +${ch.rewardCoins} monedas y +${ch.rewardXp} Experiencia`, 'success');
       return true;
     }
 
     claimContract(game, id) {
-      const c = (Balaclava.GUILD_CONTRACTS || []).find(x => x.id === id);
+      const c = (Abyssea.GUILD_CONTRACTS || []).find(x => x.id === id);
       if (!c) return false;
       if (!game.claimedContracts) game.claimedContracts = [];
       if (game.claimedContracts.includes(id)) return false;
@@ -114,18 +114,18 @@
       if (c.reward.xp) game.gainXp(c.reward.xp);
       if (c.reward.items) {
         for (const [iid, qty] of Object.entries(c.reward.items)) {
-          if (qty > 0 && Balaclava.ITEMS[iid]) game.addItem(iid, qty);
+          if (qty > 0 && Abyssea.ITEMS[iid]) game.addItem(iid, qty);
         }
       }
-      Balaclava.Audio.play('levelup');
-      game.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.contractDone', { title: c.title, coins: c.reward.coins, xp: c.reward.xp }) : `¡Contrato "${c.title}" completado! +${c.reward.coins} oro y +${c.reward.xp} Experiencia`, 'success');
+      Abyssea.Audio.play('levelup');
+      game.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.contractDone', { title: c.title, coins: c.reward.coins, xp: c.reward.xp }) : `¡Contrato "${c.title}" completado! +${c.reward.coins} oro y +${c.reward.xp} Experiencia`, 'success');
       game.uiDirty = true;
       return true;
     }
 
     getReadyContractsCount(game) {
       const claimed = game.claimedContracts || [];
-      return (Balaclava.GUILD_CONTRACTS || []).filter(c => !claimed.includes(c.id) && c.progress(game) >= c.target).length;
+      return (Abyssea.GUILD_CONTRACTS || []).filter(c => !claimed.includes(c.id) && c.progress(game) >= c.target).length;
     }
 
     update(dt, game) {
@@ -149,7 +149,17 @@
 
       if (!this.dailySchedule.triggered && curTime >= this.dailySchedule.triggerTime) {
         this.dailySchedule.triggered = true;
-        this.startDailyEvent(game, this.dailySchedule.eventId);
+        // RC2: Interactive Events rotation (Biome Weather, Pirate/Goblin Raid, Ghost Ship, or Classic Event)
+        const rollInteractive = Math.random();
+        if (rollInteractive < 0.22 && typeof game.triggerBiomeWeatherEvent === 'function' && game.triggerBiomeWeatherEvent()) {
+          // biome-specific weather event triggered!
+        } else if (rollInteractive < 0.44 && (game.unlockedPlots || []).length >= 2 && typeof game.startBiomeRaid === 'function' && game.startBiomeRaid()) {
+          // interactive raid triggered!
+        } else if (rollInteractive < 0.62 && (game.unlockedPlots || []).length >= 2 && typeof game.spawnGhostMerchantShip === 'function' && game.spawnGhostMerchantShip()) {
+          // wandering ghost merchant ship docked!
+        } else {
+          this.startDailyEvent(game, this.dailySchedule.eventId);
+        }
       }
 
       if (this.activeEvent) {
@@ -175,7 +185,7 @@
         color: def.color
       };
       game.recomputeModifiers();
-      Balaclava.Audio.play('portal');
+      Abyssea.Audio.play('portal');
       game.toast(`¡Evento Diario: ${def.name}! ${def.desc}`, 'warn');
 
       if (def.id === 'lluvia_meteoritos' && game.unlockedPlots.length >= 2) {
@@ -227,7 +237,7 @@
 
     checkProgress(game) {
       // Story progression
-      const chap = Balaclava.STORY_CHAPTERS[game.storyIndex];
+      const chap = Abyssea.STORY_CHAPTERS[game.storyIndex];
       if (chap && chap.check(game)) {
         game.storyIndex++;
         game.addCoins(chap.reward.coins);
@@ -235,29 +245,29 @@
         for (const [id, q] of Object.entries(chap.reward.items)) {
           game.addItem(id, q);
         }
-        Balaclava.Audio.play('levelup');
-        game.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.chapterDone', { title: chap.title }) : `¡Capítulo completado: ${chap.title}!`, 'success');
+        Abyssea.Audio.play('levelup');
+        game.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.chapterDone', { title: chap.title }) : `¡Capítulo completado: ${chap.title}!`, 'success');
       }
 
       // Achievements
-      for (const ach of Balaclava.ACHIEVEMENTS) {
+      for (const ach of Abyssea.ACHIEVEMENTS) {
         if (!game.unlockedAchievements.includes(ach.id) && ach.check(game)) {
           game.unlockedAchievements.push(ach.id);
           game.addCoins(ach.coins);
-          Balaclava.Audio.play('chest');
-          game.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.achievementDone', { name: ach.name, coins: ach.coins }) : `¡Logro desbloqueado: ${ach.name}! (+${ach.coins} monedas)`, 'success');
+          Abyssea.Audio.play('chest');
+          game.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.achievementDone', { name: ach.name, coins: ach.coins }) : `¡Logro desbloqueado: ${ach.name}! (+${ach.coins} monedas)`, 'success');
         }
       }
     }
 
     getNextObjectiveHint(game) {
-      const chap = Balaclava.STORY_CHAPTERS[game.storyIndex];
+      const chap = Abyssea.STORY_CHAPTERS[game.storyIndex];
       if (chap) return chap.objective;
-      const total = Balaclava.CONST.GRID_PLOTS * Balaclava.CONST.GRID_PLOTS;
-      if (game.unlockedPlots.length < total) return Balaclava.I18n ? Balaclava.I18n.t('quests.nextPlotHint') : 'Explora y compra las parcelas restantes en el Mapa (M) para dominar el archipiélago.';
-      return Balaclava.I18n ? Balaclava.I18n.t('quests.storyComplete') : '¡Modo Infinito Dorado! Amplía tu imperio automatizado y completa la Enciclopedia al 100%.';
+      const total = Abyssea.CONST.GRID_PLOTS * Abyssea.CONST.GRID_PLOTS;
+      if (game.unlockedPlots.length < total) return Abyssea.I18n ? Abyssea.I18n.t('quests.nextPlotHint') : 'Explora y compra las parcelas restantes en el Mapa (M) para dominar el archipiélago.';
+      return Abyssea.I18n ? Abyssea.I18n.t('quests.storyComplete') : '¡Modo Infinito Dorado! Amplía tu imperio automatizado y completa la Enciclopedia al 100%.';
     }
   }
 
-  Balaclava.EventsSystem = EventsSystem;
+  Abyssea.EventsSystem = EventsSystem;
 })();

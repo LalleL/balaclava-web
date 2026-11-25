@@ -1,5 +1,5 @@
 @font-face {
-  font-family: 'BalaclavaPixel';
+  font-family: 'AbysseaPixel';
   src: url('../assets/fonts/boldpixels_web/boldpixels.woff2') format('woff2'),
        url('../assets/fonts/BoldPixels.ttf') format('truetype');
   font-weight: 100 900;
@@ -8,7 +8,7 @@
 }
 
 @font-face {
-  font-family: 'BalaclavaTitlePixel';
+  font-family: 'AbysseaTitlePixel';
   src: url('../assets/fonts/boldpixels_web/boldpixels.woff2') format('woff2'),
        url('../assets/fonts/BoldPixels.ttf') format('truetype');
   font-weight: 100 900;
@@ -17,7 +17,7 @@
 }
 
 @font-face {
-  font-family: 'BalaclavaSignature';
+  font-family: 'AbysseaSignature';
   src: url('../assets/fonts/monogram/monogram/ttf/monogram-extended-italic.ttf') format('truetype');
   font-weight: 400;
   font-style: italic;
@@ -25,7 +25,7 @@
 }
 
 @font-face {
-  font-family: 'BalaclavaBodyPixel';
+  font-family: 'AbysseaBodyPixel';
   src: url('../assets/fonts/m6x11plus.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
@@ -68,7 +68,7 @@ html, body {
   overflow: hidden;
   background: var(--ui-bg-deep);
   color: var(--ui-ink);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: var(--ui-fs-md);
   line-height: 1.4;
   letter-spacing: 0.35px;
@@ -81,7 +81,7 @@ input,
 select,
 textarea,
 optgroup {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-synthesis: none;
 }
@@ -238,7 +238,7 @@ input:focus-visible,
   background: transparent;
   color: #f4f7ff;
   padding: 5px 12px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   letter-spacing: 0.45px;
@@ -321,7 +321,7 @@ input:focus-visible,
   border-image-slice: 5 14 6 14 fill;
   border-image-repeat: stretch;
   background: transparent;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 17px;
   letter-spacing: 0.4px;
@@ -365,7 +365,7 @@ input:focus-visible,
   border: none;
   background: url('../assets/ui/ms_close_normal.png') center / contain no-repeat;
   color: transparent;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 1px;
   line-height: 1;
@@ -530,8 +530,28 @@ input:focus-visible,
   animation: bootWordmarkReveal 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
 }
 
+.boot-logo-img {
+  display: block;
+  width: min(440px, 82vw);
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  user-select: none;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 8px 0 rgba(3, 10, 20, 0.52))
+    drop-shadow(0 16px 32px rgba(0, 10, 24, 0.78))
+    drop-shadow(0 0 26px rgba(64, 224, 240, 0.20));
+  animation: abysseaLogoFloat 3.8s ease-in-out 0.6s infinite;
+}
+
+@keyframes abysseaLogoFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
 .boot-title-wordmark {
-  font-family: 'BalaclavaTitlePixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaTitlePixel', 'AbysseaPixel', monospace;
   font-size: clamp(46px, 6.4vw, 74px);
   line-height: 1.02;
   letter-spacing: 7px;
@@ -657,7 +677,7 @@ input:focus-visible,
   justify-content: space-between;
   gap: 12px;
   padding: 0 2px;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   letter-spacing: 0.4px;
   line-height: 1.25;
@@ -724,15 +744,29 @@ input:focus-visible,
   to { background-position: 380px 0; }
 }
 
-/* === MINIMALIST LEFT-ALIGNED TITLE SCREEN === */
+/* === CENTERED SPLIT-WORLD TITLE SCREEN (Bright Biomes Left · Menu Center · Shadowed Endgame Right) === */
 #title-screen {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  padding: 28px clamp(26px, 6vw, 84px);
-  background: linear-gradient(95deg, rgba(10, 14, 24, 0.80) 0%, rgba(12, 16, 28, 0.48) 38%, rgba(10, 14, 24, 0.08) 100%);
+  justify-content: center;
+  padding: 24px 28px;
+  background:
+    linear-gradient(
+      270deg,
+      rgba(10, 6, 18, 0.68) 0%,
+      rgba(12, 10, 26, 0.44) 22%,
+      rgba(10, 14, 30, 0.20) 40%,
+      rgba(8, 18, 34, 0.04) 56%,
+      rgba(12, 32, 60, 0.0) 74%
+    ),
+    radial-gradient(
+      ellipse 32% 64% at 50% 50%,
+      rgba(5, 14, 28, 0.34) 0%,
+      rgba(5, 14, 28, 0.12) 60%,
+      rgba(5, 14, 28, 0.0) 100%
+    );
   z-index: 40;
 }
 
@@ -742,20 +776,21 @@ input:focus-visible,
 }
 
 .title-left-column {
-  width: min(476px, 92vw);
+  width: min(416px, 88vw);
   overflow: visible;
-  padding: 6px 6px 12px 4px;
+  padding: 6px 4px 12px 4px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 22px;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
 }
 
 .title-logo-wrap {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   overflow: visible;
 }
@@ -764,6 +799,7 @@ input:focus-visible,
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   overflow: visible;
 }
 
@@ -771,7 +807,7 @@ input:focus-visible,
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   overflow: visible;
 }
@@ -780,7 +816,7 @@ input:focus-visible,
   margin: 0;
   padding: 4px 8px;
   margin: -4px -8px;
-  font-family: 'BalaclavaTitlePixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaTitlePixel', 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: clamp(38px, 4.1vw, 50px);
   line-height: 1.02;
@@ -800,30 +836,62 @@ input:focus-visible,
     drop-shadow(0 10px 20px rgba(0, 0, 0, 0.70));
 }
 
+.title-main-logo-heading {
+  margin: 0 auto 2px;
+  padding: 0;
+  background: none;
+  -webkit-background-clip: initial;
+  -webkit-text-fill-color: initial;
+  filter: none;
+  line-height: 0;
+}
+
+.title-logo-img {
+  display: block;
+  width: min(378px, 76vw);
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  user-select: none;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 5px 0 rgba(4, 10, 22, 0.56))
+    drop-shadow(0 14px 26px rgba(0, 10, 24, 0.68))
+    drop-shadow(0 0 18px rgba(72, 228, 244, 0.16));
+  animation: abysseaLogoFloat 4.2s ease-in-out 0.8s infinite;
+}
+
 .title-logo-rule {
-  width: min(100%, 380px);
+  width: min(100%, 364px);
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   padding-left: 0;
 }
 
 .title-logo-rule .logo-diamond {
   width: 7px;
   height: 7px;
-  background: #ffd54f;
+  background: #ffd966;
   transform: rotate(45deg);
   flex-shrink: 0;
   box-shadow:
     0 0 0 1px #060a16,
-    0 0 10px rgba(255, 213, 79, 0.55);
+    0 0 10px rgba(255, 217, 102, 0.72);
 }
 
 .title-logo-rule .logo-line {
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, #ffd54f 0%, rgba(226, 232, 240, 0.65) 54%, rgba(96, 165, 250, 0.0) 100%);
+  background: linear-gradient(90deg, rgba(56, 214, 107, 0.0) 0%, #38d66b 38%, #4be3e8 100%);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.title-logo-rule .logo-line-right {
+  background: linear-gradient(90deg, #ff9933 0%, #e62638 62%, rgba(230, 38, 56, 0.0) 100%);
 }
 
 /* Choreographed Title + Main Menu Reveal Animation */
@@ -838,6 +906,10 @@ input:focus-visible,
 #title-screen.title-entering .title-logo-rule .logo-line {
   transform-origin: left center;
   animation: titleRuleExpand 0.68s cubic-bezier(0.16, 1, 0.3, 1) 0.26s both;
+}
+
+#title-screen.title-entering .title-logo-rule .logo-line-left {
+  transform-origin: right center;
 }
 
 #title-screen.title-entering .title-nav-stack > .title-nav-btn {
@@ -883,7 +955,7 @@ input:focus-visible,
 .title-sub {
   margin: 0;
   color: #eaf2ff;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 17px;
   letter-spacing: 0.6px;
@@ -894,8 +966,8 @@ input:focus-visible,
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
 }
 
 .title-nav-stack {
@@ -907,203 +979,221 @@ input:focus-visible,
   gap: 5px;
 }
 
-/* =========================================================================
-   === BACKUP OF PREVIOUS TITLE BUTTON STYLES (FOR ROLLBACK IF REQUESTED) ===
-   .title-nav-btn-old {
-     border-style: solid;
-     border-width: 8px 15px;
-     border-image-source: url('../assets/ui/ms_btn_stone_normal.png');
-     border-image-slice: 5 14 6 14 fill;
-     background: transparent;
-   }
-   .title-nav-btn-old.primary {
-     border-image-source: url('../assets/ui/ms_btn_blue_normal.png');
-   }
-   ========================================================================= */
-
-/* === DUELYST-INSPIRED OPEN FLOATING PIXEL-ART MENU BUTTONS === */
+/* === ABYSSEA OPEN FLOATING BORDERLESS MENU BUTTONS === */
 .title-nav-btn {
   width: 100%;
-  max-width: 440px;
+  max-width: 416px;
   min-height: 44px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 14px;
-  padding: 9px 14px 9px 18px;
+  gap: 12px;
+  padding: 8px 14px 8px 16px;
   border: none;
   border-image: none !important;
   border-radius: 0;
-  background: linear-gradient(90deg, rgba(6, 14, 30, 0.44) 0%, rgba(8, 18, 38, 0.22) 72%, transparent 100%);
+  background: linear-gradient(90deg, rgba(4, 13, 26, 0.18) 0%, rgba(6, 18, 34, 0.08) 68%, rgba(6, 18, 34, 0.0) 100%);
   box-shadow: none;
   image-rendering: pixelated;
-  color: #e6eefc;
-  font-family: 'BalaclavaPixel', monospace;
-  font-size: 20px;
+  color: #edf7fc;
+  font-family: 'AbysseaPixel', monospace;
+  font-size: 19px;
   font-weight: normal;
-  letter-spacing: 0.9px;
+  letter-spacing: 0.8px;
   text-shadow:
-    2px 0 0 #070b18,
-    -1px 0 0 #070b18,
-    0 2px 0 #070b18,
-    0 -1px 0 #070b18,
-    2px 2px 0 #040710;
+    2px 0 0 #040b18,
+    -1px 0 0 #040b18,
+    0 2px 0 #040b18,
+    0 -1px 0 #040b18,
+    0 3px 8px rgba(0, 0, 0, 0.82);
   cursor: pointer;
   text-align: left;
+  filter: none;
   transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.25, 1), background 0.14s ease, color 0.12s ease;
   position: relative;
 }
 
 .title-nav-btn::before {
   content: '';
+  display: block;
   position: absolute;
   left: 2px;
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
   height: 12px;
-  background: rgba(147, 197, 253, 0.34);
+  background: rgba(91, 227, 209, 0.42);
   transition: height 0.14s ease, width 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
 }
 
 .title-nav-btn::after {
   content: '';
+  display: block;
   position: absolute;
   left: 2px;
-  right: 18%;
+  right: 20%;
   bottom: 0;
   height: 2px;
-  background: linear-gradient(90deg, rgba(236, 199, 106, 0.0) 0%, rgba(236, 199, 106, 0.0) 100%);
+  background: linear-gradient(90deg, rgba(245, 204, 102, 0.0) 0%, rgba(91, 227, 209, 0.0) 100%);
   transition: background 0.14s ease, right 0.16s ease;
   pointer-events: none;
 }
 
-.title-nav-btn img.pixel-img {
-  width: 24px;
-  height: 24px;
+.title-btn-lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.title-nav-btn img.pixel-img,
+.title-nav-btn img.title-btn-ico {
+  width: 26px;
+  height: 26px;
+  margin: -2px 0;
   object-fit: contain;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 0 #060914) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  image-rendering: auto;
+  filter: drop-shadow(0 1px 2px rgba(4, 12, 24, 0.85));
   transition: transform 0.14s ease, filter 0.14s ease;
 }
 
 .title-nav-btn:hover {
-  transform: translateX(7px);
-  background: linear-gradient(90deg, rgba(10, 17, 36, 0.72) 0%, rgba(12, 22, 46, 0.36) 72%, transparent 100%);
-  color: #fff6d1;
+  transform: translateX(6px);
+  background: linear-gradient(90deg, rgba(6, 20, 38, 0.72) 0%, rgba(9, 28, 50, 0.38) 76%, transparent 100%);
+  color: #fff8db;
 }
 
 .title-nav-btn:hover::before {
   width: 4px;
   height: 24px;
-  background: #ffd54f;
-  box-shadow: 0 0 10px rgba(255, 213, 79, 0.55);
+  background: #f5cc66;
+  box-shadow: 0 0 10px rgba(245, 204, 102, 0.58);
 }
 
 .title-nav-btn:hover::after {
   right: 8%;
-  background: linear-gradient(90deg, #ffd54f 0%, rgba(236, 199, 106, 0.38) 58%, transparent 100%);
+  background: linear-gradient(90deg, #f5cc66 0%, rgba(91, 227, 209, 0.55) 58%, transparent 100%);
 }
 
-.title-nav-btn:hover img.pixel-img {
-  transform: scale(1.08);
-  filter: drop-shadow(0 2px 0 #060914) drop-shadow(0 0 8px rgba(255, 213, 79, 0.35));
+.title-nav-btn:hover img.pixel-img,
+.title-nav-btn:hover img.title-btn-ico {
+  transform: scale(1.06);
+  filter:
+    drop-shadow(0 2px 0 rgba(4, 12, 24, 0.95))
+    drop-shadow(0 0 8px rgba(91, 227, 209, 0.38));
 }
 
 .title-nav-btn:active {
   transform: translateX(4px) translateY(1px);
-  background: linear-gradient(90deg, rgba(16, 26, 52, 0.82) 0%, rgba(16, 26, 52, 0.42) 72%, transparent 100%);
+  background: linear-gradient(90deg, rgba(10, 28, 50, 0.84) 0%, rgba(10, 28, 50, 0.46) 76%, transparent 100%);
+}
+
+.title-nav-btn:focus,
+.title-patch-notes-btn:focus,
+.title-slot-btn:focus {
+  outline: none;
+}
+
+.title-nav-btn:focus-visible,
+.title-patch-notes-btn:focus-visible,
+.title-slot-btn:focus-visible {
+  outline: 2px solid #5be3d1;
+  outline-offset: 2px;
 }
 
 /* Open state for Jugar when side drawer is active */
 .title-nav-btn.is-open {
-  transform: translateX(7px);
-  background: linear-gradient(90deg, rgba(14, 22, 46, 0.78) 0%, rgba(18, 28, 56, 0.44) 76%, transparent 100%);
-  color: #ffe89e;
+  transform: translateX(6px);
+  background: linear-gradient(90deg, rgba(8, 26, 48, 0.78) 0%, rgba(10, 32, 56, 0.44) 80%, transparent 100%);
+  color: #ffeaa3;
 }
 
 .title-nav-btn.is-open::before {
   width: 4px;
   height: 26px;
-  background: #ffd54f;
-  box-shadow: 0 0 12px rgba(255, 213, 79, 0.65);
+  background: #f5cc66;
+  box-shadow: 0 0 12px rgba(245, 204, 102, 0.65);
 }
 
 .title-nav-btn.is-open::after {
   right: 0;
-  background: linear-gradient(90deg, #ffd54f 0%, rgba(236, 199, 106, 0.85) 85%, #ffd54f 100%);
+  background: linear-gradient(90deg, #f5cc66 0%, #5be3d1 80%, #f5cc66 100%);
 }
 
-/* Primary Hero Entry (Continuar) - Warm Gold Presence */
+/* Primary Hero Entry (Continuar) - Warm Sunlit Gold Presence */
 .title-nav-btn.primary {
-  color: #ffe8a3;
-  font-size: 22px;
-  background: linear-gradient(90deg, rgba(12, 24, 54, 0.36) 0%, rgba(14, 28, 64, 0.12) 60%, transparent 100%);
+  min-height: 48px;
+  color: #ffeda6;
+  font-size: 21px;
+  background: linear-gradient(90deg, rgba(8, 28, 48, 0.28) 0%, rgba(10, 34, 56, 0.12) 68%, transparent 100%);
 }
 
 .title-nav-btn.primary::before {
   width: 4px;
   height: 22px;
-  background: #ffd54f;
-  box-shadow: 0 0 8px rgba(255, 213, 79, 0.45);
+  background: #f5cc66;
+  box-shadow: 0 0 8px rgba(245, 204, 102, 0.50);
 }
 
 .title-nav-btn.primary::after {
-  right: 45%;
-  background: linear-gradient(90deg, rgba(255, 213, 79, 0.48) 0%, rgba(96, 165, 250, 0.18) 58%, transparent 100%);
+  right: 42%;
+  background: linear-gradient(90deg, rgba(245, 204, 102, 0.58) 0%, rgba(91, 227, 209, 0.26) 62%, transparent 100%);
 }
 
 .title-nav-btn.primary:hover {
-  background: linear-gradient(90deg, rgba(18, 38, 86, 0.78) 0%, rgba(22, 48, 108, 0.42) 72%, transparent 100%);
-  color: #fff9e2;
+  background: linear-gradient(90deg, rgba(12, 40, 66, 0.78) 0%, rgba(14, 48, 76, 0.42) 76%, transparent 100%);
+  color: #fffbe2;
 }
 
 .title-nav-btn.primary:hover::after {
   right: 6%;
-  background: linear-gradient(90deg, #ffe588 0%, #60a5fa 58%, transparent 100%);
+  background: linear-gradient(90deg, #ffe588 0%, #5be3d1 60%, transparent 100%);
 }
 
 /* Danger Entry (Salir del juego) */
 .title-nav-btn.danger {
-  color: #c2d0e6;
+  color: #dce4f0;
 }
 
 .title-nav-btn.danger::before {
-  background: rgba(248, 113, 113, 0.36);
+  background: rgba(224, 111, 122, 0.44);
 }
 
 .title-nav-btn.danger:hover {
-  background: linear-gradient(90deg, rgba(58, 14, 24, 0.72) 0%, rgba(46, 12, 20, 0.32) 72%, transparent 100%);
-  color: #ffd0d6;
+  background: linear-gradient(90deg, rgba(56, 14, 24, 0.72) 0%, rgba(44, 12, 22, 0.34) 76%, transparent 100%);
+  color: #ffd6dc;
 }
 
 .title-nav-btn.danger:hover::before {
-  background: #f87171;
-  box-shadow: 0 0 10px rgba(248, 113, 113, 0.55);
+  background: #ef7882;
+  box-shadow: 0 0 10px rgba(239, 120, 130, 0.55);
 }
 
 .title-nav-btn.danger:hover::after {
-  background: linear-gradient(90deg, #f87171 0%, rgba(248, 113, 113, 0.32) 58%, transparent 100%);
+  background: linear-gradient(90deg, #ef7882 0%, rgba(239, 120, 130, 0.34) 58%, transparent 100%);
 }
 
 /* Clean Unboxed Pixel Sub-labels */
 .title-nav-btn .title-nav-sub {
   margin-left: auto;
-  padding: 0;
+  padding-left: 8px;
   background: transparent;
   border: none;
   box-shadow: none;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
-  font-size: 18px;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
+  font-size: 17px;
   font-weight: normal;
   line-height: 1.15;
-  color: rgba(232, 241, 255, 0.94);
-  letter-spacing: 0.45px;
+  color: rgba(224, 244, 250, 0.94);
+  letter-spacing: 0.4px;
   text-shadow:
-    1px 0 0 #040814,
-    -1px 0 0 #040814,
-    0 1px 0 #040814,
-    0 -1px 0 #040814,
+    1px 0 0 #040b18,
+    -1px 0 0 #040b18,
+    0 1px 0 #040b18,
+    0 -1px 0 #040b18,
     0 2px 6px rgba(0, 0, 0, 0.96);
   white-space: nowrap;
   flex-shrink: 0;
@@ -1111,7 +1201,7 @@ input:focus-visible,
 }
 
 .title-nav-btn:hover .title-nav-sub {
-  color: #fff6d6;
+  color: #d6faf5;
 }
 
 .title-nav-btn.is-open .title-nav-sub {
@@ -1127,7 +1217,7 @@ input:focus-visible,
 }
 
 .title-nav-btn.danger .title-nav-sub {
-  color: rgba(236, 232, 242, 0.92);
+  color: rgba(234, 224, 232, 0.92);
 }
 
 .title-nav-btn.danger:hover .title-nav-sub {
@@ -1147,38 +1237,54 @@ input:focus-visible,
 
 .title-slot-drawer {
   position: absolute;
-  left: calc(100% + 22px);
+  left: calc(100% + 12px);
   top: -8px;
-  width: 472px;
-  max-width: min(480px, calc(100vw * var(--ui-inv-scale, 1) - 100% - 52px));
-  max-height: min(480px, 78vh);
+  width: 404px;
+  max-width: min(408px, calc(50vw * var(--ui-inv-scale, 1) - 50% - 20px));
+  max-height: min(460px, 76vh);
   overflow-y: auto;
   z-index: 25;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, rgba(8, 18, 38, 0.86) 0%, rgba(10, 24, 48, 0.78) 68%, rgba(7, 16, 34, 0.88) 100%);
+  padding: 13px 14px;
+  background: linear-gradient(155deg, rgba(10, 34, 56, 0.95) 0%, rgba(7, 23, 41, 0.96) 58%, rgba(5, 16, 30, 0.98) 100%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(147, 197, 253, 0.20);
-  border-left: 3px solid #ffd54f;
+  border: 2px solid #d99a2e;
   border-image: none;
   border-radius: 0;
-  box-shadow: 0 20px 48px rgba(2, 8, 18, 0.70), inset 0 1px 0 rgba(255, 224, 130, 0.18);
+  box-shadow:
+    0 0 0 2px #040c1a,
+    0 18px 44px rgba(2, 8, 18, 0.78),
+    inset 0 2px 0 rgba(77, 238, 234, 0.42),
+    inset 0 0 0 1px rgba(4, 14, 28, 0.9);
   animation: titleDrawerSideIn 0.15s ease-out;
 }
 .title-slot-drawer-head {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
-  font-size: 18px;
-  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'AbysseaPixel', monospace;
+  font-size: 16px;
+  letter-spacing: 1.1px;
   text-transform: uppercase;
-  color: #ffe69c;
-  padding: 2px 2px 7px;
-  border-bottom: 1px solid rgba(255, 213, 79, 0.22);
+  color: #ffe89e;
+  padding: 2px 2px 9px;
+  border-bottom: 1px solid rgba(77, 238, 234, 0.28);
   text-shadow:
     1px 1px 0 #040814,
-    0 1px 0 #040814;
+    0 2px 0 #040814;
+}
+.title-slot-head-ico {
+  width: 28px;
+  height: 28px;
+  margin: -4px 0 -4px -2px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 0 #040b18);
 }
 .title-slot-row {
   display: flex;
@@ -1186,9 +1292,9 @@ input:focus-visible,
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-  background: linear-gradient(90deg, rgba(14, 28, 56, 0.52) 0%, rgba(10, 20, 42, 0.24) 100%);
-  border: 1px solid rgba(147, 197, 253, 0.14);
-  border-left: 2px solid rgba(255, 213, 79, 0.38);
+  background: linear-gradient(90deg, rgba(15, 44, 70, 0.64) 0%, rgba(9, 28, 48, 0.42) 100%);
+  border: 1px solid rgba(77, 238, 234, 0.22);
+  border-left: 3px solid #e6a832;
   border-image: none;
   border-radius: 0;
   color: #f4efe6;
@@ -1196,23 +1302,23 @@ input:focus-visible,
   transition: background 0.14s ease, border-color 0.14s ease;
 }
 .title-slot-row:hover {
-  background: linear-gradient(90deg, rgba(20, 42, 80, 0.68) 0%, rgba(12, 26, 54, 0.36) 100%);
-  border-color: rgba(147, 197, 253, 0.28);
-  border-left-color: #ffd54f;
+  background: linear-gradient(90deg, rgba(20, 58, 90, 0.80) 0%, rgba(12, 38, 64, 0.56) 100%);
+  border-color: rgba(77, 238, 234, 0.45);
+  border-left-color: #ffe070;
 }
 .title-slot-row.is-empty {
-  background: linear-gradient(90deg, rgba(10, 20, 40, 0.38) 0%, rgba(8, 16, 34, 0.16) 100%);
-  border-left-color: rgba(147, 197, 253, 0.24);
+  background: linear-gradient(90deg, rgba(10, 28, 48, 0.46) 0%, rgba(7, 20, 36, 0.26) 100%);
+  border-left-color: rgba(77, 238, 234, 0.34);
 }
 .title-slot-row.is-empty:hover {
-  border-left-color: #93c5fd;
+  border-left-color: #4deeea;
 }
 .title-slot-row.is-confirming {
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
-  background: linear-gradient(90deg, rgba(64, 16, 28, 0.74) 0%, rgba(34, 12, 22, 0.58) 100%);
-  border-color: rgba(248, 113, 113, 0.45);
+  background: linear-gradient(90deg, rgba(64, 16, 28, 0.78) 0%, rgba(34, 12, 22, 0.64) 100%);
+  border-color: rgba(248, 113, 113, 0.48);
   border-left: 3px solid #f87171;
 }
 .title-slot-info {
@@ -1224,7 +1330,7 @@ input:focus-visible,
   text-align: left;
 }
 .title-slot-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   line-height: 1.2;
   letter-spacing: 0.4px;
@@ -1232,17 +1338,17 @@ input:focus-visible,
   text-shadow: 0 2px 0 #050814;
 }
 .title-slot-row.is-empty .title-slot-title {
-  color: #e0edff;
+  color: #c2f4fc;
 }
 .title-slot-row.is-confirming .title-slot-title {
   color: #fecaca;
 }
 .title-slot-meta {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
-  font-size: 18px;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
+  font-size: 16px;
   line-height: 1.25;
-  letter-spacing: 0.4px;
-  color: #e2ecf9;
+  letter-spacing: 0.35px;
+  color: #d6eef5;
   text-shadow:
     1px 1px 0 #040814,
     0 1px 0 #040814;
@@ -1269,13 +1375,14 @@ input:focus-visible,
   gap: 6px;
   padding: 6px 14px;
   min-height: 34px;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   line-height: 1;
   letter-spacing: 0.45px;
   color: #f4f7fb;
-  background: rgba(12, 24, 48, 0.72);
-  border: 1px solid rgba(147, 197, 253, 0.24);
+  background: rgba(10, 32, 54, 0.82);
+  border: 1.5px solid rgba(77, 238, 234, 0.36);
+  box-shadow: 0 0 0 1px #040c1a;
   border-radius: 0;
   cursor: pointer;
   white-space: nowrap;
@@ -1291,23 +1398,23 @@ input:focus-visible,
   transform: translateY(0);
 }
 .title-slot-btn.play {
-  color: #ffe89e;
-  background: linear-gradient(90deg, rgba(22, 54, 96, 0.78) 0%, rgba(16, 40, 74, 0.72) 100%);
-  border-color: rgba(255, 213, 79, 0.48);
+  color: #fff0ad;
+  background: linear-gradient(180deg, rgba(20, 66, 98, 0.92) 0%, rgba(12, 42, 68, 0.92) 100%);
+  border-color: #e6a832;
 }
 .title-slot-btn.play:hover {
-  background: linear-gradient(90deg, rgba(32, 74, 128, 0.90) 0%, rgba(22, 54, 96, 0.84) 100%);
-  border-color: #ffd54f;
-  color: #fff6cf;
+  background: linear-gradient(180deg, rgba(28, 86, 124, 0.96) 0%, rgba(18, 58, 90, 0.96) 100%);
+  border-color: #ffe27a;
+  color: #fffbe0;
 }
 .title-slot-btn.create {
-  color: #e6f0ff;
-  background: linear-gradient(90deg, rgba(20, 48, 88, 0.74) 0%, rgba(14, 34, 66, 0.68) 100%);
-  border-color: rgba(147, 197, 253, 0.42);
+  color: #c8fbff;
+  background: linear-gradient(180deg, rgba(16, 62, 86, 0.88) 0%, rgba(10, 39, 58, 0.88) 100%);
+  border-color: rgba(77, 238, 234, 0.56);
 }
 .title-slot-btn.create:hover {
-  background: linear-gradient(90deg, rgba(30, 68, 120, 0.88) 0%, rgba(20, 48, 88, 0.82) 100%);
-  border-color: #93c5fd;
+  background: linear-gradient(180deg, rgba(24, 86, 114, 0.96) 0%, rgba(15, 56, 78, 0.96) 100%);
+  border-color: #6ef8fc;
   color: #ffffff;
 }
 .title-slot-btn.reset {
@@ -1349,7 +1456,7 @@ input:focus-visible,
   background: rgba(15, 20, 35, 0.9);
   border: 2px solid #ffd54f;
   box-shadow: 0 0 0 1px #070a14, 0 4px 12px rgba(0, 0, 0, 0.7);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   font-weight: normal;
   color: #ffe082;
@@ -1422,7 +1529,7 @@ input:focus-visible,
   background: #14192b;
   border: 2px solid #ffd54f;
   color: #fff8e1;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 14px;
   line-height: 1.1;
@@ -1541,7 +1648,7 @@ input:focus-visible,
 
 .bar-num {
   min-width: 74px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 17px;
   font-variant-numeric: tabular-nums;
@@ -1575,7 +1682,7 @@ input:focus-visible,
   background: rgba(14, 18, 30, 0.92);
   border: 2px solid rgba(212, 166, 74, 0.65);
   border-radius: 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   font-variant-numeric: tabular-nums;
@@ -1656,7 +1763,7 @@ input:focus-visible,
   border-right: 1px solid rgba(212, 166, 74, 0.35);
 }
 #day-label {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   letter-spacing: 0.4px;
@@ -1705,7 +1812,7 @@ input:focus-visible,
   border: 1.5px solid rgba(212, 166, 74, 0.42);
   padding: 3px 9px 3px 6px;
   border-radius: 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   font-variant-numeric: tabular-nums;
@@ -1734,7 +1841,7 @@ input:focus-visible,
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   font-weight: normal;
   color: #ffe8a3;
@@ -1798,7 +1905,7 @@ input:focus-visible,
   border-radius: 6px;
   background: rgba(22, 27, 46, 0.84);
   color: #f5efe3;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   font-weight: normal;
   cursor: pointer;
@@ -1891,7 +1998,7 @@ input:focus-visible,
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   color: #ffd54f;
@@ -1915,7 +2022,7 @@ input:focus-visible,
   border: 1px solid rgba(255, 213, 79, 0.45);
   border-radius: 3px;
   color: #ffe082;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   font-weight: bold;
   width: 22px;
@@ -1999,7 +2106,7 @@ input:focus-visible,
   padding: 5px 12px;
 }
 .boss-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 18px;
   color: #ffcc80;
@@ -2077,7 +2184,7 @@ input:focus-visible,
   border: 1.5px solid rgba(208, 178, 114, 0.44);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.48);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   font-weight: normal;
   color: #f6f1e6;
@@ -2139,7 +2246,7 @@ body.modal-fullscreen-active #bottom-hud {
   border: 2px solid #ef5350;
   border-radius: 6px;
   color: #ffe5e5;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
@@ -2219,7 +2326,7 @@ body.modal-fullscreen-active #bottom-hud {
   position: absolute;
   bottom: 1px;
   right: 3px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #80deea;
   text-shadow: 1px 1px 0 #000;
@@ -2232,7 +2339,7 @@ body.modal-fullscreen-active #bottom-hud {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   text-shadow: 1px 1px 0 #000;
 }
@@ -2264,7 +2371,7 @@ body.modal-fullscreen-active #bottom-hud {
   border-radius: 6px;
   background: rgba(12, 16, 28, 0.92);
   color: #f4f7fb;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   outline: none;
 }
@@ -2359,7 +2466,7 @@ body.modal-fullscreen-active #bottom-hud {
   position: absolute;
   top: 2px;
   left: 4px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 14px;
   color: #ffd54f;
@@ -2369,7 +2476,7 @@ body.modal-fullscreen-active #bottom-hud {
   position: absolute;
   bottom: 2px;
   right: 4px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 14px;
   color: #ffffff;
@@ -2682,7 +2789,7 @@ body.modal-fullscreen-active #bottom-hud {
   position: absolute;
   bottom: 2px;
   right: 3px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #ffd54f;
   background: rgba(8, 11, 20, 0.88);
@@ -2760,7 +2867,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .modal-title {
   margin: 0;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 22px;
   color: #ffe8a3;
@@ -2793,7 +2900,7 @@ body.modal-fullscreen-active #bottom-hud {
   color: #edf2ff;
   padding: 4px 12px;
   cursor: pointer;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-synthesis: none;
   font-size: 16px;
@@ -2844,7 +2951,7 @@ body.modal-fullscreen-active #bottom-hud {
   gap: 10px;
 }
 .card-head strong {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 17px;
   color: #ffe39a;
@@ -2866,7 +2973,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .parchment-box h3, .parchment-box strong {
   color: #ffe8a3;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   text-shadow: 0 1px 0 #090d18;
 }
@@ -2961,7 +3068,7 @@ body.modal-fullscreen-active #bottom-hud {
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 8px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   color: #ffd54f;
   text-shadow: 1px 1px 0 #000;
@@ -2984,7 +3091,7 @@ body.modal-fullscreen-active #bottom-hud {
   margin-top: 8px;
 }
 .inv-cap-pill {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   color: #ffe082;
   background: rgba(20, 26, 38, 0.85);
@@ -3005,7 +3112,7 @@ body.modal-fullscreen-active #bottom-hud {
   border-radius: 4px;
   background: rgba(24, 29, 48, 0.94);
   color: #ffe39a;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   cursor: pointer;
@@ -3065,7 +3172,7 @@ body.modal-fullscreen-active #bottom-hud {
   border-image-repeat: stretch;
   background-color: #161b28;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.78);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   font-weight: normal;
   letter-spacing: 0.45px;
@@ -3086,7 +3193,7 @@ body.modal-fullscreen-active #bottom-hud {
   box-shadow: none;
 }
 #modal-box.pause-pixel-modal #modal-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 24px;
   letter-spacing: 0.6px;
@@ -3096,7 +3203,7 @@ body.modal-fullscreen-active #bottom-hud {
 #modal-box.pause-pixel-modal input,
 #modal-box.pause-pixel-modal span,
 #modal-box.pause-pixel-modal strong {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
 }
 #modal-box.pause-root-compact {
@@ -3307,7 +3414,7 @@ body.modal-fullscreen-active #bottom-hud {
   display: inline-block;
   padding: 3px 9px;
   border-radius: 4px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   text-shadow: none;
@@ -3362,7 +3469,7 @@ body.modal-fullscreen-active #bottom-hud {
   border: 2px solid #ffd54f;
   padding: 5px 14px;
   border-radius: 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   color: #ffe39a;
@@ -3441,7 +3548,7 @@ body.modal-fullscreen-active #bottom-hud {
   z-index: 4;
 }
 .skill-core-hub span {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 14px;
   color: #ffe39a;
@@ -3454,7 +3561,7 @@ body.modal-fullscreen-active #bottom-hud {
   border-radius: 999px;
   background: rgba(15, 10, 25, 0.92);
   border: 2px solid currentColor;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 15px;
   letter-spacing: 0.45px;
@@ -3574,7 +3681,7 @@ body.modal-fullscreen-active #bottom-hud {
   background: #101522;
   border: 1.5px solid #e6c675;
   color: #fff8e1;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 13px;
   line-height: 1;
@@ -3596,7 +3703,7 @@ body.modal-fullscreen-active #bottom-hud {
   background: rgba(8, 13, 30, 0.88);
   border: 1px solid rgba(148, 163, 184, 0.35);
   border-radius: 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #e2e8f0;
   pointer-events: none;
@@ -3831,7 +3938,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .upgrade-cmp-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 12px;
   letter-spacing: 0.4px;
   color: var(--cmp-accent, #ffd54f);
@@ -3840,7 +3947,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .upgrade-cmp-sub {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #dbeafe;
   line-height: 1.15;
@@ -3877,7 +3984,7 @@ body.modal-fullscreen-active #bottom-hud {
   background: transparent;
   border: none;
   padding: 1px 5px 2px;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 10px;
   color: #94a3b8;
   text-transform: uppercase;
@@ -3891,7 +3998,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .cmp-stat-label {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 12px;
   color: #e2e8f0;
   overflow: hidden;
@@ -3901,7 +4008,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .cmp-val-cur {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #94a3b8;
   text-align: right;
@@ -3909,7 +4016,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .cmp-val-next {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 12px;
   color: #ffe57f;
   text-align: right;
@@ -3919,7 +4026,7 @@ body.modal-fullscreen-active #bottom-hud {
 
 .cmp-delta-pill {
   justify-self: end;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 11px;
   padding: 2px 5px;
   min-width: 30px;
@@ -3962,14 +4069,14 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .bldg-perks-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   color: #ffd54f;
   letter-spacing: 0.4px;
 }
 
 .bldg-perks-badge {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 13px;
   padding: 2px 7px;
   background: #18233c;
@@ -3990,7 +4097,7 @@ body.modal-fullscreen-active #bottom-hud {
   padding: 6px 8px;
   background: rgba(15, 23, 42, 0.72);
   border: 1px solid #2b3a55;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 15px;
   line-height: 1.25;
   color: #94a3b8;
@@ -4009,7 +4116,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .bldg-perk-lv {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   padding: 2px 6px;
   background: #0a101d;
@@ -4096,7 +4203,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .skill-cel-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 13px;
   letter-spacing: 2.4px;
@@ -4106,7 +4213,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .skill-cel-name {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 21px;
   line-height: 1.05;
@@ -4172,7 +4279,7 @@ body.modal-fullscreen-active #bottom-hud {
   border: 2px solid #6b7ba4;
   border-bottom-width: 4px;
   color: #ffe39a;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 14px;
   padding: 2px 8px;
@@ -4210,7 +4317,7 @@ body.modal-fullscreen-active #bottom-hud {
   border-image-repeat: stretch;
   background: transparent;
   color: #edf2ff;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   font-weight: normal;
   font-synthesis: none;
@@ -4293,7 +4400,7 @@ body.modal-fullscreen-active #bottom-hud {
   justify-content: space-between;
   gap: 6px;
   padding: 5px 10px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-synthesis: none;
   font-size: 16px;
@@ -4586,32 +4693,46 @@ body.modal-fullscreen-active #bottom-hud {
   gap: 6px;
 }
 
-/* Left-Aligned Title Screen + Archipelago Diorama Showcase on Right */
+/* Centered Split-World Title Screen (Bright Early Biomes Left · Open Menu Center · Shadowed Endgame Biomes Right) */
 #title-screen {
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  text-align: left;
-  padding: 28px clamp(28px, 5vw, 72px);
-  background: linear-gradient(90deg, rgba(6, 11, 24, 0.80) 0%, rgba(8, 16, 34, 0.52) 32%, rgba(10, 22, 44, 0.16) 56%, rgba(12, 32, 60, 0.0) 80%);
+  text-align: center;
+  padding: 24px 28px;
+  background:
+    linear-gradient(
+      270deg,
+      rgba(10, 6, 18, 0.68) 0%,
+      rgba(12, 10, 26, 0.44) 22%,
+      rgba(10, 14, 30, 0.20) 40%,
+      rgba(8, 18, 34, 0.04) 56%,
+      rgba(12, 32, 60, 0.0) 74%
+    ),
+    radial-gradient(
+      ellipse 32% 64% at 50% 50%,
+      rgba(5, 14, 28, 0.34) 0%,
+      rgba(5, 14, 28, 0.12) 60%,
+      rgba(5, 14, 28, 0.0) 100%
+    );
 }
 #title-screen .title-left-column {
-  width: min(508px, 90vw);
-  margin: 0;
-  padding: 6px 6px 12px 4px;
+  width: min(416px, 88vw);
+  margin: 0 auto;
+  padding: 6px 4px 12px 4px;
   overflow: visible;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
 }
 #title-screen .title-logo-wrap,
 #title-screen .title-left-actions {
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
 }
 #title-screen .title-nav-btn:not(.title-sq-btn) {
   width: 100%;
-  max-width: 508px;
+  max-width: 416px;
 }
 /* BACKUP: Previous 9-slice stone/blue overrides for #title-screen
 #title-screen .title-nav-btn:not(.primary) {
@@ -4643,13 +4764,13 @@ body.modal-fullscreen-active #bottom-hud {
   filter: brightness(0.92);
 }
 */
-@media (max-width: 960px) {
+@media (max-width: 1120px) {
   #title-screen .title-slot-drawer {
     position: static;
     left: auto;
     top: auto;
     width: 100%;
-    max-width: 464px;
+    max-width: 416px;
     margin: 4px 0;
   }
 }
@@ -4747,7 +4868,7 @@ body.modal-fullscreen-active #bottom-hud {
   border: 2px solid #f59e0b;
   border-radius: 0;
   color: #fde68a;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   box-shadow: inset 0 0 0 1px #080c18;
 }
 #modal-box.skills-cosmic-fullscreen .skill-inspector {
@@ -4812,7 +4933,7 @@ body.modal-fullscreen-active #bottom-hud {
   border: 2px solid currentColor;
   border-radius: 0;
   padding: 3px 9px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   text-shadow: 1px 1px 0 #04060d;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.65);
 }
@@ -4901,7 +5022,7 @@ body.modal-fullscreen-active #bottom-hud {
   background: #080d1b !important;
   border: 1px solid #475d8a !important;
   box-shadow: 0 2px 0 #02050d !important;
-  font-family: 'BalaclavaPixel', monospace !important;
+  font-family: 'AbysseaPixel', monospace !important;
   font-size: 11px !important;
   padding: 1px 5px !important;
   bottom: -6px !important;
@@ -4992,7 +5113,7 @@ body.modal-fullscreen-active #bottom-hud {
   border: 1.5px solid #d4a64a;
   background: rgba(34, 42, 64, 0.92);
   color: #ffe8a3;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   font-weight: normal;
   cursor: pointer;
@@ -5015,7 +5136,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .dungeon-hud-card strong {
   display: block;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   font-size: 16px;
   color: #ffd54f;
@@ -5049,7 +5170,7 @@ body.modal-fullscreen-active #bottom-hud {
   background: transparent;
   box-shadow: none;
   color: #ffe885;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   -webkit-font-smoothing: none;
   transition: top 0.16s ease-out;
   animation: lvlBannerPop 0.65s cubic-bezier(0.22, 1.4, 0.36, 1) forwards, lvlBannerBounce 1.1s 0.65s ease-in-out infinite;
@@ -5072,7 +5193,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .levelup-banner-sub {
   margin-top: 4px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 23px;
   color: #b5ffbd;
   text-shadow:
@@ -5111,7 +5232,7 @@ body.modal-fullscreen-active #bottom-hud {
   pointer-events: auto;
   background: #09040c;
   image-rendering: pixelated;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
 }
 .death-overlay.hidden {
   display: none !important;
@@ -5156,7 +5277,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .death-title {
   margin: 0;
-  font-family: 'BalaclavaTitlePixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaTitlePixel', 'AbysseaPixel', monospace;
   font-size: clamp(24px, 3.6vw, 40px);
   line-height: 1.08;
   letter-spacing: 3px;
@@ -5166,7 +5287,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .death-sub {
   margin: 0;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   line-height: 1.25;
   color: #cbb0bb;
@@ -5175,7 +5296,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 .death-stats-row {
   margin: 2px 0 0;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 16px;
   line-height: 1.2;
   color: #ebbd6c;
@@ -5205,7 +5326,7 @@ body.modal-fullscreen-active #bottom-hud {
   box-sizing: border-box;
 }
 .death-countdown {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 16px;
   color: #ead0c8;
   text-shadow: 1px 1px 0 #09040c;
@@ -5252,7 +5373,7 @@ body.modal-fullscreen-active #bottom-hud {
   outline: 2px solid #090c14;
   border-radius: 6px;
   box-shadow: 0 6px 16px rgba(6, 8, 16, 0.88);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   -webkit-font-smoothing: none;
   opacity: 1;
   transition: opacity 0.4s ease-out, transform 0.28s ease-out;
@@ -5410,7 +5531,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .hud-target-name {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   font-weight: normal;
   color: #ffe8a3;
@@ -5422,7 +5543,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .hud-target-sub {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 12px;
   font-weight: normal;
   color: #d7e6fa;
@@ -5434,7 +5555,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .hud-target-sub2 {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 11px;
   font-weight: normal;
   color: #80f0ff;
@@ -5648,7 +5769,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .scene-transition .st-label {
-  font-family: 'BalaclavaTitlePixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaTitlePixel', 'AbysseaPixel', monospace;
   font-size: clamp(24px, 3.6vw, 40px);
   color: #f6eedc;
   letter-spacing: 3px;
@@ -5665,7 +5786,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .scene-transition .st-sub {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   line-height: 1.25;
   color: #b7cee2;
@@ -5717,7 +5838,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-badge {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 14px;
   line-height: 1.1;
   padding: 3px 7px;
@@ -5738,7 +5859,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-floors {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 14px;
   color: #bfa691;
   line-height: 1.2;
@@ -5767,7 +5888,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-panel-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   letter-spacing: 0.6px;
   color: #ffb870;
@@ -5807,7 +5928,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-mob-name {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 14px;
   color: #f3e9df;
   white-space: nowrap;
@@ -5816,7 +5937,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-mob-sub {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 12px;
   color: #9fb7cd;
 }
@@ -5846,7 +5967,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-boss-name {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   color: #ff9c9c;
   line-height: 1.15;
@@ -5854,13 +5975,13 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-db-boss-stats {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #f4d6a8;
 }
 
 .st-db-boss-relic {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 12px;
   color: #9be8ff;
 }
@@ -5906,7 +6027,7 @@ body.modal-fullscreen-active #bottom-hud {
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 16px;
   color: #8fb1cd;
   text-shadow: 1px 1px 0 #050a14;
@@ -5960,7 +6081,7 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 .st-tip-text {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   color: #dbe9f4;
   line-height: 1.2;
@@ -5999,8 +6120,8 @@ body.modal-fullscreen-active #bottom-hud {
   transition: opacity 0.25s ease-in;
 }
 
-/* === TEXTURED PIXEL RPG FLOATING TOOLTIP (#balaclava-tooltip) === */
-.balaclava-tooltip {
+/* === TEXTURED PIXEL RPG FLOATING TOOLTIP (#abyssea-tooltip) === */
+.abyssea-tooltip {
   position: fixed;
   z-index: 980;
   pointer-events: none;
@@ -6013,7 +6134,7 @@ body.modal-fullscreen-active #bottom-hud {
   border-image-repeat: stretch;
   background-color: rgba(13, 17, 32, 0.97);
   color: var(--ui-ink);
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   letter-spacing: 0.35px;
   line-height: 1.35;
@@ -6034,20 +6155,20 @@ body.modal-fullscreen-active #bottom-hud {
   min-width: 0;
 }
 .tip-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 18px;
   color: #ffe8a3;
   line-height: 1.15;
   overflow-wrap: anywhere;
 }
 .tip-sub {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   color: #b5d4ff;
   line-height: 1.2;
 }
 .tip-desc {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 18px;
   line-height: 1.38;
   color: #f2ece0;
@@ -6174,7 +6295,7 @@ button,
 input,
 select,
 textarea {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
 }
 button {
   font-size: 16px;
@@ -6203,7 +6324,7 @@ button {
   bottom: auto;
 }
 
-.balaclava-tooltip {
+.abyssea-tooltip {
   zoom: var(--ui-scale, 1);
   max-width: min(336px, calc(100vw * var(--ui-inv-scale, 1) - 24px));
 }
@@ -6216,9 +6337,9 @@ button {
 }
 
 #title-screen .title-left-column {
-  width: min(508px, 92%);
+  width: min(416px, 88%);
   overflow: visible;
-  padding: 6px 6px 12px 4px;
+  padding: 6px 4px 12px 4px;
 }
 
 #title-screen .title-slot-drawer {
@@ -6350,7 +6471,7 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
   left: calc(22px * var(--ui-inv-scale, 1));
   bottom: calc(16px * var(--ui-inv-scale, 1));
   z-index: 4;
-  font-family: 'BalaclavaPixel', 'BalaclavaSignature', monospace;
+  font-family: 'AbysseaPixel', 'AbysseaSignature', monospace;
   font-size: 19px;
   line-height: 1;
   letter-spacing: 0.3px;
@@ -6387,13 +6508,14 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
   align-items: center;
   justify-content: center;
   gap: 0;
-  border: 2px solid rgba(236, 199, 106, 0.42);
+  border: 1.5px solid rgba(245, 204, 102, 0.36);
   border-image: none !important;
   border-radius: 0;
-  background: rgba(8, 13, 28, 0.55);
+  background: rgba(6, 14, 28, 0.56);
   box-shadow:
-    0 0 0 2px rgba(4, 7, 16, 0.72),
-    0 4px 12px rgba(0, 0, 0, 0.45);
+    0 0 0 2px rgba(4, 8, 18, 0.72),
+    0 4px 12px rgba(0, 0, 0, 0.48);
+  image-rendering: pixelated;
   filter: none;
   transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
 }
@@ -6404,38 +6526,45 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
 }
 
 #title-screen .title-nav-btn.title-sq-btn img.pixel-img {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  margin: 0;
   object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 1px 2px rgba(4, 12, 24, 0.85));
 }
 
 #title-screen .title-nav-btn.title-sq-btn:hover {
   transform: translateY(-2px);
-  background: rgba(16, 26, 52, 0.82);
-  border-color: #ffd54f;
+  background: rgba(12, 26, 48, 0.84);
+  border-color: #f5cc66;
   box-shadow:
-    0 0 0 2px rgba(4, 7, 16, 0.85),
+    0 0 0 2px rgba(4, 8, 18, 0.88),
     0 6px 16px rgba(0, 0, 0, 0.65),
-    0 0 10px rgba(255, 213, 79, 0.25);
+    0 0 10px rgba(245, 204, 102, 0.28);
+}
+
+#title-screen .title-nav-btn.title-sq-btn:hover img.pixel-img {
+  transform: scale(1.06);
 }
 
 #title-screen .title-nav-btn.title-sq-btn:active {
   transform: translateY(1px);
-  background: rgba(10, 16, 32, 0.9);
+  background: rgba(8, 16, 30, 0.92);
 }
 
 #title-screen .title-nav-btn.title-sq-btn.discord {
-  border-color: rgba(96, 165, 250, 0.48);
-  background: rgba(12, 24, 54, 0.58);
+  border-color: rgba(122, 152, 240, 0.44);
+  background: rgba(10, 18, 40, 0.58);
 }
 
 #title-screen .title-nav-btn.title-sq-btn.discord:hover {
-  border-color: #93c5fd;
-  background: rgba(20, 42, 92, 0.85);
+  border-color: #9bb8ff;
+  background: rgba(18, 34, 72, 0.86);
   box-shadow:
-    0 0 0 2px rgba(4, 7, 16, 0.85),
+    0 0 0 2px rgba(4, 8, 18, 0.88),
     0 6px 16px rgba(0, 0, 0, 0.65),
-    0 0 10px rgba(96, 165, 250, 0.32);
+    0 0 10px rgba(122, 152, 240, 0.34);
 }
 
 #title-screen .title-nav-btn.title-sq-btn.discord:active {
@@ -6468,15 +6597,23 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
 }
 
 .credits-game-title {
-  font-family: 'BalaclavaTitlePixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaTitlePixel', 'AbysseaPixel', monospace;
   font-size: 30px;
   color: #ffd54f;
   letter-spacing: 2px;
   text-shadow: 0 3px 0 #1b1106;
 }
 
+.credits-logo-img {
+  width: min(290px, 82%);
+  height: auto;
+  display: block;
+  margin: 0 auto 4px;
+  filter: drop-shadow(0 4px 10px rgba(0, 10, 24, 0.72));
+}
+
 .credits-role {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 19px;
   color: #cfe0f5;
 }
@@ -6500,7 +6637,7 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 17px;
   line-height: 1.35;
   color: rgba(214, 228, 248, 0.90);
@@ -6520,7 +6657,7 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
 
 .quit-msg {
   margin: 0;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 19px;
   line-height: 1.4;
   color: #f4efe6;
@@ -6595,7 +6732,7 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
   border: 1px solid rgba(130, 160, 215, 0.4);
   border-bottom: 2px solid rgba(35, 45, 75, 0.9);
   border-radius: 4px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #ffd875;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -6604,7 +6741,7 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
 }
 
 .ctrl-label {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13.5px;
   color: #e2e8f0;
   text-shadow: 1px 1px 0 #0d1117;
@@ -6739,7 +6876,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   position: relative;
   background: linear-gradient(135deg, #ffd54f 0%, #ffca28 100%);
   color: #0b0f19;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   font-weight: 800;
   padding: 2px 7px;
@@ -6757,7 +6894,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
 }
 
 .tut-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 18px;
   color: #ffeaa7;
   white-space: nowrap;
@@ -6775,7 +6912,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
 }
 
 .tut-counter {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   color: #93c5fd;
   font-weight: bold;
@@ -6786,7 +6923,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 213, 79, 0.35);
   color: #ffd54f;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   line-height: 1;
   width: 22px;
@@ -6813,7 +6950,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
 }
 
 .tut-desc {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 16px;
   color: #f1f5f9;
   line-height: 1.45;
@@ -6827,7 +6964,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   border-bottom-width: 2px;
   border-radius: 4px;
   padding: 1px 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   font-weight: 700;
   color: #38bdf8;
@@ -6855,7 +6992,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
 }
 
 .tut-progress-text {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   color: #80deea;
   text-shadow: 0 1px 2px #000, 1px 1px 0 #000;
@@ -7023,7 +7160,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   background: rgba(9, 13, 24, 0.94);
   border: 2px solid #e8c670;
   box-shadow: 0 0 0 2px #140e07, 0 10px 26px rgba(0, 0, 0, 0.85);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   color: #f6eedb;
   pointer-events: auto;
   image-rendering: pixelated;
@@ -7053,7 +7190,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   background: #2c1e1e;
   color: #ffb8b2;
   border: 1px solid #8a4a45;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   line-height: 1;
   padding: 2px 7px;
@@ -7101,7 +7238,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   border: none;
   outline: none;
   color: #fff8e7;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   line-height: 1.3;
 }
@@ -7126,7 +7263,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   border: 1px solid rgba(208, 178, 114, 0.36);
   border-radius: 6px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-weight: normal;
   color: #f4efe6;
   pointer-events: auto;
@@ -7233,7 +7370,7 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
   border: 1px solid rgba(208, 178, 114, 0.32);
   border-radius: 4px;
   color: #e6ecf8;
-  font-family: 'Segoe UI Symbol', 'BalaclavaPixel', monospace;
+  font-family: 'Segoe UI Symbol', 'AbysseaPixel', monospace;
   font-size: 11px;
   line-height: 1;
   cursor: pointer;
@@ -7285,14 +7422,14 @@ body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
 }
 
 .media-setting-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 15px;
   color: #eef4ff;
   text-shadow: 0 1px 0 #0c1220;
 }
 
 .media-setting-sub {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 11px;
   color: #93accb;
 }
@@ -7337,32 +7474,45 @@ body.photo-mode-active #toast-container {
   pointer-events: none !important;
 }
 
-/* === MAIN MENU SMALL PATCH NOTES BUTTON & BETA 1.2.0 MODAL === */
+/* === MAIN MENU SMALL PATCH NOTES BUTTON (Centered Open Translucent Style) === */
 .title-patch-notes-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  align-self: flex-start;
-  margin-top: 6px;
+  align-self: center;
+  margin-top: 4px;
   padding: 5px 12px 5px 10px;
-  min-height: 30px;
-  background: rgba(10, 18, 38, 0.72);
-  border: 1.5px solid rgba(255, 213, 79, 0.48);
-  box-shadow: 0 0 0 1px rgba(4, 7, 16, 0.78), 0 4px 10px rgba(0, 0, 0, 0.45);
-  color: #f4efe6;
-  font-family: 'BalaclavaPixel', monospace;
+  min-height: 32px;
+  box-sizing: border-box;
+  border: 1px solid rgba(91, 227, 209, 0.28);
+  border-image: none;
+  background: rgba(6, 18, 34, 0.28);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.26);
+  color: #e9f6fc;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 14px;
   letter-spacing: 0.5px;
   cursor: pointer;
   image-rendering: pixelated;
-  transition: transform 0.12s ease, background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+  filter: none;
+  transition: transform 0.12s ease, background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, color 0.12s ease;
+}
+
+.title-patch-notes-btn img.title-patch-ico {
+  width: 22px;
+  height: 22px;
+  margin: -3px -1px -3px -2px;
+  object-fit: contain;
+  image-rendering: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(4, 12, 24, 0.85));
 }
 
 .title-patch-notes-btn:hover {
   transform: translateY(-1px);
-  background: rgba(18, 32, 68, 0.88);
-  border-color: #ffd54f;
-  box-shadow: 0 0 0 1px rgba(4, 7, 16, 0.9), 0 5px 14px rgba(0, 0, 0, 0.65), 0 0 10px rgba(255, 213, 79, 0.28);
+  background: rgba(10, 28, 52, 0.78);
+  border-color: #f5cc66;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.58), 0 0 10px rgba(245, 204, 102, 0.24);
   color: #fff8dc;
 }
 
@@ -7371,17 +7521,17 @@ body.photo-mode-active #toast-container {
 }
 
 .title-patch-notes-label {
-  text-shadow: 1px 1px 0 #050814;
+  text-shadow: 1px 1px 0 #040a18, 0 2px 0 #040a18;
 }
 
 .title-patch-notes-badge {
   padding: 1px 6px;
-  background: rgba(255, 213, 79, 0.18);
-  border: 1px solid rgba(255, 213, 79, 0.55);
-  color: #ffe082;
+  background: rgba(18, 86, 108, 0.38);
+  border: 1px solid rgba(91, 227, 209, 0.52);
+  color: #b4f7ef;
   font-size: 12px;
   line-height: 1.1;
-  text-shadow: 1px 1px 0 #050814;
+  text-shadow: 1px 1px 0 #040a18;
 }
 
 #title-screen.title-entering .title-patch-notes-btn {
@@ -7417,20 +7567,20 @@ body.photo-mode-active #toast-container {
   padding: 2px 8px;
   background: #ffd54f;
   color: #0b0f19;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.6px;
 }
 
 .patch-notes-date {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 15px;
   color: #93c5fd;
 }
 
 .patch-notes-hero-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 20px;
   color: #ffe8a3;
   letter-spacing: 0.6px;
@@ -7439,7 +7589,7 @@ body.photo-mode-active #toast-container {
 }
 
 .patch-notes-hero-sub {
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 16px;
   line-height: 1.4;
   color: #dbe7f5;
@@ -7474,7 +7624,7 @@ body.photo-mode-active #toast-container {
   display: inline-block;
   align-self: flex-start;
   padding: 1px 6px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 11px;
   letter-spacing: 0.6px;
   border: 1px solid currentColor;
@@ -7482,7 +7632,7 @@ body.photo-mode-active #toast-container {
 }
 
 .patch-notes-card-title {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 17px;
   color: #fff6dc;
   letter-spacing: 0.4px;
@@ -7494,7 +7644,7 @@ body.photo-mode-active #toast-container {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-family: 'BalaclavaBodyPixel', 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaBodyPixel', 'AbysseaPixel', monospace;
   font-size: 16px;
   line-height: 1.42;
   color: #e6eef8;
@@ -7534,7 +7684,7 @@ body.photo-mode-active #boss-bar {
 
 .patch-ver-btn {
   padding: 5px 12px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 13px;
   color: #cfe0f5;
   background: rgba(16, 24, 46, 0.88);
@@ -7591,7 +7741,7 @@ body.photo-mode-active #boss-bar {
 }
 
 .relic-detail-name {
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 17px;
   color: #ffe8a3;
   margin-bottom: 3px;
@@ -7655,7 +7805,7 @@ body.photo-mode-active #boss-bar {
   position: absolute;
   right: 3px;
   bottom: 2px;
-  font-family: 'BalaclavaPixel', monospace;
+  font-family: 'AbysseaPixel', monospace;
   font-size: 10px;
   color: #86efac;
   text-shadow: 1px 1px 0 #000;

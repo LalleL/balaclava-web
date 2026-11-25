@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   const SKILL_BRANCHES = [
     { id: 'recoleccion', name: 'Recolección',     fullName: 'Constelación de Recolección y Cultivo', color: '#81c784', icon: 'axe',     angle: -Math.PI / 2 },
@@ -130,7 +130,7 @@
       ['Fuerza de Leñador', 'plank', { chopSpeed: 0.20, dmgBonus: 0.08 }, '+20% velocidad de tala y +8% daño cuerpo a cuerpo.'],
       ['Eco de Cristales', 'magic_crystal', { gemFinder: 0.09, xpBonus: 0.08 }, '+9% hallazgo de cristales mágicos y +8% Experiencia.'],
       ['Espíritu Silvano', 'wool', { doubleDropChance: 0.14, moveSpeed: 0.06 }, '+14% doble recolección y +6% velocidad entre bosques.'],
-      ['Guardián del Jardín', 'balaclava_core', { gatherPower: 0.28, regen: 0.6 }, '+28% rendimiento total de recolección y regeneración natural.'],
+      ['Guardián del Jardín', 'abyssea_core', { gatherPower: 0.28, regen: 0.6 }, '+28% rendimiento total de recolección y regeneración natural.'],
       ['Pico Estelar Profundo', 'crystal', { mineSpeed: 0.25, xpBonus: 0.10 }, '+25% velocidad de minería profunda y +10% Experiencia.'],
       ['Veta Inagotable', 'gold_ore', { extraDrop: 1, luckBonus: 0.10 }, '+1 mineral adicional por veta destruida y +10% suerte.'],
       ['Bendición Agraria', 'crop_tomato', { cropSpeed: 0.30, doubleDropChance: 0.12 }, '+30% velocidad en cultivos y +12% doble cosecha.'],
@@ -164,7 +164,7 @@
       ['Resonancia de Titanio', 'ore_silver', { mineSpeed: 0.30, doubleDropChance: 0.18 }, '+30% velocidad minera en metales de alto tier.'],
       ['Fuego de Oricalco', 'ore_adamantite', { gatherPower: 0.36, gemFinder: 0.16 }, '+36% poder de extracción en vetas míticas.'],
       ['Custodio del Bosque Vivo', 'rune_life', { cropSpeed: 0.40, regen: 0.9 }, '+40% ritmo agrícola y +0.9 HP/s pasivo.'],
-      ['Eón Verde de Balaclava', 'crown_sovereign', { gatherPower: 0.55, doubleDropChance: 0.35, extraDrop: 1 }, 'Pináculo Albion: +55% recolección total y +35% botín doble.'],
+      ['Eón Verde de Abyssea', 'crown_sovereign', { gatherPower: 0.55, doubleDropChance: 0.35, extraDrop: 1 }, 'Pináculo Albion: +55% recolección total y +35% botín doble.'],
       ['Espinas de la Tierra', 'spell_espinas_tierra', { spellPower: 0.14, cropSpeed: 0.35 }, '+14% poder mágico y +35% crecimiento natural de cultivos.'],
       ['Druida del Archipiélago', 'staff_druid', { regen: 1.2, manaSave: 0.12, spellCdRed: 0.10 }, '+1.2 HP/s pasivo, -12% coste de maná y -10% enfriamiento en hechizos.'],
       ['Corazón Botánico Arcano', 'spellbook_nature', { spellPower: 0.18, harvestBonus: 2 }, '+18% poder mágico y +2 frutos adicionales al cosechar.'],
@@ -177,7 +177,7 @@
       ['Bolsillos Profundos', 'gold_ingot', { coinDropBonus: 0.25, invSlotBonus: 5, stackBonus: 10 }, '+25% monedas, +5 ranuras de inventario y +10 de stack máximo.'],
       ['Escrituras Reales', 'key', { landDiscount: 0.18 }, '-18% descuento al comprar nuevas parcelas de terreno.'],
       ['Casa de Tesoros', 'special_ingot', { passiveCoinBonus: 0.25, coinDropBonus: 0.18, invSlotBonus: 10, stackBonus: 15 }, '+25% ingresos bancarios, +10 ranuras de inventario y +15 de stack máximo.'],
-      ['Magnate de Balaclava', 'balaclava_core', { passiveCoinBonus: 0.35, marketDiscount: 0.20, invSlotBonus: 10, stackBonus: 25 }, '+35% ingresos bancarios, -20% Mercado, +10 ranuras de inventario y +25 de stack máximo.'],
+      ['Magnate de Abyssea', 'abyssea_core', { passiveCoinBonus: 0.35, marketDiscount: 0.20, invSlotBonus: 10, stackBonus: 25 }, '+35% ingresos bancarios, -20% Mercado, +10 ranuras de inventario y +25 de stack máximo.'],
       ['Casa de Moneda', 'coin_gold', { coinDropBonus: 0.30, sellBonus: 0.15 }, '+30% oro en botines y +15% ganancia por ventas.'],
       ['Consorcio Dorado', 'gold_ore', { passiveCoinBonus: 0.40, landDiscount: 0.10 }, '+40% generación en Bancos y -10% extra en tierras.'],
       ['Emperador del Archipiélago', 'diamond', { sellBonus: 0.35, passiveCoinBonus: 0.50 }, 'Capstone: +35% valor de venta y +50% rendimiento bancario.'],
@@ -204,7 +204,7 @@
       ['Subasta Real', 'key', { marketDiscount: 0.14, luckBonus: 0.10 }, '-14% descuento en Mercado y +10% botín raro.'],
       ['Tesoro Enterrado', 'sand', { coinDropBonus: 0.22 }, '+22% monedas al excavar brillos y desenterrar secretos.'],
       ['Banca Central', 'steel_ingot', { passiveCoinBonus: 0.30 }, '+30% rendimiento de todas tus bóvedas y caravanas.'],
-      ['Oro Infinito', 'balaclava_core', { coinDropBonus: 0.40, landDiscount: 0.12 }, '+40% monedas mundiales y -12% coste de parcelas.'],
+      ['Oro Infinito', 'abyssea_core', { coinDropBonus: 0.40, landDiscount: 0.12 }, '+40% monedas mundiales y -12% coste de parcelas.'],
       ['Reserva Áurea', 'coin_gold', { passiveCoinBonus: 0.30, sellBonus: 0.15 }, '+30% oro pasivo en bancos y +15% valor comercial.'],
       ['Tesorería Imperial', 'gem_topaz', { coinDropBonus: 0.28, luckBonus: 0.14 }, '+28% monedas en enemigos y +14% suerte en botín.'],
       ['Impuesto Cósmico', 'crown_sovereign', { sellBonus: 0.25, marketDiscount: 0.15 }, '+25% ganancias por ventas y -15% precios en tiendas.'],
@@ -278,7 +278,7 @@
       ['Aura de Espinas', 'cactus', { thorns: 0.25 }, 'Refleja +25% daño adicional a enemigos cuerpo a cuerpo.'],
       ['Pulso Vital', 'stew', { regen: 0.8, killHeal: 4 }, '+0.8 HP/s y +4 HP por cada enemigo abatido.'],
       ['Golpe del Abismo', 'magic_crystal', { critChance: 0.14, bossDmg: 0.18 }, '+14% crítico y +18% contra Jefes.'],
-      ['Ira Legendaria', 'balaclava_core', { dmgBonus: 0.35, attackSpeed: 0.20 }, '+35% daño y +20% velocidad de ataque suprema.'],
+      ['Ira Legendaria', 'abyssea_core', { dmgBonus: 0.35, attackSpeed: 0.20 }, '+35% daño y +20% velocidad de ataque suprema.'],
       ['Espada Solar', 'sword_solar', { dmgBonus: 0.28, lightRadius: 70 }, '+28% daño total y +70 de aura luminosa en combate.'],
       ['Escarcha Cortante', 'sword_frost', { attackSpeed: 0.18, critChance: 0.10 }, '+18% cadencia de golpe y +10% probabilidad crítica.'],
       ['Emboscada Mortal', 'sword_moon', { critChance: 0.16, killHeal: 6 }, '+16% golpe crítico y +6 HP absorbidos al eliminar enemigos.'],
@@ -302,7 +302,7 @@
       ['Sed de Sangre', 'sanguinaria', { killHeal: 10, dmgBonus: 0.20 }, '+10 HP por baja y +20% daño cuerpo a cuerpo.'],
       ['Mira Arcana', 'bow', { critChance: 0.16, attackSpeed: 0.16 }, '+16% golpe crítico y +16% velocidad en arcos y rayos.'],
       ['Corazón Inquebrantable', 'armor_solar', { maxHp: 85, def: 0.14 }, '+85 Vida máxima y +14% reducción de daño.'],
-      ['Apoteosis Marcial', 'balaclava_core', { dmgBonus: 0.50, bossDmg: 0.40, killHeal: 12 }, 'Estrella Final: +50% daño, +40% Jefes y +12 HP por baja.'],
+      ['Apoteosis Marcial', 'abyssea_core', { dmgBonus: 0.50, bossDmg: 0.40, killHeal: 12 }, 'Estrella Final: +50% daño, +40% Jefes y +12 HP por baja.'],
       ['Maestro de Esgrima', 'sword_flame', { attackSpeed: 0.24, dmgBonus: 0.22 }, '+24% velocidad con espadas y +22% daño cuerpo a cuerpo.'],
       ['Tajo Brutal de Hacha', 'axe', { dmgBonus: 0.30, critChance: 0.12 }, '+30% potencia en hachazos y +12% crítico devastador.'],
       ['Escudo Inmortal', 'shield_solar', { def: 0.15, maxHp: 50 }, '+15% defensa física y +50 Vida máxima.'],
@@ -328,7 +328,7 @@
       ['Automatización Suprema', 'ancient_fragment', { machineSpeed: 0.40, freeFuel: true }, '+40% velocidad de producción y carbón auto-sostenido en hornos.'],
       ['Fábrica Modular', 'steel_ingot', { buildDiscount: 0.12, machineSpeed: 0.25 }, '-12% coste de estructuras y +25% velocidad industrial.'],
       ['Alquimia Cuántica', 'magic_crystal', { doubleCraft: 0.25, craftXp: 0.30 }, '+25% doble producción en artesanía y +30% Experiencia de fabricación.'],
-      ['Gran Arquitecto', 'balaclava_core', { machineSpeed: 0.50, doubleCraft: 0.20 }, 'Capstone: +50% velocidad en toda máquina y +20% doble crafteo.'],
+      ['Gran Arquitecto', 'abyssea_core', { machineSpeed: 0.50, doubleCraft: 0.20 }, 'Capstone: +50% velocidad en toda máquina y +20% doble crafteo.'],
 
       ['Cepillado Rápido', 'wood', { craftXp: 0.15, craftSpeed: 0.18 }, '+18% velocidad al fabricar objetos y +15% Experiencia de carpintería.'],
       ['Ladrillo Cocido', 'clay', { buildDiscount: 0.08 }, '-8% materiales al construir hornos y bases.'],
@@ -356,7 +356,7 @@
       ['Yunque Sagrado', 'iron_ingot', { craftSpeed: 0.24, doubleCraft: 0.16 }, '+24% velocidad en forjas y +16% doble producto.'],
       ['Caldera de Vapor', 'coal', { machineSpeed: 0.30, cookSpeed: 0.25 }, '+30% velocidad de máquinas y +25% ritmo culinario.'],
       ['Ingeniería Arcana', 'gear', { buildDiscount: 0.14, xpBonus: 0.12 }, '-14% materiales al construir y +12% Experiencia global.'],
-      ['Forjador Supremo', 'balaclava_core', { machineSpeed: 0.55, doubleCraft: 0.25 }, 'Gran Constelación: +55% ritmo industrial y +25% doble craft.'],
+      ['Forjador Supremo', 'abyssea_core', { machineSpeed: 0.55, doubleCraft: 0.25 }, 'Gran Constelación: +55% ritmo industrial y +25% doble craft.'],
       ['Sello de Ranura Arcana I', 'mana_orb', { enchantSlotBonus: 1, xpBonus: 0.08 }, 'Ranura Arcana: +1 ranura de encantamiento máxima y +8% Experiencia.'],
       ['Grabado Rúnico Fino', 'rune_fire', { craftXp: 0.22, dmgBonus: 0.12 }, '+22% experiencia al forjar e +12% daño mágico.'],
       ['Alambique Dorado', 'potion_elixir', { doubleCraft: 0.20, cookSpeed: 0.20 }, '+20% doble poción/comida y +20% velocidad alquímica.'],
@@ -376,7 +376,7 @@
       ['Automatismo Total', 'golem_core', { machineSpeed: 0.38 }, '+38% velocidad permanente de todas las estructuras.'],
       ['Planos de Obsidiana', 'obsidian_ore', { buildDiscount: 0.16, def: 0.08 }, '-16% materiales en construcciones y +8% defensa.'],
       ['Esencia Sintética', 'candle_arcane', { doubleCraft: 0.26, energySave: 0.14 }, '+26% fabricación doble y -14% gasto de energía.'],
-      ['Omnisciencia Artesanal', 'balaclava_core', { machineSpeed: 0.60, doubleCraft: 0.30 }, 'Estrella Final: +60% velocidad industrial y +30% doble craft.'],
+      ['Omnisciencia Artesanal', 'abyssea_core', { machineSpeed: 0.60, doubleCraft: 0.30 }, 'Estrella Final: +60% velocidad industrial y +30% doble craft.'],
       ['Colas de Forja Eterna', 'anvil', { craftSpeed: 0.35, craftXp: 0.25 }, '+35% velocidad en fabricación de lotes en cola y +25% Experiencia.'],
       ['Horno de Plasma Azul', 'ore_cobalt', { machineSpeed: 0.38, cookSpeed: 0.30 }, '+38% velocidad de hornos y +30% velocidad culinaria.'],
       ['Urbanista Real', 'village_house_red', { buildDiscount: 0.18, regen: 0.6 }, '-18% coste de bloques y edificios de aldea.'],
@@ -402,7 +402,7 @@
       ['Señor del Archipiélago', 'emerald', { xpBonus: 0.30, luckBonus: 0.30, nightVision: 0.45 }, '+30% Experiencia global, +30% suerte y +45% visión nocturna.'],
       ['Navegante Estelar', 'relic_compass', { moveSpeed: 0.18, magnetBonus: 55 }, '+18% velocidad y +55 de radio magnético de recogida.'],
       ['Faro Nocturno', 'relic_lantern', { lightRadius: 120, nightVision: 0.25 }, '+120 de iluminación automática en noches y mazmorras.'],
-      ['Conquistador del Horizonte', 'balaclava_core', { xpBonus: 0.35, moveSpeed: 0.15, luckBonus: 0.25 }, 'Capstone: +35% Experiencia, +15% velocidad y +25% suerte suprema.'],
+      ['Conquistador del Horizonte', 'abyssea_core', { xpBonus: 0.35, moveSpeed: 0.15, luckBonus: 0.25 }, 'Capstone: +35% Experiencia, +15% velocidad y +25% suerte suprema.'],
 
       ['Zancada Ágil', 'berries', { moveSpeed: 0.08 }, '+8% velocidad de desplazamiento por tierra.'],
       ['Pulmones de Hierro', 'potion_spd', { maxEnergy: 20, energyRegen: 0.8 }, '+20 Energía máx y +0.8 energía/s regenerada.'],
@@ -425,8 +425,8 @@
       ['Lector de Runas', 'ancient_fragment', { craftXp: 0.15, xpBonus: 0.15 }, '+15% Experiencia al explorar criptas y encantar equipo.'],
       ['Corredor Infatigable', 'stew', { moveSpeed: 0.12, maxEnergy: 30 }, '+12% velocidad y +30 Energía máxima.'],
       ['Lluvia Estelar', 'diamond', { eventRate: 0.30, luckBonus: 0.15 }, 'Mayor frecuencia de meteoritos y gemas brillantes.'],
-      ['Ojo de Balaclava', 'relic_core', { nightVision: 0.30, lightRadius: 90 }, '+90 de halo de luz y +30% nitidez en oscuridad.'],
-      ['Viajero Eterno', 'balaclava_core', { xpBonus: 0.25, magnetBonus: 80, energySave: 0.15 }, '+25% Experiencia, +80 de alcance de imán y -15% consumo de energía.'],
+      ['Ojo de Abyssea', 'relic_core', { nightVision: 0.30, lightRadius: 90 }, '+90 de halo de luz y +30% nitidez en oscuridad.'],
+      ['Viajero Eterno', 'abyssea_core', { xpBonus: 0.25, magnetBonus: 80, energySave: 0.15 }, '+25% Experiencia, +80 de alcance de imán y -15% consumo de energía.'],
       ['Senda Astral', 'amulet_frost', { moveSpeed: 0.15, energySave: 0.12 }, '+15% velocidad al explorar islas y -12% consumo de energía.'],
       ['Horizonte Dorado', 'treasure_map_extra', { luckBonus: 0.20, magnetBonus: 65 }, '+20% suerte de cofres y +65 de alcance de imán de recogida.'],
       ['Instinto Subterráneo', 'key_crimson', { bossDmg: 0.18, lightRadius: 90 }, '+18% daño a jefes de mazmorra y +90 de halo de luz.'],
@@ -450,7 +450,7 @@
       ['Fuerza de las Mareas', 'rune_water', { luckBonus: 0.18, energyRegen: 1.1 }, '+18% suerte pesquera/marina y +1.1 energía/s.'],
       ['Corazón Errante', 'food_espresso', { maxEnergy: 40, energySave: 0.16 }, '+40 Energía máxima y -16% fatiga de herramientas.'],
       ['Aura Luminosa Eterna', 'sun', { lightRadius: 150, moveSpeed: 0.12 }, '+150 de aura solar nocturna y +12% velocidad.'],
-      ['Señor de las Constelaciones', 'balaclava_core', { xpBonus: 0.40, luckBonus: 0.35, magnetBonus: 120 }, 'Estrella Final: +40% Experiencia, +35% Suerte y +120 de alcance de imán.'],
+      ['Señor de las Constelaciones', 'abyssea_core', { xpBonus: 0.40, luckBonus: 0.35, magnetBonus: 120 }, 'Estrella Final: +40% Experiencia, +35% Suerte y +120 de alcance de imán.'],
       ['Pionero de Islas', 'village_grass_turf', { moveSpeed: 0.16, landDiscount: 0.12 }, '+16% velocidad de exploración y -12% expansión.'],
       ['Descifrador de Acertijos', 'rune_pillar', { luckBonus: 0.25, xpBonus: 0.24 }, '+25% fortuna en puzles de islas secretas y +24% Experiencia.'],
       ['Brújula de Criptas', 'compass', { bossDmg: 0.20, lightRadius: 120 }, '+20% daño en mazmorras y +120 unidades iluminación subterránea.'],
@@ -759,8 +759,8 @@
     }
   };
 
-  Balaclava.SKILL_BRANCHES = SKILL_BRANCHES;
-  Balaclava.SKILLS = SKILLS;
-  Balaclava.SPELLS = SPELLS;
-  Balaclava.SKILL_CONSTELLATION_SIZE = { width: 2840, height: 2440, cx: CX, cy: CY };
+  Abyssea.SKILL_BRANCHES = SKILL_BRANCHES;
+  Abyssea.SKILLS = SKILLS;
+  Abyssea.SPELLS = SPELLS;
+  Abyssea.SKILL_CONSTELLATION_SIZE = { width: 2840, height: 2440, cx: CX, cy: CY };
 })();

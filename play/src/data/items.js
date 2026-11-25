@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   // Complete item, resource, crop, fish, food, equipment & relic catalog.
   const ITEMS = {
@@ -153,7 +153,7 @@
     fragmentos_antiguos: {
       id: 'fragmentos_antiguos', name: 'Fragmentos antiguos', category: 'especiales', rarity: 'legendario',
       sellValue: 120, buyValue: 300, source: 'Mazmorras, jefes, ruinas y tesoros enterrados',
-      uses: 'Tecnologías finales, artefactos y el Corazón de Balaclava',
+      uses: 'Tecnologías finales, artefactos y el Corazón de Abyssea',
       desc: 'Pieza rúnica de la civilización que forjó el archipiélago.',
       icon: 'ancient_fragment'
     },
@@ -738,7 +738,7 @@
       id: 'armadura_cuero', name: 'Capa de Explorador (T1)', category: 'equipamiento', rarity: 'comun', tier: 1,
       sellValue: 45, buyValue: 110, source: 'Telar / Mano (Cuero + Tela)',
       uses: 'Equipa en Armadura (Tier 1): +4 Defensa y +15 Vida Máx',
-      desc: 'Abrigo clásico de los viajeros de Balaclava.',
+      desc: 'Abrigo clásico de los viajeros de Abyssea.',
       equipSlot: 'armor', stats: { def: 4, maxHp: 15 }, icon: 'armor_leather'
     },
     armadura_hierro: {
@@ -763,7 +763,7 @@
       equipSlot: 'armor', stats: { def: 30, maxHp: 115, dmgPct: 0.12 }, icon: 'armor_crystal'
     },
     armadura_volcanica: {
-      id: 'armadura_volcanica', name: 'Manto de Balaclava (T21)', category: 'equipamiento', rarity: 'legendario', tier: 21,
+      id: 'armadura_volcanica', name: 'Manto de Abyssea (T21)', category: 'equipamiento', rarity: 'legendario', tier: 21,
       sellValue: 960, buyValue: 2150, source: 'Forja Legendaria (Armadura Abismal + Lingote Celestial)',
       uses: 'Equipa en Armadura (Tier 21): +114 Defensa, +510 Vida Máx, +40% Daño, +20% Vel. y +3.0 HP/s',
       desc: 'Reliquia suprema tejida con platamaldita, dragón y fuego ancestral.',
@@ -790,12 +790,12 @@
       desc: 'Llave grabada con glifos de las islas perdidas.',
       icon: 'key'
     },
-    nucleo_balaclava: {
-      id: 'nucleo_balaclava', name: 'Corazón de Balaclava', category: 'especiales', rarity: 'legendario',
+    nucleo_abyssea: {
+      id: 'nucleo_abyssea', name: 'Corazón de Abyssea', category: 'especiales', rarity: 'legendario',
       sellValue: 1500, buyValue: 9999, source: 'Completar las 5 Mazmorras y forjar la Reliquia Final',
       uses: 'Restaura la armonía del archipiélago y desbloquea el modo Infinito Dorado',
       desc: 'El artefacto legendario que unifica los cinco biomas del mundo.',
-      icon: 'balaclava_core'
+      icon: 'abyssea_core'
     },
 
     // =========================================================
@@ -1146,7 +1146,7 @@
     escamas_dragon: {
       id: 'escamas_dragon', name: 'Escama Dracónica', category: 'monstruo', rarity: 'legendario',
       sellValue: 120, buyValue: 270, source: 'Jefes elementales y cavernas profundas',
-      uses: 'Forja de Casco/Coraza de Balaclava', desc: 'Placa impenetrable refractaria al fuego y hielo.', icon: 'scale_red'
+      uses: 'Forja de Corona/Manto de Abyssea', desc: 'Placa impenetrable refractaria al fuego y hielo.', icon: 'scale_red'
     },
     bomba_mina: {
       id: 'bomba_mina', name: 'Bomba Minera', category: 'especiales', rarity: 'raro',
@@ -1204,8 +1204,8 @@
       uses: 'Equipa en Casco (Tier 9): +18 Defensa, +72 Vida Máx y +10% Velocidad', desc: 'Yelmo encantado de visión clara.',
       equipSlot: 'helm', stats: { def: 18, maxHp: 72, speedPct: 0.10 }, icon: 'helm_crystal'
     },
-    casco_balaclava: {
-      id: 'casco_balaclava', name: 'Capucha Real de Balaclava (T21)', category: 'equipamiento', rarity: 'legendario', tier: 21,
+    casco_abyssea: {
+      id: 'casco_abyssea', name: 'Corona Real de Abyssea (T21)', category: 'equipamiento', rarity: 'legendario', tier: 21,
       sellValue: 780, buyValue: 1750, source: 'Forja Legendaria (Yelmo Óseo + Lingote Celestial)',
       uses: 'Equipa en Casco (Tier 21): +72 Defensa, +300 Vida Máx, +28% Daño y +20% Crítico', desc: 'Emblema supremo de los guardianes del archipiélago.',
       equipSlot: 'helm', stats: { def: 72, maxHp: 300, dmgPct: 0.28, critBonus: 0.20 }, icon: 'helm_legend'
@@ -1524,7 +1524,7 @@
       desc: 'Picante explosivo que enciende el espíritu de lucha.', icon: 'taco_picante'
     },
     banquete_real: {
-      id: 'banquete_real', name: 'Banquete Real de Balaclava', category: 'comida', rarity: 'legendario',
+      id: 'banquete_real', name: 'Banquete Real de Abyssea', category: 'comida', rarity: 'legendario',
       sellValue: 160, buyValue: 360, healHp: 150, healEnergy: 150,
       source: 'Cocina Maestra (Filete + Pastel + Manzana Dorada)', uses: 'Restaura completamente +150 HP y +150 Energía',
       desc: 'Plato legendario digno de los conquistadores del archipiélago.', icon: 'banquete_real'
@@ -1615,7 +1615,7 @@
     },
     armadura_celestial: {
       id: 'armadura_celestial', name: 'Armadura del Sol Astral (T22)', category: 'equipamiento', rarity: 'legendario', tier: 22,
-      sellValue: 1250, buyValue: 2800, source: 'Forja Maestra (Manto de Balaclava + Aleación Celestial)',
+      sellValue: 1250, buyValue: 2800, source: 'Forja Maestra (Manto de Abyssea + Aleación Celestial)',
       uses: 'Equipa en Armadura (Tier 22): +128 Defensa, +580 Vida Máx, +45% Daño, +22% Vel. y +3.6 HP/s', desc: 'Reliquia bélica suprema forjada para conquistar el Abismo.',
       equipSlot: 'armor', stats: { def: 128, maxHp: 580, dmgPct: 0.45, speedPct: 0.22, regen: 3.6 }, icon: 'armor_solar'
     },
@@ -1884,7 +1884,7 @@
     },
     casco_solar: {
       id: 'casco_solar', name: 'Yelmo del Sol Astral (T22)', category: 'equipamiento', rarity: 'legendario', tier: 22,
-      sellValue: 950, buyValue: 2150, source: 'Forja Suprema (Capucha Balaclava + Aleación Celestial)', uses: 'Equipa en Casco (Tier 22): +82 Defensa, +345 Vida, +34% Daño, +23% crítico y luz',
+      sellValue: 950, buyValue: 2150, source: 'Forja Suprema (Corona de Abyssea + Aleación Celestial)', uses: 'Equipa en Casco (Tier 22): +82 Defensa, +345 Vida, +34% Daño, +23% crítico y luz',
       desc: 'Corona dorada que ilumina la noche eternamente.', icon: 'helm_solar',
       equipSlot: 'helm', stats: { def: 82, maxHp: 345, dmgPct: 0.34, critBonus: 0.23, lightRadius: 160 }
     },
@@ -1945,7 +1945,7 @@
     amuleto_diamante: {
       id: 'amuleto_diamante', name: 'Medallón de Diamante Solar', category: 'equipamiento', rarity: 'legendario',
       sellValue: 295, buyValue: 690, source: 'Investigación Real', uses: 'Equípalo para +30% Monedas, +25% Suerte y +90 de alcance de imán',
-      desc: 'Emblema reservado para los grandes exploradores de Balaclava.', icon: 'amulet_diamond',
+      desc: 'Emblema reservado para los grandes exploradores de Abyssea.', icon: 'amulet_diamond',
       equipSlot: 'amulet', bonus: { coinDropBonus: 0.30, luckBonus: 0.25, magnetBonus: 90 }
     },
 
@@ -1996,7 +1996,7 @@
       spellEffect: 'return_home'
     },
     elixir_supremo: {
-      id: 'elixir_supremo', name: 'Elixir Inmortal de Balaclava', category: 'pociones', rarity: 'legendario',
+      id: 'elixir_supremo', name: 'Elixir Inmortal de Abyssea', category: 'pociones', rarity: 'legendario',
       sellValue: 135, buyValue: 310, source: 'Alquimia Real', uses: 'Cura +160 HP, +100 Energía y potencia daño +35% 90s',
       desc: 'Frasco dorado destilado con polvo estelar y miel real.', icon: 'potion_elixir',
       healHp: 160, healEnergy: 100, buff: { type: 'dmg', mult: 1.35, duration: 90 }
@@ -2541,7 +2541,7 @@
       id: 'armadura_omega', name: 'Coraza Omega del Vacío (T23)', category: 'equipamiento', rarity: 'legendario', tier: 23,
       sellValue: 4200, buyValue: 0, source: 'Yunque Rúnico (Armadura Celestial T22 + Lingote Omega + Singularidad)',
       uses: 'Equipa en Armadura (Tier 23 Definitivo): +175 Defensa, +850 Vida Máx, +58% Daño, +28% Vel. y +5.5 HP/s',
-      desc: 'La armadura más poderosa de Balaclava, forjada en horizontes de sucesos para conquistar todo el Abismo.',
+      desc: 'La armadura más poderosa de Abyssea, forjada en horizontes de sucesos para conquistar todo el Abismo.',
       equipSlot: 'armor', stats: { def: 175, maxHp: 850, dmgPct: 0.58, speedPct: 0.28, regen: 5.5 }, icon: 'armadura_omega'
     },
     pantalones_omega: {
@@ -2583,7 +2583,7 @@
       id: 'hoja_singularidad', name: 'Hoja de la Singularidad (T23)', category: 'equipamiento', rarity: 'legendario', tier: 23,
       sellValue: 4500, buyValue: 0, source: 'Yunque Rúnico (Lingote Omega + Singularidad + Materia Comprimida)',
       uses: 'Espada definitiva Tier 23: 235 daño, corte cósmico amplio y +34% Crítico',
-      desc: 'El arma suprema de Balaclava: desgarra la realidad en cada estocada.',
+      desc: 'El arma suprema de Abyssea: desgarra la realidad en cada estocada.',
       isSpecialBlade: true,
       weaponMelee: { dmg: 235, range: 124, speed: 0.20, arcColor: '#e040fb', critBonus: 0.34, cleave: true, archetype: 'sword' },
       bladeStats: { dmg: 235, range: 124, arcColor: '#e040fb', cooldown: 0.20 },
@@ -2715,8 +2715,99 @@
     espada_eclipse:  { id:'espada_eclipse',  name: 'Espada del Eclipse Carmesí (T20)', category: 'equipamiento', rarity: 'legendario', tier: 20, sellValue: 1120, buyValue: 2500, source: 'Jefe Final / Yunque Rúnico Supremo', uses: 'Espada mítica T20 (148 daño, gran onda carmesí)', desc: 'Réplica forjada con el poder del Espadachín Carmesí Abisal (inferior a la Hoja de la Singularidad T23).', isSpecialBlade: true, weaponMelee: { dmg: 148, range: 110, speed: 0.24, arcColor: '#ff1744', critBonus: 0.22, cleave: true, archetype: 'sword' }, bladeStats: { dmg: 148, range: 110, arcColor: '#ff1744', cooldown: 0.24 }, icon: 'wep_eclipse_blade' },
     guadana_necro:   { id:'guadana_necro',   name: 'Segadora de la Necrópolis (T20)', category: 'equipamiento', rarity: 'legendario', tier: 20, sellValue: 960, buyValue: 2150, source: 'Yunque Rúnico Supremo', uses: 'Guadaña de hueso fósil (138 daño, tajo amplio)', desc: 'Cosecha espíritus antiguos con filo espectral.', weaponMelee: { dmg: 138, range: 105, speed: 0.25, arcColor: '#ce93d8', cleave: true, critBonus: 0.20, archetype: 'sword' }, icon: 'wep_necro_scythe' },
     baculo_necro:    { id:'baculo_necro',    name: 'Cetro del Liche Soberano (T20)', category: 'equipamiento', rarity: 'legendario', tier: 20, sellValue: 990, buyValue: 2220, source: 'Hechicería Suprema', uses: 'Báculo abisal (106 daño en racimo sombrío)', desc: 'Invoca descargas violetas que consumen escudos.', isStaffWeapon: true, staffStats: { dmg: 106, speed: 635, range: 510, cooldown: 0.25, energyCost: 7.5, color: '#ce93d8', aoeRadius: 80, burnDmg: 20, staffMode: 'archmage_cluster', vfxKey: 'sp_stylized_explosion_violet' }, icon: 'wep_necro_staff' },
-    arco_fenix_abisal:{ id:'arco_fenix_abisal', name: 'Arco Fénix del Ocaso (T20)', category: 'equipamiento', rarity: 'legendario', tier: 20, sellValue: 970, buyValue: 2180, source: 'Yunque Rúnico Supremo', uses: 'Arco legendario T20 (108 daño, perfora 4)', desc: 'Flechas envueltas en fuego carmesí de la frontera abisal.', isRangedWeapon: true, rangedStats: { dmg: 108, speed: 850, range: 560, cooldown: 0.25, color: '#ff5252', pierce: 4 }, icon: 'wep_phoenix_bow' }
+    arco_fenix_abisal:{ id:'arco_fenix_abisal', name: 'Arco Fénix del Ocaso (T20)', category: 'equipamiento', rarity: 'legendario', tier: 20, sellValue: 970, buyValue: 2180, source: 'Yunque Rúnico Supremo', uses: 'Arco legendario T20 (108 daño, perfora 4)', desc: 'Flechas envueltas en fuego carmesí de la frontera abisal.', isRangedWeapon: true, rangedStats: { dmg: 108, speed: 850, range: 560, cooldown: 0.25, color: '#ff5252', pierce: 4 }, icon: 'wep_phoenix_bow' },
+
+    // =========================================================
+    // BETA 2.0.0 RC2 — NUEVOS OBJETOS, HERRAMIENTAS Y MASCOTAS
+    // =========================================================
+    trigo_dorado: {
+      id: 'trigo_dorado', name: 'Trigo Dorado Real', category: 'alimentos', rarity: 'raro',
+      sellValue: 54, buyValue: 120, source: 'Cultivos abonados con Fertilizante de Alta Calidad',
+      uses: 'Restaura +48 HP, +65 Energía y +25% Suerte 60s o cocina Banquetes Reales',
+      desc: 'Espiga luminosa cosechada únicamente en tierra enriquecida.',
+      edible: { hp: 48, energy: 65, luckBoost: 60 }, icon: 'trigo_dorado'
+    },
+    cetro_traslado: {
+      id: 'cetro_traslado', name: 'Cetro de Traslado Arquitectónico', category: 'especiales', rarity: 'epico',
+      sellValue: 240, buyValue: 540, relocatorTool: true,
+      source: 'Taller Mecánico / Mesa de Hechicería',
+      uses: 'Úsalo para recoger y reubicar edificios propios, Altares y Portales de Mazmorra en cualquier isla desbloqueada',
+      desc: 'Herramienta rúnica reutilizable capaz de mover estructuras enteras sin perder su contenido.',
+      icon: 'cetro_traslado'
+    },
+    ficha_gremio: {
+      id: 'ficha_gremio', name: 'Ficha de Gremio Real', category: 'especiales', rarity: 'epico',
+      sellValue: 75, buyValue: 0,
+      source: 'Contratos Semanales y Desafíos del Gremio (Tecla X)',
+      uses: 'Moneda exclusiva de la Tienda del Gremio: canjea cosméticos de Hana, planos y Catalizadores de Reforja',
+      desc: 'Medallón sellado por el Consejo de Exploradores de Abyssea.',
+      icon: 'ficha_gremio'
+    },
+    catalizador_reforja: {
+      id: 'catalizador_reforja', name: 'Catalizador de Reforja Astral', category: 'especiales', rarity: 'legendario',
+      sellValue: 260, buyValue: 620,
+      source: 'Yunque Rúnico / Tienda del Gremio / Barco Fantasma',
+      uses: 'En el Yunque de Reforja: garantiza tirada Épica+ o preserva la rareza Legendaria/Singular al mejorar Tier de herramienta',
+      desc: 'Prisma alquímico que estabiliza encantamientos y rarezas supremas.',
+      icon: 'catalizador_reforja'
+    },
+    esencia_lunar: {
+      id: 'esencia_lunar', name: 'Esencia Lunar de Sangre', category: 'materiales', rarity: 'epico',
+      sellValue: 92, buyValue: 210,
+      source: 'Enemigos nocturnos durante Luna de Sangre y Eclipse Astral',
+      uses: 'Altar de Ofrendas, Catalizadores de Reforja y sellos de Mascotas Astrales',
+      desc: 'Lágrima luminiscente condensada bajo lunas arcanas.',
+      icon: 'esencia_lunar'
+    },
+    perla_leviatan: {
+      id: 'perla_leviatan', name: 'Perla del Leviatán Abisal', category: 'especiales', rarity: 'legendario',
+      sellValue: 340, buyValue: 760,
+      source: 'Jefe Marino Leviatán / Remolinos de Pesca Profunda',
+      uses: 'Invoca mascotas marinas, mejora Balizas de Teletransporte o véndela al Barco Fantasma (2x)',
+      desc: 'Orbe oceánico que palpita con corrientes de las fosas profundas.',
+      icon: 'perla_leviatan'
+    },
+    pet_limo_dorado: {
+      id: 'pet_limo_dorado', name: 'Sello de Mascota: Limo Dorado', category: 'especiales', rarity: 'raro',
+      sellValue: 180, buyValue: 420, unlockPetId: 'limo_dorado',
+      source: 'Artesanía / Tienda del Gremio / Jefes de Pradera',
+      uses: 'Úsalo para desbloquear al Limo Dorado (Recolector automático de botín y +12% Monedas)',
+      desc: 'Un compañero gelatinoso reluciente que recoge drops y orbes XP a tu alrededor.',
+      icon: 'pet_limo_dorado'
+    },
+    pet_cangrejo_coral: {
+      id: 'pet_cangrejo_coral', name: 'Sello de Mascota: Cangrejo Coralino', category: 'especiales', rarity: 'epico',
+      sellValue: 220, buyValue: 500, unlockPetId: 'cangrejo_coral',
+      source: 'Acuario (3+ peces) / Artesanía Costera',
+      uses: 'Úsalo para desbloquear al Cangrejo Coralino (Recolector amplio y +15% Recolección/Pesca)',
+      desc: 'Crustáceo fiel del arrecife que acelera la recolección y recoge materiales cercanos.',
+      icon: 'pet_cangrejo_coral'
+    },
+    pet_buho_astral: {
+      id: 'pet_buho_astral', name: 'Sello de Mascota: Búho Astral', category: 'especiales', rarity: 'epico',
+      sellValue: 280, buyValue: 640, unlockPetId: 'buho_astral',
+      source: 'Alquimia Lunar / Mazmorras',
+      uses: 'Úsalo para desbloquear al Búho Astral (Asistente de Combate: dispara proyectiles arcanos que ralentizan)',
+      desc: 'Ave estelar silenciosa que vigila tus espaldas lanzando destellos congelantes.',
+      icon: 'pet_buho_astral'
+    },
+    pet_espiritu_igneo: {
+      id: 'pet_espiritu_igneo', name: 'Sello de Mascota: Espíritu Ígneo', category: 'especiales', rarity: 'legendario',
+      sellValue: 340, buyValue: 780, unlockPetId: 'espiritu_igneo',
+      source: 'Forja Volcánica / Mazmorras de Fuego',
+      uses: 'Úsalo para desbloquear al Espíritu Ígneo (Asistente de Combate: dispara llamas rastreadoras con quemadura y +10% Daño)',
+      desc: 'Llama viva leal forjada a partir de núcleos de magma.',
+      icon: 'pet_espiritu_igneo'
+    },
+    pet_pez_linterna: {
+      id: 'pet_pez_linterna', name: 'Sello de Mascota: Pez Linterna Abisal', category: 'especiales', rarity: 'legendario',
+      sellValue: 360, buyValue: 820, unlockPetId: 'pez_linterna',
+      source: 'Jefe Marino Leviatán / Acuario (6+ peces)',
+      uses: 'Úsalo para desbloquear al Pez Linterna Abisal (Luminaria: ilumina cuevas/mazmorras y +20% Suerte)',
+      desc: 'Flota junto a Hana proyectando un aura bioluminiscente que atrae botín raro.',
+      icon: 'pet_pez_linterna'
+    }
   };
 
-  Balaclava.ITEMS = ITEMS;
+  Abyssea.ITEMS = ITEMS;
 })();

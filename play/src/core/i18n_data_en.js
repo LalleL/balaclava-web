@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
-  const EN = (Balaclava.I18N_DATA_EN = {
+  const EN = (Abyssea.I18N_DATA_EN = {
     biomes: {
       pradera: {
         name: 'Emerald Meadow',
@@ -266,7 +266,11 @@
       mesa_hechiceria: { name: 'Sorcery Table', desc: 'Inscribes active spell grimoires, elemental staves, wands, and archmage hats.' },
       yunque_runico: { name: 'Runic Anvil', desc: 'Forges specialized weapons (daggers, greatswords, halberds, maces, crossbows), paladin armor, and master keys.' },
       observatorio_astral: { name: 'Astral Observatory', desc: 'Starlit dome radiating +25% nearby XP, +10% Spell Power, and condensing stardust.' },
-      torre_rayos: { name: 'Arcane Tesla Tower', desc: 'Automated defense tower unleashing chain lightning on enemies nearing your islands.' }
+      torre_rayos: { name: 'Arcane Tesla Tower', desc: 'Automated defense tower unleashing chain lightning on enemies nearing your islands.' },
+      portal_acuario: { name: 'Dimensional Aquarium Portal', desc: 'Gateway into your aquatic sanctuary where exhibited fish grant permanent passive bonuses.' },
+      mesa_reforja: { name: 'Reforging Table', desc: 'Re-rolls gear rarity on tools, armor, and all 62 weapons, with optional Rarity Preservation.' },
+      salon_trofeos: { name: 'Trophy Hall & Museum', desc: 'Donate fish, rare materials, and boss drops to unlock permanent archipelago-wide milestones.' },
+      baliza_teletransporte: { name: 'Archipelago Teleport Beacon', desc: 'Enables instant fast travel to this island directly from the World Map.' }
     },
 
     toolEnchants: {
@@ -532,7 +536,7 @@
     story: {
       cap_1: {
         title: 'I. Awakening on Zero Island',
-        lore: 'You awaken wearing your Balaclava hood on a tiny island. The surrounding waters hide ancient bridges, and legend speaks of five biomes shattered by the Runic Collapse.',
+        lore: 'You awaken clad in your voyager cloak on a tiny island of Abyssea. The surrounding waters hide ancient bridges, and legend speaks of five biomes shattered by the Runic Collapse.',
         objective: 'Gather wood and stone, and build your first Furnace or Market.',
         progressLabels: ['Resources', 'Structures']
       },
@@ -592,15 +596,15 @@
       },
       cap_11: {
         title: 'XI. Summit of Fire and Ice',
-        lore: 'Conquer 10 Dungeons of the expanded archipelago. Gather the ancestral seals of every biome to forge the Heart of Balaclava.',
+        lore: 'Conquer 10 Dungeons of the expanded archipelago. Gather the ancestral seals of every biome to forge the Heart of Abyssea.',
         objective: 'Complete 10 Dungeons across the world.',
         progressLabels: ['Dungeons']
       },
       cap_12: {
-        title: 'XII. The Heart of Balaclava',
-        lore: 'Inside your Research Center or Laboratory awaits the final synthesis. Rebuild the Heart of Balaclava and restore the archipelago.',
-        objective: 'Craft the Heart of Balaclava and consecrate the world.',
-        progressLabels: ['Heart of Balaclava']
+        title: 'XII. The Heart of Abyssea',
+        lore: 'Inside your Research Center or Laboratory awaits the final synthesis. Rebuild the Heart of Abyssea and restore the archipelago.',
+        objective: 'Craft the Heart of Abyssea and consecrate the world.',
+        progressLabels: ['Heart of Abyssea']
       },
       cap_13: {
         title: 'XIII. Runic Awakening',
@@ -622,7 +626,7 @@
       },
       cap_16: {
         title: 'XVI. Celestial Sovereign',
-        lore: 'Only one who masters astral forging, cosmic alchemy, and constellations deserves to rule Balaclava.',
+        lore: 'Only one who masters astral forging, cosmic alchemy, and constellations deserves to rule Abyssea.',
         objective: 'Forge a Celestial tool and unlock 75 constellations in the Skill Tree.',
         progressLabels: ['Celestial tool', 'Star Skills']
       },
@@ -656,7 +660,7 @@
       eldrin: {
         name: 'Eldrin the Cartographer',
         personality: 'Wise, patient, and fascinated by the forgotten history of the islands.',
-        greeting: 'Ah, bearer of the Balaclava! These islands drift atop the remnants of an ancient realm. Every coin and every harvest breathes life back into the archipelago.',
+        greeting: 'Ah, voyager of Abyssea! These islands drift atop the remnants of an ancient realm. Every coin and every harvest breathes life back into the archipelago.',
         quests: {
           q_eldrin_1: { title: 'First Supplies', desc: 'Bring me 28 Wood, 24 Stone, and 12 Plant Fiber to restore the cartography tower.' },
           q_eldrin_2: { title: 'Cartographer\'s Garden', desc: 'Deliver 14 Wheat, 10 Juicy Tomatoes, and 6 Carrots harvested from your fields.' },
@@ -709,7 +713,7 @@
       ignis: {
         name: 'Ignis the Ash Warden',
         personality: 'Solemn ancient protector of the volcanic seal and primordial flames.',
-        greeting: 'You have come far, traveler. Within this crater burns the original spark of Balaclava. Only the worthy conquer the Abyss.',
+        greeting: 'You have come far, traveler. Within this crater burns the original spark of Abyssea. Only the worthy conquer the Abyss.',
         quests: {
           q_ignis_1: { title: 'Trial of Obsidian', desc: 'Gather 16 Fiery Obsidian, 8 Diamonds, and 8 Sulfur.' },
           q_ignis_2: { title: 'Volcanic Hunt', desc: 'Defeat 30 enemies in the Volcanic Lands.' },
@@ -805,7 +809,7 @@
       gc_pearls_4: { cat: 'Farming & Fishing', title: 'Pearl Diver', desc: 'Obtain 4 Sea Pearls or Aquamarines.' },
       gc_honey_30: { cat: 'Farming & Fishing', title: 'Royal Beekeeper', desc: 'Gather 30 jars of Honey or Beeswax.' },
       gc_wool_milk: { cat: 'Farming & Fishing', title: 'Prosperous Rancher', desc: 'Collect 35 units of Wool, Milk, or Eggs.' },
-      gc_craft_200: { cat: 'Forging & Trade', title: 'Balaclava Industry', desc: 'Craft 200 items at workstations.' },
+      gc_craft_200: { cat: 'Forging & Trade', title: 'Abyssea Industry', desc: 'Craft 200 items at workstations.' },
       gc_mint_500: { cat: 'Forging & Trade', title: 'Royal Coin Mint', desc: 'Mint 500 coins from metal ingots.' },
       gc_coins_5000: { cat: 'Forging & Trade', title: 'Overflowing Coffers', desc: 'Earn a cumulative 5,000 coins.' },
       gc_coins_15000: { cat: 'Forging & Trade', title: 'Grand Banker', desc: 'Earn a cumulative 15,000 coins.' },
@@ -815,7 +819,7 @@
       gc_celestial_tool: { cat: 'Forging & Trade', title: 'Forge of the Gods', desc: 'Raise at least 1 tool to Celestial tier.' },
       gc_armor_set: { cat: 'Forging & Trade', title: 'Full Panoply', desc: 'Equip Helm, Armor, Shield, Boots, Ring, and Amulet.' },
       gc_enchant_5: { cat: 'Forging & Trade', title: 'Master Runographer', desc: 'Inscribe 5 total enchantment levels.' },
-      gc_kill_200: { cat: 'Combat & Dungeons', title: 'Balaclava Crusader', desc: 'Defeat 200 hostile enemies.' },
+      gc_kill_200: { cat: 'Combat & Dungeons', title: 'Abyssea Crusader', desc: 'Defeat 200 hostile enemies.' },
       gc_kill_500: { cat: 'Combat & Dungeons', title: 'Unstoppable Legend', desc: 'Defeat 500 archipelago creatures.' },
       gc_dung_10: { cat: 'Combat & Dungeons', title: 'Lord of Ten Crypts', desc: 'Conquer 10 World Dungeons.' },
       gc_relics_7: { cat: 'Combat & Dungeons', title: 'Relic Custodian', desc: 'Obtain 7 Permanent Boss Relics.' },
@@ -831,7 +835,7 @@
       gc_spells_6: { cat: 'Exploration & Magic', title: 'Budding Archmage', desc: 'Learn 6 distinct active Spells from grimoires.' },
       gc_spells_12: { cat: 'Exploration & Magic', title: 'Complete Supreme Grimoire', desc: 'Learn all 12 Active Spells of the Archipelago.' },
       gc_dung_15: { cat: 'Combat & Dungeons', title: 'Scourge of Fifteen Crypts', desc: 'Conquer 15 distinct Dungeons.' },
-      gc_dung_24: { cat: 'Combat & Dungeons', title: 'Sovereign of All 24 Dungeons', desc: 'Conquer ALL 24 Dungeons in Balaclava.' },
+      gc_dung_24: { cat: 'Combat & Dungeons', title: 'Sovereign of All 24 Dungeons', desc: 'Conquer ALL 24 Dungeons in Abyssea.' },
       gc_relics_18: { cat: 'Combat & Dungeons', title: 'Grand Pantheon Custodian', desc: 'Collect 18 Permanent Relics.' },
       gc_relics_30: { cat: 'Combat & Dungeons', title: 'Eternal Reliquary Master', desc: 'Collect at least 30 Permanent Relics.' }
     },
@@ -844,18 +848,18 @@
       ach_tycoon: { name: 'Golden Emperor', desc: 'Accumulate 10,000 coins in total.' },
       ach_explorer_5: { name: 'Cartographer', desc: 'Unlock 5 world plots.' },
       ach_explorer_15: { name: 'Master of the Sea', desc: 'Unlock 20 world plots.' },
-      ach_explorer_all: { name: 'Complete World', desc: 'Unlock all 100 plots of Balaclava.' },
+      ach_explorer_all: { name: 'Complete World', desc: 'Unlock all 100 plots of Abyssea.' },
       ach_farmer: { name: 'Green Thumb', desc: 'Harvest 15 farm crops.' },
       ach_angler: { name: 'Patient Angler', desc: 'Catch 10 fish or marine treasures.' },
       ach_slayer: { name: 'Defender of the Isles', desc: 'Defeat 25 enemies.' },
       ach_boss_1: { name: 'Boss Slayer', desc: 'Defeat your first Dungeon Boss.' },
       ach_boss_5: { name: 'Crypt Conqueror', desc: 'Clear 5 distinct Dungeons.' },
-      ach_boss_10: { name: 'Absolute Legend of Balaclava', desc: 'Clear 10 Dungeons across the archipelago.' },
+      ach_boss_10: { name: 'Absolute Legend of Abyssea', desc: 'Clear 10 Dungeons across the archipelago.' },
       ach_crafter: { name: 'Master Artisan', desc: 'Craft 30 items at tables or stations.' },
       ach_level_10: { name: 'Level 10 Veteran', desc: 'Reach character level 10.' },
       ach_legend_tool: { name: 'Supreme Forge', desc: 'Upgrade any tool to Legendary or Celestial tier.' },
       ach_meteor: { name: 'Star Hunter', desc: 'Mine a fallen meteorite.' },
-      ach_core: { name: 'Restored Heart', desc: 'Obtain the Heart of Balaclava.' },
+      ach_core: { name: 'Restored Heart', desc: 'Obtain the Heart of Abyssea.' },
       ach_tiller: { name: 'Land Tiller', desc: 'Till soil and craft your first Farming Hoe.' },
       ach_botanist: { name: 'Grand Horticulturist', desc: 'Harvest 80 farm crops.' },
       ach_sea_master: { name: 'Sea Wolves', desc: 'Catch 40 fish or marine relics.' },
@@ -883,7 +887,7 @@
       ach_adamantite_forger: { name: 'Adamantite Tempered', desc: 'Upgrade any tool to Adamantite tier or higher.' },
       ach_celestial_master: { name: 'Celestial Sovereign', desc: 'Reach Celestial tier on any tool.' },
       ach_rune_scholar: { name: 'Master of Runes', desc: 'Craft at least 5 elemental Runes.' },
-      ach_all_relics: { name: 'Pantheon Collection', desc: 'Collect 10 Permanent Balaclava Relics.' },
+      ach_all_relics: { name: 'Pantheon Collection', desc: 'Collect 10 Permanent Abyssea Relics.' },
       ach_enchant_master: { name: 'Supreme Enchanter', desc: 'Unlock 6 different enchantments in the Encyclopedia.' },
       ach_altar_devotee: { name: 'Shrine Custodian', desc: 'Register at least 4 distinct Altars in the Encyclopedia.' },
       ach_collector_140: { name: 'Cosmic Archive', desc: 'Discover 140 distinct items in the Encyclopedia.' },
@@ -901,10 +905,10 @@
           title: 'The Runic Collapse of the Archipelago',
           era: 'First Era · Year 0',
           summary: 'How a single prosperous continent shattered into a hundred floating islands atop the astral sea.',
-          body: 'Long ago, the Five Provinces of Balaclava were united by white marble and blue steel highways. When the Crater Conjurers tried to bind the Heart of the World beneath ten subterranean seals, the runic overload fractured the earth\'s crust. Thus were born the isolated islands waiting today to be reconnected through gold, bridges, and turf blocks.'
+          body: 'Long ago, the Five Provinces of Abyssea were united by white marble and blue steel highways. When the Crater Conjurers tried to bind the Heart of the World beneath ten subterranean seals, the runic overload fractured the earth\'s crust. Thus were born the isolated islands waiting today to be reconnected through gold, bridges, and turf blocks.'
         },
         lore_capucha: {
-          title: 'The Oath of the Balaclava Hood',
+          title: 'The Oath of the Guardians of Abyssea',
           era: 'Ancient Tradition',
           summary: 'The origin of the garment woven in shadow and golden wool you carry from day one.',
           body: 'Only Cartographers of the Vigil received a hood woven from meadow wool and mithril thread. Whoever wears it inherits the keenness to sense hidden veins beneath stone, read ancient monoliths, and endure the dark mist that rises when the three-minute night falls over the seas.'
@@ -1065,7 +1069,7 @@
       rec_61: { name: 'Titanium Resonance', desc: '+30% mining speed on high-tier metals.' },
       rec_62: { name: 'Orichalcum Fire', desc: '+36% extraction power on mythic veins.' },
       rec_63: { name: 'Living Forest Keeper', desc: '+40% farming rate and +0.9 passive HP/s.' },
-      rec_64: { name: 'Green Eon of Balaclava', desc: 'Albion Pinnacle: +55% total gathering and +35% double loot.' },
+      rec_64: { name: 'Green Eon of Abyssea', desc: 'Albion Pinnacle: +55% total gathering and +35% double loot.' },
       rec_65: { name: 'Thorns of Earth', desc: '+14% Spell Power and +35% natural crop growth.' },
       rec_66: { name: 'Archipelago Druid', desc: '+1.2 passive HP/s and -12% mana cost on spells.' },
       rec_67: { name: 'Arcane Botanical Heart', desc: '+18% Spell Power and +2 extra fruits on harvest.' },
@@ -1075,7 +1079,7 @@
       eco_2: { name: 'Deep Pockets', desc: '+25% extra coins from chests, enemies, and treasures.' },
       eco_3: { name: 'Royal Deeds', desc: '-18% discount when buying new land plots.' },
       eco_4: { name: 'Treasure House', desc: '+25% Bank income and +18% coins in treasures.' },
-      eco_5: { name: 'Balaclava Tycoon', desc: '+35% Bank income and -20% Market prices.' },
+      eco_5: { name: 'Abyssea Tycoon', desc: '+35% Bank income and -20% Market prices.' },
       eco_6: { name: 'Royal Mint', desc: '+30% gold from loot and +15% sale profit.' },
       eco_7: { name: 'Golden Consortium', desc: '+40% Bank generation and -10% extra land discount.' },
       eco_8: { name: 'Archipelago Emperor', desc: 'Capstone: +35% sale value and +50% Bank yield.' },
@@ -1306,7 +1310,7 @@
       exp_26: { name: 'Rune Reader', desc: '+15% XP exploring crypts and enchanting gear.' },
       exp_27: { name: 'Tireless Runner', desc: '+12% speed and +30 Max Energy.' },
       exp_28: { name: 'Star Shower', desc: 'Higher frequency of meteorites and glowing gems.' },
-      exp_29: { name: 'Eye of Balaclava', desc: '+90 light halo and +30% darkness clarity.' },
+      exp_29: { name: 'Eye of Abyssea', desc: '+90 light halo and +30% darkness clarity.' },
       exp_30: { name: 'Eternal Traveler', desc: '+25% XP, +80 magnet reach, and -15% energy cost.' },
       exp_31: { name: 'Astral Path', desc: '+15% speed exploring islands and -12% energy cost.' },
       exp_32: { name: 'Golden Horizon', desc: '+20% chest luck and +65 pickup magnet range.' },
@@ -1368,7 +1372,7 @@
       esmeraldas: { name: 'Emeralds', desc: 'Pure green gem that amplifies natural magic.', uses: 'Magic towers, monuments, and relics', source: 'Frozen Mountains, chests, and trade' },
       cristales_magicos: { name: 'Magic Crystals', desc: 'Crystal infused with condensed island mana.', uses: 'Portals, arcane towers, and crystal arms', source: 'Dark Forest, Laboratory, and obelisks' },
       esencia_oscura: { name: 'Dark Essence', desc: 'Bottled shadow mist whispering ancient pacts.', uses: 'Advanced alchemy, altars, and void core', source: 'Night creatures of the Dark Forest' },
-      fragmentos_antiguos: { name: 'Ancient Shards', desc: 'Runic piece from the civilization that shaped the archipelago.', uses: 'Endgame tech, artifacts, and Heart of Balaclava', source: 'Dungeons, bosses, ruins, and buried loot' },
+      fragmentos_antiguos: { name: 'Ancient Shards', desc: 'Runic piece from the civilization that shaped the archipelago.', uses: 'Endgame tech, artifacts, and Heart of Abyssea', source: 'Dungeons, bosses, ruins, and buried loot' },
       lingotes_especiales: { name: 'Mithril Ingot', desc: 'Mythic sky-blue alloy lighter and stronger than steel.', uses: 'Legendary gear, Research Center, and drills', source: 'Blast Smelter with crystals and gold' },
       material_volcanico: { name: 'Fiery Obsidian', desc: 'Burning volcanic glass tempered in living lava.', uses: 'Smelting, volcanic arms, and final portal', source: 'Volcanic Lands and magma golems' },
       tablon: { name: 'Wood Plank', desc: 'Planed timber ready for carpentry.', uses: 'Buildings, bridges, furniture, and upgraded tools', source: 'Sawmill or hand crafting' },
@@ -1404,15 +1408,15 @@
       pocion_vida: { name: 'Crimson Elixir', desc: 'Alchemy flask closing wounds in seconds.', uses: 'Instant mid-combat healing', source: 'Alchemy Table' },
       pocion_velocidad: { name: 'Wind Tonic', desc: 'Sky-blue fizz lightening every step.', uses: '+35% movement & attack speed for 45s', source: 'Alchemy Table' },
       pocion_suerte: { name: 'Fortune Elixir', desc: 'Distilled stardust and emerald.', uses: 'Doubles rare drop & gem chance for 60s', source: 'Alchemy Table' },
-      armadura_cuero: { name: 'Explorer Cloak (T1)', desc: 'Classic coat worn by Balaclava travelers.', uses: 'Equip Armor (Tier 1): +4 Defense & +15 Max HP', source: 'Loom / Hand (Leather + Cloth)' },
+      armadura_cuero: { name: 'Explorer Cloak (T1)', desc: 'Classic coat worn by Abyssea travelers.', uses: 'Equip Armor (Tier 1): +4 Defense & +15 Max HP', source: 'Loom / Hand (Leather + Cloth)' },
       armadura_hierro: { name: 'Iron Mail (T4)', desc: 'Riveted plates tough enough for dungeons.', uses: 'Equip Armor (Tier 4): +12 Defense & +42 Max HP (Enchantable)', source: 'Forge (Copper Armor + Iron Ingot)' },
       armadura_oro: { name: 'Royal Gold Cuirass (T6)', desc: 'Ceremonial burnished-gold armor attracting fortune.', uses: 'Equip Armor (Tier 6): +18 Defense, +68 Max HP & +12% Luck/Gold', source: 'Forge (Silver Armor + Gold Ingot)' },
       armadura_cristal: { name: 'Crystal Aegis (T9)', desc: 'Refracting armor forged with arcane gems.', uses: 'Equip Armor (Tier 9): +30 Defense, +115 Max HP & +12% Damage', source: 'Forge (Steel Armor + Magic Crystals)' },
-      armadura_volcanica: { name: 'Mantle of Balaclava (T21)', desc: 'Supreme relic woven with dark silver, dragon scales, and ancient fire.', uses: 'Equip Armor (Tier 21): +114 Defense, +510 Max HP, +40% Dmg, +20% Spd & +3.0 HP/s', source: 'Legendary Forge (Abyssal Armor + Celestial Ingot)' },
+      armadura_volcanica: { name: 'Mantle of Abyssea (T21)', desc: 'Supreme relic woven with dark silver, dragon scales, and ancient fire.', uses: 'Equip Armor (Tier 21): +114 Defense, +510 Max HP, +40% Dmg, +20% Spd & +3.0 HP/s', source: 'Legendary Forge (Abyssal Armor + Celestial Ingot)' },
       anillo_mercader: { name: 'Merchant\'s Ring', desc: 'Golden signet multiplying your profits.', uses: 'Equip in Ring slot for +20% coins gained', source: 'Market / Treasures' },
       amuleto_imantado: { name: 'Magnetic Amulet', desc: 'Pulls minerals and coins straight toward you.', uses: 'Equip in Amulet slot for 2x pickup range & +20% gathering', source: 'Laboratory / Dungeons' },
       llave_mazmorra: { name: 'Ancestral Key', desc: 'Key etched with glyphs of the lost islands.', uses: 'Opens sealed chests and unlocks boss chambers', source: 'Forge, chests, and Market' },
-      nucleo_balaclava: { name: 'Heart of Balaclava', desc: 'Legendary artifact uniting the five biomes of the world.', uses: 'Restores archipelago harmony and unlocks Golden Endless Mode', source: 'Complete Dungeons and craft Final Relic' },
+      nucleo_abyssea: { name: 'Heart of Abyssea', desc: 'Legendary artifact uniting the five biomes of the world.', uses: 'Restores archipelago harmony and unlocks Golden Endless Mode', source: 'Complete Dungeons and craft Final Relic' },
       plata: { name: 'Silver Ore', desc: 'Gleaming ore with lunar affinity.', uses: 'Smelting silver ingots and enchantments', source: 'Silver veins and Quarry' },
       lingote_plata: { name: 'Silver Ingot', desc: 'Pure silver bar attuned to runes.', uses: 'Arcane jewelry, shields, and enchantments', source: 'Furnace (Silver Ore + Coal)' },
       mitrilo_bruto: { name: 'Mithril Ore', desc: 'Fey metal lighter and harder than steel.', uses: 'Smelting Pure Mithril and epic gear', source: 'Deep veins in Frozen Mountains & Volcano' },
@@ -1471,7 +1475,7 @@
       seda_arana: { name: 'Spider Silk', desc: ' Gossamer thread tougher than hemp.', uses: 'Cloaks, advanced bows, and sturdy cloth', source: 'Spiders and Loom' },
       colmillo: { name: 'Beast Fang', desc: 'Razor tooth claimed from a predator.', uses: 'Daggers, thorns armor, and trophies', source: 'Wolves, Boars, and Cobras' },
       cuerno_demonio: { name: 'Infernal Horn', desc: 'Twisted horn still warm with magma.', uses: 'Supreme armor and fury scrolls', source: 'Imps, Demons, and Volcanic Core' },
-      escamas_dragon: { name: 'Dragon Scale', desc: 'Impenetrable plate immune to fire and frost.', uses: 'Forging Balaclava Helm/Armor', source: 'Elemental bosses & deep caverns' },
+      escamas_dragon: { name: 'Dragon Scale', desc: 'Impenetrable plate immune to fire and frost.', uses: 'Forging Abyssea Crown/Mantle', source: 'Elemental bosses & deep caverns' },
       bomba_mina: { name: 'Mining Bomb', desc: 'Tactical explosive able to clear heavy veins at once.', uses: 'Throw at cursor from bar/bag to blast rocks, ores & foes (110 dmg)', source: 'Workshop (Gunpowder + Iron)' },
       dinamita_tnt: { name: 'TNT Dynamite', desc: 'Throwable dynamite stick with short fuse and wide blast.', uses: 'Throw at cursor to detonate rocks, trees, ores & mobs (135 dmg)', source: 'Crafting Table (Coal + Fiber + Wood)' },
       pocion_fuerza: { name: 'Potion of Titanic Might', desc: 'Crimson elixir multiplying your strikes.', uses: '+40% melee & bow damage for 45s', source: 'Alchemy (Ruby/Pepper + Crystal + Glass)' },
@@ -1480,7 +1484,7 @@
       casco_hierro: { name: 'Iron Helm (T4)', desc: 'Protects your head during underground delves.', uses: 'Equip Helm (Tier 4): +7 Defense & +28 Max HP', source: 'Forge (Copper Helm + Iron)' },
       casco_oro: { name: 'Solar Gold Crown (T6)', desc: 'Golden helm dazzling foes and merchants alike.', uses: 'Equip Helm (Tier 6): +11 Defense, +44 Max HP & +15% Coins', source: 'Forge (Silver Helm + Gold)' },
       casco_cristal: { name: 'Sapphire Sallet (T9)', desc: 'Enchanted helm of crystal clarity.', uses: 'Equip Helm (Tier 9): +18 Defense, +72 Max HP & +10% Speed', source: 'Forge (Steel Helm + Sapphire + Magic Crystals)' },
-      casco_balaclava: { name: 'Royal Balaclava Hood (T21)', desc: 'Supreme emblem of the archipelago guardians.', uses: 'Equip Helm (Tier 21): +72 Defense, +300 Max HP, +28% Dmg & +20% Crit', source: 'Legendary Forge (Bone Crown Helm + Celestial Ingot)' },
+      casco_abyssea: { name: 'Royal Crown of Abyssea (T21)', desc: 'Supreme emblem of the archipelago guardians.', uses: 'Equip Helm (Tier 21): +72 Defense, +300 Max HP, +28% Dmg & +20% Crit', source: 'Legendary Forge (Bone Crown Helm + Celestial Ingot)' },
       escudo_madera: { name: 'Oak Buckler (T1)', desc: 'Light shield ideal for early skirmishes.', uses: 'Equip Shield (Tier 1): +3 Defense & +12 Max HP', source: 'Carpentry / Hand (Plank + Iron)' },
       escudo_hierro: { name: 'Riveted Iron Shield (T4)', desc: 'Solid pavise capable of blocking arrows.', uses: 'Equip Shield (Tier 4): +9 Defense & +32 Max HP', source: 'Forge (Copper Shield + Iron)' },
       escudo_oro: { name: 'Golden Bastion Shield (T6)', desc: 'Shines brightly against the gloom of crypts.', uses: 'Equip Shield (Tier 6): +14 Defense, +50 Max HP & +10% Luck', source: 'Forge (Silver Shield + Gold)' },
@@ -1534,7 +1538,7 @@
       tarta_fresa: { name: 'Strawberry Tart', desc: 'Tender pastry topped with ripe strawberries.', uses: 'Restores +65 HP & +65 Energy', source: 'Kitchen (Flour + Strawberry + Honey)' },
       jugo_uva: { name: 'Ancient Grape Nectar', desc: 'Energizing drink prized by explorers.', uses: 'Restores +22 HP & +55 Energy', source: 'Kitchen (Grape + Sugar/Honey + Glass)' },
       taco_picante: { name: 'Volcanic Taco', desc: 'Fiery spice igniting fighting spirit.', uses: 'Restores +35 HP & +48 Energy', source: 'Kitchen (Corn + Meat + Pepper)' },
-      banquete_real: { name: 'Balaclava Royal Banquet', desc: 'Legendary feast worthy of archipelago conquerors.', uses: 'Fully restores +150 HP & +150 Energy', source: 'Master Kitchen (Steak + Cake + Golden Apple)' },
+      banquete_real: { name: 'Abyssea Royal Banquet', desc: 'Legendary feast worthy of archipelago conquerors.', uses: 'Fully restores +150 HP & +150 Energy', source: 'Master Kitchen (Steak + Cake + Golden Apple)' },
       elixir_titan: { name: 'Titan\'s Elixir', desc: 'Concentrated scarlet potion multiplying combat strength.', uses: 'Heals +100 HP & grants +45% Damage for 55s', source: 'Alchemy (Bloodstone + Fang + Glass)' },
       elixir_arcano: { name: 'Scholar\'s Elixir', desc: 'Violet distillate attracting extraordinary loot and gems.', uses: 'Restores +120 Energy & +40% Luck for 60s', source: 'Alchemy (Amethyst + Stardust + Glass)' },
       pocion_nocturna: { name: 'Firefly Vial', desc: 'Shimmers softly and quickens night footsteps.', uses: 'Grants +30% Night Speed for 60s', source: 'Alchemy (Luminous Mushroom + Coral + Glass)' },
@@ -1547,7 +1551,7 @@
       pergamino_fortuna: { name: 'Seeker\'s Scroll', desc: 'Ancient runes inscribed to reveal hidden treasures.', uses: '+45% Mining, Fishing & Chest Luck for 65s', source: 'Research (Arcane Ink + Emerald + Cloth)' },
       armadura_platino: { name: 'Platinum Cuirass (T7)', desc: 'Gleaming white armor resistant to heavy claws.', uses: 'Equip Armor (Tier 7): +22 Defense & +82 Max HP', source: 'Forge (Gold Armor + Platinum + Jade)' },
       armadura_mitrilo: { name: 'Elven Mithril Coat (T10)', desc: 'Light as silk yet impervious as a mountain.', uses: 'Equip Armor (Tier 10): +35 Defense, +135 Max HP & +10% Speed', source: 'Forge (Crystal Armor + Mithril)' },
-      armadura_celestial: { name: 'Astral Sun Armor (T22)', desc: 'Supreme war relic forged to conquer the Abyss.', uses: 'Equip Armor (Tier 22): +128 Defense, +580 Max HP, +45% Dmg, +22% Spd & +3.6 HP/s', source: 'Master Forge (Balaclava Mantle + Celestial Alloy)' },
+      armadura_celestial: { name: 'Astral Sun Armor (T22)', desc: 'Supreme war relic forged to conquer the Abyss.', uses: 'Equip Armor (Tier 22): +128 Defense, +580 Max HP, +45% Dmg, +22% Spd & +3.6 HP/s', source: 'Master Forge (Abyssea Mantle + Celestial Alloy)' },
       casco_platino: { name: 'Platinum Helm (T7)', desc: 'Burnished high-visibility cranial protection.', uses: 'Equip Helm (Tier 7): +13 Defense & +52 Max HP', source: 'Forge (Gold Helm + Platinum Ingot)' },
       casco_mitrilo: { name: 'Mithril Helm-Crown (T10)', desc: 'Warrior diadem set with pure amethyst.', uses: 'Equip Helm (Tier 10): +21 Defense, +84 Max HP & +12% Luck', source: 'Forge (Crystal Helm + Mithril + Amethyst)' },
       escudo_platino: { name: 'Platinum Pavise (T7)', desc: 'Tower shield able to halt golem charges.', uses: 'Equip Shield (Tier 7): +17 Defense & +60 Max HP', source: 'Forge (Gold Shield + Platinum Ingot)' },
@@ -1596,7 +1600,7 @@
       casco_adamantita: { name: 'Adamantite Helm (T12)', desc: 'Shields the head from seismic blows.', uses: 'Equip Helm (Tier 12): +27 Defense, +114 HP & +8% Crit', source: 'Forge (Titanium Helm + Adamantite Ingot)' },
       escudo_adamantita: { name: 'Adamantite Bastion (T12)', desc: 'Heavy shield etched with earth runes.', uses: 'Equip Shield (Tier 12): +34 Defense, +134 HP & 16% Magic Res', source: 'Forge (Titanium Shield + Adamantite Ingot)' },
       botas_adamantita: { name: 'Adamantite Greaves (T12)', desc: 'Well-balanced greaves for unstoppable charges.', uses: 'Equip Boots (Tier 12): +26 Defense, +29% speed, +112 HP & -12% energy cost', source: 'Forge (Titanium Boots + Adamantite Ingot)' },
-      casco_solar: { name: 'Astral Sun Helm (T22)', desc: 'Golden crown that illuminates the night forever.', uses: 'Equip Helm (Tier 22): +82 Defense, +345 HP, +34% Dmg, +23% crit & light', source: 'Supreme Forge (Balaclava Hood + Celestial Ingot)' },
+      casco_solar: { name: 'Astral Sun Helm (T22)', desc: 'Golden crown that illuminates the night forever.', uses: 'Equip Helm (Tier 22): +82 Defense, +345 HP, +34% Dmg, +23% crit & light', source: 'Supreme Forge (Abyssea Hood + Celestial Ingot)' },
       escudo_solar: { name: 'Solar Dawn Aegis (T21)', desc: 'Radiant shield forged from celestial ingots.', uses: 'Equip Shield (Tier 21): +84 Defense, +365 HP, +27% Dmg & 36% Magic Res', source: 'Legendary Forge (Cursed Bulwark + Celestial Ingot)' },
       botas_solar: { name: 'Solar Horizon Boots (T15)', desc: 'Leave luminous trails as you sprint across the archipelago.', uses: 'Equip Boots (Tier 15): +36 Defense, +36% speed, +170 HP & -24% energy cost', source: 'Celestial Research (Orichalcum Boots + Celestial Ingot)' },
       sombrero_mago: { name: 'Archmage Hat', desc: 'Violet headwear stitched with mana thread.', uses: 'Equip for +35 Max Energy & +18% Damage', source: 'Arcane Research' },
@@ -1606,7 +1610,7 @@
       anillo_amatista: { name: 'Arcane Amethyst Ring', desc: 'Supports continuous tool and spell use.', uses: 'Equip for +25 Max Energy & +0.8 Energy/s', source: 'Forge / Research' },
       anillo_alma: { name: 'Ring of the Eternal Soul', desc: 'Channels vital essence from fallen foes.', uses: 'Equip for +18% Damage, +6 HP per kill & +15% Crit', source: 'Celestial Research' },
       amuleto_onice: { name: 'Protective Onyx Amulet', desc: 'Deflects arcane bolts with an unseen barrier.', uses: 'Equip for +10 Defense & +25% Magic Resistance', source: 'Dark Forge' },
-      amuleto_diamante: { name: 'Solar Diamond Medallion', desc: 'Emblem reserved for the greatest explorers of Balaclava.', uses: 'Equip for +30% Coins, +25% Luck & +90 magnet reach', source: 'Royal Research' },
+      amuleto_diamante: { name: 'Solar Diamond Medallion', desc: 'Emblem reserved for the greatest explorers of Abyssea.', uses: 'Equip for +30% Coins, +25% Luck & +90 magnet reach', source: 'Royal Research' },
       baculo_dorado: { name: 'Golden Laser Staff', desc: 'Focuses solar gems into a beam that chops and strikes.', uses: 'Place in hotbar to fire long-range golden laser beams', source: 'Research / Forge' },
       baculo_estelar: { name: 'Stellar Cosmic Scepter', desc: 'Channels fallen starlight into devastating pulses.', uses: 'Fires the strongest laser in the game at bosses & veins', source: 'Celestial Research' },
       bomba_abismal: { name: 'Cosmic Abyssal Bomb', desc: 'Compressed charge of dark essence and solar powder.', uses: 'Throw to shatter hard blocks & stun bosses in a wide blast (290 dmg)', source: 'Advanced Research' },
@@ -1614,7 +1618,7 @@
       pergamino_fuego: { name: 'Scroll of Firestorm', desc: 'Unleashes arcane flames around the caster.', uses: 'Erupts fire rings burning all nearby enemies', source: 'Research / Dungeons' },
       pergamino_hielo: { name: 'Scroll of Polar Blizzard', desc: 'Binds the freezing breath of northern peaks.', uses: 'Freezes and damages every creature nearby', source: 'Research / Glacier' },
       pergamino_teletransporte: { name: 'Scroll of Return', desc: 'Failsafe arcane shortcut after long expeditions.', uses: 'Instantly teleports you safely to Zero Island', source: 'Research / Chests' },
-      elixir_supremo: { name: 'Immortal Balaclava Elixir', desc: 'Golden flask distilled with stardust and royal honey.', uses: 'Heals +160 HP, +100 Energy & boosts damage +35% for 90s', source: 'Royal Alchemy' },
+      elixir_supremo: { name: 'Immortal Elixir of Abyssea', desc: 'Golden flask distilled with stardust and royal honey.', uses: 'Heals +160 HP, +100 Energy & boosts damage +35% for 90s', source: 'Royal Alchemy' },
       elixir_fuego: { name: 'Flame Shield Potion', desc: 'Fiery brew of volcanic chili and ground ruby.', uses: 'Grants +20 HP & +35% melee Damage for 55s', source: 'Alchemy' },
       elixir_escarcha: { name: 'Glacial Breeze Potion', desc: 'Clears the mind and doubles swing stamina.', uses: 'Restores +45 Energy & boosts speed +35% for 60s', source: 'Alchemy' },
       manzana_roja: { name: 'Forest Apple', desc: 'Crisp red apple freshly dropped from the boughs.', uses: 'Quick snack restoring +18 HP & +22 Energy', source: 'Fruit trees & gardens' },
@@ -1822,17 +1826,47 @@
       pantalones_volcanicos: { name: 'Volcanic Greaves (T21)', desc: 'Legendary obsidian and dragon-scale greaves with fiery aura.', uses: 'Equip Legs (T21): +130 Def, +425 HP, +21% Speed & +24% Dmg Red.', source: 'Master Forge' },
       pantalones_celestiales: { name: 'Celestial Greaves (T22)', desc: 'Woven from stardust and celestial alloy for weightless stride.', uses: 'Equip Legs (T22): +142 Def, +475 HP, +23% Speed & +27% Dmg Red.', source: 'Supreme Forge' },
       casco_omega: { name: 'Helm of Singularity (T23)', desc: 'Ultimate gravitational crown amplifying mind and armor beyond every other helm.', uses: 'Equip Helm (T23 Ultimate): +110 Def, +480 HP, +44% Dmg, +42% Spell & -18% CD', source: 'Runic Anvil (Solar Helm T22 + Omega Ingot + Singularity)' },
-      armadura_omega: { name: 'Omega Void Cuirass (T23)', desc: 'The strongest armor in Balaclava, forged in event horizons to conquer the Abyss.', uses: 'Equip Armor (T23 Ultimate): +175 Def, +850 HP, +58% Dmg, +28% Spd & +5.5 HP/s', source: 'Runic Anvil (Celestial Armor T22 + Omega Ingot + Singularity)' },
+      armadura_omega: { name: 'Omega Void Cuirass (T23)', desc: 'The strongest armor in Abyssea, forged in event horizons to conquer the Abyss.', uses: 'Equip Armor (T23 Ultimate): +175 Def, +850 HP, +58% Dmg, +28% Spd & +5.5 HP/s', source: 'Runic Anvil (Celestial Armor T22 + Omega Ingot + Singularity)' },
       pantalones_omega: { name: 'Omega Graviton Greaves (T23)', desc: 'Omega-singularity joints stabilizing every stride against any strike.', uses: 'Equip Legs (T23 Ultimate): +175 Def, +620 HP, +28% Spd & +34% Dmg Red.', source: 'Runic Anvil (Celestial Legs T22 + Omega Ingot + Singularity)' },
       escudo_omega: { name: 'Omega Horizon Aegis (T23)', desc: 'Absolute bulwark able to absorb the Crimson Abyssal Swordsman\'s strikes.', uses: 'Equip Shield (T23 Ultimate): +130 Def, +560 HP, +40% Dmg & +50% Magic Res', source: 'Runic Anvil (Celestial Bulwark T22 + Omega Ingot + Singularity)' },
       botas_omega: { name: 'Omega Quantum Leap Boots (T23)', desc: 'Propel the wearer through micro-spatial distortions.', uses: 'Equip Boots (T23 Ultimate): +96 Def, +60% Spd, +460 HP, +230 magnet & -42% cost', source: 'Runic Anvil (Celestial Boots T22 + Omega Ingot + Singularity)' },
-      hoja_singularidad: { name: 'Blade of Singularity (T23)', desc: 'Balaclava\'s supreme weapon: tears through reality on every slash.', uses: 'Ultimate Sword Tier 23: 235 dmg, wide cosmic cleave & +34% Crit', source: 'Runic Anvil (Omega Ingot + Singularity + Compressed Matter)' },
+      hoja_singularidad: { name: 'Blade of Singularity (T23)', desc: 'Abyssea\'s supreme weapon: tears through reality on every slash.', uses: 'Ultimate Sword Tier 23: 235 dmg, wide cosmic cleave & +34% Crit', source: 'Runic Anvil (Omega Ingot + Singularity + Compressed Matter)' },
       arco_omega: { name: 'Omega Graviton Bow (T23)', desc: 'Accelerates compressed energy bolts across entire rows of foes.', uses: 'Ultimate Ranged Weapon Tier 23: piercing bolts (175 dmg, pierces 6)', source: 'Runic Anvil (Omega Ingot + Singularity + Compressed Matter)' },
       cetro_omega: { name: 'Omega Collapse Scepter (T23)', desc: 'Channels contained singularities detonating in cosmic clusters.', uses: 'Ultimate Staff Tier 23: explosive singularity orbs (168 AoE dmg, burn & slow)', source: 'Runic Anvil (Omega Ingot + Singularity + Compressed Matter)' },
       espada_eclipse: { name: 'Crimson Eclipse Blade (T20)', desc: 'Replica forged from the Crimson Abyssal Swordsman (surpassed only by T23 Singularity Blade).', uses: 'Mythic Sword T20 (148 dmg, crimson cleave wave)', source: 'Final Boss / Supreme Runic Anvil' },
       arco_fenix_abisal: { name: 'Twilight Phoenix Bow (T20)', desc: 'Arrows wrapped in crimson flames from the abyssal frontier.', uses: 'Legendary Bow T20 (108 dmg, pierces 4)', source: 'Supreme Runic Anvil' },
       baculo_necro: { name: 'Sovereign Lich Scepter (T20)', desc: 'Summons violet bolts that devour shields.', uses: 'Abyssal Staff T20 (106 dmg shadow cluster)', source: 'Supreme Sorcery Table' },
-      guadana_necro: { name: 'Necropolis Reaper (T20)', desc: 'Harvests ancient spirits with a spectral edge.', uses: 'Fossil Bone Scythe (138 dmg, wide sweep)', source: 'Supreme Runic Anvil' }
+      guadana_necro: { name: 'Necropolis Reaper (T20)', desc: 'Harvests ancient spirits with a spectral edge.', uses: 'Fossil Bone Scythe (138 dmg, wide sweep)', source: 'Supreme Runic Anvil' },
+      // Beta 1.4 & Beta 2.0.0 RC2 Exotic Fish, Alchemy Potions, Pets & Special Items
+      mantarraya_celestial: { name: 'Celestial Manta Ray', desc: 'Glides along astral ocean currents.', uses: 'Aquarium passive: +16% Move Speed & +10% Dodge', source: 'Deep Fishing / Whirlpools' },
+      tiburon_cristal: { name: 'Arcane Crystal Shark', desc: 'Predator armored in living quartz scales.', uses: 'Aquarium passive: +18% Melee Damage & +10% Crit', source: 'Crystal / Deep Fishing' },
+      celacanto_ancestral: { name: 'Ancestral Coelacanth', desc: 'Living fossil from forgotten eras.', uses: 'Aquarium passive: +22% Damage Reduction & +180 Max HP', source: 'Deep Fishing / Whirlpools' },
+      koi_solar_mitico: { name: 'Imperial Solar Koi', desc: 'Radiates golden light across sacred waters.', uses: 'Aquarium passive: +25% Coins & +20% Luck', source: 'Sacred / Desert Waters' },
+      leviatan_esmeralda: { name: 'Emerald Leviathan Hatchling', desc: 'Juvenile sovereign of ocean trenches.', uses: 'Aquarium passive: +20% Damage & +20% Gather Power', source: 'Deep Fishing / Whirlpools' },
+      raya_singularidad: { name: 'Singularity Astral Ray', desc: 'Woven from liquid stardust and cosmic tide.', uses: 'Aquarium passive: +24% Spell Power & -15% Cooldown', source: 'Abyssal / Endgame Waters' },
+      elixir_furia_volcanica: { name: 'Volcanic Fury Elixir', desc: 'Igneous potion distilled in volcanic ichor.', uses: 'Consume: +48% Total Damage & +45 HP for 120s', source: 'Grand Alchemy Lab' },
+      pocion_piel_adamantita: { name: 'Adamantite Skin Potion', desc: 'Hardens skin with liquid mineral plating.', uses: 'Consume: +45 Def, +25% Dmg Reduction & +25 Thorns for 120s', source: 'Grand Alchemy Lab' },
+      brebaje_clarividencia_minera: { name: 'Miner Clairvoyance Brew', desc: 'Reveals hidden mineral fracture lines.', uses: 'Consume: +55% Mining/Chopping Speed, +30% Double Loot & Night Vision for 150s', source: 'Grand Alchemy Lab' },
+      elixir_crono_velocidad: { name: 'Chrono-Haste Elixir', desc: 'Accelerates reflexes through compressed time.', uses: 'Consume: +45% Move Speed, +35% Attack Speed & +40% Dash for 120s', source: 'Grand Alchemy Lab' },
+      tonico_vampirismo_sanguino: { name: 'Sanguine Vampirism Tonic', desc: 'Crimson elixir pulsing with life steal.', uses: 'Consume: +20% Crit, +25% Damage & +15 HP on kill for 120s', source: 'Grand Alchemy Lab' },
+      esencia_tormenta_electrica: { name: 'Lightning Storm Essence', desc: 'Crackling bottled storm energy.', uses: 'Consume: +45% Spell Power, +30% Attack Speed & +18% Crit for 120s', source: 'Grand Alchemy Lab' },
+      elixir_fortuna_dorada: { name: 'Golden Fortune Elixir', desc: 'Liquid luck forged with gold and royal honey.', uses: 'Consume: +75% Coins, +45% Luck & +30% Gem Find for 180s', source: 'Grand Alchemy Lab' },
+      nectar_sobrecarga_arcana: { name: 'Arcane Overload Nectar', desc: 'Overcharges spell circuits with pure astral ether.', uses: 'Consume: +65% Spell Power & -25% Spell Cooldown for 140s', source: 'Grand Alchemy Lab' },
+      pocion_paso_fantasmal: { name: 'Phantom Step Potion', desc: 'Turns every dodge into an evasive blur.', uses: 'Consume: +28% Dodge, +35% Move Speed & +20% Crit for 110s', source: 'Grand Alchemy Lab' },
+      elixir_coloso_titan: { name: 'Colossus Titan Elixir', desc: 'Grants the endurance and strength of ancient giants.', uses: 'Consume: +220 Max HP, +40% Melee Damage & +25% Def for 150s', source: 'Grand Alchemy Lab' },
+      filtro_cosecha_radiante: { name: 'Radiant Harvest Philter', desc: 'Botanical tonic multiplying every harvest.', uses: 'Consume: +60% Harvest/Gather Yield & +35% XP for 160s', source: 'Grand Alchemy Lab' },
+      elixir_singularidad_omega: { name: 'Astral Singularity Elixir', desc: 'Pinnacle alchemical draught of Abyssea.', uses: 'Consume: +50% Dmg, +50% Spell, +35% Speed, +45% Luck & +30% Def for 180s', source: 'Grand Alchemy Lab' },
+      trigo_dorado: { name: 'Golden Wheat', desc: 'Sun-blessed grain prized by royal bakers and brewers.', uses: 'High-tier cooking, alchemy, or high-value market sale', source: 'Farming / Lunar Harvests' },
+      cetro_traslado: { name: 'Structure Relocator Scepter', desc: 'Arcane scepter capable of lifting and relocating structures intact.', uses: 'Use from Inventory/Hotbar to pick up & move chests or machines without losing contents', source: 'Crafting Table / Guild Shop' },
+      ficha_gremio: { name: 'Guild Contract Token', desc: 'Stamped emblem awarded for completing weekly guild contracts.', uses: 'Spend in the Guild Shop on pets, catalysts, relics, and Hana cosmetics', source: 'Weekly Guild Contracts' },
+      catalizador_reforja: { name: 'Reforge Catalyst', desc: 'Stabilizing crystal preventing rarity downgrades during reforging.', uses: 'Guarantees Epic+ rarity roll or preserves best rarity at the Reforging Table', source: 'Alchemy / Dungeons / Guild Shop' },
+      esencia_lunar: { name: 'Lunar Essence', desc: 'Condensed moonlight harvested during luminous nights and Blood Moons.', uses: 'Craft lunar potions, beacons, catalysts, and pet summon charms', source: 'Lunar Cycle / Nocturnal Nodes' },
+      perla_leviatan: { name: 'Leviathan Pearl', desc: 'Iridescent abyssal pearl claimed from the Coastal Leviathan.', uses: 'Craft endgame beacons, catalysts, Trophy Hall donation, or high-value trade', source: 'Coastal Leviathan Boss' },
+      pet_limo_dorado: { name: 'Golden Slime Charm', desc: 'Summons a Golden Slime collector companion.', uses: 'Use to unlock/summon companion (245px auto-loot & +12% Coins)', source: 'Crafting / Guild Shop' },
+      pet_cangrejo_coral: { name: 'Coral Crab Charm', desc: 'Summons a Coral Crab collector companion.', uses: 'Use to unlock/summon companion (265px auto-loot, +15% Gather & +8% Fishing)', source: 'Coral Crafting / Ghost Ship' },
+      pet_buho_astral: { name: 'Astral Owl Charm', desc: 'Summons an Astral Owl combat companion.', uses: 'Use to unlock/summon companion (slowing arcane bolts & +10% Spell Power)', source: 'Astral Crafting / Ghost Ship' },
+      pet_espiritu_igneo: { name: 'Ember Spirit Charm', desc: 'Summons an Ember Spirit combat companion.', uses: 'Use to unlock/summon companion (homing flames, burn & +10% Damage)', source: 'Volcanic Crafting / Ghost Ship' },
+      pet_pez_linterna: { name: 'Abyssal Lanternfish Charm', desc: 'Summons a luminous Lanternfish companion.', uses: 'Use to unlock/summon companion (+190px Light, +20% Luck & +8% Double Loot)', source: 'Leviathan Loot / Guild Shop' }
     }
   });
 })();

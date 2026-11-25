@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { pick, randInt } = Balaclava.Utils;
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { pick, randInt } = Abyssea.Utils;
 
   // Dynamic rotating Market (5 Buy + 5 Sell rotating every 15 minutes), balanced prices & plots.
   class EconomySystem {
@@ -25,23 +25,23 @@
         const secs = Math.max(0, Math.ceil(this.refreshTimer || 0));
         const mm = String(Math.floor(secs / 60)).padStart(2, '0');
         const ss = String(secs % 60).padStart(2, '0');
-        const msg = Balaclava.I18n
-          ? Balaclava.I18n.t('market.refreshLimitToast', { mm, ss })
+        const msg = Abyssea.I18n
+          ? Abyssea.I18n.t('market.refreshLimitToast', { mm, ss })
           : `Solo puedes renovar 3 veces por ciclo. Reinicio en ${mm}:${ss}.`;
         if (game && typeof game.toast === 'function') game.toast(msg, 'warn');
-        if (Balaclava.Audio) Balaclava.Audio.play('error');
+        if (Abyssea.Audio) Abyssea.Audio.play('error');
         return false;
       }
       if (!game || (game.coins || 0) < 15) {
         if (game && typeof game.toast === 'function') {
-          game.toast(Balaclava.I18n ? Balaclava.I18n.t('market.needCoinsRefresh') : 'Necesitas 15 monedas para renovar.', 'warn');
+          game.toast(Abyssea.I18n ? Abyssea.I18n.t('market.needCoinsRefresh') : 'Necesitas 15 monedas para renovar.', 'warn');
         }
         return false;
       }
       game.coins -= 15;
       this.manualRefreshesUsed = (this.manualRefreshesUsed || 0) + 1;
       this.refreshStock((game.player && game.player.level) || 1, { resetCycle: false });
-      if (Balaclava.Audio) Balaclava.Audio.play('coin');
+      if (Abyssea.Audio) Abyssea.Audio.play('coin');
       return true;
     }
 
@@ -54,14 +54,14 @@
       const sellPool = ['madera', 'piedra', 'carbon', 'hierro', 'cobre', 'bayas', 'trigo', 'zanahoria', 'tomate', 'lana', 'carne', 'pez_comun', 'tablon', 'lingote_cobre', 'lingote_hierro', 'pan', 'huesos', 'cuero', 'harina'];
 
       const pickUnique = (pool, existing) => {
-        const avail = pool.filter(id => Balaclava.ITEMS[id] && !existing.some(e => e.itemId === id));
+        const avail = pool.filter(id => Abyssea.ITEMS[id] && !existing.some(e => e.itemId === id));
         return avail.length ? pick(avail) : null;
       };
 
       const buyList = [];
       const addBuy = (id, multMin, multMax, sMin, sMax, maxCap = null) => {
         if (!id || buyList.length >= 5) return;
-        const it = Balaclava.ITEMS[id];
+        const it = Abyssea.ITEMS[id];
         if (!it) return;
         const mult = multMin + Math.random() * (multMax - multMin);
         let price = Math.max(3, Math.round(it.buyValue * mult));
@@ -86,7 +86,7 @@
       for (let i = 0; i < 14 && sellList.length < 5; i++) {
         const id = pickUnique(sellPool, sellList);
         if (!id) continue;
-        const it = Balaclava.ITEMS[id];
+        const it = Abyssea.ITEMS[id];
         const bonusMult = 1.15 + Math.random() * 0.25;
         const unitPrice = Math.max(2, Math.round(it.sellValue * bonusMult));
         sellList.push({
@@ -108,18 +108,18 @@
     sellMarketContract(game, idx, qty = 1) {
       const c = this.sellContracts && this.sellContracts[idx];
       if (!c || c.demand <= 0) return false;
-      const item = Balaclava.ITEMS[c.itemId];
+      const item = Abyssea.ITEMS[c.itemId];
       if (!item) return false;
       const owned = game.inventory[c.itemId] || 0;
       const count = Math.min(owned, c.demand, qty);
       if (count <= 0) return false;
-      const mult = this.getSellMultiplier(game);
+      const mult = this.getSellMultiplier(game, c.itemId);
       const unit = Math.max(1, Math.round(c.price * mult));
       const total = unit * count;
       game.removeItem(c.itemId, count);
       c.demand -= count;
       game.addCoins(total);
-      Balaclava.Audio.play('coin');
+      Abyssea.Audio.play('coin');
       game.toast(`Vendido ${count}x ${item.name} por +${total} monedas`, 'success');
       return true;
     }
@@ -134,10 +134,18 @@
       }
     }
 
-    getSellMultiplier(game) {
+    getSellMultiplier(game, itemId = null) {
       let mult = 1.0 + (game.mods.sellBonus || 0);
       const treasuries = game.buildings.filter(b => b.type === 'tesoreria').length;
       mult += treasuries * 0.15;
+      // RC2: Daily Dynamic Market Demand surge!
+      if (itemId && game && typeof game.getDailyMarketDemand === 'function') {
+        const dem = game.getDailyMarketDemand();
+        const it = Abyssea.ITEMS && Abyssea.ITEMS[itemId];
+        if (dem && typeof dem.matches === 'function' && dem.matches(itemId, it)) {
+          mult *= (dem.mult || 1.45);
+        }
+      }
       return mult;
     }
 
@@ -147,17 +155,18 @@
     }
 
     sellItem(game, itemId, qty = 1) {
-      const item = Balaclava.ITEMS[itemId];
+      const item = Abyssea.ITEMS[itemId];
       if (!item) return false;
       const owned = game.inventory[itemId] || 0;
       const count = Math.min(owned, qty);
       if (count <= 0) return false;
 
-      const unitPrice = Math.max(1, Math.round(item.sellValue * this.getSellMultiplier(game)));
+      const baseVal = Number(item.sellValue) || Number(item.sellPrice) || 5;
+      const unitPrice = Math.max(1, Math.round(baseVal * this.getSellMultiplier(game, itemId)));
       const total = unitPrice * count;
       game.removeItem(itemId, count);
       game.addCoins(total);
-      Balaclava.Audio.play('coin');
+      Abyssea.Audio.play('coin');
       game.toast(`Vendido ${count}x ${item.name} por +${total} monedas`, 'success');
       return true;
     }
@@ -170,20 +179,20 @@
       const total = unitCost * count;
       if (game.coins < total) {
         game.toast(`Necesitas ${total} monedas.`, 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       game.coins -= total;
       offer.stock -= count;
       game.addItem(offer.itemId, count);
-      Balaclava.Audio.play('coin');
+      Abyssea.Audio.play('coin');
       return true;
     }
 
     getPlotPrice(game, gx, gy) {
       const biome = game.world && game.world.plotBiomes && game.world.plotBiomes[gy] ? game.world.plotBiomes[gy][gx] : null;
       const ring = (game.world && typeof game.world.getPlotRing === 'function') ? game.world.getPlotRing(gx, gy) : null;
-      const base = Balaclava.getPlotBasePrice(gx, gy, biome, ring);
+      const base = Abyssea.getPlotBasePrice(gx, gy, biome, ring);
       const ownedCount = Array.isArray(game.unlockedPlots) ? Math.max(1, game.unlockedPlots.length) : 1;
       const progMult = ownedCount <= 1 ? 1 : (1 + Math.min(0.75, (ownedCount - 1) * 0.004));
       const disc = game.mods.landDiscount || 0;
@@ -191,8 +200,8 @@
     }
 
     getBiomeProgressionOrder(game) {
-      const canonical = (Balaclava.CONST && Balaclava.CONST.BIOME_ORDER)
-        ? [...Balaclava.CONST.BIOME_ORDER]
+      const canonical = (Abyssea.CONST && Abyssea.CONST.BIOME_ORDER)
+        ? [...Abyssea.CONST.BIOME_ORDER]
         : ['pradera', 'desierto', 'montanas_heladas', 'bosque_oscuro', 'tierras_volcanicas'];
       if (!game || !game.world || !Array.isArray(game.world.plotBiomes)) return canonical;
       const gridN = game.world.plotBiomes.length || 19;
@@ -214,7 +223,7 @@
     }
 
     getZoneProgress(game) {
-      const zones = (Balaclava.CONST && Balaclava.CONST.BIOME_ZONES) || [];
+      const zones = (Abyssea.CONST && Abyssea.CONST.BIOME_ZONES) || [];
       return zones.map(z => {
         const biomeProgs = z.biomes.map(bId => this.getBiomeUnlockProgress(game, bId));
         const unlocked = biomeProgs.reduce((s, p) => s + p.unlocked, 0);
@@ -236,8 +245,8 @@
     }
 
     getBiomeDungeons(game, biomeId) {
-      const gates = Balaclava.DUNGEON_GATES || {};
-      const defs = Balaclava.DUNGEON_DEFS || {};
+      const gates = Abyssea.DUNGEON_GATES || {};
+      const defs = Abyssea.DUNGEON_DEFS || {};
       const list = [];
       const gatePlots = game && game.world && game.world.dungeonGatePlots;
       const plotBiomes = game && game.world && game.world.plotBiomes;
@@ -273,7 +282,7 @@
     }
 
     getBiomeUnlockProgress(game, biomeId) {
-      const biomesObj = (Balaclava.CONST && Balaclava.CONST.BIOMES) || {};
+      const biomesObj = (Abyssea.CONST && Abyssea.CONST.BIOMES) || {};
       const biomeName = (biomesObj[biomeId] && biomesObj[biomeId].name) || biomeId;
       const dungProg = this.getBiomeDungeonProgress(game, biomeId);
       if (!game || !game.world || !Array.isArray(game.world.plotBiomes)) {
@@ -413,12 +422,12 @@
 
     buyPlot(game, gx, gy) {
       if (game.world.isPlotUnlocked(gx, gy)) return false;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       const biomeLock = this.getBiomeLockStatus(game, gx, gy);
       if (biomeLock.lockedByBiome) {
         const targetBiomeId = game.world.plotBiomes[gy][gx];
-        const targetBiomeName = (Balaclava.CONST.BIOMES[targetBiomeId] && Balaclava.CONST.BIOMES[targetBiomeId].name) || targetBiomeId;
+        const targetBiomeName = (Abyssea.CONST.BIOMES[targetBiomeId] && Abyssea.CONST.BIOMES[targetBiomeId].name) || targetBiomeId;
         const msg = isEn
           ? `Complete ${biomeLock.blockingBiomeName} (Islands ${biomeLock.unlocked}/${biomeLock.total} · Dungeons ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal}) before unlocking ${targetBiomeName}.`
           : `Completa ${biomeLock.blockingBiomeName} (Islas ${biomeLock.unlocked}/${biomeLock.total} · Mazmorras ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal}) antes de desbloquear ${targetBiomeName}.`;
@@ -426,13 +435,13 @@
         if (game.addFloatingText && game.player) {
           game.addFloatingText(game.player.x, game.player.y - 28, `${biomeLock.blockingBiomeName}: ${biomeLock.unlocked}/${biomeLock.total} · ${biomeLock.dungeonsDone}/${biomeLock.dungeonsTotal}`, '#ff8a80');
         }
-        if (Balaclava.Audio) Balaclava.Audio.play('error');
+        if (Abyssea.Audio) Abyssea.Audio.play('error');
         return false;
       }
       if (!this.isPlotAdjacentlyReachable(game, gx, gy)) {
         const msg = isEn ? 'You must unlock an adjacent plot first.' : 'Debes desbloquear una parcela adyacente primero.';
         if (game.toast) game.toast(msg, 'warn');
-        if (Balaclava.Audio) Balaclava.Audio.play('error');
+        if (Abyssea.Audio) Abyssea.Audio.play('error');
         return false;
       }
       const price = this.getPlotPrice(game, gx, gy);
@@ -441,7 +450,7 @@
         if (game.addFloatingText && game.player) {
           game.addFloatingText(game.player.x, game.player.y - 28, T('toast.notEnoughCoins'), '#ff5252');
         }
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       game.coins -= price;
@@ -449,19 +458,19 @@
       game.unlockedPlots.push([gx, gy]);
       if (!Array.isArray(game.plotUnlockAnims)) game.plotUnlockAnims = [];
       game.plotUnlockAnims.push({ gx, gy, t: 0, dur: 0.48 });
-      const plotPx = (Balaclava.CONST.PLOT_TILES || 12) * (Balaclava.CONST.TILE_SIZE || 48);
+      const plotPx = (Abyssea.CONST.PLOT_TILES || 12) * (Abyssea.CONST.TILE_SIZE || 48);
       const pcx = gx * plotPx + plotPx * 0.5;
       const pcy = gy * plotPx + plotPx * 0.5;
       game.spawnParticles(pcx, pcy, '#80deea', 26);
       game.spawnParticles(pcx, pcy, '#ffd54f', 16);
       game.gainXp(25);
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       const curBiomeId = game.world.plotBiomes[gy][gx];
-      const biomeName = Balaclava.CONST.BIOMES[curBiomeId].name;
+      const biomeName = Abyssea.CONST.BIOMES[curBiomeId].name;
       const afterProg = this.getBiomeUnlockProgress(game, curBiomeId);
       const order = this.getBiomeProgressionOrder(game);
       const nextBiomeId = order[order.indexOf(curBiomeId) + 1];
-      const nextBiomeName = nextBiomeId && Balaclava.CONST.BIOMES[nextBiomeId] ? Balaclava.CONST.BIOMES[nextBiomeId].name : null;
+      const nextBiomeName = nextBiomeId && Abyssea.CONST.BIOMES[nextBiomeId] ? Abyssea.CONST.BIOMES[nextBiomeId].name : null;
       if (afterProg.complete && nextBiomeName) {
         game.toast(
           isEn
@@ -488,5 +497,5 @@
     }
   }
 
-  Balaclava.EconomySystem = EconomySystem;
+  Abyssea.EconomySystem = EconomySystem;
 })();

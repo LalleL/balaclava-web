@@ -1,25 +1,129 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { TILE_SIZE, PLOT_TILES, GRID_PLOTS, WORLD_TILES, WORLD_PX, BIOMES, RARITIES } = Balaclava.CONST;
-  const { clamp, dist, rand, randInt, pick } = Balaclava.Utils;
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { TILE_SIZE, PLOT_TILES, GRID_PLOTS, WORLD_TILES, WORLD_PX, BIOMES, RARITIES } = Abyssea.CONST;
+  const { clamp, dist, rand, randInt, pick } = Abyssea.Utils;
+
+  // Hoisted static render tables (avoids per-node / per-frame object & Set allocations)
+  const TREE_POOLS = {
+    pradera: ['pradera_1', 'pradera_3'],
+    desierto: ['desierto_1', 'desierto_2'],
+    bosque_oscuro: ['bosque_oscuro_1'],
+    montanas_heladas: ['montanas_heladas_1', 'montanas_heladas_2'],
+    nieve: ['montanas_heladas_1', 'montanas_heladas_2'],
+    tierras_volcanicas: ['tierras_volcanicas_1'],
+    archipielago_coral: ['archipielago_coral_1'],
+    selva_esmeralda: ['selva_esmeralda_1'],
+    cavernas_cristal: ['cavernas_cristal_1'],
+    caldera_ceniza: ['caldera_ceniza_1'],
+    cienaga_putrida: ['cienaga_putrida_1'],
+    dinastia_arena: ['dinastia_arena_1', 'dinastia_arena_2'],
+    glaciar_profundo: ['glaciar_profundo_1'],
+    necropolis_osea: ['necropolis_osea_1'],
+    tierras_malditas: ['tierras_malditas_1']
+  };
+
+  const ORE_NODE_SPRITE_MAP = {
+    rock: 'node_stone',
+    coal_vein: 'node_coal',
+    sulfur_vein: 'node_sulfur',
+    copper_vein: 'node_copper',
+    tin_vein: 'node_tin',
+    iron_vein: 'node_iron',
+    silver_vein: 'node_silver',
+    gold_vein: 'node_gold',
+    platinum_vein: 'node_platinum',
+    jade_vein: 'node_jade',
+    amethyst_vein: 'node_amethyst',
+    bloodstone_vein: 'node_bloodstone',
+    malachite_vein: 'node_malachite',
+    star_sand_vein: 'node_star_sand',
+    amber_vein: 'node_amber',
+    titanium_vein: 'node_titanium',
+    obsidian_vein: 'node_obsidian',
+    magma_core_vein: 'node_magma_core',
+    adamantite_vein: 'node_adamantite',
+    orichalcum_vein: 'node_orichalcum',
+    coral_abisal_node: 'node_coral_abisal',
+    perla_turquesa_node: 'node_perla_turquesa',
+    madera_ferrea_node: 'node_madera_ferrea',
+    resina_toxica_node: 'node_resina_toxica',
+    pirita_solar_node: 'node_pirita_solar',
+    hueso_fosil_node: 'node_hueso_fosil',
+    plata_maldita_node: 'node_plata_maldita',
+    escoria_caldera_node: 'node_escoria_caldera',
+    marmol_oscuro_node: 'node_marmol_oscuro'
+  };
+
+  const ORE_SPARKLE_SET = new Set([
+    'gold_vein', 'platinum_vein', 'jade_vein', 'amethyst_vein', 'bloodstone_vein',
+    'amber_vein', 'titanium_vein', 'orichalcum_vein', 'adamantite_vein', 'magma_core_vein',
+    'perla_turquesa_node', 'pirita_solar_node', 'plata_maldita_node', 'resina_toxica_node'
+  ]);
+
+  const CRYSTAL_NODE_SPRITE_MAP = {
+    crystal_node: 'node_amethyst',
+    emerald_vein: 'node_emerald',
+    diamond_vein: 'node_diamond',
+    ice_crystal: 'node_ice_crystal',
+    ruby_node: 'node_ruby',
+    sapphire_node: 'node_sapphire',
+    mithril_vein: 'node_mithril',
+    azurite_vein: 'node_azurite',
+    abyssal_crystal_vein: 'node_abyssal_crystal',
+    agata_roja_node: 'node_agata_roja',
+    cuarzo_boreal_node: 'node_cuarzo_boreal',
+    hielo_eterno_node: 'node_hielo_eterno',
+    cristal_carmesi_node: 'node_cristal_carmesi',
+    bismuto_astral_node: 'node_bismuto_astral',
+    celestita_node: 'node_celestita',
+    jade_ancestral_node: 'node_jade_ancestral',
+    flor_pantano_node: 'node_flor_pantano'
+  };
+
+  const CRYSTAL_GLOW_COLOR_MAP = {
+    emerald_vein: '#66bb6a',
+    diamond_vein: '#4fc3f7',
+    ruby_node: '#ef5350',
+    agata_roja_node: '#ef5350',
+    sapphire_node: '#42a5f5',
+    celestita_node: '#42a5f5',
+    mithril_vein: '#80cbc4',
+    azurite_vein: '#29b6f6',
+    abyssal_crystal_vein: '#b388ff',
+    bismuto_astral_node: '#b388ff',
+    ice_crystal: '#b3e5fc',
+    hielo_eterno_node: '#b3e5fc',
+    cristal_carmesi_node: '#ff1744',
+    jade_ancestral_node: '#00e676',
+    flor_pantano_node: '#aeea00'
+  };
+
+  const FLORA_FLOWER_PALETTES = [
+    ['#fff176', '#ffb74d'],
+    ['#ff80ab', '#f48fb1'],
+    ['#80d8ff', '#b3e5fc'],
+    ['#fff9c4', '#ffffff']
+  ];
+  const MUSHROOM_KEYS = ['mushroom_blue_anim', 'mushroom_green_anim', 'cave_mushroom_orange', 'cave_mushroom_brown'];
+  const METEOR_KEYS = ['meteor_red', 'meteor_gold', 'meteor_blue', 'meteor_dark'];
 
   class GameEngine {
     constructor(canvas) {
       this.canvas = canvas;
       this.ctx = canvas.getContext('2d');
 
-      this.world = new Balaclava.WorldManager();
-      this.farming = new Balaclava.FarmingAndFishing();
-      this.omega = Balaclava.OmegaSystem ? new Balaclava.OmegaSystem() : null;
-      if (this.omega) Balaclava.OmegaRuntime = this.omega;
-      this.automation = new Balaclava.AutomationSystem();
-      this.combat = new Balaclava.CombatSystem();
-      this.economy = new Balaclava.EconomySystem();
-      this.events = new Balaclava.EventsSystem();
-      this.tutorialSys = new Balaclava.TutorialSystem();
-      this.saveSys = new Balaclava.SaveSystem();
+      this.world = new Abyssea.WorldManager();
+      this.farming = new Abyssea.FarmingAndFishing();
+      this.omega = Abyssea.OmegaSystem ? new Abyssea.OmegaSystem() : null;
+      if (this.omega) Abyssea.OmegaRuntime = this.omega;
+      this.automation = new Abyssea.AutomationSystem();
+      this.combat = new Abyssea.CombatSystem();
+      this.economy = new Abyssea.EconomySystem();
+      this.events = new Abyssea.EventsSystem();
+      this.tutorialSys = new Abyssea.TutorialSystem();
+      this.saveSys = new Abyssea.SaveSystem();
 
       this.running = false;
       this.started = false;
@@ -66,7 +170,7 @@
       this.corruptedClearedDungeons = [];
       this.photoMode = false;
 
-      const C = Balaclava.CONST.CENTER_PLOT || 4;
+      const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       this.unlockedPlots = [[C, C]];
       this.unlockedSkills = [];
       this.unlockedSpells = ['misil_arcano'];
@@ -78,7 +182,7 @@
       this.claimedContracts = [];
       this.clearedDungeons = [];
       this.corruptedClearedDungeons = [];
-      if (this.omega) { this.omega.reset(); Balaclava.OmegaRuntime = this.omega; }
+      if (this.omega) { this.omega.reset(); Abyssea.OmegaRuntime = this.omega; }
       this.dungeonIntroSeen = false;
       this.activeDungeonIntroTimer = 0;
       this.unlockedAchievements = [];
@@ -136,13 +240,13 @@
       };
       this.uiDirty = true;
       if (typeof document !== 'undefined' && document.fonts && document.fonts.load) {
-        document.fonts.load('16px BalaclavaPixel').catch(() => {});
-        document.fonts.load('18px BalaclavaBodyPixel').catch(() => {});
+        document.fonts.load('16px AbysseaPixel').catch(() => {});
+        document.fonts.load('18px AbysseaBodyPixel').catch(() => {});
       }
     }
 
     makeInitialPlayer() {
-      const C = Balaclava.CONST.CENTER_PLOT || 4;
+      const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       const startPlot = C * PLOT_TILES + 6;
       return {
         x: startPlot * TILE_SIZE,
@@ -222,7 +326,7 @@
     }
 
     startNewGame(slot = 1) {
-      const C = Balaclava.CONST.CENTER_PLOT || 4;
+      const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       this.currentSlot = slot;
       this.world.initNewWorld();
       this.player = this.makeInitialPlayer();
@@ -269,7 +373,7 @@
       this.claimedContracts = [];
       this.clearedDungeons = [];
       this.corruptedClearedDungeons = [];
-      if (this.omega) { this.omega.reset(); Balaclava.OmegaRuntime = this.omega; }
+      if (this.omega) { this.omega.reset(); Abyssea.OmegaRuntime = this.omega; }
       this.dungeonIntroSeen = false;
       this.activeDungeonIntroTimer = 0;
       this.unlockedAchievements = [];
@@ -314,8 +418,8 @@
         this.tutorialSys.skipped = false;
         this.tutorialSys.stepState = {};
         this.tutorialSys.minimized = false;
-      } else if (Balaclava.TutorialSystem) {
-        this.tutorialSys = new Balaclava.TutorialSystem();
+      } else if (Abyssea.TutorialSystem) {
+        this.tutorialSys = new Abyssea.TutorialSystem();
       }
       this.recomputeModifiers();
 
@@ -354,9 +458,9 @@
         vy: 0
       });
 
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.starterTip') : '¡Comienzas con tu Pico y Hacha listos para explorar!', 'info');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.starterTip') : '¡Comienzas con tu Pico y Hacha listos para explorar!', 'info');
       this.saveSys.save(this, this.currentSlot, true);
-      if (Balaclava.actualizarDiscord) Balaclava.actualizarDiscord(true);
+      if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
     }
 
     recomputeModifiers() {
@@ -371,7 +475,7 @@
       };
 
       for (const sid of this.unlockedSkills) {
-        const s = Balaclava.SKILLS[sid];
+        const s = Abyssea.SKILLS[sid];
         if (!s || !s.effect) continue;
         for (const [k, v] of Object.entries(s.effect)) {
           if (typeof v === 'boolean') m[k] = v;
@@ -388,7 +492,7 @@
       // Equipment stats across Armor, Helm, Shield, Boots, Ring, Amulet & Relic
       for (const eqId of Object.values(this.equipped || {})) {
         if (!eqId) continue;
-        const item = Balaclava.ITEMS[eqId];
+        const item = Abyssea.ITEMS[eqId];
         const st = item && (item.stats || item.bonus);
         if (!st) continue;
         if (st.def) {
@@ -417,30 +521,25 @@
         if (st.thorns) m.thorns += st.thorns;
       }
 
-      // Backpack capacity & stack bonuses
+      // Backpack capacity & stack bonuses (equipped, backpackTier, or inventory fallback)
       let bpSlots = 0, bpStack = 0;
-      const bpEquipped = this.equipped && this.equipped.backpack && Balaclava.ITEMS[this.equipped.backpack];
-      if (bpEquipped && bpEquipped.backpackBonus) {
-        bpSlots = bpEquipped.backpackBonus.slots || 0;
-        bpStack = bpEquipped.backpackBonus.stack || 0;
-      } else if (this.inventory) {
-        if (this.inventory.mochila_astral > 0 && Balaclava.ITEMS.mochila_astral) {
-          bpSlots = Balaclava.ITEMS.mochila_astral.backpackBonus.slots;
-          bpStack = Balaclava.ITEMS.mochila_astral.backpackBonus.stack;
-        } else if (this.inventory.mochila_reforzada > 0 && Balaclava.ITEMS.mochila_reforzada) {
-          bpSlots = Balaclava.ITEMS.mochila_reforzada.backpackBonus.slots;
-          bpStack = Balaclava.ITEMS.mochila_reforzada.backpackBonus.stack;
-        } else if (this.inventory.mochila_cuero > 0 && Balaclava.ITEMS.mochila_cuero) {
-          bpSlots = Balaclava.ITEMS.mochila_cuero.backpackBonus.slots;
-          bpStack = Balaclava.ITEMS.mochila_cuero.backpackBonus.stack;
-        }
+      const tierBpMap = { 1: 'mochila_cuero', 2: 'mochila_reforzada', 3: 'mochila_astral' };
+      const bpId = (this.equipped && this.equipped.backpack)
+        || (this.backpackTier ? tierBpMap[this.backpackTier] : null)
+        || (this.inventory && this.inventory.mochila_astral > 0 ? 'mochila_astral'
+          : this.inventory && this.inventory.mochila_reforzada > 0 ? 'mochila_reforzada'
+          : this.inventory && this.inventory.mochila_cuero > 0 ? 'mochila_cuero' : null);
+      const bpDef = bpId && Abyssea.ITEMS[bpId];
+      if (bpDef && bpDef.backpackBonus) {
+        bpSlots = bpDef.backpackBonus.slots || 0;
+        bpStack = bpDef.backpackBonus.stack || 0;
       }
       m.backpackSlots = bpSlots;
       m.backpackStack = bpStack;
 
       // Passive spell Power bonus when holding a staff/wand in active hotbar slot
       const actSlot = this.hotbar && this.hotbar[this.activeSlot];
-      const actItem = actSlot && actSlot.kind === 'item' ? Balaclava.ITEMS[actSlot.id] : null;
+      const actItem = actSlot && actSlot.kind === 'item' ? Abyssea.ITEMS[actSlot.id] : null;
       if (actItem && actItem.isStaffWeapon) {
         m.spellPower += actItem.id === 'baculo_rubi' ? 0.25 : actItem.id === 'baculo_lunar' ? 0.18 : 0.12;
       }
@@ -450,7 +549,7 @@
         if (eqPiece && this.armorEnchants && this.armorEnchants[eqPiece]) {
           const ae = this.armorEnchants[eqPiece];
           for (const [eid, lvl] of Object.entries(ae)) {
-            const def = Balaclava.ARMOR_ENCHANTS && Balaclava.ARMOR_ENCHANTS[eid];
+            const def = Abyssea.ARMOR_ENCHANTS && Abyssea.ARMOR_ENCHANTS[eid];
             const src = def && (def.perLevel || def.effect);
             if (!src || lvl <= 0) continue;
             for (const [k, v] of Object.entries(src)) {
@@ -470,9 +569,9 @@
       }
 
       // Permanent boss-dropped passive relics
-      if (Array.isArray(this.permanentRelics) && Balaclava.PERMANENT_RELICS) {
+      if (Array.isArray(this.permanentRelics) && Abyssea.PERMANENT_RELICS) {
         for (const rid of this.permanentRelics) {
-          const rel = Balaclava.PERMANENT_RELICS[rid];
+          const rel = Abyssea.PERMANENT_RELICS[rid];
           if (!rel || !rel.effect) continue;
           for (const [k, v] of Object.entries(rel.effect)) {
             if (typeof v === 'boolean') m[k] = v;
@@ -487,7 +586,7 @@
 
       // Monument & Library global building auras (scaled by building upgrade level 1..3)
       for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS[b.type];
         if (!def) continue;
         const lvl = Math.max(1, Number(b.level) || 1);
         const lvlMult = 1 + (lvl - 1) * 0.45;
@@ -517,6 +616,97 @@
         m.dmgBonus += 0.30;
         m.spellPower += 0.30;
         m.moveSpeed += 0.25;
+      }
+      if (this.activeBuffs.titan_skin) {
+        m.def += 45;
+        m.defPct += 0.25;
+        m.thorns += 25;
+      }
+      if (this.activeBuffs.miner_sight) {
+        m.mineSpeed += 0.55;
+        m.chopSpeed += 0.55;
+        m.doubleDropChance += 0.30;
+        m.lightRadius += 140;
+      }
+      if (this.activeBuffs.chrono_haste) {
+        m.moveSpeed += 0.45;
+        m.attackSpeed += 0.35;
+        m.dashBonus += 0.40;
+      }
+      if (this.activeBuffs.vampiric_thirst) {
+        m.critChance += 0.20;
+        m.dmgBonus += 0.25;
+        m.killHeal += 15;
+      }
+      if (this.activeBuffs.storm_overload) {
+        m.spellPower += 0.45;
+        m.attackSpeed += 0.30;
+        m.critChance += 0.18;
+      }
+      if (this.activeBuffs.golden_fortune) {
+        m.coinDropBonus += 0.75;
+        m.luckBonus += 0.45;
+        m.gemFinder += 0.30;
+      }
+      if (this.activeBuffs.phantom_step) {
+        m.dodgeChance += 0.28;
+        m.moveSpeed += 0.35;
+        m.critChance += 0.20;
+      }
+      if (this.activeBuffs.colossus_might) {
+        m.maxHp += 220;
+        m.dmgBonus += 0.40;
+        m.defPct += 0.25;
+      }
+      if (this.activeBuffs.radiant_harvest) {
+        m.gatherPower += 0.60;
+        m.doubleDropChance += 0.35;
+        m.xpBonus += 0.35;
+      }
+      if (this.activeBuffs.omega_transcendence) {
+        m.dmgBonus += 0.50;
+        m.spellPower += 0.50;
+        m.moveSpeed += 0.35;
+        m.luckBonus += 0.45;
+        m.defPct += 0.30;
+      }
+
+      // v1.4.0: Aquarium Dimension fish exhibition passives
+      if (typeof this.getAquariumModifiers === 'function') {
+        const aqMods = this.getAquariumModifiers();
+        for (const [k, v] of Object.entries(aqMods)) {
+          if (typeof v === 'number') m[k] = (m[k] || 0) + v;
+        }
+      }
+
+      // v1.4.0: Island Legacy long-term milestone passives
+      if (typeof this.getLegacyModifiers === 'function') {
+        const legMods = this.getLegacyModifiers();
+        for (const [k, v] of Object.entries(legMods)) {
+          if (typeof v === 'number') m[k] = (m[k] || 0) + v;
+        }
+      }
+
+      // v2.0.0-rc2: Trophy Hall, Active Companion Pet, Armor Set Synergies & Lunar Cycle passives
+      if (typeof this.getV2Modifiers === 'function') {
+        const v2Mods = this.getV2Modifiers();
+        for (const [k, v] of Object.entries(v2Mods)) {
+          if (typeof v === 'number') m[k] = (m[k] || 0) + v;
+          else if (typeof v === 'boolean' && v) m[k] = true;
+        }
+      }
+
+      // v1.4.0: Active tool or weapon rolled Rarity stat bonuses (Común -> Singular)
+      if (typeof this.getGearRarity === 'function' && actSlot) {
+        const gRar = this.getGearRarity(actSlot.kind, actSlot.id);
+        if (gRar && gRar.id !== 'comun') {
+          m.dmgBonus += (gRar.dmgMult - 1);
+          m.gatherPower += (gRar.powerMult - 1);
+          m.attackSpeed += (gRar.speedMult - 1);
+          m.critChance += (gRar.critBonus || 0);
+          m.luckBonus += (gRar.luckBonus || 0);
+          m.energySave += (gRar.energySave || 0);
+        }
       }
 
       if (this.player && this.player.bonusStats) {
@@ -563,7 +753,7 @@
 
     hasCraftingStructureBuilt() {
       return this.buildings.some(b => {
-        const d = Balaclava.BUILDINGS[b.type];
+        const d = Abyssea.BUILDINGS[b.type];
         return d && (d.station || d.opensPanel === 'crafting');
       });
     }
@@ -573,16 +763,16 @@
     }
 
     unlockPermanentRelic(relicId) {
-      const rel = Balaclava.PERMANENT_RELICS && Balaclava.PERMANENT_RELICS[relicId];
+      const rel = Abyssea.PERMANENT_RELICS && Abyssea.PERMANENT_RELICS[relicId];
       if (!rel) return false;
       if (!Array.isArray(this.permanentRelics)) this.permanentRelics = [];
       if (this.permanentRelics.includes(relicId)) return false;
       this.permanentRelics.push(relicId);
       this.recordEncyclopedia('relics', relicId);
       this.recomputeModifiers();
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       this.spawnParticles(this.player.x, this.player.y, '#ffd54f', 26);
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.relicUnlocked', { name: rel.name, desc: rel.desc }) : `¡Reliquia Permanente obtenida: ${rel.name}! ${rel.desc}`, 'success');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.relicUnlocked', { name: rel.name, desc: rel.desc }) : `¡Reliquia Permanente obtenida: ${rel.name}! ${rel.desc}`, 'success');
       this.uiDirty = true;
       return true;
     }
@@ -605,7 +795,7 @@
       const maxStack = this.getMaxStackSize();
       let used = 0;
       for (const [id, count] of Object.entries(this.inventory || {})) {
-        if (count > 0 && Balaclava.ITEMS[id]) {
+        if (count > 0 && Abyssea.ITEMS[id]) {
           const hotbarSlotsWithItem = (this.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
           const hotbarCap = hotbarSlotsWithItem * maxStack;
           const invQty = Math.max(0, count - hotbarCap);
@@ -615,7 +805,7 @@
         }
       }
       if (this.toolTiers) {
-        for (const tId of Object.keys(Balaclava.TOOLS || {})) {
+        for (const tId of Object.keys(Abyssea.TOOLS || {})) {
           if (this.toolTiers[tId]) {
             const inHotbar = (this.hotbar || []).some(s => s && s.kind === 'tool' && s.id === tId);
             if (!inHotbar) {
@@ -650,7 +840,7 @@
     }
 
     canAddItem(itemId, qty = 1) {
-      if (!Balaclava.ITEMS[itemId] || qty <= 0) return false;
+      if (!Abyssea.ITEMS[itemId] || qty <= 0) return false;
       return this.getItemCapacityInfo(itemId).totalFit >= qty;
     }
 
@@ -661,7 +851,7 @@
 
       let toolSlotsUsed = 0;
       if (this.toolTiers) {
-        for (const tId of Object.keys(Balaclava.TOOLS || {})) {
+        for (const tId of Object.keys(Abyssea.TOOLS || {})) {
           if (this.toolTiers[tId]) {
             const inHotbar = (this.hotbar || []).some(s => s && s.kind === 'tool' && s.id === tId);
             if (!inHotbar) toolSlotsUsed += 1;
@@ -672,13 +862,13 @@
 
       const RARITY_SCORE = { legendario: 50, epico: 40, raro: 30, poco_comun: 20, comun: 10 };
       const CHEST_MATS = new Set(['tablon', 'madera', 'lingote_hierro', 'piedra', 'lingote_oro', 'lingote_acero', 'diamantes', 'flecha']);
-      const entries = Object.entries(this.inventory).filter(([id, count]) => count > 0 && Balaclava.ITEMS[id]);
+      const entries = Object.entries(this.inventory).filter(([id, count]) => count > 0 && Abyssea.ITEMS[id]);
       entries.sort(([idA], [idB]) => {
         const cA = CHEST_MATS.has(idA) ? 100 : 0;
         const cB = CHEST_MATS.has(idB) ? 100 : 0;
         if (cA !== cB) return cB - cA;
-        const rA = RARITY_SCORE[(Balaclava.ITEMS[idA] && Balaclava.ITEMS[idA].rarity) || 'comun'] || 10;
-        const rB = RARITY_SCORE[(Balaclava.ITEMS[idB] && Balaclava.ITEMS[idB].rarity) || 'comun'] || 10;
+        const rA = RARITY_SCORE[(Abyssea.ITEMS[idA] && Abyssea.ITEMS[idA].rarity) || 'comun'] || 10;
+        const rB = RARITY_SCORE[(Abyssea.ITEMS[idB] && Abyssea.ITEMS[idB].rarity) || 'comun'] || 10;
         return rB - rA;
       });
 
@@ -710,7 +900,7 @@
       if (overflowDrops.length > 0 || isFirstPostUpdateLoad) {
         if (overflowDrops.length > 0) {
           // Teleport player to the Main Central Island (4, 4) so all dropped excess items are right around them
-          const C = (Balaclava.CONST && Balaclava.CONST.CENTER_PLOT) || 4;
+          const C = (Abyssea.CONST && Abyssea.CONST.CENTER_PLOT !== undefined) ? Abyssea.CONST.CENTER_PLOT : 9;
           const campX = (C * PLOT_TILES + 6.5) * TILE_SIZE;
           const campY = (C * PLOT_TILES + 6.5) * TILE_SIZE;
           const safe = typeof this.findSafeOverworldSpawn === 'function'
@@ -759,9 +949,9 @@
     getToolEnchantBonuses(toolId) {
       const out = { gatherMult: 0, speedMult: 0, doubleChance: 0, gemChance: 0, dmgBonus: 0, critChance: 0, autoSmelt: false, fireDmg: 0, reachBonus: 0 };
       const map = this.toolEnchants && this.toolEnchants[toolId];
-      if (!map || !Balaclava.TOOL_ENCHANTS) return out;
+      if (!map || !Abyssea.TOOL_ENCHANTS) return out;
       for (const [eid, lvl] of Object.entries(map)) {
-        const def = Balaclava.TOOL_ENCHANTS[eid];
+        const def = Abyssea.TOOL_ENCHANTS[eid];
         const src = def && (def.perLevel || def.effect);
         if (!src || lvl <= 0) continue;
         for (const [k, v] of Object.entries(src)) {
@@ -791,7 +981,7 @@
     }
 
     getEnchantConflict(targetKind, itemId, enchantId) {
-      const catalog = targetKind === 'tool' ? Balaclava.TOOL_ENCHANTS : Balaclava.ARMOR_ENCHANTS;
+      const catalog = targetKind === 'tool' ? Abyssea.TOOL_ENCHANTS : Abyssea.ARMOR_ENCHANTS;
       const store = targetKind === 'tool' ? (this.toolEnchants || {}) : (this.armorEnchants || {});
       const ench = catalog && catalog[enchantId];
       const existing = store[itemId] || {};
@@ -807,25 +997,25 @@
     }
 
     enchantItem(targetKind, itemId, enchantId) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       const tableTier = this.getEnchantTableTier();
       if (tableTier <= 0) {
         this.toast(T('toast.needEnchantTable'), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
-      const catalog = targetKind === 'tool' ? Balaclava.TOOL_ENCHANTS : Balaclava.ARMOR_ENCHANTS;
+      const catalog = targetKind === 'tool' ? Abyssea.TOOL_ENCHANTS : Abyssea.ARMOR_ENCHANTS;
       const ench = catalog && catalog[enchantId];
       if (!ench) return false;
       if ((ench.reqTier || 1) > tableTier) {
         this.toast(T('toast.enchantNeedTier', { tier: ench.reqTier }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       const conflictName = this.getEnchantConflict(targetKind, itemId, enchantId);
       if (conflictName) {
         this.toast(T('toast.enchantConflict', { name: conflictName }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       const store = targetKind === 'tool' ? (this.toolEnchants = this.toolEnchants || {}) : (this.armorEnchants = this.armorEnchants || {});
@@ -844,7 +1034,7 @@
       const maxSlots = this.getMaxEnchantSlots();
       if (curLvl === 0 && activeSlots >= maxSlots) {
         this.toast(T('toast.enchantSlotLimit', { cur: activeSlots, max: maxSlots }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (curLvl >= ench.maxLevel) {
@@ -852,17 +1042,17 @@
         return false;
       }
       const nextLvl = curLvl + 1;
-      const cost = Balaclava.getEnchantCost(targetKind, enchantId, nextLvl);
+      const cost = Abyssea.getEnchantCost(targetKind, enchantId, nextLvl);
       if (!cost) return false;
       if (this.coins < cost.coins) {
         this.toast(T('toast.enchantNeedCoins', { coins: cost.coins }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       for (const [id, q] of Object.entries(cost.items)) {
         if ((this.inventory[id] || 0) < q) {
-          this.toast(T('toast.enchantMissingMat', { qty: q, name: Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id }), 'warn');
-          Balaclava.Audio.play('error');
+          this.toast(T('toast.enchantMissingMat', { qty: q, name: Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id }), 'warn');
+          Abyssea.Audio.play('error');
           return false;
         }
       }
@@ -872,7 +1062,7 @@
       this.recordEncyclopedia('enchants', enchantId);
       this.recomputeModifiers();
       this.gainXp(30);
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       this.spawnParticles(this.player.x, this.player.y, '#ce93d8', 18);
       this.toast(T('toast.enchantApplied', { name: ench.name, lvl: nextLvl }), 'success');
       this.uiDirty = true;
@@ -895,7 +1085,7 @@
     }
 
     addItem(itemId, qty = 1) {
-      if (!Balaclava.ITEMS[itemId] || qty <= 0) return;
+      if (!Abyssea.ITEMS[itemId] || qty <= 0) return;
 
       const cap = this.getItemCapacityInfo(itemId);
       const toAdd = Math.min(qty, cap.totalFit);
@@ -919,9 +1109,9 @@
         this.stats.gatheredTotal += toAdd;
         this.events.recordAction('gather', toAdd);
         this.recordEncyclopedia('items', itemId);
-        if (itemId === 'nucleo_balaclava') this.stats.craftedCore = true;
+        if (itemId === 'nucleo_abyssea') this.stats.craftedCore = true;
 
-        const it = Balaclava.ITEMS[itemId];
+        const it = Abyssea.ITEMS[itemId];
         const rar = RARITIES[it.rarity] || RARITIES.comun;
         const px = (this.player && this.player.x) || 0;
         const py = (this.player && this.player.y) || 0;
@@ -940,6 +1130,7 @@
         }
         if (!this._lastFullInvToast || this.time - this._lastFullInvToast > 1.2) {
           this._lastFullInvToast = this.time;
+          const maxSlots = this.getMaxInventorySlots();
           this.toast(`Inventario lleno (${maxSlots}/${maxSlots} slots). Objeto en el suelo.`, 'warning');
         }
       }
@@ -976,7 +1167,7 @@
 
     getBowReloadDuration() {
       const tier = (this.toolTiers && this.toolTiers.arco) || 'basica';
-      const stats = (Balaclava.getToolStats && Balaclava.getToolStats('arco', tier)) || { speed: 1 };
+      const stats = (Abyssea.getToolStats && Abyssea.getToolStats('arco', tier)) || { speed: 1 };
       const tb = this.getToolEnchantBonuses ? this.getToolEnchantBonuses('arco') : { speedMult: 0 };
       const spdMult = Math.max(0.75, Math.sqrt(stats.speed || 1) * (1 + ((this.mods && this.mods.attackSpeed) || 0) * 0.5 + (tb.speedMult || 0) * 0.5));
       return clamp(0.56 / spdMult, 0.24, 0.65);
@@ -992,9 +1183,9 @@
         this.player.bowNeedsAutoReload = false;
         if (!silent && (this.time - (this._lastNoArrowWarn || -99)) >= 1.0) {
           this._lastNoArrowWarn = this.time;
-          Balaclava.Audio.play('error');
-          const msg = (Balaclava.I18n && Balaclava.I18n.t('toast.noArrows') !== 'toast.noArrows')
-            ? Balaclava.I18n.t('toast.noArrows')
+          Abyssea.Audio.play('error');
+          const msg = (Abyssea.I18n && Abyssea.I18n.t('toast.noArrows') !== 'toast.noArrows')
+            ? Abyssea.I18n.t('toast.noArrows')
             : 'Sin flechas! Fabrica flechas en Artesania';
           this.addFloatingText(this.player.x, this.player.y - 26, msg, '#ff8a65');
           this.toast(msg, 'warn');
@@ -1009,8 +1200,8 @@
       this.player.bowReloadTimer = dur;
       this.player.bowNeedsAutoReload = false;
       if (!silent) {
-        const msg = (Balaclava.I18n && Balaclava.I18n.t('toast.bowReloading') !== 'toast.bowReloading')
-          ? Balaclava.I18n.t('toast.bowReloading')
+        const msg = (Abyssea.I18n && Abyssea.I18n.t('toast.bowReloading') !== 'toast.bowReloading')
+          ? Abyssea.I18n.t('toast.bowReloading')
           : 'Recargando arco...';
         this.addFloatingText(this.player.x, this.player.y - 26, msg, '#ffe082');
       }
@@ -1023,7 +1214,7 @@
       const total = Math.max(1, Math.round(amount * mult));
       this.coins += total;
       this.stats.coinsEarned += total;
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       this.addFloatingText(this.player.x + 14, this.player.y - 24, T('hud.coinShort', { n: total }), '#ffd54f');
       this.pushPickupFeed('_coin', T('hud.coinsGoldName'), 'coin_gold', total, '#ffd54f');
       this.uiDirty = true;
@@ -1041,7 +1232,7 @@
     }
 
     gainXp(baseXp) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       const mult = 1 + (this.mods.xpBonus || 0);
       const gain = Math.max(1, Math.round(baseXp * mult));
       this.player.xp += gain;
@@ -1078,8 +1269,8 @@
       if (leveled) {
         const ptsGained = this.player.level - oldLevel;
         this.toast(T('toast.levelUpPts', { from: oldLevel, to: this.player.level, pts: ptsGained, s: ptsGained > 1 ? 's' : '' }), 'success');
-        Balaclava.Audio.play('levelup');
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('levelup');
+        Abyssea.Audio.play('thunder');
         this.shake(0.75, 14);
         this.levelFlashTimer = 1.65;
         this.levelBannerTimer = 3.2;
@@ -1130,15 +1321,15 @@
 
     useOrEquipItem(itemId, targetWx = null, targetWy = null) {
       if (this.isPlayerDead()) return false;
-      const item = Balaclava.ITEMS[itemId];
+      const item = Abyssea.ITEMS[itemId];
       if (!item || (this.inventory[itemId] || 0) <= 0) return false;
 
       if (item.teachSpell) {
-        const spDef = Balaclava.SPELLS && Balaclava.SPELLS[item.teachSpell];
+        const spDef = Abyssea.SPELLS && Abyssea.SPELLS[item.teachSpell];
         if (!spDef) return false;
         if (!Array.isArray(this.unlockedSpells)) this.unlockedSpells = ['misil_arcano'];
         if (this.unlockedSpells.includes(item.teachSpell)) {
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.spellAlreadyKnown', { name: spDef.name }) : `Ya dominas el hechizo ${spDef.name}.`, 'info');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.spellAlreadyKnown', { name: spDef.name }) : `Ya dominas el hechizo ${spDef.name}.`, 'info');
           return false;
         }
         this.removeItem(itemId, 1);
@@ -1159,9 +1350,22 @@
         }
         this.placingBuildingId = item.placeBuilding;
         this.placingItemId = itemId;
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.placeItemHint', { name: item.name }) : `Colocando ${item.name} — Click en el mapa para situar (ESC cancela)`, 'info');
-        Balaclava.UI.closeModal();
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.placeItemHint', { name: item.name }) : `Colocando ${item.name} — Click en el mapa para situar (ESC cancela)`, 'info');
+        Abyssea.UI.closeModal();
         return true;
+      }
+
+      if (item.relocatorTool && typeof this.toggleRelocatorMode === 'function') {
+        this.toggleRelocatorMode(itemId);
+        return true;
+      }
+
+      if (item.unlockPetId && typeof this.unlockPet === 'function') {
+        if (this.unlockPet(item.unlockPetId, true)) {
+          this.removeItem(itemId, 1);
+          return true;
+        }
+        return false;
       }
 
       if (item.backpackTier) {
@@ -1172,10 +1376,14 @@
         }
         this.removeItem(itemId, 1);
         this.backpackTier = item.backpackTier;
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') {
-          Balaclava.Audio.play('equip');
+        if (!this.equipped) this.equipped = {};
+        this.equipped.backpack = itemId;
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') {
+          Abyssea.Audio.play('equip');
         }
-        this.toast(`Mochila equipada: ${item.name} (+${item.backpackTier * 8} slots, +${item.backpackTier === 3 ? 35 : item.backpackTier * 10} stack).`, 'success');
+        const bSlots = (item.backpackBonus && item.backpackBonus.slots) || (item.backpackTier * 8);
+        const bStack = (item.backpackBonus && item.backpackBonus.stack) || 25;
+        this.toast(`Mochila equipada: ${item.name} (+${bSlots} slots, +${bStack} stack).`, 'success');
         this.recomputeModifiers();
         this.uiDirty = true;
         return true;
@@ -1192,8 +1400,8 @@
         if (prev) this.addItem(prev, 1);
         this.equipped[slotKey] = itemId;
         this.recomputeModifiers();
-        Balaclava.Audio.play('equip');
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.equippedItem', { name: item.name }) : `Equipado: ${item.name}`, 'success');
+        Abyssea.Audio.play('equip');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.equippedItem', { name: item.name }) : `Equipado: ${item.name}`, 'success');
         return true;
       }
 
@@ -1218,8 +1426,8 @@
               e.burnTimer = 4.0;
             }
           }
-          Balaclava.Audio.play('explosion');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.firestorm') : '¡Tormenta Ígnea desatada!', 'success');
+          Abyssea.Audio.play('explosion');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.firestorm') : '¡Tormenta Ígnea desatada!', 'success');
         } else if (eff === 'frost_nova') {
           this.shake(0.24, 5);
           this.spawnShockwave(px, py, 200, '#4fc3f7');
@@ -1231,16 +1439,16 @@
               e.slowTimer = 5.0;
             }
           }
-          Balaclava.Audio.play('levelup');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.blizzard') : '¡Ventisca Polar congelante!', 'success');
+          Abyssea.Audio.play('levelup');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.blizzard') : '¡Ventisca Polar congelante!', 'success');
         } else if (eff === 'return_home') {
           if (this.activeDungeon) this.exitDungeon();
-          const C = Balaclava.CONST.CENTER_PLOT || 4;
+          const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
           this.player.x = (C * PLOT_TILES + 6.5) * TILE_SIZE;
           this.player.y = (C * PLOT_TILES + 6.5) * TILE_SIZE;
           this.spawnParticles(this.player.x, this.player.y, '#80deea', 22);
-          Balaclava.Audio.play('portal');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.returnHome') : 'Teletransportado al campamento central.', 'info');
+          Abyssea.Audio.play('portal');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.returnHome') : 'Teletransportado al campamento central.', 'info');
         } else if (eff === 'treasure_loot') {
           const coins = randInt(38, 68);
           const gem = pick(['rubi', 'zafiro', 'diamantes', 'esmeraldas', 'topacio']);
@@ -1248,16 +1456,16 @@
           this.addItem(gem, randInt(1, 2));
           this.gainXp(85);
           this.stats.chestsOpened = (this.stats.chestsOpened || 0) + 1;
-          Balaclava.Audio.play('levelup');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.treasureDecoded', { coins }) : `¡Tesoro descifrado! +${coins} monedas y gemas.`, 'success');
+          Abyssea.Audio.play('levelup');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.treasureDecoded', { coins }) : `¡Tesoro descifrado! +${coins} monedas y gemas.`, 'success');
         } else if (eff === 'bottle_loot') {
           const coins = randInt(14, 30);
           const gift = pick(['perla', 'gema_marina', 'cebo_dorado', 'mapa_tesoro_item']);
           this.addCoins(coins);
           this.addItem(gift, 1);
           this.gainXp(35);
-          Balaclava.Audio.play('pickup');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.bottleOpened', { coins }) : `¡Mensaje abierto! +${coins} monedas y botín marino.`, 'success');
+          Abyssea.Audio.play('pickup');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.bottleOpened', { coins }) : `¡Mensaje abierto! +${coins} monedas y botín marino.`, 'success');
         } else if (eff && eff.startsWith('crack_geode_')) {
           const table = {
             crack_geode_amethyst: ['amatista', 'cristales_magicos', 'polvo_estelar', 'zafiro'],
@@ -1271,11 +1479,11 @@
           this.addItem(g1, q1);
           this.addItem(g2, 1);
           this.gainXp(28);
-          Balaclava.Audio.play('chest');
+          Abyssea.Audio.play('chest');
           this.spawnParticles(px, py, '#e040fb', 16);
-          const n1 = (Balaclava.ITEMS[g1] && Balaclava.ITEMS[g1].name) || g1;
-          const n2 = (Balaclava.ITEMS[g2] && Balaclava.ITEMS[g2].name) || g2;
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.geodeCracked', { q1, n1, n2 }) : `¡Geoda abierta! +${q1} ${n1} y +1 ${n2}.`, 'success');
+          const n1 = (Abyssea.ITEMS[g1] && Abyssea.ITEMS[g1].name) || g1;
+          const n2 = (Abyssea.ITEMS[g2] && Abyssea.ITEMS[g2].name) || g2;
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.geodeCracked', { q1, n1, n2 }) : `¡Geoda abierta! +${q1} ${n1} y +1 ${n2}.`, 'success');
         }
         this.uiDirty = true;
         return true;
@@ -1291,9 +1499,9 @@
         this.addItem(reward1, 1);
         this.addItem(reward2, 1);
         this.gainXp(45);
-        Balaclava.Audio.play('chest');
+        Abyssea.Audio.play('chest');
         this.spawnParticles(this.player.x, this.player.y, '#ffd54f', 16);
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.chestItemOpened', { name: item.name, coins }) : `¡${item.name} abierto! +${coins} monedas y tesoros marinos.`, 'success');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.chestItemOpened', { name: item.name, coins }) : `¡${item.name} abierto! +${coins} monedas y tesoros marinos.`, 'success');
         this.uiDirty = true;
         return true;
       }
@@ -1305,7 +1513,7 @@
       const hpGain = item.healHp || (item.edible && item.edible.hp) || 0;
       const enGain = item.healEnergy || (item.edible && item.edible.energy) || 0;
       const ed = item.edible;
-      const hasBuff = Boolean(item.buff || (ed && (ed.speedBoost || ed.dmgBoost || ed.luckBoost)));
+      const hasBuff = Boolean(item.buff || item.buffType || (ed && (ed.speedBoost || ed.dmgBoost || ed.luckBoost)));
       if (hpGain > 0 || enGain > 0 || hasBuff) {
         if ((this.consumeCooldown || 0) > 0) {
           if (!this._lastConsumeCdToast || this.time - this._lastConsumeCdToast > 0.5) {
@@ -1318,10 +1526,10 @@
         const needHp = hpGain > 0 && this.player.hp < this.player.maxHp - 0.1;
         const needEn = enGain > 0 && this.player.energy < this.player.maxEnergy - 0.1;
         if (!hasBuff && !needHp && !needEn) {
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           if (!this._lastFullConsumeWarn || this.time - this._lastFullConsumeWarn > 0.9) {
             this._lastFullConsumeWarn = this.time;
-            this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.maxHealthEnergy') : 'Ya tienes la Vida y la Energía al máximo.', 'info');
+            this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.maxHealthEnergy') : 'Ya tienes la Vida y la Energía al máximo.', 'info');
           }
           return false;
         }
@@ -1332,9 +1540,9 @@
         if (hpGain > 0) {
           if (!Array.isArray(this.hotHeals)) this.hotHeals = [];
           this.hotHeals.push({ remaining: hpGain, total: hpGain, dur: 3.0, elapsed: 0, tickAccum: 0 });
-          this.addFloatingText(this.player.x, this.player.y - 34, Balaclava.I18n ? Balaclava.I18n.t('toast.healHotFloat', { hp: hpGain }) : `+${hpGain} Vida (gradual)`, '#69f0ae');
+          this.addFloatingText(this.player.x, this.player.y - 34, Abyssea.I18n ? Abyssea.I18n.t('toast.healHotFloat', { hp: hpGain }) : `+${hpGain} Vida (gradual)`, '#69f0ae');
         } else if (enGain > 0) {
-          this.addFloatingText(this.player.x, this.player.y - 34, Balaclava.I18n ? Balaclava.I18n.t('toast.enGainFloat', { en: enGain }) : `+${enGain} Energía`, '#4fc3f7');
+          this.addFloatingText(this.player.x, this.player.y - 34, Abyssea.I18n ? Abyssea.I18n.t('toast.enGainFloat', { en: enGain }) : `+${enGain} Energía`, '#4fc3f7');
         }
         if (item.buff) {
           this.applyTimedBuff(item.buff.type, {
@@ -1344,6 +1552,20 @@
             sourceName: item.name || itemId,
             blessingName: item.name || itemId
           });
+        }
+        if (item.buffType) {
+          const bTypeMap = { damage: 'dmg', dmg: 'dmg', speed: 'speed', luck: 'luck', xp: 'xp', arcane: 'arcane', hunter: 'hunter' };
+          const mappedType = bTypeMap[item.buffType] || item.buffType;
+          const bMult = 1 + Math.max(0.05, Number(item.buffPower) || 0.30);
+          const bDur = Math.max(10, Number(item.buffDuration) || 45);
+          this.applyTimedBuff(mappedType, {
+            mult: bMult,
+            time: bDur,
+            sourceId: 'item:' + itemId,
+            sourceName: item.name || itemId,
+            blessingName: item.name || itemId
+          });
+          this.addFloatingText(this.player.x, this.player.y - 46, `${item.name} (+${Math.round((bMult - 1) * 100)}%)`, '#ffd54f');
         }
         if (ed && ed.speedBoost) {
           this.applyTimedBuff('speed', {
@@ -1374,7 +1596,7 @@
         }
         this.recomputeModifiers();
         const isDrink = /^(pocion|elixir|jugo|miel|frasco|esencia|brebaje|te_)/.test(itemId) || !!item.buff;
-        Balaclava.Audio.play(isDrink ? 'drink' : 'eat');
+        Abyssea.Audio.play(isDrink ? 'drink' : 'eat');
         this.spawnParticles(this.player.x, this.player.y, '#81c784', 8);
         return true;
       }
@@ -1382,8 +1604,8 @@
       if (item.isRangedWeapon || item.isStaffWeapon || item.isSpecialBlade || item.weaponMelee || item.isLaserWeapon) {
         const slotIdx = this.quickTransferToHotbar('item', itemId);
         this.recomputeModifiers();
-        Balaclava.Audio.play('equip');
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.equippedHotbar', { slot: slotIdx + 1, name: item.name }) : `Equipado en ranura [${slotIdx + 1}]: ${item.name}`, 'success');
+        Abyssea.Audio.play('equip');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.equippedHotbar', { slot: slotIdx + 1, name: item.name }) : `Equipado en ranura [${slotIdx + 1}]: ${item.name}`, 'success');
         return true;
       }
 
@@ -1414,24 +1636,24 @@
         const w = Math.sin(u * Math.PI);
         return {
           phase: 'amanecer',
-          label: Balaclava.I18n ? Balaclava.I18n.t('hud.dawn') : 'Amanecer',
+          label: Abyssea.I18n ? Abyssea.I18n.t('hud.dawn') : 'Amanecer',
           iconKey: 'sunrise',
-          darkness: +(0.54 * k).toFixed(4),
-          tint: [Math.round(12 + 20 * w), Math.round(16 + 8 * w), Math.round(42 - 6 * (1 - k))],
-          warm: +(0.14 * w).toFixed(4),
-          warmRgb: [255, 178, 108],
+          darkness: +(0.34 * k).toFixed(4),
+          tint: [Math.round(12 + 12 * w), Math.round(16 + 8 * w), Math.round(42 - 4 * (1 - k))],
+          warm: +(0.024 * w).toFixed(4),
+          warmRgb: [255, 214, 180],
           phaseLeftSec: Math.max(0, Math.ceil((DAY_END - t) * dur))
         };
       }
       if (t < DUSK_START) {
         return {
           phase: 'dia',
-          label: Balaclava.I18n ? Balaclava.I18n.t('hud.phaseDay') : 'Día',
+          label: Abyssea.I18n ? Abyssea.I18n.t('hud.phaseDay') : 'Día',
           iconKey: 'sun',
           darkness: 0,
           tint: [10, 14, 34],
           warm: 0,
-          warmRgb: [255, 178, 108],
+          warmRgb: [255, 214, 180],
           phaseLeftSec: Math.max(0, Math.ceil((DAY_END - t) * dur))
         };
       }
@@ -1441,19 +1663,19 @@
         const w = Math.sin(u * Math.PI);
         return {
           phase: 'atardecer',
-          label: Balaclava.I18n ? Balaclava.I18n.t('hud.dusk') : 'Atardecer',
+          label: Abyssea.I18n ? Abyssea.I18n.t('hud.dusk') : 'Atardecer',
           iconKey: 'sunset',
           darkness: +(0.82 * s).toFixed(4),
-          tint: [Math.round(10 + 26 * w - 2 * s), Math.round(14 + 4 * w - 2 * s), Math.round(34 + 6 * w)],
-          warm: +(0.17 * w).toFixed(4),
-          warmRgb: [245, 110, 75],
+          tint: [Math.round(10 + 18 * w - 2 * s), Math.round(14 + 6 * w - 2 * s), Math.round(34 + 6 * w)],
+          warm: +(0.048 * w).toFixed(4),
+          warmRgb: [248, 148, 128],
           phaseLeftSec: Math.max(0, Math.ceil((DAY_END - t) * dur))
         };
       }
       const preDawn = t >= PRE_DAWN ? smooth((t - PRE_DAWN) / (1 - PRE_DAWN)) : 0;
       return {
         phase: 'noche',
-        label: Balaclava.I18n ? Balaclava.I18n.t('hud.phaseNight') : 'Noche',
+        label: Abyssea.I18n ? Abyssea.I18n.t('hud.phaseNight') : 'Noche',
         iconKey: 'moon',
         darkness: +(0.82 - 0.28 * preDawn).toFixed(4),
         tint: [Math.round(8 + 4 * preDawn), Math.round(12 + 4 * preDawn), Math.round(34 + 8 * preDawn)],
@@ -1486,7 +1708,7 @@
       if (!station || station === 'mano' || !Array.isArray(this.buildings)) return 1;
       let best = 1;
       for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS && Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS && Abyssea.BUILDINGS[b.type];
         if (!def) continue;
         if (def.station === station || (station === 'mesa_artesania' && b.type === 'mesa_artesania') || (station === 'investigacion' && def.station === 'forja')) {
           const matchesPrimary = def.station === station || (station === 'mesa_artesania' && b.type === 'mesa_artesania');
@@ -1509,7 +1731,7 @@
     }
 
     getToolUpgradeDuration(nextTier, station = null) {
-      const tierIdx = Array.isArray(Balaclava.TIER_ORDER) ? Math.max(1, Balaclava.TIER_ORDER.indexOf(nextTier)) : 1;
+      const tierIdx = Array.isArray(Abyssea.TIER_ORDER) ? Math.max(1, Abyssea.TIER_ORDER.indexOf(nextTier)) : 1;
       const st = station || (nextTier && nextTier !== 'mejorada' ? 'forja' : 'mesa');
       const base = +(2.0 + Math.min(3.5, (tierIdx - 1) * 0.35)).toFixed(2);
       return this.getCraftDuration({ craftTime: base, station: st });
@@ -1522,7 +1744,7 @@
     }
 
     getOwnedArmorItem(slot) {
-      const chain = Balaclava.ARMORS && Balaclava.ARMORS[slot];
+      const chain = Abyssea.ARMORS && Abyssea.ARMORS[slot];
       if (!chain) return null;
       let bestIdx = -1;
       const tracked = this.armorTiers && this.armorTiers[slot];
@@ -1545,8 +1767,8 @@
 
     syncArmorTiersFromGear() {
       if (!this.armorTiers) this.armorTiers = { helm: null, armor: null, legs: null, shield: null, boots: null };
-      if (!Balaclava.ARMORS) return;
-      Object.keys(Balaclava.ARMORS).forEach(slot => {
+      if (!Abyssea.ARMORS) return;
+      Object.keys(Abyssea.ARMORS).forEach(slot => {
         const owned = this.getOwnedArmorItem(slot);
         if (owned) this.armorTiers[slot] = owned;
       });
@@ -1607,7 +1829,7 @@
         targetIdx = this.hotbar.findIndex(s => s && s.kind === 'item' && (this.inventory[s.id] || 0) <= 0);
       }
       if (targetIdx < 0) {
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.hotbarFull') : 'Barra rápida llena (9/9)', 'warn');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.hotbarFull') : 'Barra rápida llena (9/9)', 'warn');
         return -1;
       }
       this.hotbar[targetIdx] = { kind, id };
@@ -1627,21 +1849,21 @@
 
       if (s.kind === 'tool') {
         if (usedSlots >= maxSlots) {
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.invFull') : 'Inventario lleno', 'warn');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.invFull') : 'Inventario lleno', 'warn');
           return false;
         }
         this.hotbar[slotIdx] = null;
-        const toolDef = Balaclava.TOOLS[s.id];
+        const toolDef = Abyssea.TOOLS[s.id];
         const tName = toolDef ? toolDef.name : s.id;
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.itemToInv', { name: tName }) : `${tName} guardado en inventario`, 'info');
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.itemToInv', { name: tName }) : `${tName} guardado en inventario`, 'info');
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
         this.uiDirty = true;
         return true;
       }
 
       if (s.kind === 'item') {
         const itemId = s.id;
-        const it = Balaclava.ITEMS[itemId];
+        const it = Abyssea.ITEMS[itemId];
         const totalQty = this.inventory[itemId] || 0;
         if (totalQty <= 0) {
           this.hotbar[slotIdx] = null;
@@ -1660,14 +1882,14 @@
 
         const additionalSlotsNeeded = newInvSlotsForThis - curInvSlotsForThis;
         if (usedSlots + additionalSlotsNeeded > maxSlots) {
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.invFull') : 'Inventario lleno', 'warn');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.invFull') : 'Inventario lleno', 'warn');
           return false;
         }
 
         this.hotbar[slotIdx] = null;
         const itName = it ? it.name : itemId;
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.itemToInv', { name: itName }) : `${itName} guardado en inventario`, 'info');
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.itemToInv', { name: itName }) : `${itName} guardado en inventario`, 'info');
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
         this.uiDirty = true;
         return true;
       }
@@ -1721,12 +1943,12 @@
     autoEquipCraftedArmor(slotKey, targetId, prevUpgradeId = null) {
       if (!slotKey || !targetId) return false;
       const normSlot = slotKey === 'helmet' ? 'helm' : slotKey;
-      const itemDef = Balaclava.ITEMS && Balaclava.ITEMS[targetId];
+      const itemDef = Abyssea.ITEMS && Abyssea.ITEMS[targetId];
       if (!itemDef) return false;
       if (!this.equipped) this.equipped = { armor: null, helm: null, legs: null, shield: null, boots: null, ring: null, amulet: null, relic: null };
       if (!this.armorTiers) this.armorTiers = { helm: null, armor: null, legs: null, shield: null, boots: null };
 
-      const isProgTarget = Boolean(Balaclava.isProgressiveArmorItem && Balaclava.isProgressiveArmorItem(targetId));
+      const isProgTarget = Boolean(Abyssea.isProgressiveArmorItem && Abyssea.isProgressiveArmorItem(targetId));
       if (isProgTarget) {
         this.armorTiers[normSlot] = targetId;
       }
@@ -1742,7 +1964,7 @@
       }
       const curEq = this.equipped[normSlot];
       if (curEq && curEq !== targetId && curEq !== prevUpgradeId) {
-        const isProgCur = Boolean(Balaclava.isProgressiveArmorItem && Balaclava.isProgressiveArmorItem(curEq));
+        const isProgCur = Boolean(Abyssea.isProgressiveArmorItem && Abyssea.isProgressiveArmorItem(curEq));
         if (!(isProgCur && isProgTarget)) {
           this.addItem(curEq, 1);
         }
@@ -1755,10 +1977,10 @@
 
     completeCraftJob(job) {
       if (!job) return;
-      const rec = Balaclava.RECIPES.find(r => r.id === job.recipeId);
+      const rec = Abyssea.RECIPES.find(r => r.id === job.recipeId);
       if (job.toolUnlock) {
         const toolId = job.toolUnlock;
-        const tool = Balaclava.TOOLS[toolId];
+        const tool = Abyssea.TOOLS[toolId];
         if (tool && !this.toolTiers[toolId]) {
           // Clear any pre-existing unowned placeholder for this tool before unlocking
           if (Array.isArray(this.hotbar)) {
@@ -1770,6 +1992,9 @@
             }
           }
           this.toolTiers[toolId] = 'basica';
+          if (typeof this.rollAndAssignGearRarity === 'function') {
+            this.rollAndAssignGearRarity('tool', toolId, 0);
+          }
           this.placeInNearestAvailableHotbarSlot('tool', toolId, true);
           if (toolId === 'arco') {
             if (this.getArrowCount() <= 0) {
@@ -1786,24 +2011,36 @@
         this.gainXp(job.xp || 14);
         this.stats.craftedTotal += 1;
         this.events.recordAction('craft', 1);
-        Balaclava.Audio.play('levelup');
+        Abyssea.Audio.play('levelup');
         this.uiDirty = true;
         return;
       }
 
       if (job.toolUpgrade) {
         const toolId = job.toolUpgrade;
-        const tool = Balaclava.TOOLS[toolId];
-        const nextTier = job.targetTier || (this.toolTiers[toolId] ? Balaclava.getNextTier(this.toolTiers[toolId]) : null);
+        const tool = Abyssea.TOOLS[toolId];
+        const nextTier = job.targetTier || (this.toolTiers[toolId] ? Abyssea.getNextTier(this.toolTiers[toolId]) : null);
         if (tool && nextTier) {
           this.toolTiers[toolId] = nextTier;
+          // RC2 (#1): Rarity Preservation when upgrading tool tier with 1x Catalizador de Reforja!
+          let rDef = null;
+          const prevRarId = (this.toolRarities && this.toolRarities[toolId]) || 'comun';
+          const highRars = new Set(['epico', 'legendario', 'mitico', 'singular']);
+          if (this.preserveRarityMode && highRars.has(prevRarId) && (this.inventory.catalizador_reforja || 0) >= 1) {
+            this.removeItem('catalizador_reforja', 1);
+            rDef = (Abyssea.GEAR_RARITIES && Abyssea.GEAR_RARITIES[prevRarId]) || null;
+            this.toast(`¡Rareza ${rDef ? rDef.name : prevRarId} preservada con 1 Catalizador de Reforja!`, 'success');
+          } else if (typeof this.rollAndAssignGearRarity === 'function') {
+            rDef = this.rollAndAssignGearRarity('tool', toolId, 0);
+          }
           if (!this.toolUpgradeCooldowns) this.toolUpgradeCooldowns = {};
           this.toolUpgradeCooldowns[toolId] = 0.8;
           this.gainXp(job.xp || 40);
           this.stats.craftedTotal += 1;
           this.events.recordAction('craft', 1);
-          Balaclava.Audio.play('levelup');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.toolUpgraded', { tool: tool.name, tier: Balaclava.TIER_META[nextTier].name }) : `${tool.name} mejorado a ${Balaclava.TIER_META[nextTier].name}!`, 'success');
+          Abyssea.Audio.play('levelup');
+          const rTag = rDef ? ` [Rareza: ${rDef.name}]` : '';
+          this.toast((Abyssea.I18n ? Abyssea.I18n.t('toast.toolUpgraded', { tool: tool.name, tier: Abyssea.TIER_META[nextTier].name }) : `${tool.name} mejorado a ${Abyssea.TIER_META[nextTier].name}!`) + rTag, 'success');
           this.uiDirty = true;
         }
         return;
@@ -1812,18 +2049,18 @@
       if (job.armorUnlock) {
         const slot = job.armorUnlock;
         const targetId = job.targetItem;
-        const itemDef = Balaclava.ITEMS[targetId];
+        const itemDef = Abyssea.ITEMS[targetId];
         if (itemDef) {
           this.autoEquipCraftedArmor(slot, targetId, null);
           if (this.tutorialSys && !this.tutorialSys.done) {
             this.tutorialSys.update(this, 0);
           }
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.armorUnlocked', { name: itemDef.name }) : `Armadura desbloqueada y equipada: ${itemDef.name}`, 'success');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.armorUnlocked', { name: itemDef.name }) : `Armadura desbloqueada y equipada: ${itemDef.name}`, 'success');
         }
         this.gainXp(job.xp || 18);
         this.stats.craftedTotal += 1;
         this.events.recordAction('craft', 1);
-        Balaclava.Audio.play('levelup');
+        Abyssea.Audio.play('levelup');
         this.uiDirty = true;
         return;
       }
@@ -1832,7 +2069,7 @@
         const slot = job.armorUpgrade;
         const prevId = job.prevItem;
         const nextId = job.targetItem;
-        const nextItem = Balaclava.ITEMS[nextId];
+        const nextItem = Abyssea.ITEMS[nextId];
         if (nextItem) {
           this.autoEquipCraftedArmor(slot, nextId, prevId);
           if (!this.armorUpgradeCooldowns) this.armorUpgradeCooldowns = {};
@@ -1840,14 +2077,14 @@
           if (this.tutorialSys && !this.tutorialSys.done) {
             this.tutorialSys.update(this, 0);
           }
-          const chain = Balaclava.ARMORS && Balaclava.ARMORS[slot];
-          const slotLabel = (Balaclava.I18n && chain && chain.nameKey) ? Balaclava.I18n.t(chain.nameKey) : (chain ? chain.fallbackName : slot);
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.armorUpgraded', { slot: slotLabel, tier: nextItem.name }) : `${slotLabel} mejorado a ${nextItem.name}!`, 'success');
+          const chain = Abyssea.ARMORS && Abyssea.ARMORS[slot];
+          const slotLabel = (Abyssea.I18n && chain && chain.nameKey) ? Abyssea.I18n.t(chain.nameKey) : (chain ? chain.fallbackName : slot);
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.armorUpgraded', { slot: slotLabel, tier: nextItem.name }) : `${slotLabel} mejorado a ${nextItem.name}!`, 'success');
         }
         this.gainXp(job.xp || 32);
         this.stats.craftedTotal += 1;
         this.events.recordAction('craft', 1);
-        Balaclava.Audio.play('levelup');
+        Abyssea.Audio.play('levelup');
         this.uiDirty = true;
         return;
       }
@@ -1860,12 +2097,12 @@
         this.gainXp(job.xp || (rec ? rec.xp : 8));
         this.stats.craftedTotal += job.qty;
         this.events.recordAction('craft', job.qty);
-        Balaclava.Audio.play('coin');
+        Abyssea.Audio.play('coin');
         this.uiDirty = true;
         return;
       }
 
-      const itemDef = Balaclava.ITEMS[job.out];
+      const itemDef = Abyssea.ITEMS[job.out];
       if (itemDef && itemDef.equipSlot && ['armor', 'helm', 'helmet', 'shield', 'boots'].includes(itemDef.equipSlot)) {
         const slotKey = itemDef.equipSlot === 'helmet' ? 'helm' : itemDef.equipSlot;
         this.autoEquipCraftedArmor(slotKey, job.out, null);
@@ -1881,8 +2118,8 @@
         if (this.tutorialSys && !this.tutorialSys.done) {
           this.tutorialSys.update(this, 0);
         }
-        Balaclava.Audio.play('equip');
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.autoEquipped', { name: itemDef.name }) : `Equipado automáticamente: ${itemDef.name}`, 'success');
+        Abyssea.Audio.play('equip');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.autoEquipped', { name: itemDef.name }) : `Equipado automáticamente: ${itemDef.name}`, 'success');
         this.uiDirty = true;
         return;
       }
@@ -1900,8 +2137,8 @@
         craftedAt: Date.now()
       };
       this.craftReady.push(entry);
-      Balaclava.Audio.play('craft');
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.craftReady', { name: entry.name, qty: entry.qty }) : `¡Listo para reclamar: ${entry.name} x${entry.qty}!`, 'success');
+      Abyssea.Audio.play('craft');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.craftReady', { name: entry.name, qty: entry.qty }) : `¡Listo para reclamar: ${entry.name} x${entry.qty}!`, 'success');
       this.uiDirty = true;
     }
 
@@ -1920,23 +2157,23 @@
       const entry = this.craftReady.splice(targetIdx, 1)[0];
       if (!entry) return false;
       this.addItem(entry.out, entry.qty);
-      const outItem = Balaclava.ITEMS[entry.out];
+      const outItem = Abyssea.ITEMS[entry.out];
       if (outItem && outItem.equipSlot) {
         const slotKey = outItem.equipSlot === 'helmet' ? 'helm' : outItem.equipSlot;
         if (['armor', 'helm', 'shield', 'boots', 'legs'].includes(slotKey)) {
           this.autoEquipCraftedArmor(slotKey, outItem.id, null);
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.autoEquipped', { name: outItem.name }) : `Equipado automáticamente: ${outItem.name}`, 'info');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.autoEquipped', { name: outItem.name }) : `Equipado automáticamente: ${outItem.name}`, 'info');
         } else if (!this.equipped[slotKey] && (this.inventory[outItem.id] || 0) >= 1) {
           this.removeItem(outItem.id, 1);
           this.equipped[slotKey] = outItem.id;
           this.recomputeModifiers();
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.autoEquipped', { name: outItem.name }) : `Equipado automáticamente: ${outItem.name}`, 'info');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.autoEquipped', { name: outItem.name }) : `Equipado automáticamente: ${outItem.name}`, 'info');
         }
       }
       this.gainXp(entry.xp || 8);
       this.stats.craftedTotal += entry.qty;
       this.events.recordAction('craft', entry.qty);
-      Balaclava.Audio.play('pickup');
+      Abyssea.Audio.play('pickup');
       this.uiDirty = true;
       return true;
     }
@@ -1949,7 +2186,7 @@
           const entry = this.craftReady.splice(i, 1)[0];
           if (entry) {
             this.addItem(entry.out, entry.qty);
-            const outItem = Balaclava.ITEMS[entry.out];
+            const outItem = Abyssea.ITEMS[entry.out];
             if (outItem && outItem.equipSlot) {
               const slotKey = outItem.equipSlot === 'helmet' ? 'helm' : outItem.equipSlot;
               if (['armor', 'helm', 'shield', 'boots', 'legs'].includes(slotKey)) {
@@ -1968,8 +2205,8 @@
         }
       }
       if (count > 0) {
-        Balaclava.Audio.play('pickup');
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.claimedAll', { count }) : `¡Recogidos ${count} lote(s) terminados en tu inventario!`, 'success');
+        Abyssea.Audio.play('pickup');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.claimedAll', { count }) : `¡Recogidos ${count} lote(s) terminados en tu inventario!`, 'success');
         this.uiDirty = true;
       }
       return count;
@@ -2004,46 +2241,46 @@
     }
 
     craftRecipe(recipeId, times = 1) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      const rec = Balaclava.RECIPES.find(r => r.id === recipeId);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      const rec = Abyssea.RECIPES.find(r => r.id === recipeId);
       if (!rec) return false;
-      const progArmor = Balaclava.isProgressiveArmorItem && Balaclava.isProgressiveArmorItem(rec.out);
+      const progArmor = Abyssea.isProgressiveArmorItem && Abyssea.isProgressiveArmorItem(rec.out);
       if (progArmor) {
         return progArmor.tierIdx === 0 ? this.craftArmor(progArmor.slot) : this.upgradeArmor(progArmor.slot);
       }
-      const outCheck = Balaclava.ITEMS && Balaclava.ITEMS[rec.out];
+      const outCheck = Abyssea.ITEMS && Abyssea.ITEMS[rec.out];
       if (outCheck && outCheck.equipSlot && ['armor', 'helm', 'helmet', 'shield', 'boots'].includes(outCheck.equipSlot)) {
         times = 1;
       }
       if (!this.hasStationAvailable(rec.station)) {
         this.toast(T('toast.stationRequiredUpper', { station: rec.station.toUpperCase() }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (rec.reqSkill && (!Array.isArray(this.unlockedSkills) || !this.unlockedSkills.includes(rec.reqSkill))) {
-        const sk = Balaclava.SKILLS && Balaclava.SKILLS[rec.reqSkill];
+        const sk = Abyssea.SKILLS && Abyssea.SKILLS[rec.reqSkill];
         const sName = sk ? sk.name : rec.reqSkill;
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         this.toast(isEn ? `Requires Skill: ${sName}` : `Requiere habilidad: ${sName}`, 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (rec.reqOmega && (!this.omega || !this.omega.hasResearch(rec.reqOmega))) {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (!Array.isArray(this.craftQueue)) this.craftQueue = [];
       if (this.craftQueue.length >= 8) {
         this.toast(T('toast.queueFull'), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
 
       if (rec.toolUnlock) {
         const toolId = rec.toolUnlock;
-        const tool = Balaclava.TOOLS[toolId];
+        const tool = Abyssea.TOOLS[toolId];
         if (!tool) return false;
         if (this.toolTiers[toolId] || this.craftQueue.some(j => j.toolUnlock === toolId)) {
           this.toast(T('toast.toolAlreadyCrafted', { name: tool.name }), 'info');
@@ -2051,7 +2288,7 @@
         }
         const can = Object.entries(rec.in).every(([id, q]) => (this.inventory[id] || 0) >= q);
         if (!can) {
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           this.toast(T('toast.missingCraftMats'), 'warn');
           return false;
         }
@@ -2069,7 +2306,7 @@
           totalTime: dur,
           elapsed: 0
         });
-        Balaclava.Audio.play('craft');
+        Abyssea.Audio.play('craft');
         this.toast(T('toast.forgingTool', { name: tool.name, dur }), 'info');
         this.uiDirty = true;
         return true;
@@ -2078,7 +2315,7 @@
       const hasIngredient = (id, q) => {
         const invQty = this.inventory[id] || 0;
         if (invQty >= q) return true;
-        const itDef = Balaclava.ITEMS[id];
+        const itDef = Abyssea.ITEMS[id];
         if (q === 1 && itDef && itDef.equipSlot) {
           const sk = itDef.equipSlot === 'helmet' ? 'helm' : itDef.equipSlot;
           return this.equipped && this.equipped[sk] === id && invQty + 1 >= q;
@@ -2091,7 +2328,7 @@
           this.removeItem(id, q);
           return;
         }
-        const itDef = Balaclava.ITEMS[id];
+        const itDef = Abyssea.ITEMS[id];
         if (itDef && itDef.equipSlot) {
           const sk = itDef.equipSlot === 'helmet' ? 'helm' : itDef.equipSlot;
           if (this.equipped && this.equipped[sk] === id) {
@@ -2104,7 +2341,7 @@
 
       let queuedCount = 0;
       const stLv = this.getBestStationLevel(rec.station);
-      const outItemCheck = Balaclava.ITEMS && Balaclava.ITEMS[rec.out];
+      const outItemCheck = Abyssea.ITEMS && Abyssea.ITEMS[rec.out];
       const isStackable = !(outItemCheck && outItemCheck.equipSlot);
       for (let t = 0; t < times; t++) {
         if (this.craftQueue.length >= 8) break;
@@ -2121,13 +2358,13 @@
           if (refundKeys.length > 0) {
             const rKey = refundKeys[Math.floor(Math.random() * refundKeys.length)];
             this.addItem(rKey, 1);
-            const rName = (Balaclava.ITEMS[rKey] && Balaclava.ITEMS[rKey].name) || rKey;
+            const rName = (Abyssea.ITEMS[rKey] && Abyssea.ITEMS[rKey].name) || rKey;
             this.addFloatingText(this.player.x, this.player.y - 34, `¡Eco Nv.3! +1 ${rName}`, '#80deea');
           }
         }
         const dur = this.getCraftDuration(rec);
         const xpGain = Math.round(rec.xp * (1 + (this.mods.craftXp || 0) + (stLv - 1) * 0.20));
-        const outItem = Balaclava.ITEMS[rec.out];
+        const outItem = Abyssea.ITEMS[rec.out];
         const outName = rec.out === '_coin' ? `${outQty} Monedas` : (outItem ? outItem.name : rec.out);
         this.craftQueue.push({
           id: `${Date.now()}_${Math.random()}`,
@@ -2144,21 +2381,21 @@
       }
 
       if (queuedCount > 0) {
-        Balaclava.Audio.play('craft');
+        Abyssea.Audio.play('craft');
         this.uiDirty = true;
         return true;
       }
-      Balaclava.Audio.play('error');
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.missingRecipeMats') : 'Te faltan materiales para esta receta.', 'warn');
+      Abyssea.Audio.play('error');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.missingRecipeMats') : 'Te faltan materiales para esta receta.', 'warn');
       return false;
     }
 
     hasStationAvailable(station) {
       if (station === 'mano') return true;
       if (station === 'mesa_artesania') {
-        return this.buildings.some(b => b.type === 'mesa_artesania' || (Balaclava.BUILDINGS[b.type] && Balaclava.BUILDINGS[b.type].station === 'mesa_artesania'));
+        return this.buildings.some(b => b.type === 'mesa_artesania' || (Abyssea.BUILDINGS[b.type] && Abyssea.BUILDINGS[b.type].station === 'mesa_artesania'));
       }
-      return this.buildings.some(b => Balaclava.BUILDINGS[b.type] && Balaclava.BUILDINGS[b.type].station === station);
+      return this.buildings.some(b => Abyssea.BUILDINGS[b.type] && Abyssea.BUILDINGS[b.type].station === station);
     }
 
     craftTool(toolId) {
@@ -2166,13 +2403,13 @@
     }
 
     upgradeTool(toolId) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      const tool = Balaclava.TOOLS[toolId];
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      const tool = Abyssea.TOOLS[toolId];
       const curTier = this.toolTiers[toolId];
       if (!curTier) {
         return this.craftTool(toolId);
       }
-      const nextTier = Balaclava.getNextTier(curTier);
+      const nextTier = Abyssea.getNextTier(curTier);
       if (!tool || !nextTier) return false;
 
       if (!Array.isArray(this.craftQueue)) this.craftQueue = [];
@@ -2180,12 +2417,12 @@
         || (this.toolUpgradeCooldowns && this.toolUpgradeCooldowns[toolId] > 0);
       if (alreadyBusy) {
         this.toast(T('toast.toolUpgradeBusy', { tool: tool.name }), 'info');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (this.craftQueue.length >= 8) {
         this.toast(T('toast.queueFull'), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
 
@@ -2193,27 +2430,27 @@
       const needsForge = nextTier !== 'mejorada' && nextTier !== 'cobre';
       if (needsForge && !this.hasStationAvailable('forja')) {
         this.toast(T('toast.needForgeTier'), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
 
       const cost = tool.tierCosts[nextTier];
       if (!cost) return false;
       if (cost.reqOmega && (!this.omega || !this.omega.hasResearch(cost.reqOmega))) {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (this.coins < cost.coins) {
         this.toast(T('toast.needCoinsExact', { coins: cost.coins }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       for (const [id, q] of Object.entries(cost.items)) {
         if ((this.inventory[id] || 0) < q) {
-          this.toast(T('toast.missingItemQty', { qty: q, name: Balaclava.ITEMS[id].name }), 'warn');
-          Balaclava.Audio.play('error');
+          this.toast(T('toast.missingItemQty', { qty: q, name: Abyssea.ITEMS[id].name }), 'warn');
+          Abyssea.Audio.play('error');
           return false;
         }
       }
@@ -2225,7 +2462,7 @@
       const upStation = (nextTier !== 'mejorada' && nextTier !== 'cobre') ? 'forja' : 'mesa';
       const stLv = this.getBestStationLevel(upStation);
       const dur = this.getToolUpgradeDuration(nextTier, upStation);
-      const tierName = Balaclava.TIER_META[nextTier] ? Balaclava.TIER_META[nextTier].name : nextTier;
+      const tierName = Abyssea.TIER_META[nextTier] ? Abyssea.TIER_META[nextTier].name : nextTier;
       this.craftQueue.push({
         id: `${Date.now()}_${Math.random()}`,
         recipeId: `r_up_${toolId}_${nextTier}`,
@@ -2239,18 +2476,18 @@
         totalTime: dur,
         elapsed: 0
       });
-      Balaclava.Audio.play('craft');
+      Abyssea.Audio.play('craft');
       this.toast(T('toast.toolUpgrading', { tool: tool.name, tier: tierName, dur }), 'info');
       this.uiDirty = true;
       return true;
     }
 
     craftArmor(slot) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      const chain = Balaclava.ARMORS && Balaclava.ARMORS[slot];
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      const chain = Abyssea.ARMORS && Abyssea.ARMORS[slot];
       if (!chain) return false;
       const baseItemId = chain.baseItem;
-      const baseItem = Balaclava.ITEMS[baseItemId];
+      const baseItem = Abyssea.ITEMS[baseItemId];
       if (!baseItem) return false;
       if (!Array.isArray(this.craftQueue)) this.craftQueue = [];
       if (this.getOwnedArmorItem(slot) || this.craftQueue.some(j => j.armorUnlock === slot || j.armorUpgrade === slot)) {
@@ -2259,33 +2496,33 @@
       }
       if (this.craftQueue.length >= 8) {
         this.toast(T('toast.queueFull'), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
-      const rec = Balaclava.RECIPES.find(r => r.out === baseItemId);
+      const rec = Abyssea.RECIPES.find(r => r.out === baseItemId);
       if (!rec) return false;
       if (!this.hasStationAvailable(rec.station)) {
         this.toast(T('toast.stationRequiredUpper', { station: rec.station.toUpperCase() }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (rec.reqSkill && (!Array.isArray(this.unlockedSkills) || !this.unlockedSkills.includes(rec.reqSkill))) {
-        const sk = Balaclava.SKILLS && Balaclava.SKILLS[rec.reqSkill];
+        const sk = Abyssea.SKILLS && Abyssea.SKILLS[rec.reqSkill];
         const sName = sk ? sk.name : rec.reqSkill;
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         this.toast(isEn ? `Requires Skill: ${sName}` : `Requiere habilidad: ${sName}`, 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (rec.reqOmega && (!this.omega || !this.omega.hasResearch(rec.reqOmega))) {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       const can = Object.entries(rec.in || {}).every(([id, q]) => (this.inventory[id] || 0) >= q);
       if (!can) {
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         this.toast(T('toast.missingCraftMats'), 'warn');
         return false;
       }
@@ -2304,65 +2541,65 @@
         totalTime: dur,
         elapsed: 0
       });
-      Balaclava.Audio.play('craft');
+      Abyssea.Audio.play('craft');
       this.toast(T('toast.forgingTool', { name: baseItem.name, dur }), 'info');
       this.uiDirty = true;
       return true;
     }
 
     upgradeArmor(slot) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      const chain = Balaclava.ARMORS && Balaclava.ARMORS[slot];
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      const chain = Abyssea.ARMORS && Abyssea.ARMORS[slot];
       if (!chain) return false;
       const curId = this.getOwnedArmorItem(slot);
       if (!curId) {
         return this.craftArmor(slot);
       }
-      const nextId = Balaclava.getArmorNextItem(slot, curId);
+      const nextId = Abyssea.getArmorNextItem(slot, curId);
       if (!nextId) return false;
-      const nextItem = Balaclava.ITEMS[nextId];
+      const nextItem = Abyssea.ITEMS[nextId];
       if (!nextItem) return false;
 
-      const slotLabel = (Balaclava.I18n && chain.nameKey) ? T(chain.nameKey) : (chain.fallbackName || slot);
+      const slotLabel = (Abyssea.I18n && chain.nameKey) ? T(chain.nameKey) : (chain.fallbackName || slot);
       if (!Array.isArray(this.craftQueue)) this.craftQueue = [];
       const alreadyBusy = this.craftQueue.some(j => j.armorUnlock === slot || j.armorUpgrade === slot)
         || (this.armorUpgradeCooldowns && this.armorUpgradeCooldowns[slot] > 0);
       if (alreadyBusy) {
         this.toast(T('toast.armorUpgradeBusy', { slot: slotLabel }), 'info');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       if (this.craftQueue.length >= 8) {
         this.toast(T('toast.queueFull'), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
 
-      const mat = Balaclava.getArmorUpgradeMaterials(slot, nextId);
+      const mat = Abyssea.getArmorUpgradeMaterials(slot, nextId);
       if (!mat) return false;
       if (mat.reqOmega && (!this.omega || !this.omega.hasResearch(mat.reqOmega))) {
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         this.toast(isEn ? 'Requires Omega Research: Omega Metallurgy (Central Nexus)' : 'Requiere Investigación Omega: Metalurgia Omega (Nexo Central)', 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       const stOk = mat.station === 'investigacion'
         ? (this.hasStationAvailable('investigacion') || this.hasStationAvailable('forja'))
         : this.hasStationAvailable(mat.station);
       if (!stOk) {
-        const stLabel = (Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(mat.station) : mat.station;
+        const stLabel = (Abyssea.I18n && Abyssea.I18n.getStationName) ? Abyssea.I18n.getStationName(mat.station) : mat.station;
         if (mat.station && mat.station !== 'forja') {
           this.toast(T('toast.stationRequiredUpper', { station: stLabel.toUpperCase() }), 'warn');
         } else {
           this.toast(T('toast.needForgeTier'), 'warn');
         }
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       for (const [id, q] of Object.entries(mat.items)) {
         if ((this.inventory[id] || 0) < q) {
-          this.toast(T('toast.missingItemQty', { qty: q, name: Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id }), 'warn');
-          Balaclava.Audio.play('error');
+          this.toast(T('toast.missingItemQty', { qty: q, name: Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id }), 'warn');
+          Abyssea.Audio.play('error');
           return false;
         }
       }
@@ -2370,7 +2607,7 @@
       for (const [id, q] of Object.entries(mat.items)) {
         this.removeItem(id, q);
       }
-      const tierIdx = Balaclava.getArmorTierIndex(slot, nextId);
+      const tierIdx = Abyssea.getArmorTierIndex(slot, nextId);
       const stLv = this.getBestStationLevel(mat.station || 'forja');
       const dur = this.getArmorUpgradeDuration(tierIdx, mat.station);
       this.craftQueue.push({
@@ -2387,15 +2624,15 @@
         totalTime: dur,
         elapsed: 0
       });
-      Balaclava.Audio.play('craft');
+      Abyssea.Audio.play('craft');
       this.toast(T('toast.armorUpgrading', { slot: slotLabel, tier: nextItem.name, dur }), 'info');
       this.uiDirty = true;
       return true;
     }
 
     unlockSkill(skillId) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      const sk = Balaclava.SKILLS[skillId];
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      const sk = Abyssea.SKILLS[skillId];
       if (!sk || this.unlockedSkills.includes(skillId)) return false;
       if (sk.req && !this.unlockedSkills.includes(sk.req)) {
         this.toast(T('toast.skillUnlockPrev'), 'warn');
@@ -2403,7 +2640,7 @@
       }
       if (this.player.skillPoints < sk.cost) {
         this.toast(T('toast.skillNeedPoints', { pts: sk.cost }), 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       this.player.skillPoints -= sk.cost;
@@ -2412,7 +2649,7 @@
       if (this.tutorialSys && !this.tutorialSys.done) {
         this.tutorialSys.update(this, 0);
       }
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       this.toast(T('toast.skillUnlocked', { name: sk.name }), 'success');
       this.uiDirty = true;
       return true;
@@ -2420,10 +2657,10 @@
 
     // === BUILDING PLACEMENT ===
     canBuild(buildingId) {
-      const def = Balaclava.BUILDINGS[buildingId];
+      const def = Abyssea.BUILDINGS[buildingId];
       if (!def) return { ok: false, reason: 'Estructura inválida' };
       if (def.reqSkill && !this.unlockedSkills.includes(def.reqSkill)) {
-        const sk = Balaclava.SKILLS[def.reqSkill];
+        const sk = Abyssea.SKILLS[def.reqSkill];
         return {
           ok: false,
           reqSkill: def.reqSkill,
@@ -2434,7 +2671,7 @@
     }
 
     getAdjustedBuildCost(buildingId) {
-      const def = Balaclava.BUILDINGS[buildingId];
+      const def = Abyssea.BUILDINGS[buildingId];
       if (!def) return {};
       const disc = this.mods.buildDiscount || 0;
       const out = {};
@@ -2451,7 +2688,7 @@
         const pty = Math.floor(this.player.y / TILE_SIZE);
         set.add(ptx + ',' + pty);
       }
-      for (const npc of (Balaclava.NPCS || [])) {
+      for (const npc of (Abyssea.NPCS || [])) {
         const np = this.world.getNpcPlot(npc);
         if (np) {
           const off = this.world.getNpcTileOffset(npc);
@@ -2459,7 +2696,7 @@
         }
       }
       for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS[b.type];
         const size = def ? def.size : 1;
         for (let dy = 0; dy < size; dy++) {
           for (let dx = 0; dx < size; dx++) {
@@ -2472,7 +2709,7 @@
 
     getBuildingAtTile(tx, ty) {
       for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS[b.type];
         const size = def ? def.size : 1;
         if (tx >= b.tx && tx < b.tx + size && ty >= b.ty && ty < b.ty + size) return b;
       }
@@ -2480,7 +2717,7 @@
     }
 
     canPlaceBuilding(buildingId, tx, ty) {
-      const def = Balaclava.BUILDINGS[buildingId];
+      const def = Abyssea.BUILDINGS[buildingId];
       if (!def || this.activeDungeon) return false;
       if (def.reqSkill && !this.unlockedSkills.includes(def.reqSkill)) return false;
       if (this.omega && typeof this.omega.canPlace === 'function') {
@@ -2501,7 +2738,7 @@
           }
           if (this.world.getNodeAtTile(cx, cy)) return false;
           if (this.getBuildingAtTile(cx, cy)) return false;
-          for (const npc of Balaclava.NPCS) {
+          for (const npc of Abyssea.NPCS) {
             const np = this.world.getNpcPlot(npc);
             const off = this.world.getNpcTileOffset(npc);
             const nx = np[0] * PLOT_TILES + off[0];
@@ -2521,7 +2758,7 @@
     placeBuilding(buildingId, tx, ty) {
       if (this.isPlayerDead()) return false;
       if (!this.canPlaceBuilding(buildingId, tx, ty)) {
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         if (this.omega && typeof this.omega.canPlace === 'function') {
           const chk = this.omega.canPlace(this, buildingId, tx, ty);
           if (!chk.ok) {
@@ -2529,10 +2766,10 @@
             return false;
           }
         }
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('build.cannotPlaceHere') : 'No se puede construir aquí o faltan recursos.', 'warn');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('build.cannotPlaceHere') : 'No se puede construir aquí o faltan recursos.', 'warn');
         return false;
       }
-      const def = Balaclava.BUILDINGS[buildingId];
+      const def = Abyssea.BUILDINGS[buildingId];
       if (this.placingItemId && (this.inventory[this.placingItemId] || 0) >= 1) {
         this.removeItem(this.placingItemId, 1);
       } else {
@@ -2568,13 +2805,16 @@
         };
         if (def && def.omega) {
           bObj.omega = {
+            prio: 2,
             priority: 2,
+            state: 'inactiva',
+            reason: '',
             job: null,
             timer: 0,
-            status: 'activa'
+            seed: ((bObj.id * 7919 + 13) >>> 0)
           };
           if (def.omega.kind === 'press') bObj.omega.category = null;
-          if (def.omega.kind === 'chamber') bObj.omega.activeCrystal = null;
+          if (def.omega.kind === 'chamber') bObj.omega.crystal = null;
         }
         this.buildings.push(bObj);
       }
@@ -2583,9 +2823,9 @@
       this.recomputeModifiers();
       this.triggerPlayerAction('hana_hammer', 0.30, (tx + def.size * 0.5) * TILE_SIZE, (ty + def.size * 0.5) * TILE_SIZE);
       this.gainXp(Math.round(15 * (1 + (this.mods.craftXp || 0))));
-      Balaclava.Audio.play('build');
+      Abyssea.Audio.play('build');
       this.spawnParticles((tx + def.size * 0.5) * TILE_SIZE, (ty + def.size * 0.5) * TILE_SIZE, '#ffd54f', 14);
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.builtStructure', { name: def.name }) : `Construido: ${def.name}`, 'success');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.builtStructure', { name: def.name }) : `Construido: ${def.name}`, 'success');
       if (this.placingItemId && (this.inventory[this.placingItemId] || 0) <= 0) {
         this.placingBuildingId = null;
         this.placingItemId = null;
@@ -2599,7 +2839,7 @@
 
     demolishBuilding(b) {
       if (!b) return;
-      const def = Balaclava.BUILDINGS[b.type || b.defId];
+      const def = Abyssea.BUILDINGS[b.type || b.defId];
       if (b.storage) {
         const cx = (b.tx * TILE_SIZE) + 24;
         const cy = (b.ty * TILE_SIZE) + 24;
@@ -2626,7 +2866,7 @@
       const slot = this.hotbar && this.hotbar[this.activeSlot];
       const modBonus = (this.mods && this.mods.reachBonus) || 0;
       if (slot && slot.kind === 'item') {
-        const itemDef = Balaclava.ITEMS[slot.id];
+        const itemDef = Abyssea.ITEMS[slot.id];
         if (itemDef && (itemDef.isSpecialBlade || itemDef.weaponMelee)) {
           return ((itemDef.weaponMelee && itemDef.weaponMelee.range) || itemDef.bladeRange || 82) + modBonus;
         }
@@ -2637,7 +2877,7 @@
       }
       const toolId = (slot && slot.id) || 'pico';
       const tier = (this.toolTiers && this.toolTiers[toolId]) || 'basica';
-      const stats = Balaclava.getToolStats(toolId, tier);
+      const stats = Abyssea.getToolStats(toolId, tier);
       const tb = this.getToolEnchantBonuses(toolId);
       return ((stats && stats.reach) || 74) + (tb.reachBonus || 0) + modBonus;
     }
@@ -2657,7 +2897,7 @@
           return false;
         }
       }
-      const hb = Balaclava.Utils.getEntityHitbox ? Balaclava.Utils.getEntityHitbox(entity) : null;
+      const hb = Abyssea.Utils.getEntityHitbox ? Abyssea.Utils.getEntityHitbox(entity) : null;
       const effR = hb ? Math.max(entity.radius || 16, hb.radius) : (entity.radius || 16);
       if (this.isTargetInReach(entity.x, entity.y, effR, customReach, targetKind)) return true;
       return hb ? this.isTargetInReach(hb.cx, hb.cy, effR, customReach, targetKind) : false;
@@ -2665,8 +2905,8 @@
 
     findHoveredEntity(wx, wy, customReach = null) {
       if (!Number.isFinite(wx) || !Number.isFinite(wy)) return null;
-      const assets = Balaclava.Assets;
-      const getHb = Balaclava.Utils.getEntityHitbox;
+      const assets = Abyssea.Assets;
+      const getHb = Abyssea.Utils.getEntityHitbox;
       const px = this.player.x;
       const py = this.player.y;
 
@@ -2779,7 +3019,7 @@
       }
 
       if (!this.activeDungeon) {
-        for (const npc of Balaclava.NPCS) {
+        for (const npc of Abyssea.NPCS) {
           const [ngx, ngy] = this.world.getNpcPlot(npc);
           if (!this.world.isPlotUnlocked(ngx, ngy)) continue;
           const off = this.world.getNpcTileOffset(npc);
@@ -2798,7 +3038,7 @@
               enforceReach: false,
               prompt: near ? { x: nx, y: ny - 68 } : null,
               name: npc.name,
-              sub: npc.title || (Balaclava.I18n ? Balaclava.I18n.t('npc.talkHint') : 'Habitante del Archipiélago · Habla con [E]'),
+              sub: npc.title || (Abyssea.I18n ? Abyssea.I18n.t('npc.talkHint') : 'Habitante del Archipiélago · Habla con [E]'),
               iconUrl: npcThumb
             };
           }
@@ -2807,16 +3047,18 @@
         let bestBuilding = null;
         let bestBuildingDef = null;
         let bestBuildingD = Infinity;
+        const flushSprites = new Set(['Fish_Pond', 'Corral_Pen', 'Plot_Garden', 'Bridge_Tile', 'prop_cobble', 'village_grass_turf', 'village_cobble_path', 'prop_pipe']);
         for (const b of this.buildings) {
-          const bDef = Balaclava.BUILDINGS[b.type];
+          const bDef = Abyssea.BUILDINGS[b.type];
           if (!bDef) continue;
           const bx = (b.tx + bDef.size * 0.5) * TILE_SIZE;
           const by = (b.ty + bDef.size * 0.5) * TILE_SIZE;
-          const spriteTopPad = Math.max(12, Math.round(bDef.size * 12));
+          const isFlush = flushSprites.has(bDef.sprite);
+          const spriteTopPad = isFlush ? 0 : Math.max(10, Math.round(bDef.size * 12));
           const top = b.ty * TILE_SIZE - spriteTopPad;
-          const bottom = (b.ty + bDef.size) * TILE_SIZE + 8;
-          const left = b.tx * TILE_SIZE - 8;
-          const right = (b.tx + bDef.size) * TILE_SIZE + 8;
+          const bottom = (b.ty + bDef.size) * TILE_SIZE + (isFlush ? 2 : 6);
+          const left = b.tx * TILE_SIZE - (isFlush ? 2 : 6);
+          const right = (b.tx + bDef.size) * TILE_SIZE + (isFlush ? 2 : 6);
           if (wx >= left && wx <= right && wy >= top && wy <= bottom) {
             const d = dist(wx, wy, bx, by);
             if (d < bestBuildingD) {
@@ -2831,60 +3073,78 @@
           const bDef = bestBuildingDef;
           const bx = (b.tx + bDef.size * 0.5) * TILE_SIZE;
           const by = (b.ty + bDef.size * 0.5) * TILE_SIZE;
-          const topPad = Math.max(8, Math.round(bDef.size * 8));
-          const bw = bDef.size * TILE_SIZE + 6;
-          const bh = bDef.size * TILE_SIZE + topPad + 4;
+          const isFlush = flushSprites.has(bDef.sprite);
+          const topPad = isFlush ? 0 : Math.max(8, Math.round(bDef.size * 10));
+          const bw = bDef.size * TILE_SIZE + (isFlush ? 0 : 4);
+          const bh = bDef.size * TILE_SIZE + topPad + (isFlush ? 0 : 4);
           const firstCostItem = Object.keys(bDef.cost || {})[0];
           const bldgThumbSpec = { kind: 'building', buildingType: b.type };
           const bThumb = null; // resuelto por UI via thumbSpec
-          const near = dist(px, py, bx, by) <= 94;
+          const nearDist = Math.max(94, Math.round(bDef.size * TILE_SIZE * 0.56) + 46);
+          const near = dist(px, py, bx, by) <= nearDist;
           return {
             kind: 'building',
             entity: b,
             x: bx,
             y: by,
             boxX: bx,
-            boxY: by - Math.round(topPad * 0.4),
+            boxY: by - Math.round(topPad * 0.45),
             hitW: bw,
             hitH: bh,
-            hitR: Math.round(bDef.size * TILE_SIZE * 0.54),
+            hitR: Math.round(bDef.size * TILE_SIZE * 0.52),
             inReach: near,
             enforceReach: false,
-            prompt: near ? { x: bx, y: b.ty * TILE_SIZE - 18 } : null,
-            name: `${bDef.name}${b.level > 1 ? ` (${Balaclava.I18n ? Balaclava.I18n.t('common.levelShort') : 'Nv.'}${b.level})` : ''}`,
-            sub: bDef.desc || (Balaclava.I18n ? Balaclava.I18n.t('bldg.interactOpen') : 'Estructura · Pulsa [E] para abrir'),
-            iconUrl: bThumb || (bDef.station ? Balaclava.UI_URLS.anvil : null),
+            prompt: near ? { x: bx, y: b.ty * TILE_SIZE - (isFlush ? 10 : 18) } : null,
+            name: `${bDef.name}${b.level > 1 ? ` (${Abyssea.I18n ? Abyssea.I18n.t('common.levelShort') : 'Nv.'}${b.level})` : ''}`,
+            sub: bDef.desc || (Abyssea.I18n ? Abyssea.I18n.t('bldg.interactOpen') : 'Estructura · Pulsa [E] para abrir'),
+            iconUrl: bThumb || (bDef.station ? Abyssea.UI_URLS.anvil : null),
             thumbSpec: bldgThumbSpec,
-            itemIcon: firstCostItem && Balaclava.ITEMS[firstCostItem] ? Balaclava.ITEMS[firstCostItem].icon : null
+            itemIcon: firstCostItem && Abyssea.ITEMS[firstCostItem] ? Abyssea.ITEMS[firstCostItem].icon : null
           };
         }
 
         let bestNode = null;
+        let bestNodeMetrics = null;
         let bestNodeD = Infinity;
-        for (const n of this.world.nodes) {
+        const hoverCandidates = (this.world && typeof this.world.queryNodesInRect === 'function')
+          ? this.world.queryNodesInRect(wx - 210, wy - 250, wx + 210, wy + 210)
+          : this.world.nodes;
+        for (const n of hoverCandidates) {
           if (n.kind === 'fish_spot') continue;
-          const rCheck = n.kind === 'dungeon_gate' ? 42 : 32;
-          const d = dist(wx, wy, n.x, n.y - 4);
-          if (d < rCheck && d < bestNodeD) {
-            bestNodeD = d;
-            bestNode = n;
+          const m = this.getNodeMetrics(n);
+          const hw = m.hitW * 0.5 + 3;
+          const hh = m.hitH * 0.5 + 3;
+          if (Math.abs(wx - m.boxX) <= hw && Math.abs(wy - m.boxY) <= hh) {
+            const d = Math.hypot((wx - m.boxX) / Math.max(12, hw), (wy - m.boxY) / Math.max(12, hh));
+            if (d < bestNodeD) {
+              bestNodeD = d;
+              bestNode = n;
+              bestNodeMetrics = m;
+            }
           }
         }
         if (bestNode) {
           const n = bestNode;
+          const m = bestNodeMetrics || this.getNodeMetrics(n);
           const isInt = ['dungeon_gate', 'altar_shrine', 'easter_egg', 'puzzle_pillar', 'chest', 'secret_chest', 'bone_totem', 'skeleton_king_shrine'].includes(n.kind);
+          const nearInt = isInt ? this.isNearInteractiveNode(n, px, py, 52) : false;
           const inReach = isInt
-            ? dist(px, py, n.x, n.y) <= Math.max(98, (customReach !== null ? customReach : this.getActiveStrikeReach()))
-            : this.isTargetInReach(n.x, n.y, n.radius || 14, customReach, 'node');
-          const hitR = n.kind === 'dungeon_gate' ? 38 : (n.kind === 'tree' || n.kind === 'giant_tree') ? 26 : 21;
-          const prompt = (isInt && dist(px, py, n.x, n.y) <= 98) ? { x: n.x, y: n.y - 42 } : null;
+            ? (nearInt || dist(px, py, n.x, m.colCy) <= (customReach !== null ? customReach : this.getActiveStrikeReach()))
+            : this.isTargetInReach(n.x, n.y, Math.max(n.radius || 14, Math.round(m.hitW * 0.42)), customReach, 'node');
+          const hitR = Math.max(18, Math.round(Math.max(m.hitW, m.hitH) * 0.5));
+          const lmBoxW = m.hitW;
+          const lmBoxH = m.hitH;
+          const lmBoxY = m.boxY;
+          const hasBox = lmBoxW > 0 && lmBoxH > 0;
+          const prompt = (isInt && nearInt) ? { x: n.x, y: m.promptY } : null;
           if (n.kind === 'altar_shrine') {
-            const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-            const aDef = Balaclava.ALTAR_DEFS && Balaclava.ALTAR_DEFS[n.altarId];
+            const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+            const aDef = Abyssea.ALTAR_DEFS && Abyssea.ALTAR_DEFS[n.altarId];
             const altarSpec = { kind: 'altar', altarId: n.altarId };
             const aThumb = null; // resuelto por UI via thumbSpec
             return {
-              kind: 'altar', entity: n, x: n.x, y: n.y - 8, hitR, inReach, enforceReach: false, prompt,
+              kind: 'altar', entity: n, x: n.x, y: n.y - 8,
+              boxX: n.x, boxY: lmBoxY, hitW: lmBoxW, hitH: lmBoxH, hitR, inReach, enforceReach: false, prompt,
               name: aDef ? aDef.name : T('toast.altarSacred'),
               sub: aDef ? `${aDef.effectDetail || aDef.desc} (${aDef.durationText || ''})` : T('toast.altarAncient'),
               sub2: n.cooldownLeft > 0 ? T('hover.altarCooldown', { sec: Math.ceil(n.cooldownLeft) }) : T('hover.altarReady'),
@@ -2894,15 +3154,17 @@
             };
           }
           if (n.kind === 'dungeon_gate') {
-            const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+            const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
             const gateSpec = { kind: 'gate', dungeonId: n.dungeonId };
             const gThumb = null; // resuelto por UI via thumbSpec
-            const gateName = (Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[n.dungeonId] && Balaclava.DUNGEON_DEFS[n.dungeonId].name)
-              || (Balaclava.DUNGEON_GATES && Balaclava.DUNGEON_GATES[n.dungeonId] && Balaclava.DUNGEON_GATES[n.dungeonId].name)
+            const gateName = (Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[n.dungeonId] && Abyssea.DUNGEON_DEFS[n.dungeonId].name)
+              || (Abyssea.DUNGEON_GATES && Abyssea.DUNGEON_GATES[n.dungeonId] && Abyssea.DUNGEON_GATES[n.dungeonId].name)
               || n.name
               || T('toast.sacredAltarGeneric');
             return {
-              kind: 'gate', entity: n, x: n.x, y: n.y - 8, hitR, inReach, enforceReach: false, prompt,
+              kind: 'gate', entity: n, x: n.x, y: n.y - 8,
+              boxX: n.x, boxY: lmBoxY, hitW: lmBoxW, hitH: lmBoxH,
+              hitR, inReach, enforceReach: false, prompt,
               name: gateName,
               sub: T('hover.gateSub', { lvl: n.recLevel || 2 }),
               iconUrl: gThumb,
@@ -2910,16 +3172,16 @@
               itemIcon: !gThumb ? 'llave_mazmorra' : null
             };
           }
-          const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+          const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
           const toolNames = {
-            pico: (Balaclava.TOOLS && Balaclava.TOOLS.pico && Balaclava.TOOLS.pico.name) || 'Pico',
-            hacha: (Balaclava.TOOLS && Balaclava.TOOLS.hacha && Balaclava.TOOLS.hacha.name) || 'Hacha',
-            pala: (Balaclava.TOOLS && Balaclava.TOOLS.pala && Balaclava.TOOLS.pala.name) || 'Pala',
-            guadana: (Balaclava.TOOLS && Balaclava.TOOLS.guadana && Balaclava.TOOLS.guadana.name) || 'Guadaña',
-            espada: (Balaclava.TOOLS && Balaclava.TOOLS.espada && Balaclava.TOOLS.espada.name) || 'Espada'
+            pico: (Abyssea.TOOLS && Abyssea.TOOLS.pico && Abyssea.TOOLS.pico.name) || 'Pico',
+            hacha: (Abyssea.TOOLS && Abyssea.TOOLS.hacha && Abyssea.TOOLS.hacha.name) || 'Hacha',
+            pala: (Abyssea.TOOLS && Abyssea.TOOLS.pala && Abyssea.TOOLS.pala.name) || 'Pala',
+            guadana: (Abyssea.TOOLS && Abyssea.TOOLS.guadana && Abyssea.TOOLS.guadana.name) || 'Guadaña',
+            espada: (Abyssea.TOOLS && Abyssea.TOOLS.espada && Abyssea.TOOLS.espada.name) || 'Espada'
           };
-          const reqTier = n.reqTier ? ` (${(Balaclava.TIER_META[n.reqTier] && Balaclava.TIER_META[n.reqTier].name) || n.reqTier}+)` : '';
-          const firstDrop = n.drops && n.drops[0] && Balaclava.ITEMS[n.drops[0].id];
+          const reqTier = n.reqTier ? ` (${(Abyssea.TIER_META[n.reqTier] && Abyssea.TIER_META[n.reqTier].name) || n.reqTier}+)` : '';
+          const firstDrop = n.drops && n.drops[0] && Abyssea.ITEMS[n.drops[0].id];
           const specialSpriteKinds = ['easter_egg', 'chest', 'secret_chest', 'puzzle_pillar', 'bone_totem', 'skeleton_king_shrine'];
           const nodeThumbSpec = specialSpriteKinds.includes(n.kind) ? { kind: n.kind, eeId: n.eeId } : null;
           const nThumb = null; // resuelto por UI via thumbSpec
@@ -2940,8 +3202,13 @@
           }[n.kind]) || 'piedra';
           const rangeNote = (!isInt && !inReach) ? T('hover.outOfReach') : '';
           return {
-            kind: 'node', entity: n, x: n.x, y: n.y - 8, hitR, inReach, enforceReach: !isInt, prompt,
-            name: (Balaclava.NODE_DISPLAY_NAMES && Balaclava.NODE_DISPLAY_NAMES[n.kind]) || (this.world && this.world.NODE_DISPLAY_NAMES && this.world.NODE_DISPLAY_NAMES[n.kind]) || n.name || n.kind,
+            kind: 'node', entity: n, x: n.x, y: n.y - 8,
+            boxX: hasBox ? n.x : undefined,
+            boxY: hasBox ? lmBoxY : undefined,
+            hitW: hasBox ? lmBoxW : undefined,
+            hitH: hasBox ? lmBoxH : undefined,
+            hitR, inReach, enforceReach: !isInt, prompt,
+            name: (Abyssea.NODE_DISPLAY_NAMES && Abyssea.NODE_DISPLAY_NAMES[n.kind]) || (this.world && this.world.NODE_DISPLAY_NAMES && this.world.NODE_DISPLAY_NAMES[n.kind]) || n.name || n.kind,
             sub: (n.maxHp > 0
               ? T('hover.hpReqTool', { cur: Math.max(0, Math.ceil(n.hp)), max: Math.ceil(n.maxHp), tool: toolNames[n.tool] || T('hover.toolFallback'), tier: reqTier })
               : T('hover.interactE')) + rangeNote,
@@ -2957,8 +3224,8 @@
         const mty = Math.floor(wy / TILE_SIZE);
         const c = this.world.crops.find(cr => cr.tx === mtx && cr.ty === mty);
         if (c) {
-          const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-          const cDef = Balaclava.CROPS && Balaclava.CROPS[c.cropId];
+          const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+          const cDef = Abyssea.CROPS && Abyssea.CROPS[c.cropId];
           const cx = (c.tx + 0.5) * TILE_SIZE;
           const cy = (c.ty + 0.5) * TILE_SIZE;
           const inReach = this.isTargetInReach(cx, cy, 12, customReach, 'crop');
@@ -2974,11 +3241,11 @@
             prompt: (c.stage >= 3 && dist(px, py, cx, cy) <= 74) ? { x: cx, y: cy - 34 } : null,
             name: cDef ? cDef.name : T('hover.cropFallback'),
             sub: (c.stage >= 3 ? T('farm.readyHarvest') : `${T('farm.growthPct', { pct })} · ${c.watered ? T('farm.watered') : T('farm.needsWater')}${c.fertilized ? ' · ' + T('farm.fertilized') : ''}`) + (inReach ? '' : ' · ' + T('farm.outOfReach')),
-            itemIcon: cDef && Balaclava.ITEMS[cDef.yieldId] ? Balaclava.ITEMS[cDef.yieldId].icon : null
+            itemIcon: cDef && Abyssea.ITEMS[cDef.yieldId] ? Abyssea.ITEMS[cDef.yieldId].icon : null
           };
         }
       } else if (this.activeDungeon) {
-        const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+        const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
         const dung = this.activeDungeon;
         if (Array.isArray(dung.chests)) {
           for (const dc of dung.chests) {
@@ -3024,8 +3291,8 @@
                 hitR: 22,
                 inReach,
                 enforceReach: true,
-                name: Balaclava.I18n ? Balaclava.I18n.t('hover.crateName') : 'Caja Antigua',
-                sub: Balaclava.I18n ? Balaclava.I18n.t('hover.crateSub') : 'Estructura · Golpea para romper',
+                name: Abyssea.I18n ? Abyssea.I18n.t('hover.crateName') : 'Caja Antigua',
+                sub: Abyssea.I18n ? Abyssea.I18n.t('hover.crateSub') : 'Estructura · Golpea para romper',
                 itemIcon: 'madera'
               };
             }
@@ -3047,8 +3314,8 @@
               hitR: 28,
               inReach: dist(px, py, ex, ey) <= 96,
               enforceReach: false,
-              name: Balaclava.I18n ? Balaclava.I18n.t('hover.exitPortalName') : 'Portal de Salida',
-              sub: Balaclava.I18n ? Balaclava.I18n.t('dungeon.portalExit') : 'Pulsa [E] o haz clic para confirmar salida',
+              name: Abyssea.I18n ? Abyssea.I18n.t('hover.exitPortalName') : 'Portal de Salida',
+              sub: Abyssea.I18n ? Abyssea.I18n.t('dungeon.portalExit') : 'Pulsa [E] o haz clic para confirmar salida',
               itemIcon: 'portal'
             };
           }
@@ -3070,8 +3337,8 @@
                 hitR: 30,
                 inReach: dist(px, py, plx, ply) <= 92,
                 enforceReach: false,
-                name: Balaclava.I18n ? Balaclava.I18n.t('hover.pillarName') : 'Pilar Antiguo',
-                sub: Balaclava.I18n ? Balaclava.I18n.t('hover.pillarSub') : 'Estructura de mazmorra',
+                name: Abyssea.I18n ? Abyssea.I18n.t('hover.pillarName') : 'Pilar Antiguo',
+                sub: Abyssea.I18n ? Abyssea.I18n.t('hover.pillarSub') : 'Estructura de mazmorra',
                 itemIcon: 'piedra'
               };
             }
@@ -3095,8 +3362,8 @@
                 hitR: 22,
                 inReach: near,
                 enforceReach: false,
-                name: lv.pulled ? (Balaclava.I18n ? Balaclava.I18n.t('dungeon.leverActive') : 'Palanca Activada') : (Balaclava.I18n ? Balaclava.I18n.t('dungeon.leverIdle') : 'Palanca Rúnica'),
-                sub: Balaclava.I18n ? Balaclava.I18n.t('dungeon.leverSub') : 'Mecanismo de mazmorra',
+                name: lv.pulled ? (Abyssea.I18n ? Abyssea.I18n.t('dungeon.leverActive') : 'Palanca Activada') : (Abyssea.I18n ? Abyssea.I18n.t('dungeon.leverIdle') : 'Palanca Rúnica'),
+                sub: Abyssea.I18n ? Abyssea.I18n.t('dungeon.leverSub') : 'Mecanismo de mazmorra',
                 itemIcon: 'hierro'
               };
             }
@@ -3118,9 +3385,9 @@
               hitR: 28,
               inReach: dist(px, py, ex, ey) <= 86,
               enforceReach: false,
-              name: Balaclava.I18n ? Balaclava.I18n.t('hover.exitPortalName') : 'Portal de Salida',
-              sub: Balaclava.I18n ? Balaclava.I18n.t('dungeon.portalExit') : 'Pulsa [E] sobre el portal para salir',
-              itemIcon: 'nucleo_balaclava'
+              name: Abyssea.I18n ? Abyssea.I18n.t('hover.exitPortalName') : 'Portal de Salida',
+              sub: Abyssea.I18n ? Abyssea.I18n.t('dungeon.portalExit') : 'Pulsa [E] sobre el portal para salir',
+              itemIcon: 'nucleo_abyssea'
             };
           }
         }
@@ -3144,7 +3411,7 @@
       if (!this.player.godMode && this.player.energy < energyCost) {
         if ((this.time - (this._lastLowEnWarn || -99)) >= 1.35) {
           this._lastLowEnWarn = this.time;
-          this.addFloatingText(this.player.x, this.player.y - 24, Balaclava.I18n ? Balaclava.I18n.t('toast.lowEnergyEat') : '¡Sin energía! Come bayas/pan', '#ff8a65');
+          this.addFloatingText(this.player.x, this.player.y - 24, Abyssea.I18n ? Abyssea.I18n.t('toast.lowEnergyEat') : '¡Sin energía! Come bayas/pan', '#ff8a65');
         }
         return;
       }
@@ -3311,7 +3578,7 @@
         this.spawnParticles(hitX, hitY, '#fff9c4', 4);
       }
 
-      Balaclava.Audio.play('slash');
+      Abyssea.Audio.play('slash');
 
       const applyBladeHit = (e) => {
         const critRate = (this.mods.critChance || 0) + (bStats.critBonus || 0) + (itemDef.bladeEffect === 'crit' ? 0.25 : 0.08);
@@ -3324,7 +3591,7 @@
         if (bStats.stunChance && Math.random() < bStats.stunChance && !e.isBoss) {
           e.stunTimer = Math.max(e.stunTimer || 0, 1.6);
           e.slowTimer = Math.max(e.slowTimer || 0, 1.8);
-          this.addFloatingText(e.x, e.y - 32, Balaclava.I18n ? Balaclava.I18n.t('toast.stunned') : 'Aturdido!', '#ffe082');
+          this.addFloatingText(e.x, e.y - 32, Abyssea.I18n ? Abyssea.I18n.t('toast.stunned') : 'Aturdido!', '#ffe082');
         }
         if (itemDef.bladeEffect === 'lifesteal' || bStats.lifeSteal) this.healPlayer(Math.max(2, Math.round(dmg * (bStats.lifeSteal || 0.1))), 0);
       };
@@ -3375,7 +3642,7 @@
       if (!this.player.godMode && this.player.energy < eCost) {
         if ((this.time - (this._lastLowEnWarn || -99)) >= 1.35) {
           this._lastLowEnWarn = this.time;
-          this.addFloatingText(this.player.x, this.player.y - 24, Balaclava.I18n ? Balaclava.I18n.t('toast.noEnergy') : '¡Sin energía!', '#ff8a65');
+          this.addFloatingText(this.player.x, this.player.y - 24, Abyssea.I18n ? Abyssea.I18n.t('toast.noEnergy') : '¡Sin energía!', '#ff8a65');
         }
         return false;
       }
@@ -3440,12 +3707,12 @@
         );
       }
       this.spawnParticles(sx, sy, st.color || '#ce93d8', 6);
-      Balaclava.Audio.play(itemDef.isStaffWeapon ? 'laser' : 'bow');
+      Abyssea.Audio.play(itemDef.isStaffWeapon ? 'laser' : 'bow');
       return true;
     }
 
     unlockSpell(spellId) {
-      const sp = Balaclava.SPELLS && Balaclava.SPELLS[spellId];
+      const sp = Abyssea.SPELLS && Abyssea.SPELLS[spellId];
       if (!sp) return false;
       if (!Array.isArray(this.unlockedSpells)) this.unlockedSpells = ['misil_arcano'];
       if (this.unlockedSpells.includes(spellId)) return false;
@@ -3455,9 +3722,9 @@
       if (emptyIdx !== -1 && !this.spellSlots.includes(spellId)) {
         this.spellSlots[emptyIdx] = spellId;
       }
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       this.spawnParticles(this.player.x, this.player.y, sp.color || '#ce93d8', 22);
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.spellLearned', { name: sp.name }) : `¡Hechizo aprendido: ${sp.name}!`, 'success');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.spellLearned', { name: sp.name }) : `¡Hechizo aprendido: ${sp.name}!`, 'success');
       this.uiDirty = true;
       return true;
     }
@@ -3505,7 +3772,7 @@
       if (!cost) return false;
       if (!this.canUpgradeSpell(spellId)) {
         this.toast(`Necesitas ${cost.coins} monedas y ${cost.crystals} Cristales Mágicos.`, 'warn');
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         return false;
       }
       this.coins -= cost.coins;
@@ -3520,11 +3787,11 @@
       }
       if (!this.spellLevels) this.spellLevels = {};
       this.spellLevels[spellId] = cost.level;
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       if (typeof this.spawnParticles === 'function') {
         this.spawnParticles(this.player.x, this.player.y, '#b388ff', 24);
       }
-      const sp = Balaclava.SPELLS && Balaclava.SPELLS[spellId];
+      const sp = Abyssea.SPELLS && Abyssea.SPELLS[spellId];
       const sName = sp ? sp.name : spellId;
       this.toast(`¡${sName} mejorado a Nivel ${cost.level}! (+25% daño, -8% recarga)`, 'success');
       this.uiDirty = true;
@@ -3537,11 +3804,11 @@
         ? (this.spellSlots && this.spellSlots[slotIdxOrId])
         : slotIdxOrId;
       if (!spellId) return false;
-      const sp = Balaclava.SPELLS && Balaclava.SPELLS[spellId];
+      const sp = Abyssea.SPELLS && Abyssea.SPELLS[spellId];
       if (!sp) return false;
       if (!Array.isArray(this.unlockedSpells)) this.unlockedSpells = ['misil_arcano'];
       if (!this.unlockedSpells.includes(spellId)) {
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.spellNotLearned', { name: sp.name }) : `Aún no aprendes ${sp.name}.`, 'warn');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.spellNotLearned', { name: sp.name }) : `Aún no aprendes ${sp.name}.`, 'warn');
         return false;
       }
       this.spellCooldowns = this.spellCooldowns || {};
@@ -3556,8 +3823,8 @@
       const manaSave = Math.min(0.45, (this.mods.manaSave || 0) + (this.mods.energySave || 0) * 0.4);
       const cost = this.player.godMode ? 0 : Math.max(2, Math.round((sp.cost || 10) * (1 - manaSave)));
       if (!this.player.godMode && this.player.energy < cost) {
-        this.addFloatingText(this.player.x, this.player.y - 26, `${Balaclava.I18n ? Balaclava.I18n.t('toast.noEnergy') : '¡Sin energía!'} (${cost})`, '#ff8a65');
-        Balaclava.Audio.play('error');
+        this.addFloatingText(this.player.x, this.player.y - 26, `${Abyssea.I18n ? Abyssea.I18n.t('toast.noEnergy') : '¡Sin energía!'} (${cost})`, '#ff8a65');
+        Abyssea.Audio.play('error');
         return false;
       }
       const sLevel = this.getSpellLevel(spellId);
@@ -3565,7 +3832,14 @@
       const lvlCdMult = Math.max(0.5, 1 - (sLevel - 1) * 0.08);
       if (cost > 0) this.player.energy = Math.max(0, this.player.energy - cost);
       const cdRed = Math.min(0.75, this.mods.spellCdRed || 0);
-      this.spellCooldowns[spellId] = Math.max(3.0, (sp.cooldown || 20.0) * lvlCdMult * (1 - cdRed));
+      // RC2 (#3): Astral / Omega Armor Set Synergy — 22% chance to cast spells with 0s cooldown!
+      const freeCdProc = Boolean(this.mods && this.mods.synergyAstral && Math.random() < 0.22);
+      if (freeCdProc) {
+        this.addFloatingText(this.player.x, this.player.y - 44, '¡SIN COOLDOWN ASTRAL!', '#e040fb');
+      } else {
+        this.spellCooldowns[spellId] = Math.max(3.0, (sp.cooldown || 20.0) * lvlCdMult * (1 - cdRed));
+      }
+      if (this.stats) this.stats.spellsCast = (this.stats.spellsCast || 0) + 1;
 
       const px = this.player.x;
       const py = this.player.y;
@@ -3597,11 +3871,11 @@
           const a = ang + off;
           this.spawnPlayerProjectile(px, py, Math.cos(a) * 460, Math.sin(a) * 460, baseDmg, sp.color, false, { life: 1.3, homing: true, hitsNodes: true, vfxKey: 'pvfx_magic_missile', vfxHit: 'aw_arcane_impact', usedId: 'spell:misil_arcano' });
         }
-        Balaclava.Audio.play('laser');
+        Abyssea.Audio.play('laser');
       } else if (spellId === 'bola_fuego') {
         this.spawnFx('aw_fire_castflame', px + Math.cos(ang) * 18, py + Math.sin(ang) * 18, ang, 0.34, 0.95, 0.95, { blend: 'lighter' });
         this.spawnPlayerProjectile(px, py, Math.cos(ang) * 390, Math.sin(ang) * 390, baseDmg, sp.color, false, { life: 1.4, aoeRadius: sp.aoeRadius || 72, burnDmg: 8, hitsNodes: true, vfxKey: 'aw_fire_fireball', vfxHit: 'pvfx_fireball_impact', usedId: 'spell:bola_fuego' });
-        Balaclava.Audio.play('explosion');
+        Abyssea.Audio.play('explosion');
       } else if (spellId === 'nova_hielo') {
         const r = sp.aoeRadius || 135;
         this.spawnFx('pvfx_frost_nova', px, py, 0, 0.58, 1.35, 0.98, { blend: 'lighter' });
@@ -3616,7 +3890,7 @@
           }
         }
         this.damageNodesInArea(px, py, r, Math.round(baseDmg * 0.85), sp.color, 0, 'spell:nova_hielo');
-        Balaclava.Audio.play('levelup');
+        Abyssea.Audio.play('levelup');
       } else if (spellId === 'cadena_rayos') {
         const maxBounces = (sp.bounces || 4) + (sLevel - 1);
         const sorted = foes
@@ -3646,7 +3920,7 @@
           }
         }
         if (hitCount === 0) this.spawnFx('pvfx_lightning_strike', wx, wy + 4, 0, 0.42, 0.95, 0.92, { blend: 'lighter' });
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
       } else if (spellId === 'curacion_sagrada') {
         const heal = Math.round((sp.baseHeal || 48) * spMult);
         this.healPlayer(heal, 0);
@@ -3655,7 +3929,7 @@
         this.spawnShockwave(px, py, 85, sp.color);
         this.spawnParticles(px, py, '#a5d6a7', 20);
         this.addFloatingText(px, py - 28, `+${heal} HP`, '#a5d6a7');
-        Balaclava.Audio.play('heal');
+        Abyssea.Audio.play('heal');
       } else if (spellId === 'escudo_divino') {
         const sh = Math.round((sp.baseShield || 55) * spMult);
         this.player.shieldHp = Math.max(this.player.shieldHp || 0, sh);
@@ -3664,8 +3938,8 @@
         this.spawnFx('st_shield', px, py - 6, 0, 0.65, 1.05, 0.92, { follow: this.player, offY: -6, blend: 'lighter' });
         this.spawnShockwave(px, py, 95, sp.color);
         this.spawnParticles(px, py, '#ffe082', 18);
-        this.addFloatingText(px, py - 28, Balaclava.I18n ? Balaclava.I18n.t('toast.aegisShield', { sh }) : `Égida +${sh}`, '#ffe082');
-        Balaclava.Audio.play('equip');
+        this.addFloatingText(px, py - 28, Abyssea.I18n ? Abyssea.I18n.t('toast.aegisShield', { sh }) : `Égida +${sh}`, '#ffe082');
+        Abyssea.Audio.play('equip');
       } else if (spellId === 'paso_etereo') {
         const stepDist = Math.min(180, dist(px, py, wx, wy));
         const clippedBlink = clipDung(px, py, px + Math.cos(ang) * stepDist, py + Math.sin(ang) * stepDist);
@@ -3692,15 +3966,15 @@
           }
         }
         this.damageNodesInArea(destX, destY, 95, Math.round(baseDmg * 0.85), sp.color, ang, 'spell:paso_etereo');
-        Balaclava.Audio.play('portal');
+        Abyssea.Audio.play('portal');
       } else if (spellId === 'furia_arcana') {
         this.applyTimedBuff('furia_arcana', { mult: 1.30, time: sp.duration || 7.0, sourceId: 'spell:furia_arcana', sourceName: sp.name, blessingName: sp.name });
         this.recomputeModifiers();
         this.spawnFx('pvfx_power_up_aura', px, py + 6, 0, 0.95, 1.25, 0.98, { follow: this.player, offY: 6, blend: 'lighter' });
         this.spawnFx('st_rage', px, py - 10, 0, 0.72, 1.05, 0.95, { follow: this.player, offY: -10, blend: 'lighter' });
         this.spawnShockwave(px, py, 115, sp.color);
-        this.addFloatingText(px, py - 30, Balaclava.I18n ? Balaclava.I18n.t('toast.arcaneFury') : '¡FURIA ARCANA!', sp.color);
-        Balaclava.Audio.play('levelup');
+        this.addFloatingText(px, py - 30, Abyssea.I18n ? Abyssea.I18n.t('toast.arcaneFury') : '¡FURIA ARCANA!', sp.color);
+        Abyssea.Audio.play('levelup');
       } else if (spellId === 'espinas_tierra') {
         const clamped = Math.min(215, dist(px, py, wx, wy));
         const clipped = clipDung(px, py, px + Math.cos(ang) * clamped, py + Math.sin(ang) * clamped);
@@ -3718,14 +3992,14 @@
           }
         }
         this.damageNodesInArea(tx, ty, r, Math.round(baseDmg * 0.95), sp.color, ang, 'spell:espinas_tierra');
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
       } else if (spellId === 'daga_veneno') {
         this.spawnFx('aw_poison_splash', px + Math.cos(ang) * 16, py + Math.sin(ang) * 16, ang, 0.28, 0.85, 0.95, { blend: 'lighter' });
         for (const off of [-0.24, 0, 0.24]) {
           const a = ang + off;
           this.spawnPlayerProjectile(px, py, Math.cos(a) * 520, Math.sin(a) * 520, baseDmg, sp.color, true, { life: 1.0, poisonDmg: 6, hitsNodes: true, vfxKey: 'pvfx_poison_dart', vfxHit: 'pvfx_acid_splash', usedId: 'spell:daga_veneno' });
         }
-        Balaclava.Audio.play('bow');
+        Abyssea.Audio.play('bow');
       } else if (spellId === 'drenaje_mana') {
         const r = sp.aoeRadius || 120;
         this.spawnFx('pvfx_soul_drain', px, py, 0, 0.65, 1.3, 0.98, { blend: 'lighter' });
@@ -3740,7 +4014,7 @@
         }
         const nHits = this.damageNodesInArea(px, py, r, Math.round(baseDmg * 0.8), sp.color, 0, 'spell:drenaje_mana');
         if (hits + nHits > 0) this.healPlayer(hits * 7, Math.max(hits * 8, Math.min(12, nHits * 3)));
-        Balaclava.Audio.play('heal');
+        Abyssea.Audio.play('heal');
       } else if (spellId === 'lluvia_meteoros') {
         const clamped = Math.min(240, dist(px, py, wx, wy));
         const clipped = clipDung(px, py, px + Math.cos(ang) * clamped, py + Math.sin(ang) * clamped);
@@ -3765,16 +4039,16 @@
           this.damageNodesInArea(mx, my, mRad, baseDmg, sp.color, ang, 'spell:lluvia_meteoros');
         }
         this.shake(0.32, 6);
-        Balaclava.Audio.play('explosion');
+        Abyssea.Audio.play('explosion');
       } else if (spellId === 'lluvia_minerales' || spellId === 'invocacion_minerales' ||
                  spellId === 'llamado_horda' || spellId === 'invocacion_monstruos' ||
                  spellId === 'llamado_fauna' || spellId === 'invocacion_fauna') {
         const refundSurfaceSpell = (msgEs, msgEn) => {
           if (cost > 0) this.player.energy = Math.min(this.player.maxEnergy, this.player.energy + cost);
           delete this.spellCooldowns[spellId];
-          const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+          const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
           this.toast(isEn ? msgEn : msgEs, 'warn');
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
         };
         if (this.activeDungeon || !Array.isArray(this.unlockedPlots) || this.unlockedPlots.length === 0) {
           refundSurfaceSpell(
@@ -3783,7 +4057,7 @@
           );
           return false;
         }
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         if (spellId === 'lluvia_minerales' || spellId === 'invocacion_minerales') {
           const occ = this.getOccupiedTileSet();
           const targetCount = 15;
@@ -3799,7 +4073,7 @@
           }
           this.spawnFx('pvfx_magic_circle', px, py + 4, 0, 0.55, 1.15, 0.95, { blend: 'lighter' });
           this.spawnShockwave(px, py, 120, sp.color);
-          Balaclava.Audio.play('levelup');
+          Abyssea.Audio.play('levelup');
           this.toast(
             isEn ? `Mineral Surge! ${spawned} ore veins erupted across your islands.` : `¡Lluvia Mineral! Brotaron ${spawned} vetas minerales por tus islas.`,
             'success'
@@ -3836,7 +4110,7 @@
           }
           this.spawnFx('pvfx_magic_circle', px, py + 4, 0, 0.55, 1.15, 0.95, { blend: 'lighter' });
           this.spawnShockwave(px, py, 130, sp.color);
-          Balaclava.Audio.play('thunder');
+          Abyssea.Audio.play('thunder');
           this.toast(
             isEn ? `Call of the Horde! ${spawned} hostile monsters appeared on your islands.` : `¡Llamado de la Horda! Aparecieron ${spawned} monstruos por tus islas.`,
             'warn'
@@ -3876,7 +4150,7 @@
           }
           this.spawnFx('pvfx_holy_heal', px, py + 4, 0, 0.65, 1.15, 0.95, { blend: 'lighter' });
           this.spawnShockwave(px, py, 120, sp.color);
-          Balaclava.Audio.play('heal');
+          Abyssea.Audio.play('heal');
           this.toast(
             isEn ? `Call of the Wild! ${spawned} passive animals arrived on your islands.` : `¡Llamado de Fauna! Llegaron ${spawned} animales pasivos a tus islas.`,
             'success'
@@ -3891,6 +4165,21 @@
       if (this.isPlayerDead()) return;
       if (!Number.isFinite(wx)) wx = this.player.x + (this.player.facing || 1) * 90;
       if (!Number.isFinite(wy)) wy = this.player.y;
+      // RC2 (I): Structure Relocator click intercept
+      if (this.v2Runtime && this.v2Runtime.relocatorActive && typeof this.handleRelocatorClick === 'function') {
+        if (this.handleRelocatorClick(wx, wy)) return;
+      }
+      // RC2 (#4): Allow attacking Coastal Leviathan Sea Boss & Tentacles with weapons/swords
+      if (!this.activeDungeon && this.v2Runtime && this.v2Runtime.seaBoss && typeof this.tryDamageSeaBossAt === 'function') {
+        const seaReach = dist(this.player.x, this.player.y, wx, wy) <= 320;
+        if (seaReach) {
+          const hitDmg = Math.max(18, Math.round((24 + (this.player.level || 1) * 3.5) * (1 + (this.mods.dmgBonus || 0))));
+          if (this.tryDamageSeaBossAt(wx, wy, hitDmg, 86)) {
+            this.triggerPlayerAction('hana_sword', 0.25, wx, wy);
+            return;
+          }
+        }
+      }
       if (this.placingBuildingId) {
         const tx = Math.floor(wx / TILE_SIZE);
         const ty = Math.floor(wy / TILE_SIZE);
@@ -3911,7 +4200,7 @@
       }
 
       if (slot.kind === 'item') {
-        const itemDef = Balaclava.ITEMS[slot.id];
+        const itemDef = Abyssea.ITEMS[slot.id];
         if (slot.id === 'fertilizante' || slot.id === 'abono_dorado' || slot.id === 'compost_magico') {
           const tx = Math.floor(wx / TILE_SIZE);
           const ty = Math.floor(wy / TILE_SIZE);
@@ -3941,12 +4230,12 @@
       if (!tier) {
         if (this.time - (this.lastHintTime || 0) > 1.8) {
           this.lastHintTime = this.time;
-          const tName = Balaclava.TOOLS[toolId] ? Balaclava.TOOLS[toolId].name : toolId;
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.needCraftToolFirst', { name: tName }) : `¡Aún no fabricas ${tName}! Abre Artesanía.`, 'warn');
+          const tName = Abyssea.TOOLS[toolId] ? Abyssea.TOOLS[toolId].name : toolId;
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.needCraftToolFirst', { name: tName }) : `¡Aún no fabricas ${tName}! Abre Artesanía.`, 'warn');
         }
         return;
       }
-      const stats = Balaclava.getToolStats(toolId, tier);
+      const stats = Abyssea.getToolStats(toolId, tier);
       if (!stats) return;
       if (this.player.swingTimer > 0) return;
 
@@ -3954,8 +4243,8 @@
         if ((this.player.bowReloadTimer || 0) > 0) {
           if ((this.time - (this._lastReloadWarn || -99)) >= 0.75) {
             this._lastReloadWarn = this.time;
-            const rMsg = (Balaclava.I18n && Balaclava.I18n.t('toast.bowReloading') !== 'toast.bowReloading')
-              ? Balaclava.I18n.t('toast.bowReloading')
+            const rMsg = (Abyssea.I18n && Abyssea.I18n.t('toast.bowReloading') !== 'toast.bowReloading')
+              ? Abyssea.I18n.t('toast.bowReloading')
               : 'Recargando arco...';
             this.addFloatingText(this.player.x, this.player.y - 26, rMsg, '#ffe082');
           }
@@ -3982,7 +4271,7 @@
       if (hovered && hovered.enforceReach && !hovered.inReach && hovered.kind !== 'enemy' && hovered.kind !== 'animal') {
         if ((this.time - (this._lastReachWarn || -99)) >= 1.0) {
           this._lastReachWarn = this.time;
-          this.addFloatingText(this.player.x, this.player.y - 26, Balaclava.I18n ? Balaclava.I18n.t('toast.outOfReachImprove') : '¡Fuera de alcance! Acércate o mejora tu herramienta', '#ffab91');
+          this.addFloatingText(this.player.x, this.player.y - 26, Abyssea.I18n ? Abyssea.I18n.t('toast.outOfReachImprove') : '¡Fuera de alcance! Acércate o mejora tu herramienta', '#ffab91');
         }
         return;
       }
@@ -3991,7 +4280,7 @@
       if (!this.player.godMode && this.player.energy < energyCost) {
         if ((this.time - (this._lastLowEnWarn || -99)) >= 1.35) {
           this._lastLowEnWarn = this.time;
-          this.addFloatingText(this.player.x, this.player.y - 24, Balaclava.I18n ? Balaclava.I18n.t('toast.lowEnergyEat') : '¡Sin energía! Come bayas/pan', '#ff8a65');
+          this.addFloatingText(this.player.x, this.player.y - 24, Abyssea.I18n ? Abyssea.I18n.t('toast.lowEnergyEat') : '¡Sin energía! Come bayas/pan', '#ff8a65');
         }
         return;
       }
@@ -4015,7 +4304,7 @@
         this.removeItem('flecha', 1);
         this.player.bowLoaded = false;
         this.player.bowNeedsAutoReload = this.getArrowCount() > 0;
-        Balaclava.Audio.play('bow');
+        Abyssea.Audio.play('bow');
         const dmg = Math.round(stats.power * 1.35 * (1 + (this.mods.dmgBonus || 0) + tb.dmgBonus + tb.fireDmg));
         this.spawnPlayerProjectile(this.player.x, this.player.y, Math.cos(ang) * 430, Math.sin(ang) * 430, dmg, tb.autoSmelt ? '#ff8a65' : '#ffd54f', true);
         return;
@@ -4032,7 +4321,7 @@
         } else if ((isWater || fSpot) && dist(this.player.x, this.player.y, wx, wy) <= reach + 12) {
           this.farming.startFishing(this, wx, wy, fSpot);
         } else {
-          this.addFloatingText(this.player.x, this.player.y - 26, Balaclava.I18n ? Balaclava.I18n.t('toast.aimWater') : 'Apunta al agua o estanque cercano', '#81d4fa');
+          this.addFloatingText(this.player.x, this.player.y - 26, Abyssea.I18n ? Abyssea.I18n.t('toast.aimWater') : 'Apunta al agua o estanque cercano', '#81d4fa');
         }
         return;
       }
@@ -4045,7 +4334,7 @@
         : this.combat.enemies;
 
       const strikeEnemy = (e) => {
-        const eff = Balaclava.getToolEfficiency(toolId, e.isBoss ? 'boss' : 'enemy', tier);
+        const eff = Abyssea.getToolEfficiency(toolId, e.isBoss ? 'boss' : 'enemy', tier);
         const critRate = (toolId === 'espada' ? (this.mods.critChance || 0) : 0.04) + tb.critChance;
         const isCrit = Math.random() < critRate;
         const dmg = Math.max(1, Math.round(stats.power * 1.35 * eff.mult * (1 + (this.mods.dmgBonus || 0) + tb.dmgBonus + tb.fireDmg) * (isCrit ? 2 : 1)));
@@ -4068,7 +4357,7 @@
         if (n.kind === 'fish_spot') {
           if (this.time - (this.lastHintTime || 0) > 2.0) {
             this.lastHintTime = this.time;
-            this.addFloatingText(n.x, n.y - 22, Balaclava.I18n ? Balaclava.I18n.t('tool.needRod') : '¡Requiere Caña de Pescar!', '#81d4fa');
+            this.addFloatingText(n.x, n.y - 22, Abyssea.I18n ? Abyssea.I18n.t('tool.needRod') : '¡Requiere Caña de Pescar!', '#81d4fa');
           }
           return 'skip';
         }
@@ -4078,9 +4367,9 @@
         if (n.kind === 'bone_totem') { this.activateBoneTotem(n); return 'stop'; }
         if (n.kind === 'skeleton_king_shrine') { this.interactSkeletonKing(n); return 'stop'; }
 
-        const eff = Balaclava.getToolEfficiency(toolId, n.kind, tier);
+        const eff = Abyssea.getToolEfficiency(toolId, n.kind, tier);
         if (eff.blocked) {
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           this.spawnParticles(n.x, n.y, '#90a4ae', 4);
           this.spawnFx('hitSpark', n.x, n.y, ang, 0.2);
           if (eff.hint && this.time - (this.lastHintTime || 0) > 1.8) {
@@ -4101,7 +4390,7 @@
         }
         n.hp -= power;
         n.hitAnim = 1;
-        Balaclava.Audio.play(n.tool === 'pico' ? 'mine' : n.tool === 'pala' ? 'dig' : 'chop');
+        Abyssea.Audio.play(n.tool === 'pico' ? 'mine' : n.tool === 'pala' ? 'dig' : 'chop');
         this.spawnParticles(n.x, n.y, n.tool === 'pico' ? '#b0bec5' : '#81c784', 6);
         if (n.tool === 'hacha' || n.kind === 'tree' || n.kind === 'giant_tree') {
           this.spawnFx('wood_hit', n.x, n.y - 8, 0, 0.28, 1.25, 0.96);
@@ -4120,7 +4409,7 @@
 
       const doSwordWaveIfReady = () => {
         if (toolId !== 'espada') return;
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         this.player.attackCount++;
         const swKey = (this.player.attackCount % 3 === 0) ? 'pa_slash3_gold' : (this.player.attackCount % 2 === 0) ? 'pa_slash2_cyan' : 'pa_slash1_gold';
         this.spawnFx(swKey, hitX, hitY, ang, 0.28, 0.88, 0.94, { blend: 'lighter' });
@@ -4160,7 +4449,7 @@
         }
         if (hovered.kind === 'animal') {
           const a = hovered.entity;
-          const eff = Balaclava.getToolEfficiency(toolId, 'enemy', tier);
+          const eff = Abyssea.getToolEfficiency(toolId, 'enemy', tier);
           const critRate = (toolId === 'espada' ? (this.mods.critChance || 0) : 0.05) + tb.critChance;
           const isCrit = Math.random() < critRate;
           const dmg = Math.max(2, Math.round(stats.power * 1.35 * eff.mult * (1 + (this.mods.dmgBonus || 0) + tb.dmgBonus) * (isCrit ? 2 : 1)));
@@ -4228,7 +4517,7 @@
         }
         if (bestFauna) {
           const a = bestFauna;
-          const eff = Balaclava.getToolEfficiency(toolId, 'enemy', tier);
+          const eff = Abyssea.getToolEfficiency(toolId, 'enemy', tier);
           const critRate = (toolId === 'espada' ? (this.mods.critChance || 0) : 0.05) + tb.critChance;
           const isCrit = Math.random() < critRate;
           const dmg = Math.max(2, Math.round(stats.power * 1.35 * eff.mult * (1 + (this.mods.dmgBonus || 0) + tb.dmgBonus) * (isCrit ? 2 : 1)));
@@ -4259,9 +4548,11 @@
         const candidates = this.world.nodes
           .filter(n => {
             if (n.kind === 'dungeon_gate') return false;
-            if (!this.isTargetInReach(n.x, n.y, n.radius || 14, reach, 'node')) return false;
+            const nm = this.getNodeMetrics ? this.getNodeMetrics(n) : null;
+            const nRad = Math.max(n.radius || 14, (nm && nm.colRx ? nm.colRx : 18) + 6);
+            if (!this.isTargetInReach(n.x, n.y, nRad, reach, 'node')) return false;
             const nAng = Math.atan2(n.y - this.player.y, n.x - this.player.x);
-            return Math.cos(nAng - ang) >= 0.22 || dist(this.player.x, this.player.y, n.x, n.y) <= 36;
+            return Math.cos(nAng - ang) >= 0.22 || dist(this.player.x, this.player.y, n.x, n.y) <= (nRad + 26);
           })
           .sort((a, b) => dist(wx, wy, a.x, a.y) - dist(wx, wy, b.x, b.y));
         for (const n of candidates) {
@@ -4281,8 +4572,8 @@
           s.shearCooldown = 18;
           this.triggerPlayerAction('hana_shear', 0.36, s.x, s.y);
           this.spawnDrop(s.x, s.y, 'lana', 2);
-          Balaclava.Audio.play('pickup');
-          this.addFloatingText(s.x, s.y - 18, Balaclava.I18n ? Balaclava.I18n.t('toast.woolFloat') : '+Lana', '#ffffff');
+          Abyssea.Audio.play('pickup');
+          this.addFloatingText(s.x, s.y - 18, Abyssea.I18n ? Abyssea.I18n.t('toast.woolFloat') : '+Lana', '#ffffff');
           return;
         }
       }
@@ -4302,7 +4593,7 @@
         const ty = Math.floor(hitY / TILE_SIZE);
         if (this.world.isTileWalkable(tx, ty) && Math.random() < 0.35) {
           this.spawnDrop(hitX, hitY, biome === 'desierto' ? 'arena' : 'arcilla', 1);
-          Balaclava.Audio.play('dig');
+          Abyssea.Audio.play('dig');
           this.spawnParticles(hitX, hitY, '#8d6e63', 6);
         }
       }
@@ -4310,12 +4601,12 @@
 
     destroyNode(node, toolStats, usedToolId) {
       if (node.kind === 'meteor') {
-        const reqTierIdx = (Balaclava.getRequiredPickTier && Balaclava.getRequiredPickTier('meteor')) ?? 8;
+        const reqTierIdx = (Abyssea.getRequiredPickTier && Abyssea.getRequiredPickTier('meteor')) ?? 8;
         const pickTier = (this.toolTiers && this.toolTiers.pico) || 'basica';
-        const currentTierIdx = Balaclava.TIER_ORDER ? Balaclava.TIER_ORDER.indexOf(pickTier) : -1;
+        const currentTierIdx = Abyssea.TIER_ORDER ? Abyssea.TIER_ORDER.indexOf(pickTier) : -1;
         if (usedToolId !== 'pico' || currentTierIdx < reqTierIdx) {
-          const reqName = (Balaclava.TIER_ORDER && Balaclava.TIER_META && Balaclava.TIER_META[Balaclava.TIER_ORDER[reqTierIdx]])
-            ? Balaclava.TIER_META[Balaclava.TIER_ORDER[reqTierIdx]].name
+          const reqName = (Abyssea.TIER_ORDER && Abyssea.TIER_META && Abyssea.TIER_META[Abyssea.TIER_ORDER[reqTierIdx]])
+            ? Abyssea.TIER_META[Abyssea.TIER_ORDER[reqTierIdx]].name
             : 'Cristal';
           this.addFloatingText(node.x, node.y - 20, `¡Pico insuficiente! Requiere Pico ${reqName} (Tier ${reqTierIdx + 1})+`, '#ff8a65');
           return;
@@ -4344,7 +4635,7 @@
         }
         if (didSmelt) {
           this.spawnParticles(node.x, node.y, '#ff7043', 10);
-          this.addFloatingText(node.x, node.y - 26, Balaclava.I18n ? Balaclava.I18n.t('toast.smeltedFloat') : '¡Fundido!', '#ffab91');
+          this.addFloatingText(node.x, node.y - 26, Abyssea.I18n ? Abyssea.I18n.t('toast.smeltedFloat') : '¡Fundido!', '#ffab91');
         }
       }
 
@@ -4377,8 +4668,8 @@
         this.addCoins(bonusCoins);
         this.spawnParticles(node.x, node.y, '#ffd54f', 8);
         this.spawnFx('pvfx_coin_pickup', node.x, node.y - 10, 0, 0.45, 1.1, 0.95, { blend: 'lighter' });
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') {
-          Balaclava.Audio.play('coin');
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') {
+          Abyssea.Audio.play('coin');
         }
       }
     }
@@ -4387,8 +4678,8 @@
       if (!node || node._opened) return;
       node._opened = true;
       this.world.nodes = this.world.nodes.filter(n => n !== node);
-      Balaclava.Audio.play('chest');
-      const C = Balaclava.CONST.CENTER_PLOT || 4;
+      Abyssea.Audio.play('chest');
+      const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       const gx = Math.floor(node.tx / PLOT_TILES);
       const gy = Math.floor(node.ty / PLOT_TILES);
       const plotDist = Math.hypot(gx - C, gy - C);
@@ -4417,18 +4708,18 @@
       this.spawnParticles(node.x, node.y, '#ffd54f', 16);
       this.spawnFx('px_treasure_burst', node.x, node.y - 6, 0, 0.72, 1.35, 1.0, { blend: 'lighter' });
       this.spawnFx('pvfx_treasure_glint', node.x, node.y - 12, 0, 0.85, 1.25, 0.96, { blend: 'lighter' });
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.treasureChestOpen', { coins }) : `¡Cofre del tesoro abierto! +${coins} monedas`, 'success');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.treasureChestOpen', { coins }) : `¡Cofre del tesoro abierto! +${coins} monedas`, 'success');
     }
 
     activatePuzzlePillar(node) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       if (!node) return false;
       if (node.activated) {
         this.toast(T('toast.pillarAlreadyOn'), 'info');
         return false;
       }
       node.activated = true;
-      Balaclava.Audio.play('portal');
+      Abyssea.Audio.play('portal');
       this.spawnParticles(node.x, node.y, '#9575cd', 22);
       this.spawnShockwave(node.x, node.y, 72, '#b388ff');
       const pillars = this.world.nodes.filter(p => p.kind === 'puzzle_pillar' && p.secretIdx === node.secretIdx);
@@ -4437,7 +4728,7 @@
       const chest = this.world.nodes.find(c => c.kind === 'secret_chest' && c.secretIdx === node.secretIdx);
       if (done >= req && chest) {
         chest.puzzleLocked = false;
-        Balaclava.Audio.play('levelup');
+        Abyssea.Audio.play('levelup');
         this.spawnShockwave(chest.x, chest.y, 130, '#ffd54f');
         this.addFloatingText(chest.x, chest.y - 34, T('toast.sealBrokenFloat'), '#ffd54f');
         this.toast(T('toast.pillarsSealBroken'), 'success');
@@ -4450,19 +4741,19 @@
     }
 
     openSecretChest(node) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       if (!node || node.opened) return false;
       if (node.puzzleLocked) {
         const pillars = this.world.nodes.filter(p => p.kind === 'puzzle_pillar' && p.secretIdx === node.secretIdx);
         const done = pillars.filter(p => p.activated).length;
         const req = node.puzzleReq || pillars.length || 3;
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         this.addFloatingText(node.x, node.y - 28, T('toast.secretSealedFloat', { done, req }), '#ce93d8');
         this.toast(T('toast.secretSealedToast', { done, req }), 'warn');
         return false;
       }
       if ((this.inventory.llave_legendaria || 0) < 1) {
-        Balaclava.Audio.play('error');
+        Abyssea.Audio.play('error');
         this.addFloatingText(node.x, node.y - 24, T('toast.needLegendKeyFloat'), '#ffd54f');
         this.toast(T('toast.needLegendKeyToast'), 'warn');
         return false;
@@ -4470,15 +4761,15 @@
       this.removeItem('llave_legendaria', 1);
       node.opened = true;
       this.world.nodes = this.world.nodes.filter(n => n !== node);
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       this.shake(0.24, 5);
       this.spawnShockwave(node.x, node.y, 110, '#ffd54f');
       this.spawnParticles(node.x, node.y, '#ffd54f', 24);
       this.spawnFx('px_treasure_burst', node.x, node.y - 6, 0, 0.78, 1.45, 1.0, { blend: 'lighter' });
       this.spawnFx('pvfx_treasure_glint', node.x, node.y - 14, 0, 0.92, 1.35, 0.98, { blend: 'lighter' });
 
-      const secretPool = Object.keys(Balaclava.PERMANENT_RELICS || {}).filter(
-        id => Balaclava.PERMANENT_RELICS[id] && Balaclava.PERMANENT_RELICS[id].isSecret
+      const secretPool = Object.keys(Abyssea.PERMANENT_RELICS || {}).filter(
+        id => Abyssea.PERMANENT_RELICS[id] && Abyssea.PERMANENT_RELICS[id].isSecret
       );
       const unowned = secretPool.filter(id => !this.permanentRelics.includes(id));
       let relicId = null;
@@ -4489,7 +4780,7 @@
       if (relicId) {
         this.permanentRelics.push(relicId);
         this.recordEncyclopedia('relics', relicId);
-        const rel = Balaclava.PERMANENT_RELICS[relicId];
+        const rel = Abyssea.PERMANENT_RELICS[relicId];
         this.recomputeModifiers();
         this.addCoins(55);
         this.gainXp(180);
@@ -4544,51 +4835,55 @@
 
       const px = this.player.x;
       const py = this.player.y;
+      if (typeof this.tryInteractV2Nearby === 'function' && this.tryInteractV2Nearby()) {
+        return;
+      }
       const mx = Number.isFinite(this.mouse.wx) ? this.mouse.wx : px;
       const my = Number.isFinite(this.mouse.wy) ? this.mouse.wy : py;
       const candidates = [];
 
       // 1. Eligible NPCs within reach
-      for (const npc of Balaclava.NPCS) {
+      for (const npc of Abyssea.NPCS) {
         const [gx, gy] = this.world.getNpcPlot(npc);
         if (!this.world.isPlotUnlocked(gx, gy)) continue;
         const off = this.world.getNpcTileOffset(npc);
         const nx = (gx * PLOT_TILES + off[0] + 0.5) * TILE_SIZE;
         const ny = (gy * PLOT_TILES + off[1] + 0.5) * TILE_SIZE;
         if (dist(px, py, nx, ny) <= 76) {
-          candidates.push({ x: nx, y: ny, act: () => Balaclava.UI.openNpcModal(npc) });
+          candidates.push({ x: nx, y: ny, act: () => Abyssea.UI.openNpcModal(npc) });
         }
       }
 
-      // 2. Gates, Altars, Easter Eggs, Puzzle Pillars & Giant Chests
-      for (const n of this.world.nodes) {
-        const dP = dist(px, py, n.x, n.y);
-        if (n.kind === 'dungeon_gate' && dP <= 86) {
+      // 2. Gates, Altars, Easter Eggs, Puzzle Pillars & Giant Chests (spatial query around player)
+      const intCandidates = (this.world && typeof this.world.queryNodesInRect === 'function')
+        ? this.world.queryNodesInRect(px - 240, py - 260, px + 240, py + 240)
+        : this.world.nodes;
+      for (const n of intCandidates) {
+        if (n.kind === 'dungeon_gate' && this.isNearInteractiveNode(n, px, py, 56)) {
           candidates.push({ x: n.x, y: n.y, act: () => this.enterDungeon(n.dungeonId) });
-        } else if (n.kind === 'altar_shrine' && dP <= 78) {
-          candidates.push({ x: n.x, y: n.y, act: () => this.interactAltar(n) });
-        } else if (n.kind === 'easter_egg' && dP <= 78) {
-          candidates.push({ x: n.x, y: n.y, act: () => this.interactEasterEgg(n) });
-        } else if (n.kind === 'puzzle_pillar' && dP <= 82) {
+        } else if ((n.kind === 'altar_shrine' || n.kind === 'easter_egg') && this.isNearInteractiveNode(n, px, py, 52)) {
+          candidates.push({ x: n.x, y: n.y, act: () => n.kind === 'altar_shrine' ? this.interactAltar(n) : this.interactEasterEgg(n) });
+        } else if (n.kind === 'puzzle_pillar' && this.isNearInteractiveNode(n, px, py, 50)) {
           candidates.push({ x: n.x, y: n.y, act: () => this.activatePuzzlePillar(n) });
-        } else if (n.kind === 'chest' && dP <= 90) {
+        } else if (n.kind === 'chest' && this.isNearInteractiveNode(n, px, py, 52)) {
           candidates.push({ x: n.x, y: n.y, act: () => this.openWorldChest(n) });
-        } else if (n.kind === 'secret_chest' && dP <= 92) {
+        } else if (n.kind === 'secret_chest' && this.isNearInteractiveNode(n, px, py, 54)) {
           candidates.push({ x: n.x, y: n.y, act: () => this.openSecretChest(n) });
-        } else if (n.kind === 'bone_totem' && dP <= 88) {
+        } else if (n.kind === 'bone_totem' && this.isNearInteractiveNode(n, px, py, 50)) {
           candidates.push({ x: n.x, y: n.y, act: () => this.activateBoneTotem(n) });
-        } else if (n.kind === 'skeleton_king_shrine' && dP <= 98) {
+        } else if (n.kind === 'skeleton_king_shrine' && this.isNearInteractiveNode(n, px, py, 56)) {
           candidates.push({ x: n.x, y: n.y, act: () => this.interactSkeletonKing(n) });
         }
       }
 
       // 3. Buildings within reach
       for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS[b.type];
         if (!def) continue;
         const bx = (b.tx + def.size * 0.5) * TILE_SIZE;
         const by = (b.ty + def.size * 0.5) * TILE_SIZE;
-        if (dist(px, py, bx, by) <= 88) {
+        const bReach = Math.max(88, Math.round(def.size * TILE_SIZE * 0.56) + 46);
+        if (dist(px, py, bx, by) <= bReach) {
           candidates.push({
             x: bx,
             y: by,
@@ -4599,7 +4894,7 @@
                 this.triggerPlayerAction('hana_milking', 0.38, bx, by);
               }
               if (isChestOrLogistic || def.opensPanel || !collected || def.station) {
-                Balaclava.UI.openBuildingModal(b);
+                Abyssea.UI.openBuildingModal(b);
               }
             }
           });
@@ -4628,7 +4923,7 @@
                 a.milkCooldown = 25;
                 this.triggerPlayerAction('hana_milking', 0.40, a.x, a.y);
                 this.spawnDrop(a.x, a.y, 'leche', 1);
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 this.addFloatingText(a.x, a.y - 18, '+1 Leche', '#e3f2fd');
               }
             });
@@ -4640,7 +4935,7 @@
                 a.shearCooldown = 18;
                 this.triggerPlayerAction('hana_shear', 0.36, a.x, a.y);
                 this.spawnDrop(a.x, a.y, 'lana', 2);
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 this.addFloatingText(a.x, a.y - 18, '+2 Lana', '#ffffff');
               }
             });
@@ -4652,7 +4947,7 @@
                 a.petCooldown = 18;
                 this.triggerPlayerAction('hana_brush', 0.34, a.x, a.y);
                 this.gainXp(4);
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 this.addFloatingText(a.x, a.y - 18, '+4 XP', '#ff8a80');
               }
             });
@@ -4731,7 +5026,7 @@
       }
 
       if (buffKeys.length > 0 && opts.status !== 'expired') {
-        const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+        const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
         for (const n of this.altarNotifications) {
           if (n.altarId !== opts.altarId && !n.leaving && Array.isArray(n.buffKeys) && n.buffKeys.some(k => buffKeys.includes(k))) {
             n.status = 'replaced';
@@ -4773,8 +5068,8 @@
     }
 
     interactAltar(node) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      const def = Balaclava.ALTAR_DEFS && Balaclava.ALTAR_DEFS[node.altarId];
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      const def = Abyssea.ALTAR_DEFS && Abyssea.ALTAR_DEFS[node.altarId];
       if (!def) return;
       if (node.cooldownLeft > 0) {
         this.toast(T('altar.recharging', { name: def.name, sec: Math.ceil(node.cooldownLeft) }), 'info');
@@ -4783,12 +5078,12 @@
       node.cooldownLeft = def.cooldown || 90;
       this.stats.altarsUsed = (this.stats.altarsUsed || 0) + 1;
       this.recordEncyclopedia('altars', node.altarId);
-      Balaclava.Audio.play('portal');
+      Abyssea.Audio.play('portal');
       this.spawnParticles(node.x, node.y, def.color || '#80deea', 18);
 
       const blessingTitle = def.blessingName || def.name;
       const kickerBase = def.blessingTitle || T('altar.activated', { name: blessingTitle });
-      const iconUrl = def.iconUrl || (Balaclava.BUFF_ICON_URLS && Balaclava.BUFF_ICON_URLS.speed) || 'assets/icons_extra/buff_luck.png';
+      const iconUrl = def.iconUrl || (Abyssea.BUFF_ICON_URLS && Abyssea.BUFF_ICON_URLS.speed) || 'assets/icons_extra/buff_luck.png';
 
       if (def.effect === 'arcane') {
         const dur = def.buffDur || 85;
@@ -4899,7 +5194,7 @@
         const chosen = rarePool[Math.floor(Math.random() * rarePool.length)];
         const chosenQty = randInt(1, 2);
         this.addItem(chosen, chosenQty);
-        const chosenName = (Balaclava.ITEMS[chosen] && Balaclava.ITEMS[chosen].name) || chosen;
+        const chosenName = (Abyssea.ITEMS[chosen] && Abyssea.ITEMS[chosen].name) || chosen;
         this.pushAltarBlessingNotice({
           altarId: def.id, altarName: def.name, kicker: kickerBase, title: blessingTitle,
           effectText: T('altar.pactEffect', { hp: hpCost, coins: coinsGain, qty: chosenQty, item: chosenName }),
@@ -4927,7 +5222,7 @@
     }
 
     interactEasterEgg(node) {
-      const def = Balaclava.EASTER_EGG_DEFS && Balaclava.EASTER_EGG_DEFS[node.eeId];
+      const def = Abyssea.EASTER_EGG_DEFS && Abyssea.EASTER_EGG_DEFS[node.eeId];
       if (!def) return;
       if (node.claimed) {
         this.toast(`${def.name}: ${def.hint}`, 'info');
@@ -4935,7 +5230,7 @@
       }
       node.claimed = true;
       this.stats.secretsFound = (this.stats.secretsFound || 0) + 1;
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('levelup');
       this.spawnParticles(node.x, node.y, def.color || '#ffd54f', 26);
 
       const rewards = {
@@ -4956,29 +5251,38 @@
       this.addCoins(rewards.coins);
       this.gainXp(rewards.xp);
       for (const [id, q] of Object.entries(rewards.items)) this.addItem(id, q);
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.easterEggSecret', { name: def.name, hint: def.hint }) : `¡SECRETO DESCUBIERTO: ${def.name}! ${def.hint}`, 'success');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.easterEggSecret', { name: def.name, hint: def.hint }) : `¡SECRETO DESCUBIERTO: ${def.name}! ${def.hint}`, 'success');
       this.uiDirty = true;
     }
 
     enterDungeon(dungeonId, isCorrupted = false, opts = null) {
-      if (Balaclava.UI && Balaclava.UI.activeModal) Balaclava.UI.closeModal();
+      if (Abyssea.UI && Abyssea.UI.activeModal) Abyssea.UI.closeModal();
 
       if (dungeonId === 'abismo_infinito') {
-        const floor = (this.omega && this.omega.state.abyssFloor) || 1;
-        const scale = this.omega ? this.omega.abyssScale(floor) : { hpMult: 1, dmgMult: 1, spdMult: 1, lootMult: 1 };
-        const mods = this.omega ? this.omega.abyssModifiersForFloor(floor) : [];
+        const abyssState = this.omega && this.omega.state && this.omega.state.abyss;
+        const floor = Math.max(1, (abyssState && abyssState.current) || 1);
+        const mods = (this.omega && typeof this.omega.abyssModifiersFor === 'function')
+          ? this.omega.abyssModifiersFor(floor)
+          : [];
+        const scale = (this.omega && typeof this.omega.abyssScaling === 'function')
+          ? this.omega.abyssScaling(floor, mods)
+          : { hp: 1, dmg: 1, speed: 1 };
+        const modNames = mods.map(m => (typeof m === 'string' ? m : (m.name || m.id || ''))).filter(Boolean);
         const doEnterAbyss = () => {
           this.farming.fishing = null;
           this.placingBuildingId = null;
           this.placingItemId = null;
-          const dKeys = Object.keys(Balaclava.DUNGEON_DEFS || {});
-          const baseKey = dKeys[(floor - 1) % (dKeys.length || 1)] || 'catacumbas_olvidadas';
-          this.activeDungeon = new Balaclava.DungeonInstance(baseKey, { x: this.player.x, y: this.player.y }, this.player.level, {
+          const dKeys = Object.keys(Abyssea.DUNGEON_DEFS || {});
+          const baseKey = dKeys[(floor - 1) % (dKeys.length || 1)] || 'pradera';
+          this.activeDungeon = new Abyssea.DungeonInstance(baseKey, { x: this.player.x, y: this.player.y }, this.player.level, {
             isAbyss: true,
             abyssFloor: floor,
             abyssScale: scale,
             abyssMods: mods
           });
+          if (typeof this.applyDungeonAffixes === 'function') {
+            this.applyDungeonAffixes(this.activeDungeon);
+          }
           this._savedOverworldDrops = Array.isArray(this.drops) ? this.drops : [];
           this.drops = [];
           this.enemyProjectiles = [];
@@ -4991,19 +5295,19 @@
           this.player.y = this.activeDungeon.spawnPos.y;
           this.camera.x = this.player.x;
           this.camera.y = this.player.y;
-          Balaclava.Audio.play('portal');
-          Balaclava.Audio.setMood('boss', { delayMs: 650, fadeOutMs: 320, fadeInMs: 4200 });
-          this.toast(`Has descendido al Piso ${floor} del Abismo Infinito. Modificadores: ${mods.join(', ') || 'Estándar'}.`, 'warn');
+          Abyssea.Audio.play('portal');
+          Abyssea.Audio.setMood('dungeon', { delayMs: 550, fadeOutMs: 320, fadeInMs: 3400 });
+          this.toast(`Has descendido al Piso ${floor} del Abismo Infinito. Modificadores: ${modNames.join(', ') || 'Estándar'}.`, 'warn');
           this.uiDirty = true;
-          if (Balaclava.actualizarDiscord) Balaclava.actualizarDiscord(true);
+          if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
         };
-        if (Balaclava.UI && typeof Balaclava.UI.playSceneTransition === 'function') {
-          Balaclava.UI.playSceneTransition({
-            title: `El Abismo Infinito — Piso ${floor}`,
-            subtitle: `HP x${scale.hpMult.toFixed(1)} | Daño x${scale.dmgMult.toFixed(1)} | Modificadores: ${mods.join(', ') || 'Estándar'}`,
-            duration: 1200,
-            onMidpoint: doEnterAbyss
-          });
+        if (Abyssea.UI && typeof Abyssea.UI.playSceneTransition === 'function') {
+          Abyssea.UI.playSceneTransition(
+            `El Abismo Infinito — Piso ${floor}`,
+            doEnterAbyss,
+            null,
+            { sub: `HP x${(scale.hp || 1).toFixed(1)} | Daño x${(scale.dmg || 1).toFixed(1)} | ${modNames.join(', ') || 'Estándar'}` }
+          );
         } else {
           doEnterAbyss();
         }
@@ -5011,20 +5315,20 @@
       }
 
       if (!isCorrupted && Array.isArray(this.clearedDungeons) && this.clearedDungeons.includes(dungeonId) && !(opts && opts.forceNormal)) {
-        const totalDungeons = (Balaclava.DUNGEON_TIER_LIST && Balaclava.DUNGEON_TIER_LIST.length) || Object.keys(Balaclava.DUNGEON_DEFS || {}).length || 75;
+        const totalDungeons = (Abyssea.DUNGEON_TIER_LIST && Abyssea.DUNGEON_TIER_LIST.length) || Object.keys(Abyssea.DUNGEON_DEFS || {}).length || 75;
         const allCleared = this.clearedDungeons.length >= totalDungeons;
-        if (allCleared && Balaclava.UI && typeof Balaclava.UI.openModal === 'function') {
-          Balaclava.UI.openModal('corrupted_dungeon_choice', { dungeonId });
+        if (allCleared && Abyssea.UI && typeof Abyssea.UI.openModal === 'function') {
+          Abyssea.UI.openModal('corrupted_dungeon_choice', { dungeonId });
           return;
         }
       }
 
-      const def = (Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[dungeonId])
-        || (Balaclava.DUNGEONS && Balaclava.DUNGEONS[dungeonId])
+      const def = (Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[dungeonId])
+        || (Abyssea.DUNGEONS && Abyssea.DUNGEONS[dungeonId])
         || null;
-      const gate = (Balaclava.DUNGEON_GATES && Balaclava.DUNGEON_GATES[dungeonId]) || null;
+      const gate = (Abyssea.DUNGEON_GATES && Abyssea.DUNGEON_GATES[dungeonId]) || null;
       const dName = (isCorrupted ? '[CORRUPTA] ' : '') + ((def && def.name) || (gate && gate.name) || 'Mazmorra');
-      const tierList = Array.isArray(Balaclava.DUNGEON_TIER_LIST) ? Balaclava.DUNGEON_TIER_LIST : [];
+      const tierList = Array.isArray(Abyssea.DUNGEON_TIER_LIST) ? Abyssea.DUNGEON_TIER_LIST : [];
       const tierIdx = Math.max(0, tierList.indexOf(dungeonId));
 
       // Bloqueo estricto por progresión de biomas (Beta 1.3.2):
@@ -5040,12 +5344,12 @@
         const isCleared = Array.isArray(this.clearedDungeons) && this.clearedDungeons.includes(dungeonId);
 
         if (!isBiomeUnlocked && !isIslandUnlocked && !isCleared) {
-          const bData = (Balaclava.CONST && Balaclava.CONST.BIOMES && Balaclava.CONST.BIOMES[targetBiome])
-            || (Balaclava.BIOMES && Balaclava.BIOMES[targetBiome])
+          const bData = (Abyssea.CONST && Abyssea.CONST.BIOMES && Abyssea.CONST.BIOMES[targetBiome])
+            || (Abyssea.BIOMES && Abyssea.BIOMES[targetBiome])
             || null;
           const bName = (bData && bData.name) || targetBiome;
-          this.toast(`🔒 Mazmorra bloqueada: debes explorar y desbloquear el bioma ${bName} en el archipiélago primero.`, 'warn');
-          if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('error');
+          this.toast(`Mazmorra bloqueada: debes explorar y desbloquear el bioma ${bName} en el archipiélago primero.`, 'warn');
+          if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('error');
           return false;
         }
       }
@@ -5054,7 +5358,10 @@
         this.farming.fishing = null;
         this.placingBuildingId = null;
         this.placingItemId = null;
-        this.activeDungeon = new Balaclava.DungeonInstance(dungeonId, { x: this.player.x, y: this.player.y }, this.player.level, { isCorrupted });
+        this.activeDungeon = new Abyssea.DungeonInstance(dungeonId, { x: this.player.x, y: this.player.y }, this.player.level, { isCorrupted });
+        if (typeof this.applyDungeonAffixes === 'function') {
+          this.applyDungeonAffixes(this.activeDungeon);
+        }
         this._savedOverworldDrops = Array.isArray(this.drops) ? this.drops : [];
         this.drops = [];
         this.enemyProjectiles = [];
@@ -5078,12 +5385,15 @@
         }
         this.camera.x = this.player.x;
         this.camera.y = this.player.y;
-        Balaclava.Audio.play('portal');
-        Balaclava.Audio.setMood('boss', { delayMs: 650, fadeOutMs: 320, fadeInMs: 4200 });
+        Abyssea.Audio.play('portal');
+        const enterMood = (opts && opts.directArena)
+          ? (isCorrupted ? 'final_boss' : 'boss')
+          : 'dungeon';
+        Abyssea.Audio.setMood(enterMood, { delayMs: 550, fadeOutMs: 320, fadeInMs: 3400 });
         if (isCorrupted) {
           this.toast(`¡Entraste en ${this.activeDungeon.def.name} en MODO CORRUPTO! Peligro extremo (25x Dificultad).`, 'warn');
         } else {
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('dungeon.enteredFull', { name: this.activeDungeon.def.name }) : `Entraste en ${this.activeDungeon.def.name}. ¡Activa las 2 Runas para abrir la Cámara del Jefe!`, 'info');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('dungeon.enteredFull', { name: this.activeDungeon.def.name }) : `Entraste en ${this.activeDungeon.def.name}. ¡Activa las 2 Runas para abrir la Cámara del Jefe!`, 'info');
         }
         if (!this.dungeonIntroSeen) {
           this.dungeonIntroSeen = true;
@@ -5091,7 +5401,7 @@
           this.toast('Primera Mazmorra: Pisa las runas ALFA/BETA, lee la Estela Runica [E] y abre cofres con [E].', 'info');
         }
         this.uiDirty = true;
-        if (Balaclava.actualizarDiscord) Balaclava.actualizarDiscord(true);
+        if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
       };
 
       if (opts && opts.directArena) {
@@ -5099,10 +5409,10 @@
         return;
       }
 
-      if (Balaclava.Audio && typeof Balaclava.Audio.fadeOutMusic === 'function') {
-        Balaclava.Audio.fadeOutMusic(600);
+      if (Abyssea.Audio && typeof Abyssea.Audio.fadeOutMusic === 'function') {
+        Abyssea.Audio.fadeOutMusic(600);
       }
-      if (Balaclava.UI && typeof Balaclava.UI.playSceneTransition === 'function') {
+      if (Abyssea.UI && typeof Abyssea.UI.playSceneTransition === 'function') {
         const BIOME_NAMES = {
           pradera: 'Pradera Esmeralda',
           desierto: 'Desierto Dorado',
@@ -5124,7 +5434,7 @@
         const mobLevelMin = Math.max(2, tierIdx * 2 + 2, Math.floor(((this.player && this.player.level) || 1) * 0.85));
         const miniLevel = tierIdx * 2 + 4;
         const enemies = (def && Array.isArray(def.enemyTypes) ? def.enemyTypes : []).map(eType => {
-          const ed = Balaclava.CombatSystem ? Balaclava.CombatSystem.getEnemyDef(eType) : null;
+          const ed = Abyssea.CombatSystem ? Abyssea.CombatSystem.getEnemyDef(eType) : null;
           return {
             type: eType,
             name: (ed && ed.name) || eType,
@@ -5132,10 +5442,10 @@
             ranged: Boolean(ed && ed.ranged)
           };
         });
-        const relicItem = def && def.bossRelicId && Balaclava.ITEMS ? Balaclava.ITEMS[def.bossRelicId] : null;
-        Balaclava.UI.playSceneTransition(dName, doEnter, {
+        const relicItem = def && def.bossRelicId && Abyssea.ITEMS ? Abyssea.ITEMS[def.bossRelicId] : null;
+        Abyssea.UI.playSceneTransition(dName, doEnter, {
           icon: 'assets/icons/skull_death.png',
-          sub: (Balaclava.I18n && Balaclava.I18n.lang === 'es')
+          sub: (Abyssea.I18n && Abyssea.I18n.lang === 'es')
             ? 'Descendiendo a las cámaras ancestrales...'
             : 'Descending into the ancient chambers...',
           kind: 'dungeon',
@@ -5150,8 +5460,8 @@
             floorsDesc: '4 Sectores: Atrio · Alas Rúnicas · Guardián · Santuario del Jefe',
             enemies,
             boss: def && def.boss ? (() => {
-              const bs = (Balaclava.DungeonInstance && Balaclava.DungeonInstance.computeBossStats)
-                ? Balaclava.DungeonInstance.computeBossStats(def, tierIdx, this.player.level, { isCorrupted })
+              const bs = (Abyssea.DungeonInstance && Abyssea.DungeonInstance.computeBossStats)
+                ? Abyssea.DungeonInstance.computeBossStats(def, tierIdx, this.player.level, { isCorrupted })
                 : { hp: def.boss.hp, dmg: def.boss.dmg };
               return {
                 name: def.boss.name,
@@ -5170,12 +5480,12 @@
     requestExitDungeon() {
       if (!this.activeDungeon || this.isPlayerDead()) return;
       if (this.activeDungeon.bossLocked && this.activeDungeon.boss && this.activeDungeon.boss.hp > 0) {
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('dungeon.bossGateLocked') : '¡La Puerta del Jefe está sellada! Derrota al guardián para salir.', 'warn');
-        if (Balaclava.Audio) Balaclava.Audio.play('error');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('dungeon.bossGateLocked') : '¡La Puerta del Jefe está sellada! Derrota al guardián para salir.', 'warn');
+        if (Abyssea.Audio) Abyssea.Audio.play('error');
         return;
       }
-      if (Balaclava.UI && typeof Balaclava.UI.openModal === 'function') {
-        Balaclava.UI.openModal('exit_dungeon_confirm');
+      if (Abyssea.UI && typeof Abyssea.UI.openModal === 'function') {
+        Abyssea.UI.openModal('exit_dungeon_confirm');
       } else {
         this.exitDungeon();
       }
@@ -5184,7 +5494,7 @@
     exitDungeon(force = false) {
       if (!this.activeDungeon || (!force && this.isPlayerDead())) return;
       if (!force && this.activeDungeon.bossLocked && this.activeDungeon.boss && this.activeDungeon.boss.hp > 0) {
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('dungeon.bossGateLocked') : '¡La Puerta del Jefe está sellada! Derrota al guardián para salir.', 'warn');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('dungeon.bossGateLocked') : '¡La Puerta del Jefe está sellada! Derrota al guardián para salir.', 'warn');
         return;
       }
       const doExit = () => {
@@ -5206,18 +5516,18 @@
         this.player.statusEffects = {};
         if (this.combat) this.combat.worldHazards = [];
         this.resetAmbientParticles();
-        Balaclava.Audio.play('portal');
-        if (Balaclava.Audio.setMood) Balaclava.Audio.setMood('meadow', { delayMs: 800, fadeOutMs: 320, fadeInMs: 4800 });
+        Abyssea.Audio.play('portal');
+        if (Abyssea.Audio.setMood) Abyssea.Audio.setMood('meadow', { delayMs: 800, fadeOutMs: 320, fadeInMs: 4800 });
         this.uiDirty = true;
-        if (Balaclava.actualizarDiscord) Balaclava.actualizarDiscord(true);
+        if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
       };
 
-      if (!force && Balaclava.Audio && typeof Balaclava.Audio.fadeOutMusic === 'function') {
-        Balaclava.Audio.fadeOutMusic(620);
+      if (!force && Abyssea.Audio && typeof Abyssea.Audio.fadeOutMusic === 'function') {
+        Abyssea.Audio.fadeOutMusic(620);
       }
-      if (!force && Balaclava.UI && typeof Balaclava.UI.playSceneTransition === 'function') {
-        const isEs = !!(Balaclava.I18n && Balaclava.I18n.lang === 'es');
-        Balaclava.UI.playSceneTransition(isEs ? 'SUPERFICIE' : 'SURFACE', doExit, {
+      if (!force && Abyssea.UI && typeof Abyssea.UI.playSceneTransition === 'function') {
+        const isEs = !!(Abyssea.I18n && Abyssea.I18n.lang === 'es');
+        Abyssea.UI.playSceneTransition(isEs ? 'SUPERFICIE' : 'SURFACE', doExit, {
           icon: 'assets/icons/campfire.png',
           sub: isEs ? 'Regresando a la luz del archipiélago...' : 'Returning to the sunlit archipelago...',
           kind: 'overworld'
@@ -5252,7 +5562,7 @@
           }
         }
       }
-      const C = Balaclava.CONST.CENTER_PLOT || 4;
+      const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       const campTx = C * PLOT_TILES + 6;
       const campTy = C * PLOT_TILES + 6;
       for (let r = 0; r <= 8; r++) {
@@ -5269,7 +5579,7 @@
     rescuePlayerFromStuckTile() {
       if (this.activeDungeon) {
         this.exitDungeon(true);
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.dungeonRescued') : 'Fuiste devuelto sano y salvo a la superficie.', 'warn');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.dungeonRescued') : 'Fuiste devuelto sano y salvo a la superficie.', 'warn');
         return false;
       }
       const safe = this.findSafeOverworldSpawn(this.player.x, this.player.y);
@@ -5279,7 +5589,7 @@
       this.camera.x = safe.x;
       this.camera.y = safe.y;
       this.uiDirty = true;
-      this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.stuckRescued') : 'Te hemos movido a suelo firme.', 'warn');
+      this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.stuckRescued') : 'Te hemos movido a suelo firme.', 'warn');
       return true;
     }
 
@@ -5306,11 +5616,17 @@
         }
         return;
       }
-      if (this.player.deadTimer > 0 || this.player.invuln > 0 || this.player.dashTimer > 0) return;
+      if (this.player.deadTimer > 0) return;
+      // RC2 (D): Perfect Dodge! If dashing or within perfectDodgeWindow when hit, trigger Perfect Dodge!
+      if ((this.player.dashTimer > 0 || (this.player.perfectDodgeWindow || 0) > 0) && typeof this.triggerPerfectDodge === 'function') {
+        this.triggerPerfectDodge();
+        return;
+      }
+      if (this.player.invuln > 0) return;
       const dodgeChance = Math.min(0.45, this.mods.dodgeChance || 0);
       if (dodgeChance > 0 && Math.random() < dodgeChance) {
         this.player.invuln = 0.25;
-        this.addFloatingText(this.player.x, this.player.y - 26, Balaclava.I18n ? Balaclava.I18n.t('toast.dodgeFloat') : '¡ESQUIVA!', '#b3e5fc');
+        this.addFloatingText(this.player.x, this.player.y - 26, Abyssea.I18n ? Abyssea.I18n.t('toast.dodgeFloat') : '¡ESQUIVA!', '#b3e5fc');
         return;
       }
       const curseBonus = (this.player.statusEffects && this.player.statusEffects.curse && this.player.statusEffects.curse.timer > 0) ? 1.15 : 1;
@@ -5324,7 +5640,7 @@
         this.player.blockTimer = 0.28;
         dmg -= absorbed;
         this.spawnParticles(this.player.x, this.player.y, '#ffe082', 6);
-        this.addFloatingText(this.player.x, this.player.y - 32, Balaclava.I18n ? Balaclava.I18n.t('toast.shieldAbsorb', { n: absorbed }) : `Escudo -${absorbed}`, '#ffe082');
+        this.addFloatingText(this.player.x, this.player.y - 32, Abyssea.I18n ? Abyssea.I18n.t('toast.shieldAbsorb', { n: absorbed }) : `Escudo -${absorbed}`, '#ffe082');
         if (dmg <= 0) {
           this.player.invuln = 0.25;
           return;
@@ -5334,7 +5650,7 @@
       this.player.hurtTimer = 0.28;
       this.player.invuln = 0.65;
       this.shake(0.22, 5);
-      Balaclava.Audio.play('hurt');
+      Abyssea.Audio.play('hurt');
       this.addFloatingText(this.player.x, this.player.y - 24, `-${dmg}`, '#ef5350');
       if (opts && opts.status) this.applyPlayerStatus(opts.status);
 
@@ -5371,21 +5687,21 @@
         this.clearTransientInputs();
         this.resetAltarNotifications();
         this.paused = false;
-        if (Balaclava.UI) {
-          Balaclava.UI.closeMenuDropdown();
-          Balaclava.UI.closeModal();
-          if (Balaclava.UI.hideTooltip) Balaclava.UI.hideTooltip();
+        if (Abyssea.UI) {
+          Abyssea.UI.closeMenuDropdown();
+          Abyssea.UI.closeModal();
+          if (Abyssea.UI.hideTooltip) Abyssea.UI.hideTooltip();
         }
-        if (Balaclava.Audio && typeof Balaclava.Audio.tone === 'function') {
-          Balaclava.Audio.tone(246.94, 196.0, 0.22, 'triangle', 0.18, 0.04);
-          Balaclava.Audio.tone(196.0, 130.81, 0.34, 'triangle', 0.16, 0.19);
-          Balaclava.Audio.tone(130.81, 87.31, 0.44, 'sine', 0.18, 0.36);
+        if (Abyssea.Audio && typeof Abyssea.Audio.tone === 'function') {
+          Abyssea.Audio.tone(246.94, 196.0, 0.22, 'triangle', 0.18, 0.04);
+          Abyssea.Audio.tone(196.0, 130.81, 0.34, 'triangle', 0.16, 0.19);
+          Abyssea.Audio.tone(130.81, 87.31, 0.44, 'sine', 0.18, 0.36);
         }
         this.shake(0.38, 7);
         this.spawnParticles(this.player.x, this.player.y, '#e53935', 14);
         this.spawnParticles(this.player.x, this.player.y - 8, '#b2ebf2', 10);
-        this.showWarning(Balaclava.I18n ? Balaclava.I18n.t('toast.deathWarning') : 'Has caído en combate. Reapareciendo en 10s...', 5.0);
-        if (Balaclava.UI) Balaclava.UI.updateHUD(true);
+        this.showWarning(Abyssea.I18n ? Abyssea.I18n.t('toast.deathWarning') : 'Has caído en combate. Reapareciendo en 10s...', 5.0);
+        if (Abyssea.UI) Abyssea.UI.updateHUD(true);
       }
       this.uiDirty = true;
     }
@@ -5412,7 +5728,7 @@
         }
         this.exitDungeon(true);
       }
-      const C = Balaclava.CONST.CENTER_PLOT || 4;
+      const C = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       const campX = (C * PLOT_TILES + 6.5) * TILE_SIZE;
       const campY = (C * PLOT_TILES + 6.5) * TILE_SIZE;
       const spawn = this.findSafeOverworldSpawn(campX, campY, { maxRadius: 8 });
@@ -5421,10 +5737,10 @@
       this.camera.x = this.player.x;
       this.camera.y = this.player.y;
       if (!(opts && opts.silent)) {
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.respawnedCamp') : 'Has despertado sano en el campamento central.', 'info');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.respawnedCamp') : 'Has despertado sano en el campamento central.', 'info');
       }
       this.uiDirty = true;
-      if (Balaclava.UI) Balaclava.UI.updateHUD(true);
+      if (Abyssea.UI) Abyssea.UI.updateHUD(true);
     }
 
     exitFromDeathToTitle() {
@@ -5447,8 +5763,8 @@
       if (this.saveSys) this.saveSys.save(this, this.currentSlot || 1, true);
       this.started = false;
       this.activeDungeon = null;
-      if (Balaclava.Audio && Balaclava.Audio.fadeOutMusic) Balaclava.Audio.fadeOutMusic(620);
-      if (Balaclava.actualizarDiscord) Balaclava.actualizarDiscord(true);
+      if (Abyssea.Audio && Abyssea.Audio.fadeOutMusic) Abyssea.Audio.fadeOutMusic(620);
+      if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
     }
 
     // === PROJECTILES, DROPS, FX ===
@@ -5484,7 +5800,7 @@
     spawnFx(key, x, y, angle = 0, duration = 0, scale = 0, alpha = 1, opts = null) {
       if (!this.fxAnims) this.fxAnims = [];
       if (this.fxAnims.length >= 140) this.fxAnims.shift();
-      const meta = Balaclava.VFX_V2 && Balaclava.VFX_V2[key];
+      const meta = Abyssea.VFX_V2 && Abyssea.VFX_V2[key];
       const dur = duration && duration > 0 ? duration : ((meta && meta.dur) || 0.28);
       const sc = scale && scale > 0 ? scale : (meta ? (meta.fw >= 96 ? 1.05 : meta.fw >= 64 ? 1.25 : 1.5) : 1.5);
       this.fxAnims.push({
@@ -5598,14 +5914,14 @@
     }
 
     activateBoneTotem(node) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       if (!node || node.lit) {
         this.toast(T('toast.totemAlreadyLit'), 'info');
         return false;
       }
       node.lit = true;
-      Balaclava.Audio.play('levelup');
-      this.spawnFx('fx_thunder_splash', node.x, node.y, 0, 0.35, 1.4, 0.95);
+      Abyssea.Audio.play('levelup');
+      this.spawnFx('aw_lightning_arc', node.x, node.y, 0, 0.42, 1.35, 0.95);
       this.spawnParticles(node.x, node.y, '#ce93d8', 16);
       const totems = this.world.nodes.filter(t => t.kind === 'bone_totem');
       const litCount = totems.filter(t => t.lit).length;
@@ -5613,7 +5929,7 @@
       if (shrine) shrine.totemsLit = litCount;
       if (litCount >= totems.length && totems.length >= 3) {
         if (shrine) shrine.state = 'awakened';
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         this.shake(0.45, 10);
         this.toast(T('toast.totemsAwakenKing'), 'success');
       } else {
@@ -5624,7 +5940,7 @@
     }
 
     interactSkeletonKing(node) {
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       if (!node) return false;
       const totems = this.world.nodes.filter(t => t.kind === 'bone_totem');
       const litCount = totems.filter(t => t.lit).length;
@@ -5633,17 +5949,17 @@
         return false;
       }
       if (litCount < totems.length || node.state === 'sleeping') {
-        Balaclava.Audio.play('npc');
+        Abyssea.Audio.play('npc');
         this.toast(T('toast.kingSleeping', { cur: litCount, max: totems.length }), 'warn');
         return false;
       }
       node.state = 'claimed';
-      Balaclava.Audio.play('thunder');
-      Balaclava.Audio.play('levelup');
+      Abyssea.Audio.play('thunder');
+      Abyssea.Audio.play('levelup');
       this.shake(0.55, 12);
       this.levelFlashTimer = 0.5;
-      this.spawnFx('fx_thunder_strike', node.x, node.y - 48, 0, 0.45, 2.3, 1);
-      this.spawnFx('fx_level_ring', node.x, node.y + 6, 0, 0.5, 2.5, 0.95);
+      this.spawnFx('pvfx_lightning_strike', node.x, node.y - 48, 0, 0.52, 1.75, 1);
+      this.spawnFx('pvfx_level_up', node.x, node.y + 6, 0, 0.56, 1.45, 0.95);
       this.spawnShockwave(node.x, node.y, 160, '#e040fb');
       this.spawnParticles(node.x, node.y, '#ce93d8', 32);
       this.unlockPermanentRelic('corona_rey_oseo');
@@ -5740,7 +6056,7 @@
         spin: 0
       });
 
-      Balaclava.Audio.play('slash');
+      Abyssea.Audio.play('slash');
       this.spawnParticles(px + this.player.facing * 12, py - 10, '#ffd54f', 5);
       this.uiDirty = true;
       return true;
@@ -5748,7 +6064,7 @@
 
     detonateBomb(b) {
       if (!b) return;
-      Balaclava.Audio.play('explosion');
+      Abyssea.Audio.play('explosion');
       this.shake(0.32, b.isTnt ? 9 : 7);
       this.spawnShockwave(b.x, b.y, b.radius, b.tint || '#ff7043');
       if (b.isTnt) {
@@ -5811,7 +6127,7 @@
       for (const e of bombHitList) {
         if (!e || e._dead || e.hp <= 0) continue;
         if (this.activeDungeon && typeof this.activeDungeon.hasLineOfSight === 'function' && !this.activeDungeon.hasLineOfSight(b.x, b.y, e.x, e.y)) continue;
-        const hb = Balaclava.Utils.getEntityHitbox(e);
+        const hb = Abyssea.Utils.getEntityHitbox(e);
         if (dist(b.x, b.y, e.x, e.y) <= b.radius + hb.radius || dist(b.x, b.y, hb.cx, hb.cy) <= b.radius + Math.max(hb.hw, hb.hh) * 0.7) {
           const ang = Math.atan2(e.y - b.y, e.x - b.x);
           this.combat.damageEnemy(this, e, dmgTotal, ang, true);
@@ -5822,7 +6138,7 @@
         for (let si = this.world.sheep.length - 1; si >= 0; si--) {
           const a = this.world.sheep[si];
           if (!a || a._dead || a.hp <= 0) continue;
-          const hb = Balaclava.Utils.getEntityHitbox(a);
+          const hb = Abyssea.Utils.getEntityHitbox(a);
           if (dist(b.x, b.y, a.x, a.y) <= b.radius + hb.radius || dist(b.x, b.y, hb.cx, hb.cy) <= b.radius + hb.radius) {
             this.combat.damageAnimal(this, a, dmgTotal, Math.atan2(a.y - b.y, a.x - b.x), true);
             enemiesHit++;
@@ -5830,7 +6146,7 @@
         }
       }
 
-      this.addFloatingText(b.x, b.y - 28, Balaclava.I18n ? Balaclava.I18n.t((nodesBroken > 0 || enemiesHit > 0) ? 'toast.boomHit' : 'toast.boomMiss') : (nodesBroken > 0 || enemiesHit > 0 ? '¡BOOM!' : '¡BUM!'), '#ffca28');
+      this.addFloatingText(b.x, b.y - 28, Abyssea.I18n ? Abyssea.I18n.t((nodesBroken > 0 || enemiesHit > 0) ? 'toast.boomHit' : 'toast.boomMiss') : (nodesBroken > 0 || enemiesHit > 0 ? '¡BOOM!' : '¡BUM!'), '#ffca28');
       this.uiDirty = true;
     }
 
@@ -5845,7 +6161,7 @@
       const energyCost = this.player.godMode ? 0 : Math.max(0.5, st.energyCost * (1 - (this.mods.energySave || 0)));
       if (!this.player.godMode && this.player.energy < energyCost) {
         this.laserCooldown = 0.25;
-        this.addFloatingText(this.player.x, this.player.y - 26, Balaclava.I18n ? Balaclava.I18n.t('toast.noEnergy') : '¡Sin energía!', '#ff8a65');
+        this.addFloatingText(this.player.x, this.player.y - 26, Abyssea.I18n ? Abyssea.I18n.t('toast.noEnergy') : '¡Sin energía!', '#ff8a65');
         return false;
       }
 
@@ -5902,7 +6218,7 @@
       ).filter(e => e && !e._dead && (!this.activeDungeon || typeof this.activeDungeon.hasLineOfSight !== 'function' || this.activeDungeon.hasLineOfSight(this.player.x, this.player.y, e.x, e.y)));
       let firstHitEnemy = null;
       for (const e of laserEnemies) {
-        if (Balaclava.Utils.segmentHitsEntity(x1, y1, x2, y2, e, beamHalfW)) {
+        if (Abyssea.Utils.segmentHitsEntity(x1, y1, x2, y2, e, beamHalfW)) {
           if (!firstHitEnemy) firstHitEnemy = e;
           const isCrit = Math.random() < (this.mods.critChance || 0);
           this.combat.damageEnemy(this, e, Math.round(dmgBase * (isCrit ? 1.8 : 1)), ang, isCrit);
@@ -5920,7 +6236,7 @@
       if (!this.activeDungeon && Array.isArray(this.world.sheep)) {
         for (let si = this.world.sheep.length - 1; si >= 0; si--) {
           const a = this.world.sheep[si];
-          if (Balaclava.Utils.segmentHitsEntity(x1, y1, x2, y2, a, beamHalfW)) {
+          if (Abyssea.Utils.segmentHitsEntity(x1, y1, x2, y2, a, beamHalfW)) {
             this.combat.damageAnimal(this, a, dmgBase, ang, false);
           }
         }
@@ -5980,7 +6296,7 @@
       }
 
       this.spawnFx('aw_arcane_impact', x2, y2, ang, 0.32, 0.92, 0.9, { blend: 'lighter' });
-      Balaclava.Audio.play('laser');
+      Abyssea.Audio.play('laser');
       this.shake(0.08, 2.2);
       return true;
     }
@@ -5993,9 +6309,9 @@
       }
       if (this.paused) return;
       this.time += dt;
-      Balaclava.Audio.update(dt);
-      if (Balaclava.UI && typeof Balaclava.UI.checkControlsHelperAFK === 'function') {
-        Balaclava.UI.checkControlsHelperAFK(dt);
+      Abyssea.Audio.update(dt);
+      if (Abyssea.UI && typeof Abyssea.UI.checkControlsHelperAFK === 'function') {
+        Abyssea.UI.checkControlsHelperAFK(dt);
       }
 
       // Stuck watchdog: never leave the hero pinned on an unwalkable tile
@@ -6030,16 +6346,16 @@
       if (this.dayTime >= 1) {
         this.dayTime -= 1;
         this.dayCount = (this.dayCount || 1) + 1;
-        this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.daySunrise', { day: this.dayCount }) : `Día ${this.dayCount}: Un nuevo amanecer ilumina las islas.`, 'info');
+        this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.daySunrise', { day: this.dayCount }) : `Día ${this.dayCount}: Un nuevo amanecer ilumina las islas.`, 'info');
       } else {
         const nextPhase = this.getDayPhase().phase;
         if (prevPhase !== nextPhase) {
           if (nextPhase === 'atardecer') {
-            this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.sunsetWarn') : 'Cae el atardecer... Prepara fogatas para iluminar la noche.', 'warn');
+            this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.sunsetWarn') : 'Cae el atardecer... Prepara fogatas para iluminar la noche.', 'warn');
           } else if (nextPhase === 'noche') {
-            this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.nightStartWarn') : '¡Llega la noche! Criaturas oscuras emergen y sueltan botín extra.', 'warn');
+            this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.nightStartWarn') : '¡Llega la noche! Criaturas oscuras emergen y sueltan botín extra.', 'warn');
           } else if (nextPhase === 'dia') {
-            this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.dayShineInfo') : 'El sol brilla en lo alto. Las criaturas nocturnas se disipan.', 'info');
+            this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.dayShineInfo') : 'El sol brilla en lo alto. Las criaturas nocturnas se disipan.', 'info');
           }
         }
       }
@@ -6096,7 +6412,7 @@
             const visibleCard = Array.isArray(this.altarNotifications)
               ? this.altarNotifications.find(n => n.altarId === ex.sourceId && !n.leaving && n.status !== 'replaced')
               : null;
-            const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+            const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
             if (visibleCard) {
               visibleCard.status = 'expired';
               visibleCard.kicker = T('altar.expiredTitle');
@@ -6112,7 +6428,7 @@
                 effectText: T('altar.expiredText', { name: ex.sourceName || 'altar' }),
                 durationSec: 0,
                 durationText: T('altar.expiredShort'),
-                iconUrl: ex.iconUrl || (Balaclava.BUFF_ICON_URLS && Balaclava.BUFF_ICON_URLS.speed),
+                iconUrl: ex.iconUrl || (Abyssea.BUFF_ICON_URLS && Abyssea.BUFF_ICON_URLS.speed),
                 color: '#90a4ae',
                 buffKeys: [],
                 dur: 2.6,
@@ -6213,20 +6529,46 @@
       if (this.omega) this.omega.update(dt, this);
       this.economy.update(dt, this);
       this.events.update(dt, this);
+      if (typeof this.updateV2Systems === 'function') this.updateV2Systems(dt);
       this.updateEntities(dt);
 
-      // Dynamic biome music
+      // Dynamic RPG music (dungeon exploration vs boss arena, smooth biome transitions)
       if (this.activeDungeon) {
-        Balaclava.Audio.setMood('boss');
+        this._pendingBiomeMood = null;
+        this._pendingBiomeMoodTimer = 0;
+        const inBossFight = !!(this.activeDungeon.boss && this.activeDungeon.boss.hp > 0 && this.activeDungeon.bossLocked);
+        const dungeonMood = inBossFight
+          ? ((this.activeDungeon.isCorrupted || this.activeDungeon.isAbyss) ? 'final_boss' : 'boss')
+          : 'dungeon';
+        Abyssea.Audio.setMood(dungeonMood);
       } else {
         const biome = this.world.getBiomeAtPixel(this.player.x, this.player.y);
-        Balaclava.Audio.setMood((BIOMES[biome] && BIOMES[biome].musicMood) || 'peaceful');
+        const targetMood = (BIOMES[biome] && BIOMES[biome].musicMood) || 'meadow';
+        if (Abyssea.Audio.mood === targetMood || Abyssea.Audio.mood === 'title' || Abyssea.Audio.mood === 'dungeon' || Abyssea.Audio.mood === 'boss' || Abyssea.Audio.mood === 'final_boss') {
+          this._pendingBiomeMood = null;
+          this._pendingBiomeMoodTimer = 0;
+          if (Abyssea.Audio.mood !== targetMood) {
+            Abyssea.Audio.setMood(targetMood);
+          }
+        } else {
+          if (this._pendingBiomeMood !== targetMood) {
+            this._pendingBiomeMood = targetMood;
+            this._pendingBiomeMoodTimer = 0;
+          } else {
+            this._pendingBiomeMoodTimer += dt;
+            if (this._pendingBiomeMoodTimer >= 1.15) {
+              this._pendingBiomeMood = null;
+              this._pendingBiomeMoodTimer = 0;
+              Abyssea.Audio.setMood(targetMood);
+            }
+          }
+        }
       }
 
       // Smooth camera + shake
       if (!this.spectatorMode) {
-        this.camera.x = Balaclava.Utils.lerp(this.camera.x, this.player.x, Math.min(1, dt * 10));
-        this.camera.y = Balaclava.Utils.lerp(this.camera.y, this.player.y, Math.min(1, dt * 10));
+        this.camera.x = Abyssea.Utils.lerp(this.camera.x, this.player.x, Math.min(1, dt * 10));
+        this.camera.y = Abyssea.Utils.lerp(this.camera.y, this.player.y, Math.min(1, dt * 10));
       }
       if (this.debugZoomOverride > 0) this.camera.zoom = this.debugZoomOverride;
       if (this.camera.shakeTime > 0) this.camera.shakeTime = Math.max(0, this.camera.shakeTime - dt);
@@ -6517,8 +6859,8 @@
         if (p.bowReloadTimer <= 0) {
           if (this.getArrowCount() > 0) {
             p.bowLoaded = true;
-            const rdyMsg = (Balaclava.I18n && Balaclava.I18n.t('toast.bowReady') !== 'toast.bowReady')
-              ? Balaclava.I18n.t('toast.bowReady')
+            const rdyMsg = (Abyssea.I18n && Abyssea.I18n.t('toast.bowReady') !== 'toast.bowReady')
+              ? Abyssea.I18n.t('toast.bowReady')
               : 'Arco cargado';
             this.addFloatingText(p.x, p.y - 28, rdyMsg, '#a5d6a7');
           } else {
@@ -6614,11 +6956,15 @@
         this.movePlayerWithCollision(p.dashVx * dt, p.dashVy * dt);
       } else {
         let mx = 0, my = 0;
-        const kb = (Balaclava.getKeybinds && Balaclava.getKeybinds()) || {};
+        const kb = (Abyssea.getKeybinds && Abyssea.getKeybinds()) || {};
         if (this.keys[kb.moveUp || 'KeyW'] || this.keys.ArrowUp) my -= 1;
         if (this.keys[kb.moveDown || 'KeyS'] || this.keys.ArrowDown) my += 1;
         if (this.keys[kb.moveLeft || 'KeyA'] || this.keys.ArrowLeft) mx -= 1;
         if (this.keys[kb.moveRight || 'KeyD'] || this.keys.ArrowRight) mx += 1;
+        if (this._gpMove) {
+          mx += this._gpMove.x || 0;
+          my += this._gpMove.y || 0;
+        }
 
         const ptxCur = Math.floor(p.x / TILE_SIZE);
         const ptyCur = Math.floor(p.y / TILE_SIZE);
@@ -6639,8 +6985,8 @@
           const onWater = !this.activeDungeon && this.world.tiles[pty] && this.world.tiles[pty][ptx] === 0;
           p.onWater = onWater;
           const floorB = !this.activeDungeon && this.getBuildingAtTile(ptx, pty);
-          const roadMult = (floorB && Balaclava.BUILDINGS[floorB.type] && Balaclava.BUILDINGS[floorB.type].speedFloor)
-            ? (1 + Balaclava.BUILDINGS[floorB.type].speedFloor)
+          const roadMult = (floorB && Abyssea.BUILDINGS[floorB.type] && Abyssea.BUILDINGS[floorB.type].speedFloor)
+            ? (1 + Abyssea.BUILDINGS[floorB.type].speedFloor)
             : 1.0;
           const speed = (onWater ? baseSpeed * 0.45 : baseSpeed) * roadMult;
           this.movePlayerWithCollision(mx * speed * dt, my * speed * dt);
@@ -6656,7 +7002,7 @@
           this.stepAudioTimer = (this.stepAudioTimer || 0) - dt;
           if (this.stepAudioTimer <= 0) {
             this.stepAudioTimer = 0.34;
-            Balaclava.Audio.play('step');
+            Abyssea.Audio.play('step');
           }
         } else {
           p.stepTimer = 0.04;
@@ -6666,7 +7012,7 @@
 
       // Hold mouse button for melee/harvesting/bow/tilling & special weapons — NEVER auto-repeat fishing rod or consumables/bombs!
       const holdSlot = this.hotbar[this.activeSlot];
-      const holdItemDef = holdSlot && holdSlot.kind === 'item' ? Balaclava.ITEMS[holdSlot.id] : null;
+      const holdItemDef = holdSlot && holdSlot.kind === 'item' ? Abyssea.ITEMS[holdSlot.id] : null;
       const isHoldLaser = !!(holdItemDef && holdItemDef.isLaserWeapon);
       const isHoldWeaponItem = !!(holdItemDef && (holdItemDef.isLaserWeapon || holdItemDef.isRangedWeapon || holdItemDef.isStaffWeapon || holdItemDef.isSpecialBlade || holdItemDef.weaponMelee));
       const isHoldBow = !!(holdSlot && holdSlot.kind === 'tool' && holdSlot.id === 'arco');
@@ -6674,7 +7020,7 @@
       const holdReady = isHoldLaser
         ? (this.laserCooldown || 0) <= 0
         : (p.swingTimer <= 0 && (!isHoldBow || ((p.bowReloadTimer || 0) <= 0 && p.bowLoaded !== false && this.getArrowCount() > 0)));
-      if (this.mouse.down && !noHoldRepeat && holdReady && !this.placingBuildingId && !Balaclava.UI.hasOpenModal()) {
+      if (this.mouse.down && !noHoldRepeat && holdReady && !this.placingBuildingId && !Abyssea.UI.hasOpenModal()) {
         this.updateMouseWorld();
         this.useActiveSlot(this.mouse.wx, this.mouse.wy);
       }
@@ -6687,8 +7033,8 @@
       if ((p.energy || 0) < 20) {
         if (!this._lastDashEnWarn || this.time - this._lastDashEnWarn > 1.2) {
           this._lastDashEnWarn = this.time;
-          Balaclava.Audio.play('error');
-          this.toast(Balaclava.I18n ? Balaclava.I18n.t('toast.dashNeedEnergy') : '¡Necesitas 20 Energía para hacer Dash!', 'warn');
+          Abyssea.Audio.play('error');
+          this.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.dashNeedEnergy') : '¡Necesitas 20 Energía para hacer Dash!', 'warn');
         }
         return;
       }
@@ -6705,8 +7051,16 @@
       p.dashVx = (dx / len) * spd;
       p.dashVy = (dy / len) * spd;
       p.dashTimer = 0.16;
+      p.perfectDodgeWindow = 0.26;
       p.dashCd = 0.75;
-      Balaclava.Audio.play('slash');
+      // Also trigger Perfect Dodge immediately if dashing right past an imminent projectile or close enemy strike!
+      if (typeof this.triggerPerfectDodge === 'function') {
+        const nearProj = (this.enemyProjectiles || []).some(pr => dist(p.x, p.y, pr.x, pr.y) <= 78);
+        const nearFoe = (this.activeDungeon ? [...(this.activeDungeon.enemies || []), ...(this.activeDungeon.boss ? [this.activeDungeon.boss] : [])] : (this.combat ? this.combat.enemies : []))
+          .some(e => e && !e._dead && dist(p.x, p.y, e.x, e.y) <= 72 && ((e.atkCd || 0) <= 0.35 || (e.telegraph || 0) > 0));
+        if (nearProj || nearFoe) this.triggerPerfectDodge();
+      }
+      Abyssea.Audio.play('slash');
       const dashAng = Math.atan2(dy, dx);
       this.spawnFx('px_dash_trail', p.x, p.y + 4, dashAng, 0.38, 1.1, 0.92, { blend: 'lighter' });
       this.spawnFx('pvfx_blink_dash', p.x + Math.cos(dashAng) * 18, p.y + Math.sin(dashAng) * 18, dashAng, 0.34, 0.95, 0.9, { blend: 'lighter' });
@@ -6714,22 +7068,33 @@
     }
 
     movePlayerWithCollision(dx, dy) {
-      const canStand = (x, y) => {
-        if (this.activeDungeon) {
-          const pts = [
-            [x - 7, y - 5],
-            [x + 7, y - 5],
-            [x - 7, y + 5],
-            [x + 7, y + 5]
-          ];
-          return pts.every(([cx, cy]) => this.activeDungeon.isTileWalkable(Math.floor(cx / TILE_SIZE), Math.floor(cy / TILE_SIZE)));
-        }
-        // Strict land-only traversal (player NEVER steps onto water tile === 0 or locked islands)
+      if (this.activeAquarium) {
+        const aq = this.activeAquarium;
+        const nx = Math.max(2.2 * TILE_SIZE, Math.min((aq.width - 2.2) * TILE_SIZE, this.player.x + dx));
+        const ny = Math.max(2.2 * TILE_SIZE, Math.min((aq.height - 2.2) * TILE_SIZE, this.player.y + dy));
+        this.player.x = nx;
+        this.player.y = ny;
+        if (typeof this.updateAquarium === 'function') this.updateAquarium(0.016);
+        return;
+      }
+
+      // Sub-step fast movement (e.g. dash) so the player can never tunnel inside any texture/hitbox
+      const totalDist = Math.hypot(dx, dy);
+      const steps = Math.max(1, Math.min(8, Math.ceil(totalDist / 5)));
+      const sdx = dx / steps;
+      const sdy = dy / steps;
+
+      const PLAYER_PAD_X = 13;
+      const PLAYER_PAD_Y = 6;
+
+      const checkShoreFootprint = (x, y) => {
+        const curTile = this.world.tiles[Math.floor(y / TILE_SIZE)]?.[Math.floor(x / TILE_SIZE)];
+        const botOff = (curTile === 3) ? 10 : 15;
         const pts = [
-          [x - 8, y - 6],
-          [x + 8, y - 6],
-          [x - 8, y + 6],
-          [x + 8, y + 6]
+          [x - 12, y],
+          [x + 12, y],
+          [x - 12, y + botOff],
+          [x + 12, y + botOff]
         ];
         for (const [cx, cy] of pts) {
           const tx = Math.floor(cx / TILE_SIZE);
@@ -6745,8 +7110,74 @@
         return true;
       };
 
-      if (canStand(this.player.x + dx, this.player.y)) this.player.x += dx;
-      if (canStand(this.player.x, this.player.y + dy)) this.player.y += dy;
+      const hitsDungeonChest = (x, y, curX, curY) => {
+        const chests = this.activeDungeon && this.activeDungeon.chests;
+        if (!Array.isArray(chests) || chests.length === 0) return false;
+        const feetY = y + 7;
+        const curFeetY = curY + 7;
+        for (let i = 0; i < chests.length; i++) {
+          const c = chests[i];
+          if (!c) continue;
+          const cx = c.x !== undefined ? c.x : (c.tx + 0.5) * TILE_SIZE;
+          const cy = c.y !== undefined ? c.y : (c.ty + 0.5) * TILE_SIZE;
+          const rx = 20 + PLAYER_PAD_X;
+          const ry = 13 + PLAYER_PAD_Y;
+          const eNew = Math.pow(Math.abs(x - cx) / rx, 4) + Math.pow(Math.abs(feetY - (cy + 2)) / ry, 4);
+          if (eNew < 1.0) {
+            const eCur = Math.pow(Math.abs(curX - cx) / rx, 4) + Math.pow(Math.abs(curFeetY - (cy + 2)) / ry, 4);
+            if (eCur < 1.0 && eNew >= eCur - 0.004) continue;
+            return true;
+          }
+        }
+        return false;
+      };
+
+      for (let st = 0; st < steps; st++) {
+        const curX = this.player.x;
+        const curY = this.player.y;
+        const curFootOk = this.activeDungeon ? true : checkShoreFootprint(curX, curY);
+
+        const canStand = (x, y) => {
+          if (this.activeDungeon) {
+            const pts = [
+              [x - 12, y + 1],
+              [x + 12, y + 1],
+              [x - 12, y + 13],
+              [x + 12, y + 13]
+            ];
+            if (!pts.every(([cx, cy]) => this.activeDungeon.isTileWalkable(Math.floor(cx / TILE_SIZE), Math.floor(cy / TILE_SIZE)))) {
+              return false;
+            }
+            if (hitsDungeonChest(x, y, curX, curY)) return false;
+            return true;
+          }
+          // Strict shoreline & land-only traversal (body stops before southern cliff overhang / water)
+          if (!checkShoreFootprint(x, y)) {
+            if (curFootOk) return false;
+            const relaxed = [[x - 8, y], [x + 8, y], [x - 8, y + 10], [x + 8, y + 10]];
+            const okRelaxed = relaxed.every(([cx, cy]) => {
+              const tx = Math.floor(cx / TILE_SIZE), ty = Math.floor(cy / TILE_SIZE);
+              return this.world.isTileUnlocked(tx, ty) && this.world.isTileWalkable(tx, ty);
+            });
+            if (!okRelaxed) return false;
+          }
+          if (this.hitsSolidBuildingAt(x, y, curX, curY, PLAYER_PAD_X, PLAYER_PAD_Y)) return false;
+          if (this.hitsSolidNodeAt(x, y, curX, curY, PLAYER_PAD_X, PLAYER_PAD_Y)) return false;
+          if (this.hitsSolidNpcAt && this.hitsSolidNpcAt(x, y, curX, curY, PLAYER_PAD_X, PLAYER_PAD_Y)) return false;
+          return true;
+        };
+
+        let movedStep = false;
+        if (sdx !== 0 && canStand(this.player.x + sdx, this.player.y)) {
+          this.player.x += sdx;
+          movedStep = true;
+        }
+        if (sdy !== 0 && canStand(this.player.x, this.player.y + sdy)) {
+          this.player.y += sdy;
+          movedStep = true;
+        }
+        if (!movedStep) break;
+      }
     }
 
     updateEntities(dt) {
@@ -6780,11 +7211,11 @@
         if (canPick && distP < 24 && d.life > 0.22) {
           if (d.itemId === '_coin') {
             this.addCoins(d.qty);
-            Balaclava.Audio.play('coin');
+            Abyssea.Audio.play('coin');
             this.spawnFx('pvfx_coin_pickup', d.x, d.y - 6, 0, 0.42, 0.95, 0.95, { blend: 'lighter' });
           } else {
             this.addItem(d.itemId, d.qty);
-            Balaclava.Audio.play('pickup');
+            Abyssea.Audio.play('pickup');
             this.spawnFx('pvfx_star_burst_pickup', d.x, d.y - 6, 0, 0.36, 0.85, 0.85, { blend: 'lighter' });
           }
           if (this.player) this.player.pickupTimer = 0.24;
@@ -6798,7 +7229,7 @@
       }
 
       // Player projectiles (hitbox-synced body + feet check, homing/pierce/AoE/DOT support)
-      const ptInHb = Balaclava.Utils.pointInEntityHitbox;
+      const ptInHb = Abyssea.Utils.pointInEntityHitbox;
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         const pr = this.projectiles[i];
         pr.life -= dt;
@@ -6982,6 +7413,12 @@
         const ePrevY = pr.y;
         pr.x += pr.vx * dt;
         pr.y += pr.vy * dt;
+        // Continuous elemental trail particles on flying enemy projectiles
+        pr._trailCd = (pr._trailCd || 0) - dt;
+        if (pr._trailCd <= 0 && this.spawnParticles) {
+          pr._trailCd = 0.055;
+          this.spawnParticles(pr.x, pr.y, pr.trailColor || pr.color || '#ffab40', 1);
+        }
         let hitDungeonWall = false;
         if (this.activeDungeon && typeof this.activeDungeon.isTileWalkable === 'function') {
           const stepDx = pr.x - ePrevX;
@@ -6997,23 +7434,25 @@
           }
         }
         const hitR = pr.radius || 18;
-        if (hitDungeonWall) {
-          if (pr.impactVfx && this.spawnFx) {
-            this.spawnFx(pr.impactVfx, ePrevX, ePrevY, 0, 0.20, 0.50, 0.72, { blend: 'lighter' });
-          } else {
-            this.spawnParticles(ePrevX, ePrevY, pr.color || '#90a4ae', 4);
+        const spawnProjImpact = (ix, iy, sc) => {
+          const col = pr.trailColor || pr.color || '#ff8a65';
+          if (pr.impactVfx && Abyssea.EnemyAttacks && Abyssea.EnemyAttacks.spawnStrikeVfx) {
+            Abyssea.EnemyAttacks.spawnStrikeVfx(this, pr.impactVfx, ix, iy, Math.atan2(pr.vy, pr.vx), sc);
+          } else if (pr.impactVfx && this.spawnFx) {
+            this.spawnFx(pr.impactVfx, ix, iy, 0, 0.42, sc, 0.96, { blend: 'lighter' });
           }
+          if (this.spawnParticles) this.spawnParticles(ix, iy, col, sc >= 0.9 ? 9 : 5);
+        };
+        if (hitDungeonWall) {
+          spawnProjImpact(ePrevX, ePrevY, 0.78);
           this.enemyProjectiles.splice(i, 1);
         } else if (dist(pr.x, pr.y, this.player.x, this.player.y) < hitR) {
-          if (pr.impactVfx && this.spawnFx) {
-            this.spawnFx(pr.impactVfx, pr.x, pr.y, 0, 0.28, 0.72, 0.94, { blend: 'lighter' });
-          }
+          spawnProjImpact(pr.x, pr.y, 1.05);
+          if (this.spawnShockwave) this.spawnShockwave(pr.x, pr.y, 34, pr.trailColor || pr.color || '#ff7043');
           this.damagePlayer(pr.dmg, { isMagic: true, status: pr.status || null });
           this.enemyProjectiles.splice(i, 1);
         } else if (pr.life <= 0) {
-          if (pr.impactVfx && this.spawnFx) {
-            this.spawnFx(pr.impactVfx, pr.x, pr.y, 0, 0.22, 0.55, 0.75, { blend: 'lighter' });
-          }
+          spawnProjImpact(pr.x, pr.y, 0.72);
           this.enemyProjectiles.splice(i, 1);
         }
       }
@@ -7246,10 +7685,15 @@
       ctx.translate(-this.camera.x, -this.camera.y);
 
       try {
-        if (this.activeDungeon) {
+        if (this.activeAquarium && typeof this.renderAquarium === 'function') {
+          if (typeof this.updateAquarium === 'function') this.updateAquarium(0.016);
+          this.renderAquarium(ctx);
+        } else if (this.activeDungeon) {
           this.renderDungeon(ctx);
+          if (typeof this.renderV2WorldEntities === 'function') this.renderV2WorldEntities(ctx);
         } else {
           this.renderWorld(ctx, w, h);
+          if (typeof this.renderV2WorldEntities === 'function') this.renderV2WorldEntities(ctx);
         }
       } finally {
         ctx.restore();
@@ -7259,7 +7703,7 @@
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
 
-      if (!this.activeDungeon) {
+      if (!this.activeDungeon && !this.activeAquarium) {
         this.renderDayNightLighting(ctx, w, h);
       }
       if (this.levelFlashTimer > 0) {
@@ -7337,8 +7781,8 @@
       const r = size / 2;
       const g = sctx.createRadialGradient(r, r, r * 0.08, r, r, r);
       if (kind === 'warm') {
-        g.addColorStop(0, 'rgba(255, 200, 98, 0.42)');
-        g.addColorStop(0.45, 'rgba(255, 148, 56, 0.16)');
+        g.addColorStop(0, 'rgba(255, 212, 142, 0.24)');
+        g.addColorStop(0.45, 'rgba(255, 168, 92, 0.08)');
         g.addColorStop(1, 'rgba(0, 0, 0, 0)');
       } else if (kind === 'arcane') {
         g.addColorStop(0, 'rgba(130, 198, 255, 0.36)');
@@ -7376,6 +7820,15 @@
         const [wr, wg, wb] = info.warmRgb;
         ctx.fillStyle = `rgba(${wr}, ${wg}, ${wb}, ${info.warm.toFixed(3)})`;
         ctx.fillRect(0, 0, vw, vh);
+      }
+
+      // RC2 (F): Lunar Cycle nocturnal atmospheric tint (Blood Moon / Astral Eclipse)
+      if (darkness > 0.08 && typeof this.getLunarPhase === 'function') {
+        const lp = this.getLunarPhase();
+        if (lp && lp.nightTint) {
+          ctx.fillStyle = lp.nightTint;
+          ctx.fillRect(0, 0, vw, vh);
+        }
       }
 
       if (darkness <= 0.012) {
@@ -7424,23 +7877,32 @@
         const ly = this.player.y - 38 + Math.sin(this.time * 2.6) * 4;
         punchLight(lx, ly, pRadius * 0.85 + gentleBreath, 0.98);
       }
-      for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+      const lightHalfW = (this.canvas.width / (2 * (this.camera.zoom || 1))) + 220;
+      const lightHalfH = (this.canvas.height / (2 * (this.camera.zoom || 1))) + 220;
+      for (let bi = 0; bi < this.buildings.length; bi++) {
+        const b = this.buildings[bi];
+        const def = Abyssea.BUILDINGS[b.type];
         if (!def) continue;
+        const bw = (def.size || 1) * TILE_SIZE;
+        const bcx = b.tx * TILE_SIZE + bw / 2;
+        const bcy = b.ty * TILE_SIZE + bw / 2;
+        if (Math.abs(bcx - this.camera.x) > lightHalfW || Math.abs(bcy - this.camera.y) > lightHalfH) continue;
         const r = def.lightRadius || (
           b.type === 'horno' || b.type === 'forja' || b.type === 'fundicion' || b.type === 'alquimia' || b.type === 'fogata' || b.type === 'antorcha' || b.type === 'farol' || b.type === 'yunque_runico' ? 148
           : b.type === 'torre_magica' || b.type === 'portal' || b.type === 'altar' || b.type === 'centro_investigacion' || b.type === 'mesa_encantamiento' || b.type === 'mesa_hechiceria' || b.type === 'observatorio_astral' || b.type === 'torre_rayos' ? 168
           : b.type === 'torreta' ? 132 : 0
         );
         if (r > 0) {
-          const bw = (def.size || 1) * TILE_SIZE;
           const seed = (b.tx * 7 + b.ty * 13) * 0.37;
           const bBreath = Math.sin(this.time * 2.1 + seed) * 2.0;
-          punchLight(b.tx * TILE_SIZE + bw / 2, b.ty * TILE_SIZE + bw / 2, r + bBreath, 0.96);
+          punchLight(bcx, bcy, r + bBreath, 0.96);
         }
       }
 
-      for (const n of this.world.nodes) {
+      const lightNodes = (this.world && typeof this.world.queryNodesInRect === 'function')
+        ? this.world.queryNodesInRect(this.camera.x - lightHalfW, this.camera.y - lightHalfH, this.camera.x + lightHalfW, this.camera.y + lightHalfH)
+        : this.world.nodes;
+      for (const n of lightNodes) {
         if (n.kind === 'crystal_node' || n.kind === 'diamond_vein' || n.kind === 'emerald_vein' || n.kind === 'ice_crystal') {
           punchLight(n.x, n.y, 92, 0.72);
         } else if (n.kind === 'mushroom_node' || n.kind === 'volcanic_rock' || n.kind === 'meteor') {
@@ -7514,10 +7976,10 @@
         const ly = this.player.y - 38 + Math.sin(this.time * 2.6) * 4;
         const useLantern = this.hasPermanentRelic('linterna_flotante');
         drawHalo(warmStamp, useLantern ? lx : this.player.x, useLantern ? ly : this.player.y - 12,
-          110 + (this.mods.lightRadius || 0) * 0.4 + gentleBreath * 0.4, 0.65);
+          104 + (this.mods.lightRadius || 0) * 0.35 + gentleBreath * 0.4, 0.42);
       }
       for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+        const def = Abyssea.BUILDINGS[b.type];
         if (!def) continue;
         const warmR = def.lightRadius || (
           b.type === 'horno' || b.type === 'forja' || b.type === 'fundicion' || b.type === 'fogata' || b.type === 'antorcha' || b.type === 'farol' ? 118
@@ -7527,7 +7989,7 @@
         if (warmR <= 0) continue;
         const bw = (def.size || 1) * TILE_SIZE;
         const stamp = (b.type === 'torre_magica' || b.type === 'portal' || b.type === 'mesa_encantamiento') ? arcaneStamp : warmStamp;
-        drawHalo(stamp, b.tx * TILE_SIZE + bw / 2, b.ty * TILE_SIZE + bw / 2, warmR * 0.68 + gentleBreath * 0.4, 0.6);
+        drawHalo(stamp, b.tx * TILE_SIZE + bw / 2, b.ty * TILE_SIZE + bw / 2, warmR * 0.65 + gentleBreath * 0.4, 0.38);
       }
       if (this.projectiles) {
         for (const pr of this.projectiles) {
@@ -7607,7 +8069,7 @@
 
     getWaterSprite() {
       const style = (this.settings && this.settings.waterStyle) || 'clasico';
-      const ex = (Balaclava.Assets && Balaclava.Assets.extraImages) || {};
+      const ex = (Abyssea.Assets && Abyssea.Assets.extraImages) || {};
       const keyMap = {
         clasico: 'water_clasico',
         profundo: 'water_profundo',
@@ -7632,34 +8094,48 @@
         s = (s * 16807) % 2147483647;
         return (s - 1) / 2147483646;
       };
+      const shuffle = (arr) => {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(rng() * (i + 1));
+          const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        }
+        return a;
+      };
 
-      const ts = 48;
-      const menuGuard = Math.min(w * 0.42, 520);
-      const zoneLeft = w >= 920 ? menuGuard : Math.round(w * 0.40);
-      const zoneRight = w - 24;
-      const zoneW = Math.max(380, zoneRight - zoneLeft);
-      const zoneCx = Math.round((zoneLeft + zoneRight) * 0.5);
-      const zoneCy = Math.round(h * 0.49);
+      const ts = 56;
+      // Central menu corridor stays clear (~424px wide centered); left = bright early biomes, right = shadowed endgame biomes
+      const halfCorridor = w >= 1040 ? 214 : Math.round(w * 0.19);
+      const leftMinX = 12;
+      const leftMaxX = Math.max(leftMinX + ts * 4, Math.round(w * 0.5 - halfCorridor));
+      const rightMinX = Math.min(w - ts * 4 - 12, Math.round(w * 0.5 + halfCorridor));
+      const rightMaxX = w - 12;
 
-      // Create organic, non-square island tile mask with natural jagged bays, peninsulas and chamfers
-      const makeOrganicMask = (cols, rows, cornerCutChance = 0.85, coveChance = 0.75) => {
+      // Create substantial, organic, non-square island tile mask (fuller landmasses, never skinny crosses)
+      const makeOrganicMask = (cols, rows, cornerCutChance = 0.62, coveChance = 0.45) => {
         const mask = Array.from({ length: rows }, () => Array(cols).fill(1));
-        // Cut out 1 to 3 irregular corners for natural round / archipelago shape
-        if (rng() < cornerCutChance) mask[0][0] = 0;
-        if (rng() < cornerCutChance) mask[0][cols - 1] = 0;
-        if (rng() < cornerCutChance * 0.85) mask[rows - 1][0] = 0;
-        if (rng() < cornerCutChance * 0.85) mask[rows - 1][cols - 1] = 0;
-
-        // Cut an organic coastal notch / inlet on an edge
-        if (rng() < coveChance && cols >= 5) {
-          const edge = Math.floor(rng() * 4);
-          if (edge === 0 && rows > 2) mask[0][1 + Math.floor(rng() * (cols - 2))] = 0;
-          else if (edge === 1 && rows > 2) mask[rows - 1][1 + Math.floor(rng() * (cols - 2))] = 0;
-          else if (edge === 2 && cols > 2) mask[1 + Math.floor(rng() * (rows - 2))][0] = 0;
-          else if (edge === 3 && cols > 2) mask[1 + Math.floor(rng() * (rows - 2))][cols - 1] = 0;
+        // Cut 1 to 3 corners at most so islands stay lush and sizeable
+        const corners = shuffle([[0, 0], [0, cols - 1], [rows - 1, 0], [rows - 1, cols - 1]]);
+        const maxCuts = (cols >= 5 && rows >= 3) ? 3 : 2;
+        let cuts = 0;
+        for (const [ry, cx] of corners) {
+          if (cuts >= maxCuts) break;
+          if (cuts === 0 || rng() < cornerCutChance) {
+            mask[ry][cx] = 0;
+            cuts++;
+          }
         }
 
-        // Clean up: remove any isolated 1x1 orphan cell
+        // Optional gentle coastal cove only on large islands (5+ cols and 4 rows, or 6+ cols)
+        if (rng() < coveChance && (cols >= 6 || (cols >= 5 && rows >= 4))) {
+          const edge = Math.floor(rng() * 4);
+          if (edge === 0 && rows >= 3) mask[0][1 + Math.floor(rng() * Math.max(1, cols - 2))] = 0;
+          else if (edge === 1 && rows >= 3) mask[rows - 1][1 + Math.floor(rng() * Math.max(1, cols - 2))] = 0;
+          else if (edge === 2 && cols >= 4 && rows >= 4) mask[1 + Math.floor(rng() * Math.max(1, rows - 2))][0] = 0;
+          else if (edge === 3 && cols >= 4 && rows >= 4) mask[1 + Math.floor(rng() * Math.max(1, rows - 2))][cols - 1] = 0;
+        }
+
+        // Remove any isolated 1x1 orphan cell
         for (let ry = 0; ry < rows; ry++) {
           for (let cx = 0; cx < cols; cx++) {
             if (!mask[ry][cx]) continue;
@@ -7673,55 +8149,109 @@
         return mask;
       };
 
-      const topGap = Math.max(92, Math.round(zoneW * 0.16));
-      const botGap = Math.max(86, Math.round(zoneW * 0.14));
+      const CLIFF_MAP = {
+        pradera:            { top: '#5d4037', mid: '#3e2723' },
+        montanas_heladas:   { top: '#607d94', mid: '#374c61' },
+        desierto:           { top: '#8d6e3f', mid: '#6d4c23' },
+        tierras_malditas:   { top: '#4a1826', mid: '#2b0b16' },
+        tierras_volcanicas: { top: '#4a211b', mid: '#29100d' },
+        caldera_ceniza:     { top: '#3c2a2a', mid: '#211618' },
+        necropolis_osea:    { top: '#463f52', mid: '#282233' },
+        dinastia_arena:     { top: '#7d3826', mid: '#4c1e14' }
+      };
 
-      // 1. Top-Left Islet (Bosque Oscuro / Tundra)
-      const tlCols = 5 + (rng() > 0.5 ? 1 : 0);
-      const tlRows = 3 + (rng() > 0.6 ? 1 : 0);
-      const tlx = Math.max(Math.round(zoneLeft + 6), Math.round(zoneCx - topGap * 0.5 - tlCols * ts + (rng() - 0.5) * 26));
-      const tly = Math.max(38, Math.round(zoneCy - tlRows * ts - Math.max(54, h * 0.08) + (rng() - 0.5) * 20));
-      const tlMask = makeOrganicMask(tlCols, tlRows, 0.9, 0.7);
+      const buildSideIslands = (side, count, biomes, minX, maxX, topPad, bottomPad) => {
+        const out = [];
+        const zoneW = Math.max(ts * 4, maxX - minX);
+        const usableH = Math.max(ts * 5, h - topPad - bottomPad);
+        const minGapY = 24;
 
-      // 2. Top-Right Islet (Desierto / Oasis / Autumn Gold)
-      const trCols = 5 + (rng() > 0.5 ? 1 : 0);
-      const trRows = 3 + (rng() > 0.6 ? 1 : 0);
-      const trx = Math.min(w - trCols * ts - 16, Math.round(zoneCx + topGap * 0.5 + (rng() - 0.5) * 26));
-      const tryY = Math.max(42, Math.round(zoneCy - trRows * ts - Math.max(50, h * 0.075) + (rng() - 0.5) * 20));
-      const trMask = makeOrganicMask(trCols, trRows, 0.9, 0.7);
+        // If viewport is compact vertically, ensure count fits with >= minGapY clean ocean gap between every island
+        let effCount = count;
+        while (effCount > 2 && (effCount * 3 * ts + (effCount - 1) * minGapY) > usableH) {
+          effCount--;
+        }
 
-      // 3. Bottom-Left Island (Lush Prairie Campsite & Ancient Oak)
-      const blCols = 6 + (rng() > 0.5 ? 1 : 0);
-      const blRows = 4 + (rng() > 0.5 ? 1 : 0);
-      const blx = Math.max(Math.round(zoneLeft + 4), Math.round(zoneCx - botGap * 0.5 - blCols * ts + (rng() - 0.5) * 24));
-      const bly = Math.min(h - blRows * ts - 28, Math.round(zoneCy + Math.max(46, h * 0.068) + (rng() - 0.5) * 18));
-      const blMask = makeOrganicMask(blCols, blRows, 0.85, 0.65);
+        // Pre-pick generous island sizes (5-6 cols wide, 3-4 rows tall) so islands feel bold and rich
+        const specs = [];
+        for (let i = 0; i < effCount; i++) {
+          const biome = biomes[i % biomes.length];
+          const maxCols = Math.max(4, Math.min(6, Math.floor((zoneW - 8) / ts)));
+          const cols = Math.min(maxCols, 5 + (rng() < 0.60 ? 1 : 0));
+          const rows = (effCount === 2) ? (4 - (usableH < 8 * ts + minGapY ? 1 : (rng() < 0.28 ? 1 : 0))) : 3;
+          specs.push({ biome, cols, rows });
+        }
 
-      // 4. Bottom-Right Island (Prairie / Crystal & Mineral Atoll)
-      // Placed comfortably above the signature so the ocean remains wide and clear
-      const brCols = 5 + (rng() > 0.6 ? 1 : 0);
-      const brRows = 3;
+        // Guarantee totalIslH + gaps <= usableH so islands NEVER touch or overlap
+        let totalIslH = specs.reduce((acc, sp) => acc + sp.rows * ts, 0);
+        for (let i = specs.length - 1; i >= 0 && (totalIslH + (effCount - 1) * minGapY) > usableH; i--) {
+          if (specs[i].rows > 2) {
+            specs[i].rows--;
+            totalIslH -= ts;
+          }
+        }
+
+        const freeH = Math.max(minGapY * Math.max(1, effCount - 1), usableH - totalIslH);
+        const gapY = effCount > 1 ? Math.max(minGapY, Math.floor(freeH / (effCount + 0.25))) : 0;
+        const blockH = totalIslH + gapY * Math.max(0, effCount - 1);
+        let cursorY = Math.round(topPad + Math.max(0, (usableH - blockH) * 0.44));
+
+        for (let i = 0; i < effCount; i++) {
+          const { biome, cols, rows } = specs[i];
+          const islW = cols * ts;
+          const islH = rows * ts;
+
+          const availX = Math.max(0, zoneW - islW);
+          let staggerBias = (i % 2 === 0) ? (side === 'left' ? 0.22 : 0.72) : (side === 'left' ? 0.78 : 0.22);
+          if (side === 'right' && i === effCount - 1) staggerBias = 0.14;
+          const jitterX = (rng() - 0.5) * Math.min(24, availX * 0.42);
+          const ox = Math.round(Math.max(minX, Math.min(maxX - islW, minX + availX * staggerBias + jitterX)));
+
+          const prevLimit = out.length > 0 ? (out[out.length - 1].oy + out[out.length - 1].rows * ts + minGapY) : topPad;
+          const oy = Math.round(Math.max(prevLimit, cursorY));
+          cursorY = oy + islH + gapY;
+
+          const mask = makeOrganicMask(cols, rows, 0.60, 0.42);
+          const cl = CLIFF_MAP[biome] || CLIFF_MAP.pradera;
+          out.push({
+            ox,
+            oy,
+            cols,
+            rows,
+            mask,
+            biome,
+            side,
+            seed: Math.floor(rng() * 10000),
+            cliffTop: cl.top,
+            cliffMid: cl.mid,
+            id: `${side}_${i}`
+          });
+        }
+        return out;
+      };
+
+      // Left (Bright) Side: 2 or 3 random distinct islands from Pradera, Montañas Heladas, Desierto
+      const leftCount = rng() < 0.65 ? 3 : 2;
+      const leftBiomes = shuffle(['pradera', 'montanas_heladas', 'desierto']).slice(0, leftCount);
+      const leftIslands = buildSideIslands('left', leftCount, leftBiomes, leftMinX, leftMaxX, 20, 44);
+
+      // Right (Shadowed Endgame) Side: 2 or 3 random distinct islands, always featuring Crimson/Cursed + Volcano/Ash/Necropolis/Scarlet
+      const rightCount = rng() < 0.65 ? 3 : 2;
+      const endgameExtras = shuffle(['tierras_volcanicas', 'caldera_ceniza', 'necropolis_osea', 'dinastia_arena']);
+      const rightBiomes = shuffle(['tierras_malditas', ...endgameExtras.slice(0, rightCount - 1)]);
+      const rightIslands = buildSideIslands('right', rightCount, rightBiomes, rightMinX, rightMaxX, 46, 82);
+
+      const islands = [...leftIslands, ...rightIslands];
+
+      // Strict guarantee: no island tile encroaches on the ocean signature in bottom-right
       const sigX = Math.round(w - 210);
       const sigY = Math.round(h - 75);
-      const brx = Math.min(w - brCols * ts - 24, Math.round(zoneCx + botGap * 0.5 + (rng() - 0.5) * 16));
-      const maxBry = Math.min(h - brRows * ts - 140, Math.round(zoneCy + Math.max(28, h * 0.04) + (rng() - 0.5) * 12));
-      const bry = Math.max(Math.round(zoneCy + 10), maxBry);
-      const brMask = makeOrganicMask(brCols, brRows, 0.9, 0.6);
-
-      const islands = [
-        { ox: Math.round(tlx), oy: Math.round(tly), cols: tlCols, rows: tlRows, mask: tlMask, biome: 'bosque_oscuro', cliffTop: '#4a3f5c', cliffMid: '#2c203b', id: 'tl' },
-        { ox: Math.round(trx), oy: Math.round(tryY), cols: trCols, rows: trRows, mask: trMask, biome: 'desierto', cliffTop: '#8d6e3f', cliffMid: '#6d4c23', id: 'tr' },
-        { ox: Math.round(blx), oy: Math.round(bly), cols: blCols, rows: blRows, mask: blMask, biome: 'pradera', cliffTop: '#5d4037', cliffMid: '#3e2723', id: 'bl' },
-        { ox: Math.round(brx), oy: Math.round(bry), cols: brCols, rows: brRows, mask: brMask, biome: 'pradera', cliffTop: '#5d4037', cliffMid: '#3e2723', id: 'br' }
-      ];
-
-      // Strict guarantee: no island land tile or cliff foam can ever encroach within 80px of the signature
       for (const isl of islands) {
         for (let ry = 0; ry < isl.rows; ry++) {
           for (let cx = 0; cx < isl.cols; cx++) {
             const px = isl.ox + cx * ts;
             const py = isl.oy + ry * ts;
-            if (px + ts >= sigX - 70 && py + ts * 1.5 >= sigY - 70) {
+            if (px + ts >= sigX - 48 && py + ts >= sigY - 36) {
               isl.mask[ry][cx] = 0;
             }
           }
@@ -7732,6 +8262,9 @@
         seed,
         w,
         h,
+        ts,
+        leftIslands,
+        rightIslands,
         islands
       };
       return this._titleArchipelago;
@@ -7761,30 +8294,44 @@
       }
       this.renderOceanWaves(ctx, 0, 0, w, h, t, wSpd, wInfo.style);
 
-      // Procedural archipelago generation with organic shapes
-      const arch = (this._titleArchipelago && this._titleArchipelago.w === w && this._titleArchipelago.h === h)
+      // Subtle abyssal sea tint on the right third so endgame waters deepen naturally beneath the crimson islands
+      const seaSplit = ctx.createLinearGradient(w * 0.48, 0, w, 0);
+      seaSplit.addColorStop(0, 'rgba(8, 12, 24, 0.0)');
+      seaSplit.addColorStop(0.58, 'rgba(18, 8, 22, 0.14)');
+      seaSplit.addColorStop(1, 'rgba(24, 6, 18, 0.30)');
+      ctx.fillStyle = seaSplit;
+      ctx.fillRect(0, 0, w, h);
+
+      // Procedural dual-side archipelago generation with organic shapes
+      const arch = (this._titleArchipelago && this._titleArchipelago.w === w && this._titleArchipelago.h === h && this._titleArchipelago.leftIslands)
         ? this._titleArchipelago
         : this.generateTitleArchipelago(w, h);
 
-      const menuGuard = Math.min(w * 0.42, 520);
-      const zoneLeft = w >= 920 ? menuGuard : Math.round(w * 0.40);
-      const zoneRight = w - 24;
-      const zoneCx = Math.round((zoneLeft + zoneRight) * 0.5);
-      const zoneCy = Math.round(h * 0.49);
-
-      const assets = Balaclava.Assets || {};
+      const assets = Abyssea.Assets || {};
       const extra = assets.extraImages || {};
       const foamImg = assets.get ? assets.get('water_foam') : null;
-      const foamFr = Math.floor(t * 6.5 * wSpd) % 16;
-      const ts = 48;
+      const isV15FoamTitle = foamImg && foamImg.width === 512 && foamImg.height === 128;
+      const foamFr = isV15FoamTitle ? (Math.floor(t * 4.5 * wSpd) % 4) : (Math.floor(t * 6.5 * wSpd) % 16);
+      const ts = arch.ts || 56;
+
+      const BIOME_FALLBACK_COLOR = {
+        pradera: '#5f9e3e',
+        montanas_heladas: '#cde5f0',
+        desierto: '#d9b86c',
+        tierras_malditas: '#5e1a2c',
+        tierras_volcanicas: '#3d2525',
+        caldera_ceniza: '#393236',
+        necropolis_osea: '#4a4358',
+        dinastia_arena: '#b85334'
+      };
 
       // Organic island renderer with 9-slice autotiling and 3D coastal cliffs
       const drawOrganicTitleIsland = (isl) => {
-        const { ox, oy, cols, rows, mask, biome, cliffTop, cliffMid } = isl;
+        const { ox, oy, cols, rows, mask, biome } = isl;
         const bSheet = assets.biomeTiles && assets.biomeTiles[biome];
         ctx.save();
 
-        // 1. Cliff skirts along all southern land boundaries
+        // 1. Cliff skirts & animated coastal foam along all southern land boundaries
         for (let ry = 0; ry < rows; ry++) {
           for (let cx = 0; cx < cols; cx++) {
             if (!mask[ry] || !mask[ry][cx]) continue;
@@ -7792,14 +8339,14 @@
             if (!hasS) {
               const px = Math.round(ox + cx * ts);
               const py = Math.round(oy + ry * ts);
-              ctx.fillStyle = 'rgba(8, 22, 36, 0.36)';
-              ctx.fillRect(px + 3, py + ts + 10, ts - 4, 8);
-              ctx.fillStyle = cliffMid;
-              ctx.fillRect(px, py + ts - 2, ts, 14);
-              ctx.fillStyle = cliffTop;
-              ctx.fillRect(px, py + ts - 2, ts, 7);
+              ctx.fillStyle = 'rgba(8, 24, 40, 0.24)';
+              ctx.fillRect(px + 3, py + ts - 2, ts - 6, 5);
               if (ok(foamImg)) {
-                ctx.drawImage(foamImg, foamFr * 192 + 56, 72, 80, 64, px - 4, py + 10, ts + 8, ts + 4);
+                if (isV15FoamTitle) {
+                  ctx.drawImage(foamImg, foamFr * 128, 12, 128, 108, px - 2, py + ts - 5, ts + 4, 24);
+                } else {
+                  ctx.drawImage(foamImg, foamFr * 192 + 56, 72, 80, 64, px - 4, py + 10, ts + 8, ts + 4);
+                }
               }
             }
           }
@@ -7814,15 +8361,15 @@
             const hasW = cx > 0 && mask[ry][cx - 1] === 1;
             const hasE = cx + 1 < cols && mask[ry][cx + 1] === 1;
 
-            const sx = !hasW ? 0 : (!hasE ? 128 : 64);
-            const sy = !hasN ? 0 : (!hasS ? 128 : 64);
-
             const px = Math.round(ox + cx * ts);
             const py = Math.round(oy + ry * ts);
             if (ok(bSheet)) {
-              ctx.drawImage(bSheet, sx, sy, 64, 64, px, py, ts, ts);
+              const bts = Math.round((bSheet.naturalWidth || bSheet.width || 192) / 3);
+              const bsx = !hasW ? 0 : (!hasE ? bts * 2 : bts);
+              const bsy = !hasN ? 0 : (!hasS ? bts * 2 : bts);
+              ctx.drawImage(bSheet, bsx, bsy, bts, bts, px, py, ts, ts);
             } else {
-              ctx.fillStyle = biome === 'desierto' ? '#d4b46a' : (biome === 'bosque_oscuro' ? '#3d4432' : '#5f9e3e');
+              ctx.fillStyle = BIOME_FALLBACK_COLOR[biome] || '#5f9e3e';
               ctx.fillRect(px, py, ts, ts);
             }
           }
@@ -7830,21 +8377,47 @@
         ctx.restore();
       };
 
-      const drawAnimTree = (key, x, y, scale, seed) => {
-        const tImg = assets.get ? assets.get(key) : null;
+      const drawBiomeTree = (treeId, x, y, scale, seed, fallbackKey = 'tree1') => {
+        const v14Img = extra['tree_v14_' + treeId];
+        if (ok(v14Img) && v14Img.width >= 256) {
+          const fw = Math.round(v14Img.width / 4);
+          const fh = v14Img.height || 128;
+          const dw = Math.round(106 * scale);
+          const dh = Math.round(106 * scale * (fh / Math.max(1, fw)));
+          const fr = Math.floor(t * 0.55 + seed) % 4;
+          ctx.drawImage(v14Img, fr * fw, 0, fw, fh, Math.round(x - dw / 2), Math.round(y + 18 * scale - dh), dw, dh);
+          return;
+        }
+        const tImg = assets.get ? assets.get(fallbackKey) : null;
         if (!ok(tImg)) return;
         if (tImg.width >= 384) {
           const fr = Math.floor((t * 3.5 + seed) % 8);
-          const dw = Math.round(96 * scale);
-          const dh = Math.round(108 * scale * (tImg.height / 192));
-          const dy = Math.round(y + 20 * scale - dh);
-          ctx.drawImage(tImg, fr * 192, 0, 192, tImg.height, Math.round(x - dw / 2), dy, dw, dh);
-        } else {
-          const sway = Math.sin(t * 1.5 + seed) * 1.4;
-          const dw = Math.round(64 * scale);
-          const dh = Math.round(dw * (tImg.height / Math.max(1, tImg.width)));
-          ctx.drawImage(tImg, Math.round(x - dw / 2 + sway), Math.round(y - dh + 10), dw, dh);
+          const dw = Math.round(98 * scale);
+          const dh = Math.round(110 * scale * (tImg.height / 192));
+          ctx.drawImage(tImg, fr * 192, 0, 192, tImg.height, Math.round(x - dw / 2), Math.round(y + 20 * scale - dh), dw, dh);
         }
+      };
+
+      const drawTitleProp = (key, x, y, size, glowColor = null) => {
+        const im = extra[key];
+        if (!ok(im)) return;
+        const scaledSize = Math.round(size * 1.15);
+        if (glowColor) {
+          ctx.save();
+          ctx.fillStyle = glowColor;
+          ctx.beginPath();
+          ctx.arc(x, y + 2, Math.round(scaledSize * 0.62), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        const isStrip = im.width >= im.height * 2.5;
+        const frames = isStrip ? Math.max(1, Math.round(im.width / Math.max(1, im.height))) : 1;
+        const fw = isStrip ? Math.round(im.width / frames) : im.width;
+        const fh = im.height;
+        const fr = frames > 1 ? (Math.floor(t * 3.4) % frames) : 0;
+        const dw = scaledSize;
+        const dh = Math.max(16, Math.round(scaledSize * (fh / Math.max(1, fw))));
+        ctx.drawImage(im, fr * fw, 0, fw, fh, Math.round(x - dw / 2), Math.round(y - dh * 0.55), dw, dh);
       };
 
       // Helper to safely resolve a solid land tile coordinate on an organic island
@@ -7855,7 +8428,6 @@
         if (mask[clampRy] && mask[clampRy][clampCx]) {
           return { x: ox + clampCx * ts + ts / 2, y: oy + clampRy * ts + ts / 2, cx: clampCx, ry: clampRy };
         }
-        // Find closest valid land cell
         let best = null, bestDist = 999;
         for (let ry = 0; ry < rows; ry++) {
           for (let cx = 0; cx < cols; cx++) {
@@ -7870,134 +8442,184 @@
         return best || { x: ox + ts, y: oy + ts, cx: 0, ry: 0 };
       };
 
-      const [islTL, islTR, islBL, islBR] = arch.islands;
-      drawOrganicTitleIsland(islTL);
-      drawOrganicTitleIsland(islTR);
-      drawOrganicTitleIsland(islBL);
-      drawOrganicTitleIsland(islBR);
+      const drawIslandBiomeProps = (isl) => {
+        const s = isl.seed || 1;
+        const cMid = Math.floor(isl.cols * 0.5);
+        const rBot = Math.max(1, isl.rows - 1);
+        const rMid = Math.max(1, Math.floor(isl.rows * 0.5));
 
-      // Props on Organic Bottom-Left Island
-      const oakPt = landPt(islBL, 1, 1);
-      drawAnimTree('tree1', oakPt.x, oakPt.y, 1.05, 1);
-      const sprucePt = landPt(islBL, islBL.cols - 2, 1);
-      drawAnimTree('tree2', sprucePt.x, sprucePt.y, 0.92, 3.2);
+        if (isl.biome === 'pradera') {
+          const t1 = landPt(isl, 1, 1);
+          drawBiomeTree('pradera_1', t1.x, t1.y, 0.96, s * 0.13, 'tree1');
+          if (isl.cols >= 5) {
+            const t2 = landPt(isl, isl.cols - 2, 1);
+            drawBiomeTree('pradera_3', t2.x, t2.y, 0.88, s * 0.27, 'tree2');
+          }
+          const firePt = landPt(isl, cMid, rBot);
+          drawTitleProp('Campfire_Anim', firePt.x, firePt.y, 40, `rgba(255, 165, 64, ${(0.20 + Math.sin(t * 4.5) * 0.04).toFixed(3)})`);
+          const sheepPt = landPt(isl, 1, rBot);
+          if (Math.hypot(sheepPt.x - firePt.x, sheepPt.y - firePt.y) > 30) {
+            const tsSheep = assets && (assets.get('sheep_idle') || assets.get('sheep_move'));
+            if (tsSheep && tsSheep.width >= 128 && tsSheep.height >= 100) {
+              const sFrames = Math.max(1, Math.round(tsSheep.width / 128));
+              const sFr = Math.floor((t * 4.5 + s) % sFrames);
+              ctx.drawImage(tsSheep, sFr * 128, 0, 128, 128, Math.round(sheepPt.x - 32), Math.round(sheepPt.y - 36), 64, 64);
+            }
+          }
+          const goldPt = landPt(isl, isl.cols - 2, rBot);
+          if (Math.hypot(goldPt.x - firePt.x, goldPt.y - firePt.y) > 30) {
+            drawTitleProp('node_gold', goldPt.x, goldPt.y, 34);
+          }
+          const flowPt = landPt(isl, isl.cols - 1, rMid);
+          drawTitleProp('nat_flower', flowPt.x, flowPt.y, 22);
+        } else if (isl.biome === 'montanas_heladas') {
+          const p1 = landPt(isl, 1, 1);
+          drawBiomeTree('montanas_heladas_1', p1.x, p1.y, 0.95, s * 0.17, 'tree2');
+          if (isl.cols >= 5) {
+            const p2 = landPt(isl, isl.cols - 2, 1);
+            drawBiomeTree('montanas_heladas_2', p2.x, p2.y, 0.86, s * 0.31, 'tree2');
+          }
+          const icePt = landPt(isl, cMid, rBot);
+          drawTitleProp('node_ice_crystal', icePt.x, icePt.y, 38, 'rgba(120, 232, 255, 0.20)');
+          const gemPt = landPt(isl, isl.cols - 2, rBot);
+          if (Math.hypot(gemPt.x - icePt.x, gemPt.y - icePt.y) > 30) {
+            drawTitleProp('node_diamond', gemPt.x, gemPt.y, 34);
+          }
+          const tuftPt = landPt(isl, 1, rBot);
+          drawTitleProp('flora_frost_tuft', tuftPt.x, tuftPt.y, 24);
+        } else if (isl.biome === 'desierto') {
+          const d1 = landPt(isl, 1, 1);
+          drawBiomeTree('desierto_1', d1.x, d1.y, 0.94, s * 0.19, 'tree3');
+          const cacPt = landPt(isl, isl.cols - 2, 1);
+          drawTitleProp('node_cactus', cacPt.x, cacPt.y, 36);
+          const orePt = landPt(isl, cMid, rBot);
+          drawTitleProp('node_amber', orePt.x, orePt.y, 34);
+          const agPt = landPt(isl, 1, rBot);
+          drawTitleProp('flora_desert_agave', agPt.x, agPt.y, 24);
+        } else if (isl.biome === 'tierras_malditas') {
+          const m1 = landPt(isl, 1, 1);
+          drawBiomeTree('tierras_malditas_1', m1.x, m1.y, 0.96, s * 0.23, 'tree4');
+          const cryPt = landPt(isl, isl.cols - 2, 1);
+          drawTitleProp('node_cristal_carmesi', cryPt.x, cryPt.y, 40, `rgba(235, 42, 78, ${(0.22 + Math.sin(t * 3.4) * 0.05).toFixed(3)})`);
+          const bloodPt = landPt(isl, cMid, rBot);
+          drawTitleProp('node_bloodstone', bloodPt.x, bloodPt.y, 34, 'rgba(200, 30, 62, 0.16)');
+          const eyePt = landPt(isl, 1, rBot);
+          if (Math.hypot(eyePt.x - bloodPt.x, eyePt.y - bloodPt.y) > 30) {
+            drawTitleProp('prop_cursed_eye', eyePt.x, eyePt.y, 32);
+          }
+          const vgPt = landPt(isl, isl.cols - 1, rMid);
+          drawTitleProp('flora_volcanic_grass', vgPt.x, vgPt.y, 24);
+        } else if (isl.biome === 'tierras_volcanicas') {
+          const v1 = landPt(isl, 1, 1);
+          drawBiomeTree('tierras_volcanicas_1', v1.x, v1.y, 0.94, s * 0.29, 'tree4');
+          const magPt = landPt(isl, cMid, rBot);
+          drawTitleProp('node_magma_core', magPt.x, magPt.y, 38, `rgba(255, 110, 36, ${(0.24 + Math.sin(t * 4.2) * 0.05).toFixed(3)})`);
+          const obsPt = landPt(isl, isl.cols - 2, 1);
+          drawTitleProp('node_obsidian', obsPt.x, obsPt.y, 36);
+          const vgPt = landPt(isl, 1, rBot);
+          drawTitleProp('flora_volcanic_grass', vgPt.x, vgPt.y, 24);
+        } else if (isl.biome === 'caldera_ceniza') {
+          const a1 = landPt(isl, 1, 1);
+          drawBiomeTree('caldera_ceniza_1', a1.x, a1.y, 0.94, s * 0.37, 'tree4');
+          const brPt = landPt(isl, cMid, rBot);
+          drawTitleProp('fire_brazier', brPt.x, brPt.y, 38, 'rgba(255, 128, 48, 0.22)');
+          const rubPt = landPt(isl, isl.cols - 2, 1);
+          drawTitleProp('node_ruby', rubPt.x, rubPt.y, 34, 'rgba(230, 48, 86, 0.16)');
+          const vgPt = landPt(isl, 1, rBot);
+          drawTitleProp('flora_volcanic_grass', vgPt.x, vgPt.y, 24);
+        } else if (isl.biome === 'necropolis_osea') {
+          const n1 = landPt(isl, 1, 1);
+          drawBiomeTree('necropolis_osea_1', n1.x, n1.y, 0.94, s * 0.41, 'tree4');
+          const grPt = landPt(isl, isl.cols - 2, 1);
+          drawTitleProp('undead_grave', grPt.x, grPt.y, 34);
+          const bnPt = landPt(isl, cMid, rBot);
+          drawTitleProp('node_plata_maldita', bnPt.x, bnPt.y, 34, 'rgba(155, 110, 235, 0.16)');
+          const sgPt = landPt(isl, 1, rBot);
+          drawTitleProp('flora_shadow_grass', sgPt.x, sgPt.y, 24);
+        } else if (isl.biome === 'dinastia_arena') {
+          const s1 = landPt(isl, 1, 1);
+          drawBiomeTree('dinastia_arena_1', s1.x, s1.y, 0.94, s * 0.47, 'tree3');
+          const obPt = landPt(isl, isl.cols - 2, 1);
+          drawTitleProp('prop_obelisk_sand', obPt.x, obPt.y, 38);
+          const agPt = landPt(isl, cMid, rBot);
+          drawTitleProp('node_agata_roja', agPt.x, agPt.y, 34, 'rgba(235, 76, 60, 0.16)');
+          const dgPt = landPt(isl, 1, rBot);
+          drawTitleProp('flora_desert_grass', dgPt.x, dgPt.y, 24);
+        }
+      };
 
-      const firePt = landPt(islBL, Math.floor(islBL.cols * 0.5), islBL.rows - 2);
-      if (ok(extra.campfireAnim)) {
-        ctx.save();
-        ctx.fillStyle = `rgba(255, 165, 64, ${0.22 + Math.sin(t * 7) * 0.05})`;
-        ctx.beginPath(); ctx.arc(firePt.x, firePt.y + 4, 32 + Math.sin(t * 9) * 3, 0, Math.PI * 2); ctx.fill();
-        const cfFrames = Math.max(1, Math.floor(extra.campfireAnim.width / 16));
-        const cff = Math.floor(t * 8) % cfFrames;
-        ctx.drawImage(extra.campfireAnim, cff * 16, 0, 16, extra.campfireAnim.height, firePt.x - 20, firePt.y - 20, 40, 40);
-        ctx.restore();
+      // Draw all generated left & right islands + their biome-specific flora, trees & nodes
+      for (const isl of arch.islands) {
+        drawOrganicTitleIsland(isl);
       }
-      const goldPt = landPt(islBL, Math.floor(islBL.cols * 0.65), 2);
-      if (ok(extra.node_gold)) ctx.drawImage(extra.node_gold, goldPt.x - 18, goldPt.y - 18, 38, 38);
-
-      const sheepPt = landPt(islBL, 1, islBL.rows - 2);
-      const sheepIdle = assets.get ? assets.get('sheep_idle') : null;
-      if (ok(sheepIdle)) {
-        const sfr = Math.floor(t * 4.5) % 4;
-        ctx.drawImage(sheepIdle, sfr * 128, 0, 128, 128, sheepPt.x - 30, sheepPt.y - 32, 68, 68);
+      for (const isl of arch.islands) {
+        drawIslandBiomeProps(isl);
       }
-      const fernPt = landPt(islBL, 0, islBL.rows - 1);
-      if (ok(extra.deco_fern_1)) ctx.drawImage(extra.deco_fern_1, fernPt.x - 14, fernPt.y - 14, 28, 28);
-      const flowPt = landPt(islBL, islBL.cols - 1, islBL.rows - 1);
-      if (ok(extra.nat_flower)) ctx.drawImage(extra.nat_flower, flowPt.x - 12, flowPt.y - 12, 24, 24);
 
-      // Props on Organic Bottom-Right Island (Prairie / Mineral Atoll)
-      const amethystPt = landPt(islBR, 1, 1);
-      if (ok(extra.node_amethyst)) ctx.drawImage(extra.node_amethyst, amethystPt.x - 20, amethystPt.y - 20, 40, 40);
-
-      const jadePt = landPt(islBR, 3, 2);
-      if (ok(extra.node_jade)) ctx.drawImage(extra.node_jade, jadePt.x - 18, jadePt.y - 18, 38, 38);
-
-      const crystalPt = landPt(islBR, 2, 1);
-      if (ok(extra.ee_crystal)) {
-        const cfr = Math.floor(t * 5) % 5;
-        ctx.save();
-        ctx.fillStyle = 'rgba(110, 220, 255, 0.22)';
-        ctx.beginPath(); ctx.arc(crystalPt.x, crystalPt.y, 30, 0, Math.PI * 2); ctx.fill();
-        ctx.drawImage(extra.ee_crystal, cfr * 32, 0, 32, 32, crystalPt.x - 22, crystalPt.y - 26, 44, 44);
-        ctx.restore();
-      }
-      const brTreePt = landPt(islBR, islBR.cols - 2, 1);
-      drawAnimTree('tree3', brTreePt.x, brTreePt.y, 1.05, 5.1);
-
-      const lanternPt = landPt(islBR, Math.floor(islBR.cols * 0.6), 1);
-      if (ok(extra.ee_lantern)) ctx.drawImage(extra.ee_lantern, lanternPt.x - 18, lanternPt.y - 20, 36, 40);
-      const brBushPt = landPt(islBR, 0, islBR.rows - 2);
-      if (ok(extra.deco_bush_1)) ctx.drawImage(extra.deco_bush_1, brBushPt.x - 16, brBushPt.y - 16, 32, 32);
-
-      // Props on Organic Top-Left Island (Bosque Oscuro)
-      const tlTreePt = landPt(islTL, 1, 1);
-      drawAnimTree('tree4', tlTreePt.x, tlTreePt.y, 0.96, 2.4);
-      const shroomPt = landPt(islTL, 3, 1);
-      if (ok(extra.mushroom_blue_anim)) {
-        ctx.drawImage(extra.mushroom_blue_anim, 0, 0, 32, Math.min(32, extra.mushroom_blue_anim.height), shroomPt.x - 16, shroomPt.y - 16, 34, 34);
-      }
-      const tlFernPt = landPt(islTL, 0, islTL.rows - 1);
-      if (ok(extra.deco_fern_1)) ctx.drawImage(extra.deco_fern_1, tlFernPt.x - 12, tlFernPt.y - 12, 26, 26);
-
-      // Props on Organic Top-Right Island (Desierto / Autumn)
-      const copperPt = landPt(islTR, 1, 1);
-      if (ok(extra.node_copper)) ctx.drawImage(extra.node_copper, copperPt.x - 18, copperPt.y - 18, 38, 38);
-      const cactusPt = landPt(islTR, 3, 1);
-      if (ok(extra.cactus_icon)) ctx.drawImage(extra.cactus_icon, cactusPt.x - 18, cactusPt.y - 22, 38, 42);
-      const trFlowerPt = landPt(islTR, 2, 2);
-      if (ok(extra.nat_flower)) ctx.drawImage(extra.nat_flower, trFlowerPt.x - 11, trFlowerPt.y - 11, 22, 22);
-
-      // Floating Rubber Ducks in open water channels
+      // Floating Rubber Ducks bobbing in open water channels on bright left side & near signature
       const duckImg = extra.rubber_duck;
-      if (ok(duckImg)) {
+      if (ok(duckImg) && arch.leftIslands && arch.leftIslands.length > 0) {
         const dw = duckImg.width >= 64 ? Math.floor(duckImg.width / 3) : duckImg.width;
         const dh = duckImg.height || 32;
         const fr = duckImg.width >= 64 ? (Math.floor(t * 4) % 3) : 0;
-        const duck1X = Math.round((islTL.ox + islTR.ox) * 0.5 - 24 + Math.sin(t * 0.42) * 14);
-        const duck1Y = Math.round((islTL.oy + islBL.oy) * 0.5 + Math.cos(t * 1.6) * 4);
-        const duck2X = Math.min(w - 75, islBR.ox + islBR.cols * ts - 18 + Math.cos(t * 0.35) * 12);
-        const duck2Y = Math.min(h - 120, islBR.oy + islBR.rows * ts + 8 + Math.sin(t * 1.4) * 3);
+        const l0 = arch.leftIslands[0];
+        const duck1X = Math.round(l0.ox + l0.cols * ts + 14 + Math.sin(t * 0.42) * 12);
+        const duck1Y = Math.round(l0.oy + l0.rows * ts + 6 + Math.cos(t * 1.6) * 4);
+        const duck2X = Math.round(w - 115 + Math.cos(t * 0.35) * 10);
+        const duck2Y = Math.round(h - 116 + Math.sin(t * 1.4) * 3);
         ctx.save();
         ctx.globalAlpha = 0.94;
-        ctx.drawImage(duckImg, fr * dw, 0, dw, dh, duck1X, duck1Y, 32, 32);
-        ctx.drawImage(duckImg, fr * dw, 0, dw, dh, duck2X, duck2Y, 34, 34);
+        ctx.drawImage(duckImg, fr * dw, 0, dw, dh, duck1X, duck1Y, 30, 30);
+        ctx.drawImage(duckImg, fr * dw, 0, dw, dh, duck2X, duck2Y, 32, 32);
         ctx.restore();
       }
 
-      // Animated Butterflies fluttering across the islands
+      // Animated Butterflies fluttering across the bright left-side islands
       const bKeys = ['butterfly_orange', 'butterfly_blue', 'butterfly_gold', 'butterfly_violet'];
-      for (let i = 0; i < bKeys.length; i++) {
-        const bImg = extra[bKeys[i]];
-        if (!ok(bImg)) continue;
-        const targetIsland = i % 2 === 0 ? islBL : islBR;
-        const bx = targetIsland.ox + 120 + Math.sin(t * (0.9 + i * 0.17) + i * 2.1) * 65;
-        const by = targetIsland.oy + 30 + Math.cos(t * (1.25 + i * 0.2) + i) * 28;
-        const flap = 0.45 + 0.55 * Math.abs(Math.sin(t * 13 + i * 1.7));
+      if (arch.leftIslands && arch.leftIslands.length > 0) {
+        for (let i = 0; i < bKeys.length; i++) {
+          const bImg = extra[bKeys[i]];
+          if (!ok(bImg)) continue;
+          const targetIsland = arch.leftIslands[i % arch.leftIslands.length];
+          const bx = targetIsland.ox + targetIsland.cols * ts * 0.5 + Math.sin(t * (0.9 + i * 0.17) + i * 2.1) * 58;
+          const by = targetIsland.oy + targetIsland.rows * ts * 0.45 + Math.cos(t * (1.25 + i * 0.2) + i) * 24;
+          const flap = 0.45 + 0.55 * Math.abs(Math.sin(t * 13 + i * 1.7));
+          ctx.save();
+          ctx.translate(Math.round(bx), Math.round(by));
+          ctx.scale(Math.cos(t * (0.9 + i * 0.17) + i * 2.1) < 0 ? -flap : flap, 1);
+          ctx.drawImage(bImg, -10, -10, 20, 20);
+          ctx.restore();
+        }
+      }
+
+      // Subtle rising crimson/amber ember motes floating over the dark endgame islands on the right
+      if (arch.rightIslands && arch.rightIslands.length > 0) {
         ctx.save();
-        ctx.translate(Math.round(bx), Math.round(by));
-        ctx.scale(Math.cos(t * (0.9 + i * 0.17) + i * 2.1) < 0 ? -flap : flap, 1);
-        ctx.drawImage(bImg, -10, -10, 20, 20);
+        for (let e = 0; e < 14; e++) {
+          const isl = arch.rightIslands[e % arch.rightIslands.length];
+          const phase = (t * (0.22 + (e % 4) * 0.05) + e * 0.29) % 1;
+          const ex = Math.round(isl.ox + 18 + ((e * 53) % Math.max(40, isl.cols * ts - 36)) + Math.sin(t * 1.5 + e) * 8);
+          const ey = Math.round(isl.oy + isl.rows * ts - phase * (isl.rows * ts + 48));
+          const alpha = Math.sin(phase * Math.PI) * 0.72;
+          ctx.fillStyle = (e % 3 === 0)
+            ? `rgba(255, 196, 92, ${alpha.toFixed(3)})`
+            : `rgba(255, 72, 96, ${alpha.toFixed(3)})`;
+          const sz = (e % 4 === 0) ? 3 : 2;
+          ctx.fillRect(ex, ey, sz, sz);
+        }
         ctx.restore();
       }
 
-      // Soft drifting pixel-style clouds & warm left-column readability contrast
+      // Soft drifting pixel-style clouds across the sunlit left & center sky
       ctx.save();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.13)';
       for (let c = 0; c < 4; c++) {
-        const cx = ((t * (11 + c * 3) + c * w * 0.29) % (w + 220)) - 110;
-        const cy = 42 + c * 38;
+        const cx = ((t * (10 + c * 2.5) + c * w * 0.28) % (w + 220)) - 110;
+        const cy = 38 + c * 38;
         ctx.fillRect(Math.round(cx), cy, 88, 18);
         ctx.fillRect(Math.round(cx + 16), cy - 10, 52, 12);
       }
       ctx.restore();
-
-      const centerGlow = ctx.createRadialGradient(zoneCx, zoneCy, 40, zoneCx, zoneCy, Math.max(w, h) * 0.65);
-      centerGlow.addColorStop(0, 'rgba(6, 16, 28, 0.02)');
-      centerGlow.addColorStop(0.55, 'rgba(8, 22, 38, 0.08)');
-      centerGlow.addColorStop(1, 'rgba(5, 14, 24, 0.34)');
-      ctx.fillStyle = centerGlow;
-      ctx.fillRect(0, 0, w, h);
 
       // Living ocean signature in clear water (bobs gently with waves, never covered by islands)
       const sigX = Math.round(w - 210);
@@ -8015,7 +8637,7 @@
       ctx.ellipse(55, 12, 54 + ripT * 22, 6 + ripT * 3.5, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.font = 'italic 20px BalaclavaSignature, BalaclavaPixel, monospace';
+      ctx.font = 'italic 20px AbysseaSignature, AbysseaPixel, monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const sigText = 'love you saraí <3';
@@ -8047,7 +8669,7 @@
       const wInfo = this.getWaterSprite();
       const wSpd = this.getWaterSpeedMultiplier();
       const extraWater = wInfo.img;
-      const waterReady = Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(extraWater) : !!extraWater;
+      const waterReady = Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(extraWater) : !!extraWater;
       ctx.fillStyle = wInfo.bg;
       ctx.fillRect(this.camera.x - halfW, this.camera.y - halfH, halfW * 2, halfH * 2);
 
@@ -8086,9 +8708,13 @@
       }
 
       // Draw unlocked plot tiles with isometric / terraced cliff elevation skirts & staircases
-      const foamImg = Balaclava.Assets.get('water_foam');
-      const foamFrame = animWater ? (Math.floor(this.time * 7 * wSpd) % 16) : 0;
-      const bridgeImg = Balaclava.Assets.get('bridge');
+      const foamImg = (Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.water_foam) || Abyssea.Assets.get('water_foam');
+      const isV15Foam = foamImg && foamImg.width === 512 && foamImg.height === 128;
+      const foamFrame = animWater
+        ? (isV15Foam ? (Math.floor(this.time * 4.5 * wSpd) % 4) : (Math.floor(this.time * 7 * wSpd) % 16))
+        : 0;
+      const bridgeImg = Abyssea.Assets.get('bridge');
+      const bridgeVImg = Abyssea.Assets.get('bridge_v');
       const cliffPal = {
         pradera:            { top: '#5d4037', mid: '#4e342e', shadow: 'rgba(10,30,45,0.34)' },
         desierto:           { top: '#8d6e3f', mid: '#6d4c23', shadow: 'rgba(10,30,45,0.34)' },
@@ -8125,15 +8751,20 @@
       const getBiomePattern = (bId) => {
         if (!this._biomeInnerPatterns) this._biomeInnerPatterns = {};
         if (this._biomeInnerPatterns[bId] !== undefined) return this._biomeInnerPatterns[bId];
-        const sheet = Balaclava.Assets && Balaclava.Assets.biomeTiles && Balaclava.Assets.biomeTiles[bId];
+        const sheet = Abyssea.Assets && Abyssea.Assets.biomeTiles && Abyssea.Assets.biomeTiles[bId];
         if (!sheet || !sheet.width) return null;
+        const bts = Math.round((sheet.width || 192) / 3);
         const pc = document.createElement('canvas');
-        pc.width = 32;
-        pc.height = 32;
+        pc.width = 48;
+        pc.height = 48;
         const pctx = pc.getContext('2d');
         pctx.imageSmoothingEnabled = false;
-        // Extract clean interior 32x32 core from center cell (64..128, 64..128) without edge seams
-        pctx.drawImage(sheet, 80, 80, 32, 32, 0, 0, 32, 32);
+        // Extract clean seamless interior core (scales dynamically for 192x256 and 384x512 HD sheets)
+        const hasRow3 = (sheet.height || 0) >= bts * 4;
+        const pyOff = hasRow3 ? Math.round(bts * 3.25) : Math.round(bts * 1.25);
+        const pxOff = hasRow3 ? Math.round(bts * 0.25) : Math.round(bts * 1.25);
+        const sampleSz = Math.max(32, Math.round(bts * 0.5));
+        pctx.drawImage(sheet, pxOff, pyOff, sampleSz, sampleSz, 0, 0, 48, 48);
         const pat = ctx.createPattern(pc, 'repeat');
         this._biomeInnerPatterns[bId] = pat;
         return pat;
@@ -8164,17 +8795,21 @@
         const lW = isLava(tx - 1, ty);
         const lE = isLava(tx + 1, ty);
 
-        // Surround volcanic basalt ground pad so crater sits visibly sunken below surrounding terrain
-        const vSheet = Balaclava.Assets.biomeTiles.tierras_volcanicas;
-        if (vSheet) {
-          ctx.drawImage(vSheet, 64, 64, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+        // Draw the ACTUAL surrounding biome ground under the crater edge (never a mismatched volcanic square on ash ground!)
+        const localBiome = (this.world.getVisualBiomeAtTile ? this.world.getVisualBiomeAtTile(tx, ty) : null)
+          || this.world.plotBiomes[Math.floor(ty / PLOT_TILES)][Math.floor(tx / PLOT_TILES)]
+          || 'tierras_volcanicas';
+        const bSheet = (Abyssea.Assets.biomeTiles && (Abyssea.Assets.biomeTiles[localBiome] || Abyssea.Assets.biomeTiles.tierras_volcanicas)) || null;
+        if (bSheet) {
+          const bts = Math.round((bSheet.naturalWidth || bSheet.width || 192) / 3);
+          ctx.drawImage(bSheet, bts, bts, bts, bts, px, py, TILE_SIZE, TILE_SIZE);
         } else {
-          ctx.fillStyle = BIOMES.tierras_volcanicas.color;
+          ctx.fillStyle = (BIOMES[localBiome] || BIOMES.tierras_volcanicas).color;
           ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
         }
 
-        const topLip = lN ? 0 : 12;
-        const botLip = lS ? 0 : 6;
+        const topLip = lN ? 0 : 9;
+        const botLip = lS ? 0 : 7;
         const leftLip = lW ? 0 : 7;
         const rightLip = lE ? 0 : 7;
         const ix = px + leftLip;
@@ -8182,183 +8817,180 @@
         const iw = TILE_SIZE - leftLip - rightLip;
         const ih = TILE_SIZE - topLip - botLip;
 
-        // Build organic scalloped + corner-beveled crater silhouette path instead of a rigid rectangle
-        const seed = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
-        const rTL = (!lN && !lW) ? 9 : 0;
-        const rTR = (!lN && !lE) ? 9 : 0;
-        const rBR = (!lS && !lE) ? 8 : 0;
-        const rBL = (!lS && !lW) ? 8 : 0;
+        const rTL = (!lN && !lW) ? 16 : 0;
+        const rTR = (!lN && !lE) ? 16 : 0;
+        const rBR = (!lS && !lE) ? 15 : 0;
+        const rBL = (!lS && !lW) ? 15 : 0;
 
+        const traceCraterPath = (x, y, w, h, tl, tr, br, bl) => {
+          ctx.beginPath();
+          ctx.moveTo(x + tl, y);
+          ctx.lineTo(x + w - tr, y);
+          if (tr > 0) ctx.quadraticCurveTo(x + w, y, x + w, y + tr);
+          ctx.lineTo(x + w, y + h - br);
+          if (br > 0) ctx.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+          ctx.lineTo(x + bl, y + h);
+          if (bl > 0) ctx.quadraticCurveTo(x, y + h, x, y + h - bl);
+          ctx.lineTo(x, y + tl);
+          if (tl > 0) ctx.quadraticCurveTo(x, y, x + tl, y);
+          ctx.closePath();
+        };
+
+        // 1. Soft charred scorch rim blending crater organically into surrounding ash/volcanic rock
+        const ox = lW ? px : px + 2;
+        const oy = lN ? py : py + 3;
+        const ow = TILE_SIZE - (lW ? 0 : 2) - (lE ? 0 : 2) + (lE ? 1 : 0);
+        const oh = TILE_SIZE - (lN ? 0 : 3) - (lS ? 0 : 2) + (lS ? 1 : 0);
         ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(ix + rTL, iy);
-        ctx.lineTo(ix + iw - rTR, iy);
-        if (rTR > 0) ctx.lineTo(ix + iw, iy + rTR);
-        ctx.lineTo(ix + iw, iy + ih - rBR);
-        if (rBR > 0) ctx.lineTo(ix + iw - rBR, iy + ih);
-        ctx.lineTo(ix + rBL, iy + ih);
-        if (rBL > 0) ctx.lineTo(ix, iy + ih - rBL);
-        ctx.lineTo(ix, iy + rTL);
-        if (rTL > 0) ctx.lineTo(ix + rTL, iy);
-        ctx.closePath();
-        ctx.clip();
+        traceCraterPath(ox, oy, ow, oh, rTL ? rTL + 4 : 0, rTR ? rTR + 4 : 0, rBR ? rBR + 4 : 0, rBL ? rBL + 4 : 0);
+        ctx.fillStyle = 'rgba(18, 10, 12, 0.72)';
+        ctx.fill();
+        ctx.restore();
 
-        ctx.fillStyle = '#731204';
-        ctx.fillRect(ix, iy, iw, ih);
+        // 2. Sculpted dark charcoal-basalt rocky crater wall (NO per-tile stroke so interior shared seams stay 100% invisible!)
+        const rx = lW ? px : px + 4;
+        const ry = lN ? py : py + 5;
+        const rw = TILE_SIZE - (lW ? 0 : 4) - (lE ? 0 : 4) + (lE ? 1 : 0);
+        const rh = TILE_SIZE - (lN ? 0 : 5) - (lS ? 0 : 4) + (lS ? 1 : 0);
+        ctx.save();
+        traceCraterPath(rx, ry, rw, rh, rTL ? rTL + 2 : 0, rTR ? rTR + 2 : 0, rBR ? rBR + 2 : 0, rBL ? rBL + 2 : 0);
+        ctx.fillStyle = '#261b20';
+        ctx.fill();
+        ctx.restore();
 
-        // Cached 6-frame flowing magma tile (avoids 100 trig + fillRect calls per lava tile per frame)
-        if (!this._lavaFrames) {
-          this._lavaFrames = [];
-          const cell = 6;
-          for (let f = 0; f < 6; f++) {
+        // 3. Seamless 4x4-tile (192x192) periodic HD flowing magma atlas (2px pixel-art detail, ZERO tile seams!)
+        if (!this._lavaAtlasV2) {
+          this._lavaAtlasV2 = [];
+          const sz = TILE_SIZE * 4; // 192x192 exact 4x4 seamless loop
+          const step = 2;
+          const twoPi = Math.PI * 2;
+          for (let f = 0; f < 8; f++) {
             const lc = document.createElement('canvas');
-            lc.width = TILE_SIZE;
-            lc.height = TILE_SIZE;
+            lc.width = sz;
+            lc.height = sz;
             const lctx = lc.getContext('2d');
-            const tFlow = (f / 6) * Math.PI * 2;
-            for (let cy = 0; cy < TILE_SIZE; cy += cell) {
-              for (let cx = 0; cx < TILE_SIZE; cx += cell) {
-                const u = cx / cell;
-                const v = cy / cell;
-                const w1 = Math.sin(u * 0.75 + tFlow + Math.cos(v * 0.65 - tFlow));
-                const w2 = Math.cos(v * 0.78 - tFlow + Math.sin((u + v) * 0.45));
-                const heat = (w1 + w2) * 0.5;
-                if (heat > 0.44) lctx.fillStyle = '#fff59d';
-                else if (heat > 0.20) lctx.fillStyle = '#ffb300';
-                else if (heat > -0.12) lctx.fillStyle = '#f4511e';
-                else if (heat > -0.44) lctx.fillStyle = '#b71c1c';
-                else lctx.fillStyle = '#3b150e';
-                lctx.fillRect(cx, cy, cell, cell);
-                if (heat < -0.44) {
-                  lctx.fillStyle = '#5c2618';
-                  lctx.fillRect(cx, cy, cell, 2);
-                }
+            const ph = (f / 8) * twoPi;
+            for (let cy = 0; cy < sz; cy += step) {
+              const ay = (cy / sz) * twoPi;
+              for (let cx = 0; cx < sz; cx += step) {
+                const ax = (cx / sz) * twoPi;
+                // Strictly periodic multi-octave domain-warped volcanic magma flow
+                const warpX = Math.sin(ay * 2 + ph) * 0.55 + Math.cos(ax * 2 - ay + ph) * 0.35;
+                const warpY = Math.cos(ax * 2 - ph) * 0.55 + Math.sin(ax + ay * 2 + ph) * 0.35;
+                const f1 = Math.sin(ax * 3 + warpX * 1.4 + ph);
+                const f2 = Math.cos(ay * 3 + warpY * 1.4 - ph);
+                const f3 = Math.sin((ax - ay) * 2 + warpX - warpY + ph);
+                const ridge = 1.0 - Math.abs(Math.sin((ax + ay) * 2 + warpX * 1.2 + ph));
+                const heat = (f1 * 0.34 + f2 * 0.34 + f3 * 0.18 + (ridge * 2 - 1) * 0.28);
+                if (heat > 0.62)      lctx.fillStyle = '#fff3a0'; // incandescent white-gold magma core
+                else if (heat > 0.42) lctx.fillStyle = '#ffbe1e'; // bright molten amber
+                else if (heat > 0.16) lctx.fillStyle = '#ff6a14'; // vivid flowing orange lava
+                else if (heat > -0.14)lctx.fillStyle = '#d9300e'; // rich crimson-orange magma
+                else if (heat > -0.36)lctx.fillStyle = '#8a1610'; // cooling dark-red crust rim
+                else if (heat > -0.52)lctx.fillStyle = '#471514'; // scorched obsidian crust edge
+                else                  lctx.fillStyle = '#281012'; // floating volcanic crust island
+                lctx.fillRect(cx, cy, step, step);
               }
             }
-            this._lavaFrames.push(lc);
+            this._lavaAtlasV2.push(lc);
           }
         }
-        const lFrame = Math.floor(this.time * 4.5 + (tx * 3 + ty * 5)) % 6;
-        const lavaImg = this._lavaFrames[(lFrame + 6) % 6];
-        if (lavaImg) ctx.drawImage(lavaImg, px, py);
 
-        // Deep sunken wall cast shadow along cliff interior so molten pool sits visibly below ground level
+        // Clip interior molten pool & draw synchronized seamless magma (1px interior overlap = ZERO seam!)
+        ctx.save();
+        traceCraterPath(ix, iy, iw + (lE ? 1 : 0), ih + (lS ? 1 : 0), rTL, rTR, rBR, rBL);
+        ctx.clip();
+
+        const lFrame = Math.floor(this.time * 2.8) % 8;
+        const atlas = this._lavaAtlasV2[(lFrame + 8) % 8];
+        const srcX = (((tx % 4) + 4) % 4) * TILE_SIZE;
+        const srcY = (((ty % 4) + 4) % 4) * TILE_SIZE;
+        ctx.drawImage(atlas, srcX, srcY, TILE_SIZE, TILE_SIZE, px, py, TILE_SIZE + (lE ? 1 : 0), TILE_SIZE + (lS ? 1 : 0));
+
+        // Sunken depth shadow along top/left lip + warm orange heat glow along bottom/right lip
         if (!lN) {
-          ctx.fillStyle = 'rgba(16, 4, 2, 0.54)';
-          ctx.fillRect(ix, iy, iw, 5);
+          const gN = ctx.createLinearGradient(0, iy, 0, iy + 9);
+          gN.addColorStop(0, 'rgba(14, 4, 4, 0.72)');
+          gN.addColorStop(1, 'rgba(14, 4, 4, 0)');
+          ctx.fillStyle = gN;
+          ctx.fillRect(ix, iy, iw, 9);
         }
         if (!lW) {
-          ctx.fillStyle = 'rgba(16, 4, 2, 0.40)';
-          ctx.fillRect(ix, iy, 4, ih);
-        }
-        if (!lE) {
-          ctx.fillStyle = 'rgba(24, 6, 3, 0.30)';
-          ctx.fillRect(ix + iw - 3, iy, 3, ih);
+          const gW = ctx.createLinearGradient(ix, 0, ix + 6, 0);
+          gW.addColorStop(0, 'rgba(14, 4, 4, 0.50)');
+          gW.addColorStop(1, 'rgba(14, 4, 4, 0)');
+          ctx.fillStyle = gW;
+          ctx.fillRect(ix, iy, 6, ih);
         }
         if (!lS) {
-          ctx.fillStyle = 'rgba(255, 145, 45, 0.28)';
+          ctx.fillStyle = 'rgba(255, 168, 46, 0.34)';
           ctx.fillRect(ix, iy + ih - 3, iw, 3);
         }
 
-        // Rising sparks
-        const emSeed = ((tx * 73 + ty * 139) % 11);
-        for (let k = 0; k < 2; k++) {
-          const ph = (this.time * (0.55 + k * 0.22) + (emSeed + k * 3) * 0.19) % 1;
-          const ex = ix + 4 + (((tx * 17 + k * 23 + Math.floor(this.time * 0.4)) % Math.max(8, iw - 10)));
-          const ey = iy + ih - 4 - ph * Math.max(8, ih - 8);
-          ctx.fillStyle = ph < 0.45 ? '#fff59d' : '#ffab40';
-          ctx.globalAlpha = 1 - ph * 0.65;
-          ctx.fillRect(Math.round(ex), Math.round(ey), 2, 2);
+        // Gentle pulsing lava bubble & tiny rising ember sparks
+        const emSeed = ((tx * 73 + ty * 139) % 13);
+        const bubT = (this.time * 0.65 + emSeed * 0.27) % 1;
+        if (bubT < 0.55) {
+          const bx = ix + 6 + ((emSeed * 19) % Math.max(8, iw - 12));
+          const by = iy + 6 + ((emSeed * 29) % Math.max(8, ih - 12));
+          const br = 2 + bubT * 5.5;
+          ctx.strokeStyle = `rgba(255, 240, 150, ${(0.75 - bubT * 1.2).toFixed(2)})`;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.stroke();
         }
+        const ph = (this.time * 0.52 + emSeed * 0.19) % 1;
+        const ex = ix + 6 + ((tx * 17 + ty * 11) % Math.max(8, iw - 12));
+        const ey = iy + ih - 4 - ph * Math.max(8, ih - 8);
+        ctx.fillStyle = ph < 0.45 ? '#fff59d' : '#ff9800';
+        ctx.globalAlpha = 1 - ph * 0.72;
+        ctx.fillRect(Math.round(ex), Math.round(ey), 2, 2);
         ctx.globalAlpha = 1;
         ctx.restore();
 
-        // Sculpted undulating basalt rock wall ledges (organic rim, no straight square outer border)
+        // 4. Organic rounded volcanic basalt rim boulders hugging exterior edges (crisp dark charcoal stone, warm lava bounce!)
+        const seed = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
+        const drawRimStone = (cx, cy, rxS, ryS, glowBot) => {
+          ctx.fillStyle = '#150d11';
+          ctx.beginPath(); ctx.ellipse(cx, cy, rxS + 1.4, ryS + 1.4, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#33252c';
+          ctx.beginPath(); ctx.ellipse(cx, cy, rxS, ryS, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#4c3a44';
+          ctx.beginPath(); ctx.ellipse(cx - rxS * 0.22, cy - ryS * 0.26, rxS * 0.52, ryS * 0.44, 0, 0, Math.PI * 2); ctx.fill();
+          if (glowBot) {
+            ctx.fillStyle = 'rgba(255, 118, 36, 0.42)';
+            ctx.beginPath(); ctx.ellipse(cx, cy + ryS * 0.55, rxS * 0.65, Math.max(1.2, ryS * 0.28), 0, 0, Math.PI * 2); ctx.fill();
+          }
+        };
         if (!lN) {
-          const xStart = lW ? 0 : 9;
-          const xEnd = lE ? TILE_SIZE : TILE_SIZE - 9;
-          for (let ox = xStart; ox < xEnd; ox += 8) {
-            const wSeg = Math.min(8, xEnd - ox);
-            const idx = ox >> 3;
-            const outY = 1 + ((seed >> (idx % 6)) & 3); // 1..4px outer jagged basalt silhouette
-            const overhang = 3 + ((seed >> ((idx + 2) % 6)) & 3); // 3..6px inward wall drop
-            ctx.fillStyle = '#472d28';
-            ctx.fillRect(px + ox, py + outY, wSeg, 2);
-            ctx.fillStyle = '#331c1b';
-            ctx.fillRect(px + ox, py + outY + 2, wSeg, 4);
-            ctx.fillStyle = '#211013';
-            ctx.fillRect(px + ox, py + outY + 6, wSeg, 3 + overhang);
-            ctx.fillStyle = '#12080a';
-            ctx.fillRect(px + ox + 1, py + outY + 8 + overhang, Math.max(2, wSeg - 2), 2);
-            if (((seed + ox) & 7) < 4) {
-              ctx.fillStyle = 'rgba(255, 114, 52, 0.36)';
-              ctx.fillRect(px + ox + 1, py + outY + 6 + overhang, Math.max(2, wSeg - 2), 2);
-            }
-          }
-        }
-        if (!lW) {
-          const yStart = lN ? 0 : 9;
-          const yEnd = lS ? TILE_SIZE : TILE_SIZE - 8;
-          for (let oy = yStart; oy < yEnd; oy += 8) {
-            const hSeg = Math.min(8, yEnd - oy);
-            const idx = oy >> 3;
-            const outX = 1 + ((seed >> ((idx + 1) % 6)) & 2);
-            const jw = 2 + ((seed >> ((idx + 4) % 7)) & 3);
-            ctx.fillStyle = '#422925';
-            ctx.fillRect(px + outX, py + oy, 2, hSeg);
-            ctx.fillStyle = '#2e1a19';
-            ctx.fillRect(px + outX + 2, py + oy, 3, hSeg);
-            ctx.fillStyle = '#1c0e11';
-            ctx.fillRect(px + outX + 5, py + oy, jw, hSeg);
-          }
-        }
-        if (!lE) {
-          const yStart = lN ? 0 : 9;
-          const yEnd = lS ? TILE_SIZE : TILE_SIZE - 8;
-          for (let oy = yStart; oy < yEnd; oy += 8) {
-            const hSeg = Math.min(8, yEnd - oy);
-            const idx = oy >> 3;
-            const outX = 1 + ((seed >> ((idx + 3) % 6)) & 2);
-            const jw = 2 + ((seed >> ((idx + 5) % 7)) & 3);
-            ctx.fillStyle = '#422925';
-            ctx.fillRect(px + TILE_SIZE - outX - 2, py + oy, 2, hSeg);
-            ctx.fillStyle = '#2e1a19';
-            ctx.fillRect(px + TILE_SIZE - outX - 5, py + oy, 3, hSeg);
-            ctx.fillStyle = '#1c0e11';
-            ctx.fillRect(px + TILE_SIZE - outX - 5 - jw, py + oy, jw, hSeg);
+          for (let ox = (lW ? 6 : 14); ox <= (lE ? TILE_SIZE - 6 : TILE_SIZE - 14); ox += 12) {
+            const j = ((seed >> (ox & 7)) & 3) - 1;
+            drawRimStone(px + ox, py + 7 + j * 0.6, 6.2, 4.2, true);
           }
         }
         if (!lS) {
-          const xStart = lW ? 0 : 9;
-          const xEnd = lE ? TILE_SIZE : TILE_SIZE - 9;
-          for (let ox = xStart; ox < xEnd; ox += 8) {
-            const wSeg = Math.min(8, xEnd - ox);
-            const idx = ox >> 3;
-            const outBot = 1 + ((seed >> ((idx + 2) % 6)) & 2);
-            const jh = 2 + ((seed >> ((idx + 5) % 7)) & 3);
-            ctx.fillStyle = '#2e1a1b';
-            ctx.fillRect(px + ox, py + TILE_SIZE - outBot - 3, wSeg, 3);
-            ctx.fillStyle = '#4e332d';
-            ctx.fillRect(px + ox, py + TILE_SIZE - outBot - 5, wSeg, 2);
-            ctx.fillStyle = '#3d2522';
-            ctx.fillRect(px + ox + 1, py + TILE_SIZE - outBot - 5 - jh, Math.max(2, wSeg - 2), jh + 1);
+          for (let ox = (lW ? 6 : 14); ox <= (lE ? TILE_SIZE - 6 : TILE_SIZE - 14); ox += 12) {
+            const j = ((seed >> ((ox + 3) & 7)) & 3) - 1;
+            drawRimStone(px + ox, py + TILE_SIZE - 6 + j * 0.5, 6.0, 3.8, false);
           }
         }
-        // Rounded basalt corner boulders smoothing outer crater corners
-        const drawCornerRock = (cx, cy, dw, dh) => {
-          ctx.fillStyle = '#38211f';
-          ctx.fillRect(cx, cy, dw, dh);
-          ctx.fillStyle = '#1f1012';
-          ctx.fillRect(cx + 2, cy + 2, Math.max(2, dw - 4), Math.max(2, dh - 4));
-        };
-        if (!lN && !lW) drawCornerRock(px + 5, py + 9, 6, 6);
-        if (!lN && !lE) drawCornerRock(px + TILE_SIZE - 11, py + 9, 6, 6);
-        if (!lS && !lW) drawCornerRock(px + 5, py + TILE_SIZE - 9, 6, 5);
-        if (!lS && !lE) drawCornerRock(px + TILE_SIZE - 11, py + TILE_SIZE - 9, 6, 5);
-
-        // Inner diagonal basalt corner pillars when lava wraps an L-bend
-        if (lN && lW && !isLava(tx - 1, ty - 1)) drawCornerRock(px, py, 8, 12);
-        if (lN && lE && !isLava(tx + 1, ty - 1)) drawCornerRock(px + TILE_SIZE - 8, py, 8, 12);
+        if (!lW) {
+          for (let oy = (lN ? 6 : 16); oy <= (lS ? TILE_SIZE - 6 : TILE_SIZE - 14); oy += 12) {
+            const j = ((seed >> ((oy + 1) & 7)) & 3) - 1;
+            drawRimStone(px + 6 + j * 0.5, py + oy, 4.2, 5.8, false);
+          }
+        }
+        if (!lE) {
+          for (let oy = (lN ? 6 : 16); oy <= (lS ? TILE_SIZE - 6 : TILE_SIZE - 14); oy += 12) {
+            const j = ((seed >> ((oy + 5) & 7)) & 3) - 1;
+            drawRimStone(px + TILE_SIZE - 6 + j * 0.5, py + oy, 4.2, 5.8, false);
+          }
+        }
+        if (!lN && !lW) drawRimStone(px + 9, py + 10, 6.4, 5.2, true);
+        if (!lN && !lE) drawRimStone(px + TILE_SIZE - 9, py + 10, 6.4, 5.2, true);
+        if (!lS && !lW) drawRimStone(px + 9, py + TILE_SIZE - 8, 6.0, 4.6, false);
+        if (!lS && !lE) drawRimStone(px + TILE_SIZE - 9, py + TILE_SIZE - 8, 6.0, 4.6, false);
+        if (lN && lW && !isLava(tx - 1, ty - 1)) drawRimStone(px + 4, py + 5, 5.4, 5.2, true);
+        if (lN && lE && !isLava(tx + 1, ty - 1)) drawRimStone(px + TILE_SIZE - 4, py + 5, 5.4, 5.2, true);
       };
 
       const drawBiomeTransitionEdge = (tx, ty, px, py, biome) => {
@@ -8368,75 +9000,52 @@
           ? this.world.getVisualBiomeAtTile(nx, ny)
           : this.world.plotBiomes[Math.floor(ny / PLOT_TILES)][Math.floor(nx / PLOT_TILES)];
 
+        // Smooth C0-continuous feathered blend across unlocked land seams (NO hard line, NO jagged vertical drips)
+        // Because tiles render top-to-bottom, left-to-right, blending cleanly against Up and Left neighbors
+        // guarantees both sides meet at an exact 50/50 transition with zero double-overlap.
         const nUp = isLandTile(tx, ty - 1) ? getVB(tx, ty - 1) : biome;
-        const nDn = isLandTile(tx, ty + 1) ? getVB(tx, ty + 1) : biome;
         const nLt = isLandTile(tx - 1, ty) ? getVB(tx - 1, ty) : biome;
-        const nRt = isLandTile(tx + 1, ty) ? getVB(tx + 1, ty) : biome;
-        if (nUp === biome && nDn === biome && nLt === biome && nRt === biome) return;
+        if (nUp === biome && nLt === biome) return;
 
-        const myPrio = BIOME_LAYER_PRIO[biome] || 1;
-        const stampSeamlessOverlap = (nBiome, side) => {
-          // One-way precedence prevents double-sided fighting box outlines across seams
-          const theirPrio = BIOME_LAYER_PRIO[nBiome] || 1;
-          if (theirPrio <= myPrio) return;
-          const pat = getBiomePattern(nBiome);
-          const bColor = BIOMES[nBiome]?.color || '#63ab3f';
-          const bAccent = BIOMES[nBiome]?.accent || bColor;
-          const seed = ((tx * 73856093) ^ (ty * 19349663) ^ (side.charCodeAt(0) * 83492791)) >>> 0;
-
-          ctx.save();
-          ctx.fillStyle = pat || bColor;
-          // Stepped crisp pixel-art turf/sand/snow lobes creeping gently across neighbor seam
-          for (let i = 0; i < 6; i++) {
-            const h = (seed >> (i * 4)) & 15;
-            const reach = 6 + (h % 5) * 3;
-            const span = 8;
-            const pos = i * 8;
-            ctx.globalAlpha = 0.92;
-            const snap = (v) => Math.round(v / 3) * 3;
-            const r1 = snap(reach);
-            const r2 = Math.max(3, r1 - 3);
-            if (side === 'L') {
-              ctx.fillRect(px, py + pos, r2, span);
-              ctx.fillRect(px + r2, py + pos + 2, r1 - r2, Math.max(4, span - 4));
-            } else if (side === 'R') {
-              ctx.fillRect(px + TILE_SIZE - r2, py + pos, r2, span);
-              ctx.fillRect(px + TILE_SIZE - r1, py + pos + 2, r1 - r2, Math.max(4, span - 4));
-            } else if (side === 'T') {
-              ctx.fillRect(px + pos, py, span, r2);
-              ctx.fillRect(px + pos + 2, py + r2, Math.max(4, span - 4), r1 - r2);
-            } else {
-              ctx.fillRect(px + pos, py + TILE_SIZE - r2, span, r2);
-              ctx.fillRect(px + pos + 2, py + TILE_SIZE - r1, Math.max(4, span - 4), r1 - r2);
-            }
-
-            // Scattered 3x3 pixel-art transition specks past lobe tip
-            if (h > 4) {
-              ctx.globalAlpha = 0.70;
-              const d = r1 + 3 + (h % 3) * 3;
-              if (side === 'L') ctx.fillRect(px + d, py + pos + 3, 3, 3);
-              else if (side === 'R') ctx.fillRect(px + TILE_SIZE - d - 3, py + pos + 3, 3, 3);
-              else if (side === 'T') ctx.fillRect(px + pos + 3, py + d, 3, 3);
-              else ctx.fillRect(px + pos + 3, py + TILE_SIZE - d - 3, 3, 3);
-            }
-            if ((h & 3) === 3) {
-              ctx.globalAlpha = 0.50;
-              ctx.fillStyle = bAccent;
-              const d2 = r1 + 6;
-              if (side === 'L') ctx.fillRect(px + d2, py + pos + 4, 2, 2);
-              else if (side === 'R') ctx.fillRect(px + TILE_SIZE - d2 - 2, py + pos + 4, 2, 2);
-              else if (side === 'T') ctx.fillRect(px + pos + 4, py + d2, 2, 2);
-              else ctx.fillRect(px + pos + 4, py + TILE_SIZE - d2 - 2, 2, 2);
-              ctx.fillStyle = pat || bColor;
-            }
-          }
-          ctx.restore();
+        const FEATHER = 12;
+        const hexToRgba = (hex, a) => {
+          const s = (hex || '#63ab3f').replace('#', '');
+          const n = parseInt(s.length === 3 ? s.split('').map(c => c + c).join('') : s, 16) || 0x63ab3f;
+          return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
         };
+        const myCol = (BIOMES[biome] && BIOMES[biome].color) || '#63ab3f';
 
-        if (nLt !== biome) stampSeamlessOverlap(nLt, 'L');
-        if (nRt !== biome) stampSeamlessOverlap(nRt, 'R');
-        if (nUp !== biome) stampSeamlessOverlap(nUp, 'T');
-        if (nDn !== biome) stampSeamlessOverlap(nDn, 'B');
+        if (nUp !== biome) {
+          const upCol = (BIOMES[nUp] && BIOMES[nUp].color) || '#63ab3f';
+          // Top half (on nUp tile): fade biome in from 0 -> 0.50 at y=py
+          const gTop = ctx.createLinearGradient(0, py - FEATHER, 0, py);
+          gTop.addColorStop(0, hexToRgba(myCol, 0));
+          gTop.addColorStop(1, hexToRgba(myCol, 0.50));
+          ctx.fillStyle = gTop;
+          ctx.fillRect(px, py - FEATHER, TILE_SIZE, FEATHER);
+          // Bottom half (on current tile): fade nUp out from 0.50 -> 0 at y=py+FEATHER
+          const gBot = ctx.createLinearGradient(0, py, 0, py + FEATHER);
+          gBot.addColorStop(0, hexToRgba(upCol, 0.50));
+          gBot.addColorStop(1, hexToRgba(upCol, 0));
+          ctx.fillStyle = gBot;
+          ctx.fillRect(px, py, TILE_SIZE, FEATHER);
+        }
+
+        if (nLt !== biome) {
+          const ltCol = (BIOMES[nLt] && BIOMES[nLt].color) || '#63ab3f';
+          // Left half (on nLt tile): fade biome in from 0 -> 0.50 at x=px
+          const gLeft = ctx.createLinearGradient(px - FEATHER, 0, px, 0);
+          gLeft.addColorStop(0, hexToRgba(myCol, 0));
+          gLeft.addColorStop(1, hexToRgba(myCol, 0.50));
+          ctx.fillStyle = gLeft;
+          ctx.fillRect(px - FEATHER, py, FEATHER, TILE_SIZE);
+          // Right half (on current tile): fade nLt out from 0.50 -> 0 at x=px+FEATHER
+          const gRight = ctx.createLinearGradient(px, 0, px + FEATHER, 0);
+          gRight.addColorStop(0, hexToRgba(ltCol, 0.50));
+          gRight.addColorStop(1, hexToRgba(ltCol, 0));
+          ctx.fillStyle = gRight;
+          ctx.fillRect(px, py, FEATHER, TILE_SIZE);
+        }
       };
 
       const drawLandTile = (tx, ty) => {
@@ -8453,8 +9062,31 @@
         if (tile === 0) return;
 
         if (tile === 3) {
-          if (bridgeImg) {
-            ctx.drawImage(bridgeImg, 64, 0, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+          const exB = Abyssea.Assets.extraImages || {};
+          const isBridgeAt = (nx, ny) => Boolean(this.world.tiles[ny] && this.world.tiles[ny][nx] === 3);
+          const bL = isBridgeAt(tx - 1, ty), bR = isBridgeAt(tx + 1, ty);
+          const bT = isBridgeAt(tx, ty - 1), bB = isBridgeAt(tx, ty + 1);
+          const isConn = (nx, ny) => {
+            const nt = this.world.tiles[ny] && this.world.tiles[ny][nx];
+            return nt === 1 || nt === 2 || nt === 3;
+          };
+          const horizConn = bL || bR || (isConn(tx - 1, ty) || isConn(tx + 1, ty));
+          const vertConn = bT || bB || (isConn(tx, ty - 1) || isConn(tx, ty + 1));
+          const useV = (bT || bB || (vertConn && !horizConn)) && !(bL || bR);
+          let bSprite = null;
+          if (useV) {
+            if (bT && bB) bSprite = exB.bridge_v_mid || assets.get('bridge_v_mid');
+            else if (bB && !bT) bSprite = exB.bridge_v_t || assets.get('bridge_v_t');
+            else if (bT && !bB) bSprite = exB.bridge_v_b || assets.get('bridge_v_b');
+            else bSprite = exB.bridge_v || assets.get('bridge_v');
+          } else {
+            if (bL && bR) bSprite = exB.bridge_h_mid || assets.get('bridge_h_mid');
+            else if (bR && !bL) bSprite = exB.bridge_h_l || assets.get('bridge_h_l');
+            else if (bL && !bR) bSprite = exB.bridge_h_r || assets.get('bridge_h_r');
+            else bSprite = exB.Bridge_Tile || exB.bridge_h || assets.get('bridge');
+          }
+          if (bSprite && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(bSprite))) {
+            ctx.drawImage(bSprite, 0, 0, bSprite.width, bSprite.height, px - 0.5, py - 1, TILE_SIZE + 1, TILE_SIZE + 2);
           } else {
             ctx.fillStyle = '#a47148';
             ctx.fillRect(px, py + 4, TILE_SIZE, TILE_SIZE - 8);
@@ -8471,21 +9103,19 @@
         const belowTile = belowUnlocked && this.world.tiles[ty + 1] ? this.world.tiles[ty + 1][tx] : 0;
 
         if (belowTile === 0) {
-          const skirtH = 10 + elev * 3;
-          const cPal = cliffPal[biome] || cliffPal.pradera;
-          ctx.fillStyle = cPal.shadow;
-          ctx.fillRect(px + 2, py + TILE_SIZE + skirtH - 2, TILE_SIZE - 2, 7);
-          ctx.fillStyle = cPal.mid;
-          ctx.fillRect(px, py + TILE_SIZE - 2, TILE_SIZE, skirtH);
-          ctx.fillStyle = cPal.top;
-          ctx.fillRect(px, py + TILE_SIZE - 2, TILE_SIZE, Math.max(4, Math.floor(skirtH * 0.5)));
+          ctx.fillStyle = 'rgba(8, 28, 46, 0.16)';
+          ctx.fillRect(px + 2, py + TILE_SIZE - 1, TILE_SIZE - 4, 4);
         }
 
         if (foamImg && this.world.tiles[ty + 1] && this.world.tiles[ty + 1][tx] === 0) {
-          ctx.drawImage(foamImg, foamFrame * 192 + 56, 72, 80, 64, px - 4, py + 8 + elev * 2, TILE_SIZE + 8, TILE_SIZE + 4);
+          if (isV15Foam) {
+            ctx.drawImage(foamImg, foamFrame * 128, 12, 128, 108, px - 2, py + TILE_SIZE - 5 + elev * 2, TILE_SIZE + 4, 25);
+          } else {
+            ctx.drawImage(foamImg, foamFrame * 192 + 56, 72, 80, 64, px - 4, py + 8 + elev * 2, TILE_SIZE + 8, TILE_SIZE + 4);
+          }
         }
 
-        const bSheet = Balaclava.Assets.biomeTiles[biome];
+        const bSheet = Abyssea.Assets.biomeTiles[biome];
         const up = this.isSameLand(tx, ty - 1, gx, gy);
         const dn = this.isSameLand(tx, ty + 1, gx, gy);
         const lt = this.isSameLand(tx - 1, ty, gx, gy);
@@ -8494,16 +9124,37 @@
         const sy = !up ? 0 : !dn ? 128 : 64;
 
         if (bSheet) {
-          if (!lt && !rt) {
-            // Both left and right open: render left edge and right edge composited
-            ctx.drawImage(bSheet, 0, sy, 32, 64, px, py, TILE_SIZE / 2, TILE_SIZE);
-            ctx.drawImage(bSheet, 160, sy, 32, 64, px + TILE_SIZE / 2, py, TILE_SIZE / 2, TILE_SIZE);
+          const bts = Math.round((bSheet.naturalWidth || bSheet.width || 192) / 3);
+          const halfBts = bts >> 1;
+          const bRightHalf = bts * 2 + halfBts;
+          const bsx = !lt ? 0 : !rt ? bts * 2 : bts;
+          const bsy = !up ? 0 : !dn ? bts * 2 : bts;
+          const ox = lt ? -0.75 : 0;
+          const oy = up ? -0.75 : 0;
+          const ow = TILE_SIZE + (lt ? 0.75 : 0) + (rt ? 0.75 : 0);
+          const oh = TILE_SIZE + (up ? 0.75 : 0) + (dn ? 0.75 : 0);
+          if (!lt && !rt && !up && !dn) {
+            const h2 = TILE_SIZE / 2;
+            ctx.drawImage(bSheet, 0, 0, halfBts, halfBts, px, py, h2 + 0.5, h2 + 0.5);
+            ctx.drawImage(bSheet, bRightHalf, 0, halfBts, halfBts, px + h2 - 0.5, py, h2 + 0.5, h2 + 0.5);
+            ctx.drawImage(bSheet, 0, bRightHalf, halfBts, halfBts, px, py + h2 - 0.5, h2 + 0.5, h2 + 0.5);
+            ctx.drawImage(bSheet, bRightHalf, bRightHalf, halfBts, halfBts, px + h2 - 0.5, py + h2 - 0.5, h2 + 0.5, h2 + 0.5);
+          } else if (!lt && !rt) {
+            ctx.drawImage(bSheet, 0, bsy, halfBts, bts, px, py + oy, TILE_SIZE / 2 + 0.5, oh);
+            ctx.drawImage(bSheet, bRightHalf, bsy, halfBts, bts, px + TILE_SIZE / 2 - 0.5, py + oy, TILE_SIZE / 2 + 0.5, oh);
           } else if (!up && !dn) {
-            // Both top and bottom open: render top edge and bottom edge composited
-            ctx.drawImage(bSheet, sx, 0, 64, 32, px, py, TILE_SIZE, TILE_SIZE / 2);
-            ctx.drawImage(bSheet, sx, 160, 64, 32, px, py + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE / 2);
+            ctx.drawImage(bSheet, bsx, 0, bts, halfBts, px + ox, py, ow, TILE_SIZE / 2 + 0.5);
+            ctx.drawImage(bSheet, bsx, bRightHalf, bts, halfBts, px + ox, py + TILE_SIZE / 2 - 0.5, ow, TILE_SIZE / 2 + 0.5);
           } else {
-            ctx.drawImage(bSheet, sx, sy, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+            let vsx = bsx, vsy = bsy;
+            if (bsx === bts && bsy === bts && (bSheet.naturalHeight || bSheet.height) >= bts * 4) {
+              const hv = (((tx * 73856093) ^ (ty * 19349663) ^ ((tx + ty) * 83492791)) >>> 0) % 12;
+              if (hv < 9) { vsx = 0; vsy = bts * 3; }
+              else if (hv === 9) { vsx = bts; vsy = bts; }
+              else if (hv === 10) { vsx = bts; vsy = bts * 3; }
+              else { vsx = bts * 2; vsy = bts * 3; }
+            }
+            ctx.drawImage(bSheet, vsx, vsy, bts, bts, px + ox, py + oy, ow, oh);
           }
         } else {
           ctx.fillStyle = BIOMES[biome].color;
@@ -8518,13 +9169,13 @@
         }
 
         if (tile === 2) {
-          const cropHere = this.world.crops.find(c => c.tx === tx && c.ty === ty);
+          const cropHere = frameCropMap ? frameCropMap.get((tx & 0xfff) | ((ty & 0xfff) << 12)) : null;
           const preFert = this.world.fertilizedTiles && this.world.fertilizedTiles[`${tx},${ty}`];
           const moist = Boolean((cropHere && cropHere.watered) || preFert);
-          const extraImgs = Balaclava.Assets.extraImages || {};
+          const extraImgs = Abyssea.Assets.extraImages || {};
           const soilImg = moist ? (extraImgs.tilled_soil_wet || extraImgs.tilled_soil) : extraImgs.tilled_soil;
-          if (soilImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(soilImg))) {
-            ctx.drawImage(soilImg, px + 1, py + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+          if (soilImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(soilImg))) {
+            ctx.drawImage(soilImg, px, py, TILE_SIZE, TILE_SIZE);
           } else {
             ctx.fillStyle = moist ? '#3e2723' : '#6d4c41';
             ctx.fillRect(px + 3, py + 3, TILE_SIZE - 6, TILE_SIZE - 6);
@@ -8544,6 +9195,21 @@
           }
         }
       };
+
+      // Build O(1) visible-crop lookup map once per frame (eliminates O(tiles * crops) .find() inside drawLandTile)
+      if (!this._frameCropMap) this._frameCropMap = new Map();
+      const frameCropMap = this._frameCropMap;
+      frameCropMap.clear();
+      const visMinPx = this.camera.x - halfW - TILE_SIZE * 3;
+      const visMaxPx = this.camera.x + halfW + TILE_SIZE * 3;
+      const visMinPy = this.camera.y - halfH - TILE_SIZE * 3;
+      const visMaxPy = this.camera.y + halfH + TILE_SIZE * 3;
+      for (let ci = 0; ci < this.world.crops.length; ci++) {
+        const c = this.world.crops[ci];
+        if (c.tx >= minTx - 1 && c.tx <= maxTx + 1 && c.ty >= minTy - 1 && c.ty <= maxTy + 1) {
+          frameCropMap.set((c.tx & 0xfff) | ((c.ty & 0xfff) << 12), c);
+        }
+      }
 
       for (let ty = minTy; ty <= maxTy; ty++) {
         for (let tx = minTx; tx <= maxTx; tx++) {
@@ -8587,24 +9253,28 @@
       // Ambient deterministic biome vegetation across unlocked grass/land tiles
       this.renderFloraLayer(ctx, vw, vh);
 
-      // Draw walkable floors (e.g., cobblestone roads) underneath entities & crops
-      for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+      // Draw walkable floors (e.g., cobblestone roads) underneath entities & crops — frustum-culled
+      for (let bi = 0; bi < this.buildings.length; bi++) {
+        const b = this.buildings[bi];
+        const def = Abyssea.BUILDINGS[b.type];
         if (!def || !def.walkableFloor) continue;
         const px = b.tx * TILE_SIZE;
         const py = b.ty * TILE_SIZE;
         const w = (def.size || 1) * TILE_SIZE;
-        const floorImg = (Balaclava.Assets.extraImages && Balaclava.Assets.extraImages[def.sprite])
-          || Balaclava.Assets.getBuildingImg(def.sprite);
+        if (px + w < visMinPx || px > visMaxPx || py + w < visMinPy || py > visMaxPy) continue;
+        const floorImg = (Abyssea.Assets.extraImages && Abyssea.Assets.extraImages[def.sprite])
+          || Abyssea.Assets.getBuildingImg(def.sprite);
         if (floorImg) ctx.drawImage(floorImg, px, py, w, w);
         else { ctx.fillStyle = '#78909c'; ctx.fillRect(px, py, w, w); }
       }
 
-      // Draw Crops using Pixel_Gnome_Crops 4-stage artist pixel sprites & extended species!
-      const extraImgs = Balaclava.Assets.extraImages || {};
+      // Draw Crops using Pixel_Gnome_Crops 4-stage artist pixel sprites & extended species — frustum-culled!
+      const extraImgs = Abyssea.Assets.extraImages || {};
       const okC = (img) => img && img.complete && img.naturalWidth > 0;
-      for (const c of this.world.crops) {
-        const def = Balaclava.CROPS[c.cropId];
+      for (let ci = 0; ci < this.world.crops.length; ci++) {
+        const c = this.world.crops[ci];
+        if (c.tx < minTx - 1 || c.tx > maxTx + 1 || c.ty < minTy - 1 || c.ty > maxTy + 1) continue;
+        const def = Abyssea.CROPS[c.cropId];
         const px = c.tx * TILE_SIZE;
         const py = c.ty * TILE_SIZE;
         if (c.watered) {
@@ -8623,13 +9293,11 @@
         }
 
         if (okC(cImg)) {
-          const baseW = c.stage === 3 ? 34 : c.stage === 2 ? 28 : c.stage === 1 ? 24 : 20;
+          const baseW = c.stage === 3 ? (c.cropId === 'maiz' ? 46 : 44) : c.stage === 2 ? 42 : 40;
           const aspect = cImg.height / Math.max(1, cImg.width);
-          const dh = Math.min(48, Math.round(baseW * aspect));
-          const dx = px + (TILE_SIZE - baseW) / 2 + sway;
-          const dy = py + TILE_SIZE - 7 - dh;
-          ctx.fillStyle = 'rgba(20, 12, 6, 0.28)';
-          ctx.beginPath(); ctx.ellipse(px + TILE_SIZE * 0.5, py + TILE_SIZE - 9, baseW * 0.34, 4, 0, 0, Math.PI * 2); ctx.fill();
+          const dh = Math.min(72, Math.round(baseW * aspect));
+          const dx = px + (TILE_SIZE - baseW) / 2 + (c.stage >= 2 ? sway : 0);
+          const dy = py + TILE_SIZE - 4 - dh;
           ctx.drawImage(cImg, dx, dy, baseW, dh);
         } else {
           const h = 6 + c.stage * 7;
@@ -8649,57 +9317,96 @@
       this.renderLockedPlotSigns(ctx);
 
       // Overworld enemy hazard zones (goblin bombs, acid pools, miniboss pillars)
-      if (this.combat && Array.isArray(this.combat.worldHazards) && this.combat.worldHazards.length > 0 && Balaclava.EnemyAttacks && Balaclava.EnemyAttacks.renderHazards) {
-        Balaclava.EnemyAttacks.renderHazards(ctx, this.combat.worldHazards, this.time, '#ff7043');
+      if (this.combat && Array.isArray(this.combat.worldHazards) && this.combat.worldHazards.length > 0 && Abyssea.EnemyAttacks && Abyssea.EnemyAttacks.renderHazards) {
+        Abyssea.EnemyAttacks.renderHazards(ctx, this.combat.worldHazards, this.time, '#ff7043');
       }
 
-      // Collect Y-sorted drawable world objects
-      const drawables = [];
+      // Collect Y-sorted drawable world objects with zero per-frame closure allocations (reused pool)
+      if (!this._drawablePool) this._drawablePool = [];
+      if (!this._drawables) this._drawables = [];
+      const drawPool = this._drawablePool;
+      const drawables = this._drawables;
+      drawables.length = 0;
+      let dCount = 0;
+      const pushDrawable = (y, kind, a, b, c) => {
+        let rec = drawPool[dCount];
+        if (!rec) { rec = { y: 0, kind: 0, a: null, b: null, c: 0 }; drawPool[dCount] = rec; }
+        rec.y = y; rec.kind = kind; rec.a = a; rec.b = b; rec.c = c;
+        drawables[dCount++] = rec;
+      };
 
-      // Buildings (non-floor structures)
-      for (const b of this.buildings) {
-        const def = Balaclava.BUILDINGS[b.type];
+      // Buildings (non-floor structures — frustum-culled)
+      for (let bi = 0; bi < this.buildings.length; bi++) {
+        const b = this.buildings[bi];
+        const def = Abyssea.BUILDINGS[b.type];
         if (!def || def.walkableFloor) continue;
-        const ySort = (b.ty + def.size) * TILE_SIZE;
-        drawables.push({ y: ySort, fn: () => this.drawBuilding(ctx, b, def) });
+        const bx = b.tx * TILE_SIZE;
+        const by = b.ty * TILE_SIZE;
+        const bw = (def.size || 1) * TILE_SIZE;
+        if (bx + bw < visMinPx || bx > visMaxPx || by + bw < visMinPy || by - bw > visMaxPy) continue;
+        pushDrawable((b.ty + def.size) * TILE_SIZE, 1, b, def, 0);
       }
 
-      // Resource nodes
-      for (const n of this.world.nodes) {
+      // Resource nodes (spatial query + Y-sorted by actual visual base)
+      const visNodes = (this.world && typeof this.world.queryNodesInRect === 'function')
+        ? this.world.queryNodesInRect(this.camera.x - halfW, this.camera.y - halfH, this.camera.x + halfW, this.camera.y + halfH)
+        : this.world.nodes;
+      for (let ni = 0; ni < visNodes.length; ni++) {
+        const n = visNodes[ni];
         if (n.x < this.camera.x - halfW || n.x > this.camera.x + halfW || n.y < this.camera.y - halfH || n.y > this.camera.y + halfH) continue;
-        drawables.push({ y: n.y + 12, fn: () => this.drawNode(ctx, n) });
+        const m = this.getNodeMetrics(n);
+        pushDrawable(m.ySort, 2, n, null, 0);
       }
 
-      // Sheep
-      for (const s of this.world.sheep) {
-        drawables.push({ y: s.y + 8, fn: () => this.drawSheep(ctx, s) });
+      // Sheep (frustum-culled so 300+ off-screen animals cost zero draw work)
+      for (let si = 0; si < this.world.sheep.length; si++) {
+        const s = this.world.sheep[si];
+        if (s.x < this.camera.x - halfW || s.x > this.camera.x + halfW || s.y < this.camera.y - halfH || s.y > this.camera.y + halfH) continue;
+        pushDrawable(s.y + 8, 3, s, null, 0);
       }
 
-      // NPCs
-      for (const npc of Balaclava.NPCS) {
+      // NPCs (frustum-culled)
+      for (let i = 0; i < Abyssea.NPCS.length; i++) {
+        const npc = Abyssea.NPCS[i];
         const [ngx, ngy] = this.world.getNpcPlot(npc);
         if (!this.world.isPlotUnlocked(ngx, ngy)) continue;
         const off = this.world.getNpcTileOffset(npc);
         const nx = (ngx * PLOT_TILES + off[0] + 0.5) * TILE_SIZE;
         const ny = (ngy * PLOT_TILES + off[1] + 0.5) * TILE_SIZE;
-        drawables.push({ y: ny + 10, fn: () => this.drawNpc(ctx, npc, nx, ny) });
+        if (nx < visMinPx || nx > visMaxPx || ny < visMinPy || ny > visMaxPy) continue;
+        pushDrawable(ny + 10, 4, npc, nx, ny);
       }
 
-      // Enemies
-      for (const e of this.combat.enemies) {
-        drawables.push({ y: e.y + 10, fn: () => this.drawEnemy(ctx, e) });
+      // Enemies (frustum-culled)
+      for (let ei = 0; ei < this.combat.enemies.length; ei++) {
+        const e = this.combat.enemies[ei];
+        if (e.x < visMinPx || e.x > visMaxPx || e.y < visMinPy || e.y > visMaxPy) continue;
+        pushDrawable(e.y + 10, 5, e, null, 0);
       }
 
       // Player
-      drawables.push({ y: this.player.y + 10, fn: () => this.drawPlayer(ctx) });
+      pushDrawable(this.player.y + 10, 6, null, null, 0);
 
-      // Dropped loot
-      for (const d of this.drops) {
-        drawables.push({ y: d.y + 6, fn: () => this.drawDrop(ctx, d) });
+      // Dropped loot (frustum-culled)
+      for (let di = 0; di < this.drops.length; di++) {
+        const d = this.drops[di];
+        if (d.x < visMinPx || d.x > visMaxPx || d.y < visMinPy || d.y > visMaxPy) continue;
+        pushDrawable(d.y + 6, 7, d, null, 0);
       }
 
       drawables.sort((a, b) => a.y - b.y);
-      for (const item of drawables) item.fn();
+      for (let i = 0; i < dCount; i++) {
+        const item = drawables[i];
+        switch (item.kind) {
+          case 1: this.drawBuilding(ctx, item.a, item.b); break;
+          case 2: this.drawNode(ctx, item.a); break;
+          case 3: this.drawSheep(ctx, item.a); break;
+          case 4: this.drawNpc(ctx, item.a, item.b, item.c); break;
+          case 5: this.drawEnemy(ctx, item.a); break;
+          case 6: this.drawPlayer(ctx); break;
+          case 7: this.drawDrop(ctx, item.a); break;
+        }
+      }
 
       // Multi-phase Fishing line, pixel bobber, ripples & swimming fish
       this.renderFishingWorld(ctx);
@@ -8711,7 +9418,7 @@
     renderFishingWorld(ctx) {
       if (!this.farming || !this.farming.fishing) return;
       const f = this.farming.fishing;
-      const extraImgs = Balaclava.Assets.extraImages || {};
+      const extraImgs = Abyssea.Assets.extraImages || {};
 
       const bx = f.phase === 'cast' ? f.bobX : f.wx;
       const by = f.phase === 'cast' ? f.bobY : f.wy;
@@ -8885,7 +9592,7 @@
 
     renderFishCatchLeaps(ctx) {
       if (!this.fishCatchLeaps || this.fishCatchLeaps.length === 0) return;
-      const extraImgs = Balaclava.Assets.extraImages || {};
+      const extraImgs = Abyssea.Assets.extraImages || {};
       for (const leap of this.fishCatchLeaps) {
         const p = Math.min(1, leap.t / leap.duration);
         const arc = -Math.sin(p * Math.PI) * 54;
@@ -8913,11 +9620,11 @@
       const f = this.farming.fishing;
       if (!f || !this.started) return;
 
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const extraImgs = assets.extraImages || {};
       const okImg = (im) => im && im.complete && im.naturalWidth > 0;
       const tFishId = f.targetFish && f.targetFish.id;
-      const fishItem = tFishId && Balaclava.ITEMS[tFishId];
+      const fishItem = tFishId && Abyssea.ITEMS[tFishId];
       const fishSprite = (tFishId && okImg(extraImgs['fish_' + tFishId]) && extraImgs['fish_' + tFishId])
         || (okImg(extraImgs.fish_rare_shadow) && extraImgs.fish_rare_shadow)
         || (okImg(extraImgs.fish_shadow) && extraImgs.fish_shadow)
@@ -8951,13 +9658,13 @@
       ctx.fillRect(x + boxW - 10, y + boxH - 10, 4, 4);
 
       ctx.textAlign = 'center';
-      ctx.font = '17px BalaclavaPixel, monospace';
+      ctx.font = '17px AbysseaPixel, monospace';
 
       if (f.phase === 'cast' || f.phase === 'wait') {
         ctx.fillStyle = '#ffe5b4';
-        const baitTxt = f.baitId ? ` · Cebo: ${Balaclava.ITEMS[f.baitId].name}` : '';
+        const baitTxt = f.baitId ? ` · Cebo: ${Abyssea.ITEMS[f.baitId].name}` : '';
         ctx.fillText(`Esperando picada...${baitTxt}`, vw / 2, y + 32);
-        ctx.font = '14px BalaclavaPixel, monospace';
+        ctx.font = '14px AbysseaPixel, monospace';
         ctx.fillStyle = '#cfb79f';
         ctx.fillText('No recojas antes de tiempo o perderas el lance', vw / 2, y + 54);
       } else if (f.phase === 'bite') {
@@ -8978,7 +9685,7 @@
         ctx.textAlign = 'left';
         ctx.fillText(`PESCANDO: ${hdrName}`, x + 22, y + 24);
         ctx.textAlign = 'right';
-        ctx.font = '15px BalaclavaPixel, monospace';
+        ctx.font = '15px AbysseaPixel, monospace';
         ctx.fillStyle = '#a5d6a7';
         ctx.fillText(`Aciertos:${f.hitsDone}/${hitsReq}  Fallos:${f.mistakes}/${maxMistakes}`, x + boxW - 22, y + 24);
 
@@ -9033,7 +9740,7 @@
         const isMissFlash = (f.missFlash > 0) || (f.flashTimer > 0 && f.flashColor === 'miss');
         ctx.textAlign = 'center';
         ctx.fillStyle = isMissFlash ? '#ff8a80' : '#b9f6ca';
-        ctx.font = '15px BalaclavaPixel, monospace';
+        ctx.font = '15px AbysseaPixel, monospace';
         ctx.fillText('Pulsa [E] o Click dentro de la ZONA VERDE', vw / 2, y + 86);
       }
 
@@ -9051,14 +9758,18 @@
       const minTy = Math.max(0, Math.floor((this.camera.y - halfH) / TILE_SIZE));
       const maxTy = Math.min(WORLD_TILES - 1, Math.ceil((this.camera.y + halfH) / TILE_SIZE));
 
-      const blocked = new Set();
-      for (const c of this.world.crops) {
+      if (!this._floraBlockedSet) this._floraBlockedSet = new Set();
+      const blocked = this._floraBlockedSet;
+      blocked.clear();
+      for (let ci = 0; ci < this.world.crops.length; ci++) {
+        const c = this.world.crops[ci];
         if (c.tx >= minTx && c.tx <= maxTx && c.ty >= minTy && c.ty <= maxTy) {
           blocked.add((c.tx & 0xfff) | ((c.ty & 0xfff) << 12));
         }
       }
-      for (const b of this.buildings) {
-        const bDef = Balaclava.BUILDINGS[b.type];
+      for (let bi = 0; bi < this.buildings.length; bi++) {
+        const b = this.buildings[bi];
+        const bDef = Abyssea.BUILDINGS[b.type];
         const sz = (bDef && bDef.size) || 1;
         if (b.tx + sz < minTx || b.tx > maxTx || b.ty + sz < minTy || b.ty > maxTy) continue;
         for (let dy = 0; dy < sz; dy++) {
@@ -9067,7 +9778,11 @@
           }
         }
       }
-      for (const n of this.world.nodes) {
+      const floraNodes = (this.world && typeof this.world.queryNodesInRect === 'function')
+        ? this.world.queryNodesInRect(minTx * TILE_SIZE - 48, minTy * TILE_SIZE - 48, (maxTx + 1) * TILE_SIZE + 48, (maxTy + 1) * TILE_SIZE + 48)
+        : this.world.nodes;
+      for (let ni = 0; ni < floraNodes.length; ni++) {
+        const n = floraNodes[ni];
         const ntx = Math.floor(n.x / TILE_SIZE);
         const nty = Math.floor(n.y / TILE_SIZE);
         if (ntx >= minTx && ntx <= maxTx && nty >= minTy && nty <= maxTy) {
@@ -9075,16 +9790,11 @@
         }
       }
 
-      const extraImgs = Balaclava.Assets.extraImages || {};
+      const extraImgs = Abyssea.Assets.extraImages || {};
       const okImg = (im) => im && im.complete && im.naturalWidth > 0;
       const txPlant = extraImgs.flora_tx_plant;
       const hasTxPlant = okImg(txPlant);
-      const flowerPalettes = [
-        ['#fff176', '#ffb74d'],
-        ['#ff80ab', '#f48fb1'],
-        ['#80d8ff', '#b3e5fc'],
-        ['#fff9c4', '#ffffff']
-      ];
+      const flowerPalettes = FLORA_FLOWER_PALETTES;
 
       ctx.save();
       for (let ty = minTy; ty <= maxTy; ty++) {
@@ -9144,39 +9854,60 @@
                 ctx.drawImage(gStamp, wx - grRad, wy - 4 - grRad, grRad * 2, grRad * 2);
               }
               const sz = fl.size;
-              const aspect = im.height / Math.max(1, im.width);
-              const dh = Math.round(sz * aspect);
-              ctx.drawImage(im, wx - sz / 2 + sway * 0.3, wy - dh * 0.85, sz, dh);
+              if (im.width >= im.height * 2.8) {
+                const fw = im.height || 64;
+                const frames = Math.max(1, Math.round(im.width / fw));
+                const fr = Math.floor((this.time * 5.5 + tx * 0.7 + ty) % frames);
+                ctx.drawImage(im, fr * fw, 0, fw, im.height, wx - sz / 2 + sway * 0.3, wy - sz * 0.85, sz, sz);
+              } else {
+                const aspect = im.height / Math.max(1, im.width);
+                const dh = Math.round(sz * aspect);
+                ctx.drawImage(im, wx - sz / 2 + sway * 0.3, wy - dh * 0.85, sz, dh);
+              }
             }
           } else if (fl.kind === 'flowers') {
-            const pal = flowerPalettes[fl.palette % flowerPalettes.length];
-            const offsets = [[-5, -2], [4, 2], [-1, 5], [6, -4]];
-            for (let i = 0; i < fl.count; i++) {
-              const fx = wx + offsets[i][0] + sway * 0.45;
-              const fy = wy + offsets[i][1];
-              ctx.fillStyle = '#33691e';
-              ctx.fillRect(fx, fy - 3, 2, 4);
-              ctx.fillStyle = pal[i % 2];
-              ctx.fillRect(fx - 1.5, fy - 6, 4, 4);
-              ctx.fillStyle = '#fff59d';
-              ctx.fillRect(fx, fy - 5, 1.5, 1.5);
+            const flwImg = extraImgs.flora_jungle_flowers || extraImgs.nat_flower;
+            if (okImg(flwImg)) {
+              const sz = 22 + ((tx + ty) & 3);
+              ctx.drawImage(flwImg, Math.round(wx - sz / 2 + sway * 0.4), Math.round(wy - sz * 0.8), sz, sz);
+            } else {
+              const pal = flowerPalettes[fl.palette % flowerPalettes.length];
+              const offsets = [[-5, -2], [4, 2], [-1, 5], [6, -4]];
+              for (let i = 0; i < fl.count; i++) {
+                const fx = wx + offsets[i][0] + sway * 0.45;
+                const fy = wy + offsets[i][1];
+                ctx.fillStyle = '#33691e'; ctx.fillRect(fx, fy - 3, 2, 4);
+                ctx.fillStyle = pal[i % 2]; ctx.fillRect(fx - 1.5, fy - 6, 4, 4);
+              }
             }
           } else if (fl.kind === 'blade') {
-            ctx.fillStyle = fl.color;
-            ctx.fillRect(wx - 4 + sway * 0.4, wy - 6, 2, 6);
-            ctx.fillRect(wx, wy - 8, 2, 8);
-            ctx.fillRect(wx + 4 + sway * 0.5, wy - 5, 2, 5);
-            ctx.fillStyle = fl.highlight;
-            ctx.fillRect(wx + sway * 0.35, wy - 9, 2, 2);
+            const bladeImg = (biome === 'montanas_heladas' || biome === 'cavernas_cristal' || biome === 'glaciar_profundo')
+              ? extraImgs.flora_frost_tuft
+              : (biome === 'archipielago_coral')
+                ? extraImgs.flora_coral_grass
+                : (biome === 'tierras_volcanicas' || biome === 'caldera_ceniza')
+                  ? extraImgs.flora_volcanic_grass
+                  : (biome === 'bosque_oscuro')
+                    ? extraImgs.flora_shadow_grass
+                    : extraImgs.flora_desert_grass;
+            if (okImg(bladeImg)) {
+              const sz = 20 + ((tx * 3 + ty) & 3);
+              ctx.drawImage(bladeImg, Math.round(wx - sz / 2 + sway * 0.45), Math.round(wy - sz * 0.82), sz, sz);
+            } else {
+              ctx.fillStyle = fl.color;
+              ctx.fillRect(wx - 4 + sway * 0.4, wy - 6, 2, 6);
+              ctx.fillRect(wx, wy - 8, 2, 8);
+              ctx.fillRect(wx + 4 + sway * 0.5, wy - 5, 2, 5);
+            }
           } else if (fl.kind === 'succulent') {
-            ctx.fillStyle = '#2e7d32';
-            ctx.fillRect(wx - 3, wy - 10, 6, 10);
-            ctx.fillRect(wx - 6, wy - 7, 3, 4);
-            ctx.fillRect(wx + 3, wy - 8, 3, 4);
-            ctx.fillStyle = '#66bb6a';
-            ctx.fillRect(wx - 1, wy - 9, 2, 8);
-            ctx.fillStyle = '#ff80ab';
-            ctx.fillRect(wx - 1, wy - 12, 2, 2);
+            const agImg = extraImgs.flora_desert_agave;
+            if (okImg(agImg)) {
+              const sz = 24 + ((tx + ty * 2) & 3);
+              ctx.drawImage(agImg, Math.round(wx - sz / 2), Math.round(wy - sz * 0.8), sz, sz);
+            } else {
+              ctx.fillStyle = '#2e7d52';
+              ctx.fillRect(wx - 6, wy - 5, 12, 5);
+            }
           }
         }
       }
@@ -9194,7 +9925,7 @@
       // Islands can only be purchased inside the World Map modal, not directly in the overworld
       this.plotBuyPlaques = [];
       return;
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const coinImg = (assets && assets.extraImages && assets.extraImages.iconCoin) || this.getOrLoadUiImg('iconCoin', 'assets/ui/coin_gold.png');
       const lockImg = (assets && assets.extraImages && assets.extraImages.iconLock) || this.getOrLoadUiImg('iconLock', 'assets/ui/ico_lock.png');
       const okImg = (im) => im && im.complete && im.naturalWidth > 0;
@@ -9226,7 +9957,7 @@
           const priceStr = `${price}`;
 
           ctx.save();
-          ctx.font = 'bold 18px BalaclavaPixel, monospace';
+          ctx.font = 'bold 18px AbysseaPixel, monospace';
           const tw = ctx.measureText(priceStr).width;
           const bw = Math.max(hovering ? 138 : 116, Math.round(tw + 66));
           const bh = 34;
@@ -9305,7 +10036,7 @@
             tierras_malditas: '#ff1744'
           };
           const bColor = (biomeKey && biomeColors[biomeKey]) || '#ffd54f';
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           const bTextW = ctx.measureText(bLabel).width;
           const tagW = Math.round(bTextW + 16);
           const tagX = Math.round(cx - tagW / 2);
@@ -9359,7 +10090,7 @@
 
           // Draw Price Text
           const textX = coinX + 24;
-          ctx.font = 'bold 18px BalaclavaPixel, monospace';
+          ctx.font = 'bold 18px AbysseaPixel, monospace';
           ctx.textAlign = 'left';
           // Dark outline shadow
           ctx.fillStyle = '#000000';
@@ -9372,7 +10103,7 @@
 
           // 6. Hover Tooltip Pill Beneath
           if (hovering) {
-            ctx.font = '14px BalaclavaPixel, monospace';
+            ctx.font = '14px AbysseaPixel, monospace';
             const hintText = biomeLock.lockedByBiome
               ? `Completa ${biomeLock.blockingBiomeName} (${biomeLock.unlocked}/${biomeLock.total})`
               : (canBuy ? 'Clic para Comprar Parcela' : `Faltan ${price - this.coins} monedas`);
@@ -9400,11 +10131,11 @@
     }
 
     setPlayerSkin(skinId) {
-      const skins = Balaclava.SKINS || [];
+      const skins = Abyssea.SKINS || [];
       const found = skins.find(s => s.id === 'hana') || skins[0] || { id: 'hana', name: 'Hana Caraka', name_en: 'Hana Caraka' };
       if (this.player) this.player.skinId = found.id;
       if (typeof window !== 'undefined' && window.localStorage) {
-        try { window.localStorage.setItem('balaclava_player_skin', found.id); } catch (_) {}
+        try { window.localStorage.setItem('abyssea_player_skin', found.id); } catch (_) {}
       }
       return found;
     }
@@ -9418,7 +10149,7 @@
       const p = this.player;
       if (p.invuln > 0 && !p.deadTimer && Math.floor(this.time * 20) % 2 === 0) return;
 
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       p.skinId = 'hana';
       const CELL = 79;
       const SCALE = 2.5;
@@ -9437,7 +10168,7 @@
 
       const fishingPhase = (this.farming && this.farming.fishing) ? this.farming.fishing.phase : null;
       const swingTierId = (this.toolTiers && this.toolTiers[p.swingTool]) || 'basica';
-      const isSpecialItemSwing = !!(p.swingItemId && Balaclava.ITEMS && Balaclava.ITEMS[p.swingItemId]);
+      const isSpecialItemSwing = !!(p.swingItemId && Abyssea.ITEMS && Abyssea.ITEMS[p.swingItemId]);
 
       let sheetKey = 'hana_idle';
       let prog = 0;
@@ -9641,7 +10372,7 @@
         };
         const slashKey = slashMap[tierId] || 'slashWhite';
         const sImg = assets.extraImages && (assets.extraImages[slashKey] || assets.extraImages.slashWhite);
-        if (sImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(sImg) : sImg.complete && sImg.naturalWidth > 0)) {
+        if (sImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(sImg) : sImg.complete && sImg.naturalWidth > 0)) {
           const fw = sImg.height || 32;
           const totalFrames = Math.max(1, Math.floor(sImg.width / fw));
           const fr = Math.min(totalFrames - 1, Math.floor(sProg * totalFrames));
@@ -9680,8 +10411,376 @@
       }
     }
 
+    getLandmarkFootprint(n) {
+      let base = { w: 84, rx: 28, ry: 20 };
+      const extraImgs = (Abyssea.Assets && Abyssea.Assets.extraImages) || {};
+      let img = null;
+      if (n && n.kind === 'altar_shrine') {
+        const altarTable = {
+          fuente_sagrada:   { w: 132, rx: 48, ry: 32 },
+          altar_sacrificio: { w: 116, rx: 44, ry: 28 },
+          altar_fortuna:    { w: 108, rx: 40, ry: 26 },
+          altar_cazador:    { w: 104, rx: 40, ry: 26 },
+          altar_arcanista:  { w: 102, rx: 38, ry: 25 },
+          altar_furia:      { w: 98,  rx: 38, ry: 24 },
+          altar_sabio:      { w: 88,  rx: 34, ry: 22 }
+        };
+        base = altarTable[n.altarId] || { w: 100, rx: 36, ry: 24 };
+        const aDef = Abyssea.ALTAR_DEFS && Abyssea.ALTAR_DEFS[n.altarId];
+        img = (aDef && extraImgs[aDef.spriteKey]) || extraImgs.altar_shrine;
+      } else if (n && n.kind === 'easter_egg') {
+        const eeTable = {
+          ee_naufragio:      { w: 132, rx: 52, ry: 30 },
+          ee_fuente_mana:    { w: 112, rx: 44, ry: 28 },
+          ee_totem:          { w: 96,  rx: 36, ry: 24 },
+          ee_caldero:        { w: 96,  rx: 36, ry: 24 },
+          ee_arbol:          { w: 94,  rx: 35, ry: 24 },
+          ee_altar_guardian: { w: 94,  rx: 35, ry: 24 },
+          ee_excalibur:      { w: 92,  rx: 34, ry: 22 },
+          ee_monolito:       { w: 92,  rx: 34, ry: 22 },
+          ee_observatorio:   { w: 84,  rx: 30, ry: 21 },
+          ee_crater:         { w: 82,  rx: 30, ry: 20 },
+          ee_forja:          { w: 80,  rx: 28, ry: 20 },
+          ee_obelisco:       { w: 72,  rx: 26, ry: 18 }
+        };
+        base = eeTable[n.eeId] || { w: 88, rx: 32, ry: 22 };
+        const eDef = Abyssea.EASTER_EGG_DEFS && Abyssea.EASTER_EGG_DEFS[n.eeId];
+        img = eDef && extraImgs[eDef.spriteKey];
+      }
+      let dh = base.w;
+      if (img && img.width > 0 && img.height > 0 && img.width < img.height * 2.8) {
+        dh = Math.round(base.w * (img.height / Math.max(1, img.width)));
+      }
+      const botYOff = Math.round(base.ry * 0.55);
+      const isSwordOrObelisk = n && (n.eeId === 'ee_excalibur' || n.eeId === 'ee_obelisco');
+      const solidFrac = isSwordOrObelisk ? 0.64 : 0.74;
+      const solidH = Math.max(34, Math.min(Math.round(dh * solidFrac), 108));
+      const colRx = Math.max(base.rx, Math.round(base.w * 0.47));
+      const colRy = Math.round(solidH * 0.50);
+      const cyOff = Math.round(botYOff - colRy);
+      const hoverW = Math.round(base.w * (n && n.eeId === 'ee_excalibur' ? 0.88 : 0.94));
+      const hoverH = Math.round(dh * 0.94);
+      return { w: base.w, dh, rx: colRx, ry: base.ry, colRx, colRy, cyOff, botYOff, ySortOff: botYOff, hoverW, hoverH };
+    }
+
+    getDungeonGateFootprint(n) {
+      const assets = Abyssea.Assets;
+      const gImg = assets && assets.gateImages && n && assets.gateImages[n.dungeonId];
+      let aspect = 1.05;
+      if (gImg && gImg.width > 0 && gImg.height > 0) {
+        aspect = gImg.width / Math.max(1, gImg.height);
+      }
+      let dw, dh;
+      if (aspect >= 1.25) {
+        dw = 228;
+        dh = Math.max(146, Math.round(dw / aspect));
+      } else if (aspect <= 0.72) {
+        dh = 228;
+        dw = Math.max(132, Math.round(dh * aspect));
+      } else {
+        dh = Math.round(210 / Math.sqrt(aspect));
+        dw = Math.round(dh * aspect);
+      }
+      if (n && n.dungeonId === 'tierras_volcanicas') {
+        dh = Math.max(dh, 224);
+        dw = Math.round(dh * aspect);
+      }
+      const botYOff = 34;
+      const solidBotOff = 31;
+      const solidH = Math.round(dh * 0.78);
+      const colRx = Math.max(58, Math.round(dw * 0.47));
+      const colRy = Math.max(40, Math.round(solidH * 0.50));
+      const cyOff = Math.round(solidBotOff - colRy);
+      return {
+        dw,
+        dh,
+        rx: colRx,
+        ry: colRy,
+        colRx,
+        colRy,
+        cyOff,
+        botYOff,
+        ySortOff: 28,
+        hoverW: Math.round(dw * 0.94),
+        hoverH: Math.round(dh * 0.95)
+      };
+    }
+
+    getNodeMetrics(n) {
+      if (!n) return { solid: false, shape: 'ellipse', colRx: 14, colRy: 10, colCy: 0, ySort: 0, boxX: 0, boxY: 0, hitW: 40, hitH: 40, botY: 0, topY: -40, promptY: -46 };
+      if (n.kind === 'dungeon_gate') {
+        const gm = this.getDungeonGateFootprint(n);
+        const botY = n.y + gm.botYOff;
+        const topY = botY - gm.dh;
+        return {
+          solid: true, shape: 'super',
+          colRx: gm.colRx, colRy: gm.colRy, colCy: n.y + gm.cyOff,
+          ySort: n.y + gm.ySortOff,
+          boxX: n.x, boxY: Math.round((topY + botY) * 0.5),
+          hitW: gm.hoverW, hitH: gm.hoverH,
+          botY, topY, promptY: topY - 16
+        };
+      }
+      if (n.kind === 'altar_shrine' || n.kind === 'easter_egg') {
+        const lm = this.getLandmarkFootprint(n);
+        const botY = n.y + lm.botYOff;
+        const topY = botY - lm.dh;
+        return {
+          solid: true, shape: 'super',
+          colRx: lm.colRx, colRy: lm.colRy, colCy: n.y + lm.cyOff,
+          ySort: n.y + lm.ySortOff,
+          boxX: n.x, boxY: Math.round((topY + botY) * 0.5),
+          hitW: lm.hoverW, hitH: lm.hoverH,
+          botY, topY, promptY: n.kind === 'altar_shrine' ? (topY - 68) : (topY - 20)
+        };
+      }
+      if (n.kind === 'tree' || n.kind === 'giant_tree') {
+        const sc = n.kind === 'giant_tree' ? 1.24 : 1.0;
+        const botY = n.y + Math.round(15 * sc);
+        const hitW = Math.round(86 * sc);
+        const hitH = Math.round(98 * sc);
+        return {
+          solid: true, shape: 'super',
+          colRx: Math.round(18 * sc), colRy: Math.round(11 * sc), colCy: n.y + Math.round(4 * sc),
+          ySort: n.y + Math.round(13 * sc),
+          boxX: n.x, boxY: Math.round(n.y - 38 * sc),
+          hitW, hitH, botY, topY: botY - hitH, promptY: botY - hitH - 14
+        };
+      }
+      if (n.kind === 'chest' || n.kind === 'secret_chest') {
+        const isSec = n.kind === 'secret_chest';
+        return {
+          solid: true, shape: 'super',
+          colRx: isSec ? 30 : 26, colRy: isSec ? 19 : 17, colCy: n.y - 3,
+          ySort: n.y + 16,
+          boxX: n.x, boxY: isSec ? (n.y - 18) : (n.y - 16),
+          hitW: isSec ? 64 : 56, hitH: isSec ? 66 : 58,
+          botY: n.y + 16, topY: isSec ? (n.y - 50) : (n.y - 44),
+          promptY: isSec ? (n.y - 78) : (n.y - 58)
+        };
+      }
+      if (n.kind === 'skeleton_king_shrine') {
+        return {
+          solid: true, shape: 'super',
+          colRx: 46, colRy: 28, colCy: n.y - 8,
+          ySort: n.y + 18,
+          boxX: n.x, boxY: n.y - 32,
+          hitW: 96, hitH: 100, botY: n.y + 20, topY: n.y - 86, promptY: n.y - 122
+        };
+      }
+      if (n.kind === 'puzzle_pillar') {
+        return {
+          solid: true, shape: 'super',
+          colRx: 21, colRy: 14, colCy: n.y,
+          ySort: n.y + 12,
+          boxX: n.x, boxY: n.y - 19,
+          hitW: 46, hitH: 66, botY: n.y + 14, topY: n.y - 52, promptY: n.y - 96
+        };
+      }
+      if (n.kind === 'bone_totem') {
+        return {
+          solid: true, shape: 'super',
+          colRx: 17, colRy: 12, colCy: n.y - 1,
+          ySort: n.y + 8,
+          boxX: n.x, boxY: n.y - 12,
+          hitW: 38, hitH: 42, botY: n.y + 8, topY: n.y - 32, promptY: n.y - 74
+        };
+      }
+      if (n.kind === 'ruin_pillar') {
+        return {
+          solid: true, shape: 'super',
+          colRx: 19, colRy: 13, colCy: n.y + 2,
+          ySort: n.y + 15,
+          boxX: n.x, boxY: n.y - 18,
+          hitW: 42, hitH: 70, botY: n.y + 16, topY: n.y - 56, promptY: n.y - 66
+        };
+      }
+      if (n.kind === 'cactus') {
+        return {
+          solid: true, shape: 'super',
+          colRx: 17, colRy: 12, colCy: n.y + 2,
+          ySort: n.y + 13,
+          boxX: n.x, boxY: n.y - 18,
+          hitW: 54, hitH: 66, botY: n.y + 14, topY: n.y - 52, promptY: n.y - 64
+        };
+      }
+      if (n.kind === 'volcanic_rock' || n.kind === 'meteor') {
+        return {
+          solid: true, shape: 'super',
+          colRx: 23, colRy: 17, colCy: n.y - 2,
+          ySort: n.y + 16,
+          boxX: n.x, boxY: n.y - 4,
+          hitW: 48, hitH: 48, botY: n.y + 18, topY: n.y - 26, promptY: n.y - 38
+        };
+      }
+      if (n.kind === 'bush' || n.kind === 'herb_patch' || n.kind === 'wild_crop_patch') {
+        return {
+          solid: false, shape: 'ellipse',
+          colRx: 14, colRy: 10, colCy: n.y,
+          ySort: n.y + 10,
+          boxX: n.x, boxY: n.y - 8,
+          hitW: 38, hitH: 38, botY: n.y + 12, topY: n.y - 28, promptY: n.y - 38
+        };
+      }
+      if (n.kind === 'mushroom_node') {
+        return {
+          solid: false, shape: 'ellipse',
+          colRx: 14, colRy: 10, colCy: n.y,
+          ySort: n.y + 12,
+          boxX: n.x, boxY: n.y - 6,
+          hitW: 38, hitH: 38, botY: n.y + 12, topY: n.y - 24, promptY: n.y - 36
+        };
+      }
+      if (n.kind === 'dig_spot') {
+        return {
+          solid: false, shape: 'ellipse',
+          colRx: 12, colRy: 10, colCy: n.y,
+          ySort: n.y - 8,
+          boxX: n.x, boxY: n.y + 1,
+          hitW: 32, hitH: 32, botY: n.y + 16, topY: n.y - 14, promptY: n.y - 28
+        };
+      }
+      // Mineral / crystal / ore nodes (match actual sprite aspect ratio drawn inside 50x50 bottom-anchored at n.y + 16)
+      let ndw = 46, ndh = 42;
+      const ex = Abyssea.Assets && Abyssea.Assets.extraImages;
+      if (ex) {
+        const sMap = {
+          rock: 'node_stone', coal_vein: 'node_coal', sulfur_vein: 'node_sulfur', copper_vein: 'node_copper',
+          tin_vein: 'node_tin', iron_vein: 'node_iron', silver_vein: 'node_silver', gold_vein: 'node_gold',
+          platinum_vein: 'node_platinum', jade_vein: 'node_jade', amethyst_vein: 'node_amethyst',
+          bloodstone_vein: 'node_bloodstone', malachite_vein: 'node_malachite', star_sand_vein: 'node_star_sand',
+          amber_vein: 'node_amber', titanium_vein: 'node_titanium', obsidian_vein: 'node_obsidian',
+          magma_core_vein: 'node_magma_core', adamantite_vein: 'node_adamantite', orichalcum_vein: 'node_orichalcum',
+          coral_abisal_node: 'node_coral_abisal', perla_turquesa_node: 'node_perla_turquesa',
+          madera_ferrea_node: 'node_madera_ferrea', resina_toxica_node: 'node_resina_toxica',
+          pirita_solar_node: 'node_pirita_solar', hueso_fosil_node: 'node_hueso_fosil',
+          plata_maldita_node: 'node_plata_maldita', escoria_caldera_node: 'node_escoria_caldera',
+          marmol_oscuro_node: 'node_marmol_oscuro', crystal_node: 'node_amethyst', emerald_vein: 'node_emerald',
+          diamond_vein: 'node_diamond', ice_crystal: 'node_ice_crystal', ruby_node: 'node_ruby',
+          sapphire_node: 'node_sapphire', mithril_vein: 'node_mithril', azurite_vein: 'node_azurite',
+          abyssal_crystal_vein: 'node_abyssal_crystal', agata_roja_node: 'node_agata_roja',
+          cuarzo_boreal_node: 'node_cuarzo_boreal', hielo_eterno_node: 'node_hielo_eterno',
+          cristal_carmesi_node: 'node_cristal_carmesi', bismuto_astral_node: 'node_bismuto_astral',
+          celestita_node: 'node_celestita', jade_ancestral_node: 'node_jade_ancestral', flor_pantano_node: 'node_flor_pantano'
+        };
+        const im = ex[sMap[n.kind]];
+        if (im && im.width > 0 && im.height > 0) {
+          const sc = Math.min(50 / im.width, 50 / im.height);
+          ndw = Math.round(im.width * sc);
+          ndh = Math.round(im.height * sc);
+        }
+      }
+      const botY = n.y + 16;
+      const topY = botY - ndh;
+      const colBot = botY - 1;
+      const colTop = Math.round(botY - ndh * 0.78);
+      return {
+        solid: true, shape: 'super',
+        colRx: Math.max(18, Math.round(ndw * 0.48)),
+        colRy: Math.max(13, Math.round((colBot - colTop) * 0.50)),
+        colCy: Math.round((colTop + colBot) * 0.50),
+        ySort: n.y + 14,
+        boxX: n.x, boxY: Math.round(botY - ndh * 0.5),
+        hitW: ndw + 4, hitH: ndh + 4,
+        botY, topY, promptY: topY - 14
+      };
+    }
+
+    hitsSolidBuildingAt(px, py, curX = null, curY = null, padX = 13, padY = 6) {
+      const fBot = py + 13;
+      const fTop = fBot - padY * 2;
+      for (const b of (this.buildings || [])) {
+        const def = Abyssea.BUILDINGS[b.type];
+        if (!def || def.walkableFloor) continue;
+        const bx0 = b.tx * TILE_SIZE + 1;
+        const by0 = b.ty * TILE_SIZE + 2;
+        const bx1 = (b.tx + (def.size || 1)) * TILE_SIZE - 1;
+        const by1 = (b.ty + (def.size || 1)) * TILE_SIZE - 1;
+        const hitNew = (px + padX > bx0 && px - padX < bx1 && fBot > by0 && fTop < by1);
+        if (!hitNew) continue;
+        if (curX !== null && curY !== null) {
+          const cfBot = curY + 13;
+          const cfTop = cfBot - padY * 2;
+          const hitCur = (curX + padX > bx0 && curX - padX < bx1 && cfBot > by0 && cfTop < by1);
+          if (hitCur) {
+            const cxB = (bx0 + bx1) * 0.5, cyB = (by0 + by1) * 0.5;
+            if (Math.hypot(px - cxB, (py + 7) - cyB) >= Math.hypot(curX - cxB, (curY + 7) - cyB) - 0.01) continue;
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+
+    hitsSolidNodeAt(px, py, curX = null, curY = null, padX = 13, padY = 6) {
+      const feetY = py + 7;
+      const curFeetY = curY !== null ? (curY + 7) : null;
+      const nearby = (this.world && typeof this.world.queryNodesInRect === 'function')
+        ? this.world.queryNodesInRect(px - 200, py - 240, px + 200, py + 200)
+        : ((this.world && this.world.nodes) || []);
+      for (let i = 0; i < nearby.length; i++) {
+        const n = nearby[i];
+        if (!n || n.kind === 'fish_spot') continue;
+        if (Math.abs(n.x - px) > 200 || Math.abs(n.y - py) > 240) continue;
+        const m = this.getNodeMetrics(n);
+        if (!m.solid) continue;
+        const rx = m.colRx + padX;
+        const ry = m.colRy + padY;
+        const pExp = m.shape === 'super' ? 4.5 : 3.2;
+        const eNew = Math.pow(Math.abs(px - n.x) / rx, pExp) + Math.pow(Math.abs(feetY - m.colCy) / ry, pExp);
+        if (eNew < 1.0) {
+          if (curX !== null && curFeetY !== null) {
+            const eCur = Math.pow(Math.abs(curX - n.x) / rx, pExp) + Math.pow(Math.abs(curFeetY - m.colCy) / ry, pExp);
+            if (eCur < 1.0 && eNew >= eCur - 0.004) continue;
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    hitsSolidNpcAt(px, py, curX = null, curY = null, padX = 13, padY = 6) {
+      if (!this.world || !Array.isArray(Abyssea.NPCS)) return false;
+      const feetY = py + 7;
+      const curFeetY = curY !== null ? (curY + 7) : null;
+      for (let i = 0; i < Abyssea.NPCS.length; i++) {
+        const npc = Abyssea.NPCS[i];
+        const [gx, gy] = this.world.getNpcPlot(npc);
+        if (!this.world.isPlotUnlocked(gx, gy)) continue;
+        const off = this.world.getNpcTileOffset(npc);
+        const nx = (gx * PLOT_TILES + off[0] + 0.5) * TILE_SIZE;
+        const ny = (gy * PLOT_TILES + off[1] + 0.5) * TILE_SIZE;
+        if (Math.abs(nx - px) > 48 || Math.abs(ny - py) > 48) continue;
+        const rx = 13 + padX;
+        const ry = 9 + padY;
+        const eNew = Math.pow(Math.abs(px - nx) / rx, 3.6) + Math.pow(Math.abs(feetY - (ny + 3)) / ry, 3.6);
+        if (eNew < 1.0) {
+          if (curX !== null && curFeetY !== null) {
+            const eCur = Math.pow(Math.abs(curX - nx) / rx, 3.6) + Math.pow(Math.abs(curFeetY - (ny + 3)) / ry, 3.6);
+            if (eCur < 1.0 && eNew >= eCur - 0.004) continue;
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    isSolidWorldObstacle(px, py, curX = null, curY = null, padX = 10, padY = 6) {
+      return this.hitsSolidBuildingAt(px, py, curX, curY, padX, padY) || this.hitsSolidNodeAt(px, py, curX, curY, padX, padY);
+    }
+
+    isNearInteractiveNode(n, px, py, margin = 52) {
+      if (!n) return false;
+      const m = this.getNodeMetrics(n);
+      const feetY = py + 7;
+      const rx = m.colRx + 13 + margin;
+      const ry = m.colRy + 6 + margin;
+      const pExp = m.shape === 'super' ? 3.2 : 2.2;
+      return (Math.pow(Math.abs(px - n.x) / rx, pExp) + Math.pow(Math.abs(feetY - m.colCy) / ry, pExp)) <= 1.0;
+    }
+
     drawNode(ctx, n) {
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const jx = n.hitAnim > 0 ? Math.sin(n.hitAnim * 25) * 4 : 0;
       ctx.save();
       ctx.translate(n.x + jx, n.y);
@@ -9689,77 +10788,54 @@
       if (n.kind === 'tree' || n.kind === 'giant_tree') {
         const swayOn = !this.settings || this.settings.treeSway !== false;
         const isGiant = n.kind === 'giant_tree';
-        const scale = isGiant ? 1.38 : 1.02;
+        const scale = isGiant ? 1.24 : 1.00;
+        const extraImgs = assets.extraImages || {};
+        const rawVB = (this.world && this.world.getVisualBiomeAtTile)
+          ? this.world.getVisualBiomeAtTile(n.tx, n.ty)
+          : (n.biome || 'pradera');
+        const vBiome = (this.world && this.world.isBiomeUnlocked && !this.world.isBiomeUnlocked(rawVB))
+          ? (n.biome || 'pradera')
+          : rawVB;
+        const pool = TREE_POOLS[vBiome] || TREE_POOLS[n.biome] || TREE_POOLS.pradera;
+        const vSeed = Math.abs((n.variant || 0) + (n.tx || 0) * 3 + (n.ty || 0) * 7 + (n.id || 0));
+        const treeId = pool[vSeed % pool.length];
+        const v14Img = extraImgs['tree_v14_' + treeId];
 
-        // Unified 4-tier tree variety from Tiny Swords pack (same resolution, palette & sway)
-        // tree1: Gran Roble Verde (192x256)
-        // tree2: Gran Roble Dorado de Otoño (192x256)
-        // tree3: Abedul Blanco Esbelto (192x192)
-        // tree4: Árbol Sauce Verde Redondo (192x192)
-        let idx = ((n.variant || 0) % 4) + 1;
-        const isDarkForest = n.biome === 'bosque_oscuro' || n.biome === 'necropolis_osea' || n.biome === 'tierras_malditas';
-        const isColdForest = n.biome === 'nieve' || n.biome === 'montanas_heladas' || n.biome === 'glaciar_profundo';
-        if (isDarkForest) {
-          idx = ((n.variant || 0) % 2 === 0) ? 1 : 4;
-        } else if (isColdForest) {
-          idx = ((n.variant || 0) % 2 === 0) ? 3 : 1;
-        }
-
-        const tImg = assets.get('tree' + idx);
-        if (tImg && (tImg.complete || (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(tImg) : true))) {
-          const fw = 192;
-          const fh = tImg.height || 192;
-          const fr = swayOn ? Math.floor((this.time * 3.6 + (n.id || 0) * 1.37) % 8) : 0;
-
-          // Ground shadow under tree base
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
-          ctx.beginPath();
-          ctx.ellipse(0, 18 * scale, (fh > 200 ? 28 : 22) * scale, 9 * scale, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Organic sway offset
-          const swayX = swayOn ? Math.sin(this.time * 1.6 + (n.id || 0) * 0.9) * 1.8 : 0;
-
-          const dw = Math.round(96 * scale);
-          const dh = Math.round(108 * scale * (fh / 192));
-          const dx = Math.round(-dw / 2 + swayX);
-          const dy = Math.round(20 * scale - dh);
-
-          let drawSource = tImg;
-          let sx = fr * fw;
-          let sy = 0;
-
-          if (isGiant) {
-            drawSource = this.getTintedSprite(`gtree_${idx}_sheet`, tImg, 0, 0, tImg.width, tImg.height, { hue: 270, sat: 1.35, bright: 0.85, fallbackTint: 'rgba(140, 80, 220, 0.4)' }) || tImg;
-          } else if (isDarkForest) {
-            drawSource = this.getTintedSprite(`darktree_${idx}_sheet`, tImg, 0, 0, tImg.width, tImg.height, { hue: 250, sat: 0.85, bright: 0.72, fallbackTint: 'rgba(40, 30, 80, 0.35)' }) || tImg;
-          } else if (isColdForest) {
-            drawSource = this.getTintedSprite(`snowtree_${idx}_sheet`, tImg, 0, 0, tImg.width, tImg.height, { hue: 195, sat: 0.4, bright: 1.22, fallbackTint: 'rgba(180, 220, 255, 0.35)' }) || tImg;
-          } else if (n.biome === 'selva_esmeralda') {
-            drawSource = this.getTintedSprite(`jungletree_${idx}_sheet`, tImg, 0, 0, tImg.width, tImg.height, { hue: 145, sat: 1.35, bright: 0.95, fallbackTint: 'rgba(16, 120, 64, 0.25)' }) || tImg;
-          } else if (n.biome === 'cienaga_putrida') {
-            drawSource = this.getTintedSprite(`swamptree_${idx}_sheet`, tImg, 0, 0, tImg.width, tImg.height, { hue: 95, sat: 0.8, bright: 0.82, fallbackTint: 'rgba(80, 110, 40, 0.3)' }) || tImg;
-          }
-
-          ctx.drawImage(drawSource, sx, sy, fw, fh, dx, dy, dw, dh);
+        if (v14Img && (v14Img.complete || (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(v14Img) : true)) && v14Img.width >= 256) {
+          const fw = Math.round(v14Img.width / 4);
+          const fh = v14Img.height || 128;
+          const dw = Math.round(112 * scale);
+          const dh = Math.round(112 * scale * (fh / Math.max(1, fw)));
+          const dx = Math.round(-dw / 2);
+          const dy = Math.round(15 * scale - dh);
+          const phase = Math.abs((n.tx || 0) * 3 + (n.ty || 0) * 7) * 0.37;
+          const fr = swayOn ? (Math.floor(this.time * 0.5 + phase) % 4) : 0;
+          ctx.drawImage(v14Img, fr * fw, 0, fw, fh, dx, dy, dw, dh);
         } else {
-          ctx.fillStyle = isGiant ? '#311b92' : '#2e7d32';
-          ctx.beginPath(); ctx.arc(0, -16, 22 * scale, 0, Math.PI * 2); ctx.fill();
+          let idx = ((n.variant || 0) % 4) + 1;
+          const tImg = assets.get('tree' + idx);
+          if (tImg && (tImg.complete || (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(tImg) : true))) {
+            const fw = 192;
+            const fh = tImg.height || 192;
+            const fr = swayOn ? Math.floor((this.time * 3.6 + (n.id || 0) * 1.37) % 8) : 0;
+            const dw = Math.round(96 * scale);
+            const dh = Math.round(108 * scale * (fh / 192));
+            const dx = Math.round(-dw / 2);
+            const dy = Math.round(14 * scale - dh);
+            ctx.drawImage(tImg, fr * fw, 0, fw, fh, dx, dy, dw, dh);
+          } else {
+            ctx.fillStyle = isGiant ? '#311b92' : '#2e7d32';
+            ctx.beginPath(); ctx.arc(0, -16, 22 * scale, 0, Math.PI * 2); ctx.fill();
+          }
         }
       } else if (n.kind === 'bush' || n.kind === 'herb_patch' || n.kind === 'wild_crop_patch') {
         const extraImgs = assets.extraImages || {};
-        const okEx = (im) => im && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(im));
+        const okEx = (im) => im && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(im));
         if (n.kind === 'herb_patch' && okEx(extraImgs.node_herb_patch)) {
-          ctx.fillStyle = 'rgba(0,0,0,0.22)';
-          ctx.beginPath(); ctx.ellipse(0, 10, 16, 5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.drawImage(extraImgs.node_herb_patch, -20, -28, 40, 40);
         } else if (n.kind === 'wild_crop_patch' && okEx(extraImgs.node_wild_crop)) {
-          ctx.fillStyle = 'rgba(0,0,0,0.22)';
-          ctx.beginPath(); ctx.ellipse(0, 10, 16, 5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.drawImage(extraImgs.node_wild_crop, -20, -28, 40, 40);
         } else if (n.kind === 'bush' && okEx(extraImgs.deco_berry_bush)) {
-          ctx.fillStyle = 'rgba(0,0,0,0.22)';
-          ctx.beginPath(); ctx.ellipse(0, 8, 16, 5, 0, 0, Math.PI * 2); ctx.fill();
           ctx.drawImage(extraImgs.deco_berry_bush, -18, -26, 36, 36);
         } else {
           const bImg = assets.get(n.kind === 'bush' ? 'bush1' : 'bush2');
@@ -9768,63 +10844,14 @@
             ctx.drawImage(bImg, fr * 128, 0, 128, 128, -28, -32, 56, 56);
           }
         }
-      } else if (
-        n.kind === 'rock' || n.kind === 'coal_vein' || n.kind === 'sulfur_vein' ||
-        n.kind === 'copper_vein' || n.kind === 'tin_vein' || n.kind === 'iron_vein' ||
-        n.kind === 'silver_vein' || n.kind === 'gold_vein' || n.kind === 'platinum_vein' ||
-        n.kind === 'jade_vein' || n.kind === 'amethyst_vein' || n.kind === 'bloodstone_vein' ||
-        n.kind === 'malachite_vein' || n.kind === 'star_sand_vein' || n.kind === 'amber_vein' ||
-        n.kind === 'titanium_vein' || n.kind === 'obsidian_vein' || n.kind === 'magma_core_vein' ||
-        n.kind === 'adamantite_vein' || n.kind === 'orichalcum_vein' ||
-        n.kind === 'coral_abisal_node' || n.kind === 'perla_turquesa_node' ||
-        n.kind === 'madera_ferrea_node' || n.kind === 'resina_toxica_node' ||
-        n.kind === 'pirita_solar_node' || n.kind === 'hueso_fosil_node' ||
-        n.kind === 'plata_maldita_node' || n.kind === 'escoria_caldera_node' ||
-        n.kind === 'marmol_oscuro_node'
-      ) {
+      } else if (ORE_NODE_SPRITE_MAP[n.kind]) {
         const extraImgs = assets.extraImages || {};
-        const nodeSpriteMap = {
-          rock: 'node_stone',
-          coal_vein: 'node_coal',
-          sulfur_vein: 'node_sulfur',
-          copper_vein: 'node_copper',
-          tin_vein: 'node_tin',
-          iron_vein: 'node_iron',
-          silver_vein: 'node_silver',
-          gold_vein: 'node_gold',
-          platinum_vein: 'node_platinum',
-          jade_vein: 'node_jade',
-          amethyst_vein: 'node_amethyst',
-          bloodstone_vein: 'node_bloodstone',
-          malachite_vein: 'node_malachite',
-          star_sand_vein: 'node_star_sand',
-          amber_vein: 'node_amber',
-          titanium_vein: 'node_titanium',
-          obsidian_vein: 'node_obsidian',
-          magma_core_vein: 'node_magma_core',
-          adamantite_vein: 'node_adamantite',
-          orichalcum_vein: 'node_orichalcum',
-          coral_abisal_node: 'node_coral_abisal',
-          perla_turquesa_node: 'node_perla_turquesa',
-          madera_ferrea_node: 'node_madera_ferrea',
-          resina_toxica_node: 'node_resina_toxica',
-          pirita_solar_node: 'node_pirita_solar',
-          hueso_fosil_node: 'node_hueso_fosil',
-          plata_maldita_node: 'node_plata_maldita',
-          escoria_caldera_node: 'node_escoria_caldera',
-          marmol_oscuro_node: 'node_marmol_oscuro'
-        };
-        const sparkleSet = new Set([
-          'gold_vein', 'platinum_vein', 'jade_vein', 'amethyst_vein', 'bloodstone_vein',
-          'amber_vein', 'titanium_vein', 'orichalcum_vein', 'adamantite_vein', 'magma_core_vein',
-          'perla_turquesa_node', 'pirita_solar_node', 'plata_maldita_node', 'resina_toxica_node'
-        ]);
-        const nImg = extraImgs[nodeSpriteMap[n.kind]];
-        ctx.fillStyle = 'rgba(0,0,0,0.28)';
-        ctx.beginPath(); ctx.ellipse(0, 11, 18, 6, 0, 0, Math.PI * 2); ctx.fill();
-        if (nImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(nImg) : true)) {
-          ctx.drawImage(nImg, -21, -27, 42, 42);
-          if (sparkleSet.has(n.kind)) {
+        const nImg = extraImgs[ORE_NODE_SPRITE_MAP[n.kind]];
+        if (nImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(nImg) : true)) {
+          const nSc = Math.min(50 / Math.max(1, nImg.width), 50 / Math.max(1, nImg.height));
+          const ndw = Math.round(nImg.width * nSc), ndh = Math.round(nImg.height * nSc);
+          ctx.drawImage(nImg, Math.round(-ndw / 2), Math.round(16 - ndh), ndw, ndh);
+          if (ORE_SPARKLE_SET.has(n.kind)) {
             const sp = 0.35 + Math.sin(this.time * 4.5 + n.id) * 0.3;
             ctx.fillStyle = `rgba(255,255,255,${sp.toFixed(2)})`;
             ctx.fillRect(-7, -18, 4, 4); ctx.fillRect(6, -12, 3, 3);
@@ -9833,54 +10860,31 @@
           const rImg = assets.get('rock' + ((n.variant % 3) + 1));
           if (rImg) ctx.drawImage(rImg, -20, -24, 40, 40);
         }
-      } else if (
-        n.kind === 'crystal_node' || n.kind === 'emerald_vein' || n.kind === 'diamond_vein' ||
-        n.kind === 'ice_crystal' || n.kind === 'ruby_node' || n.kind === 'sapphire_node' ||
-        n.kind === 'mithril_vein' || n.kind === 'azurite_vein' || n.kind === 'abyssal_crystal_vein' ||
-        n.kind === 'agata_roja_node' || n.kind === 'cuarzo_boreal_node' || n.kind === 'hielo_eterno_node' ||
-        n.kind === 'cristal_carmesi_node' || n.kind === 'bismuto_astral_node' || n.kind === 'celestita_node' ||
-        n.kind === 'jade_ancestral_node' || n.kind === 'flor_pantano_node'
-      ) {
+      } else if (CRYSTAL_NODE_SPRITE_MAP[n.kind]) {
         const extraImgs = assets.extraImages || {};
-        const col = n.kind === 'emerald_vein' ? '#66bb6a'
-          : n.kind === 'diamond_vein' ? '#4fc3f7'
-          : n.kind === 'ruby_node' || n.kind === 'agata_roja_node' ? '#ef5350'
-          : n.kind === 'sapphire_node' || n.kind === 'celestita_node' ? '#42a5f5'
-          : n.kind === 'mithril_vein' ? '#80cbc4'
-          : n.kind === 'azurite_vein' ? '#29b6f6'
-          : n.kind === 'abyssal_crystal_vein' || n.kind === 'bismuto_astral_node' ? '#b388ff'
-          : n.kind === 'ice_crystal' || n.kind === 'hielo_eterno_node' ? '#b3e5fc'
-          : n.kind === 'cristal_carmesi_node' ? '#ff1744'
-          : n.kind === 'jade_ancestral_node' ? '#00e676'
-          : n.kind === 'flor_pantano_node' ? '#aeea00'
-          : '#ce93d8';
-        ctx.save();
-        ctx.globalAlpha = 0.24 + Math.sin(this.time * 3.2 + n.id) * 0.07;
-        ctx.fillStyle = col;
-        ctx.beginPath(); ctx.arc(0, -6, 21, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-        const crystalSpriteMap = {
-          crystal_node: 'node_amethyst',
-          emerald_vein: 'node_emerald',
-          diamond_vein: 'node_diamond',
-          ice_crystal: 'node_ice_crystal',
-          ruby_node: 'node_ruby',
-          sapphire_node: 'node_sapphire',
-          mithril_vein: 'node_mithril',
-          azurite_vein: 'node_azurite',
-          abyssal_crystal_vein: 'node_abyssal_crystal',
-          agata_roja_node: 'node_agata_roja',
-          cuarzo_boreal_node: 'node_cuarzo_boreal',
-          hielo_eterno_node: 'node_hielo_eterno',
-          cristal_carmesi_node: 'node_cristal_carmesi',
-          bismuto_astral_node: 'node_bismuto_astral',
-          celestita_node: 'node_celestita',
-          jade_ancestral_node: 'node_jade_ancestral',
-          flor_pantano_node: 'node_flor_pantano'
-        };
-        const gemSprite = extraImgs[crystalSpriteMap[n.kind]] || extraImgs.node_amethyst;
-        if (gemSprite && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(gemSprite) : true)) {
-          ctx.drawImage(gemSprite, -21, -27, 42, 42);
+        const col = CRYSTAL_GLOW_COLOR_MAP[n.kind] || '#ce93d8';
+        if (!this._crystalGlowStamps) this._crystalGlowStamps = {};
+        let cStamp = this._crystalGlowStamps[col];
+        if (!cStamp) {
+          cStamp = document.createElement('canvas');
+          cStamp.width = 48; cStamp.height = 48;
+          const gctx = cStamp.getContext('2d');
+          const cGrad = gctx.createRadialGradient(24, 24, 2, 24, 24, 24);
+          cGrad.addColorStop(0, col);
+          cGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          gctx.fillStyle = cGrad;
+          gctx.fillRect(0, 0, 48, 48);
+          this._crystalGlowStamps[col] = cStamp;
+        }
+        const prevAlpha = ctx.globalAlpha;
+        ctx.globalAlpha = prevAlpha * (0.24 + Math.sin(this.time * 3.2 + n.id) * 0.06);
+        ctx.drawImage(cStamp, -24, -30, 48, 48);
+        ctx.globalAlpha = prevAlpha;
+        const gemSprite = extraImgs[CRYSTAL_NODE_SPRITE_MAP[n.kind]] || extraImgs.node_amethyst;
+        if (gemSprite && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(gemSprite) : true)) {
+          const gSc = Math.min(50 / Math.max(1, gemSprite.width), 50 / Math.max(1, gemSprite.height));
+          const gdw = Math.round(gemSprite.width * gSc), gdh = Math.round(gemSprite.height * gSc);
+          ctx.drawImage(gemSprite, Math.round(-gdw / 2), Math.round(16 - gdh), gdw, gdh);
         } else {
           ctx.fillStyle = '#1b1118';
           ctx.beginPath(); ctx.moveTo(0, -26); ctx.lineTo(15, -4); ctx.lineTo(10, 12); ctx.lineTo(-10, 12); ctx.lineTo(-15, -4); ctx.closePath(); ctx.fill();
@@ -9888,11 +10892,13 @@
           ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(12, -3); ctx.lineTo(7, 9); ctx.lineTo(-7, 9); ctx.lineTo(-12, -3); ctx.closePath(); ctx.fill();
         }
       } else if (n.kind === 'cactus') {
-        const cIcon = assets.extraImages && (assets.extraImages.node_cactus || assets.extraImages.cactus_icon);
-        ctx.fillStyle = 'rgba(0,0,0,0.24)';
-        ctx.beginPath(); ctx.ellipse(0, 10, 12, 4.5, 0, 0, Math.PI * 2); ctx.fill();
-        if (cIcon && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(cIcon) : true)) {
-          ctx.drawImage(cIcon, -20, -32, 40, 42);
+        const exC = assets.extraImages || {};
+        const cIcon = (n.id % 3 === 0 ? exC.prop_cactus_tall : exC.node_cactus) || exC.node_cactus || exC.cactus_icon;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        ctx.beginPath(); ctx.ellipse(0, 12, 16, 6, 0, 0, Math.PI * 2); ctx.fill();
+        if (cIcon && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(cIcon) : true)) {
+          const cw = 56, ch = 64;
+          ctx.drawImage(cIcon, Math.round(-cw / 2), Math.round(14 - ch), cw, ch);
         } else {
           ctx.fillStyle = '#1b4332'; ctx.fillRect(-7, -28, 14, 38);
           ctx.fillStyle = '#2d6a4f'; ctx.fillRect(-5, -26, 10, 34);
@@ -9904,45 +10910,46 @@
         }
       } else if (n.kind === 'mushroom_node') {
         const exM = assets.extraImages || {};
-        const okM = (im) => im && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(im));
-        const shKeys = ['mushroom_blue_anim', 'mushroom_green_anim', 'cave_mushroom_orange', 'cave_mushroom_brown'];
-        const shImg = exM[shKeys[n.id % shKeys.length]];
+        const okM = (im) => im && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(im));
+        const shImg = exM[MUSHROOM_KEYS[n.id % MUSHROOM_KEYS.length]];
         ctx.save();
         ctx.globalAlpha = 0.22 + Math.sin(this.time * 2.5 + n.id) * 0.07;
         ctx.fillStyle = (n.id % 2 === 0) ? '#80deea' : '#ce93d8';
         ctx.beginPath(); ctx.ellipse(0, 6, 18, 8, 0, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
         if (okM(shImg)) {
-          if (shImg.width > shImg.height * 2) {
+          if (shImg.width > shImg.height * 2.2) {
             const fw = shImg.height || 16;
             const frames = Math.max(1, Math.floor(shImg.width / fw));
             const fr = Math.floor((this.time * 5 + n.id) % frames);
             ctx.drawImage(shImg, fr * fw, 0, fw, shImg.height, -18, -24, 36, 36);
           } else {
-            ctx.drawImage(shImg, -18, -24, 36, 36);
+            const shSc = Math.min(40 / Math.max(1, shImg.width), 38 / Math.max(1, shImg.height));
+            const sdw = Math.round(shImg.width * shSc);
+            const sdh = Math.round(shImg.height * shSc);
+            ctx.drawImage(shImg, Math.round(-sdw / 2), Math.round(12 - sdh), sdw, sdh);
           }
         } else {
           ctx.fillStyle = '#ab47bc'; ctx.beginPath(); ctx.arc(0, -10, 14, Math.PI, 0); ctx.fill();
         }
       } else if (n.kind === 'volcanic_rock' || n.kind === 'meteor') {
         const exM = assets.extraImages || {};
-        const okM = (im) => im && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(im));
-        const mKeys = ['meteor_red', 'meteor_gold', 'meteor_blue', 'meteor_dark'];
+        const okM = (im) => im && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(im));
         const mImg = n.kind === 'meteor'
-          ? (exM[mKeys[n.id % mKeys.length]] || exM.meteor_red)
-          : (exM.cave_rock_big || exM.meteor_dark);
+          ? (exM[METEOR_KEYS[n.id % METEOR_KEYS.length]] || exM.meteor_red)
+          : (exM.node_volcanic_rock || exM.meteor_dark);
         if (n.kind === 'meteor') {
           ctx.save();
           ctx.globalAlpha = 0.26 + Math.sin(this.time * 3.4 + n.id) * 0.1;
           ctx.fillStyle = ['#ff7043', '#ffd54f', '#4fc3f7', '#ce93d8'][n.id % 4];
           ctx.beginPath(); ctx.ellipse(0, 8, 22, 9, 0, 0, Math.PI * 2); ctx.fill();
           ctx.restore();
-        } else {
-          ctx.fillStyle = 'rgba(0,0,0,0.30)';
-          ctx.beginPath(); ctx.ellipse(0, 10, 18, 7, 0, 0, Math.PI * 2); ctx.fill();
         }
         if (okM(mImg)) {
-          ctx.drawImage(mImg, -22, -26, 44, 44);
+          const mSc = Math.min(50 / Math.max(1, mImg.width), 48 / Math.max(1, mImg.height));
+          const mdw = Math.round(mImg.width * mSc);
+          const mdh = Math.round(mImg.height * mSc);
+          ctx.drawImage(mImg, Math.round(-mdw / 2), Math.round(16 - mdh), mdw, mdh);
         } else {
           ctx.fillStyle = n.kind === 'meteor' ? '#4a148c' : '#3e2723';
           ctx.beginPath(); ctx.arc(0, -4, 18, 0, Math.PI * 2); ctx.fill();
@@ -9950,7 +10957,7 @@
       } else if (n.kind === 'dig_spot') {
         const exM = assets.extraImages || {};
         const dImg = exM.dig_spot_x;
-        if (dImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(dImg))) {
+        if (dImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(dImg))) {
           ctx.drawImage(dImg, -15, -14, 30, 30);
         } else {
           ctx.fillStyle = 'rgba(72, 48, 28, 0.56)';
@@ -9963,7 +10970,7 @@
         const exM = assets.extraImages || {};
         const fImg = exM.fish_ripple;
         const bobScale = 0.92 + Math.sin(this.time * 4 + n.id) * 0.10;
-        if (fImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(fImg))) {
+        if (fImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(fImg))) {
           ctx.save();
           ctx.globalAlpha = 0.72 + Math.sin(this.time * 4 + n.id) * 0.22;
           const sz = Math.round(34 * bobScale);
@@ -9982,33 +10989,30 @@
           : biomeWood ? 'wood_closed'
           : (biomeSapph || n.variant % 2 === 1 ? 'sapphire_closed' : 'gold_closed');
         const cImg = assets.chestImages && (assets.chestImages[cKey] || assets.chestImages.gold_closed);
-        ctx.fillStyle = 'rgba(0,0,0,0.34)';
-        ctx.beginPath(); ctx.ellipse(0, 17, 40, 12, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.26)';
+        ctx.beginPath(); ctx.ellipse(0, 11, 25, 9, 0, 0, Math.PI * 2); ctx.fill();
         if (cImg) {
-          ctx.drawImage(cImg, -40, -66, 80, 88);
+          ctx.drawImage(cImg, -28, -42, 56, 56);
         } else {
-          ctx.fillStyle = '#8d5524'; ctx.fillRect(-38, -40, 76, 56);
-          ctx.fillStyle = '#ffd54f'; ctx.fillRect(-38, -14, 76, 9);
+          ctx.fillStyle = '#8d5524'; ctx.fillRect(-26, -34, 52, 44);
+          ctx.fillStyle = '#ffd54f'; ctx.fillRect(-26, -12, 52, 8);
         }
       } else if (n.kind === 'dungeon_gate') {
         const gImg = (assets.gateImages && assets.gateImages[n.dungeonId]) || assets.get('mine_active');
         const isCleared = this.clearedDungeons.includes(n.dungeonId);
         // Arcane aura ring around monumental crypt entrance
-        const pulse = 0.24 + Math.sin(this.time * 3) * 0.08;
+        const pulse = 0.13 + Math.sin(this.time * 3) * 0.04;
         ctx.fillStyle = isCleared
           ? `rgba(129, 199, 132, ${pulse})`
-          : `rgba(255, 213, 79, ${pulse})`;
+          : `rgba(255, 232, 168, ${pulse})`;
         ctx.beginPath();
-        ctx.ellipse(0, 18, 92, 32, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 18, 88, 28, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        let dh = 216;
+        const gm = this.getDungeonGateFootprint(n);
+        let dh = gm.dh;
         if (gImg) {
-          const aspect = gImg.width / Math.max(1, gImg.height);
-          if (aspect > 1.3) dh = 186; // Edificios anchos como minas y castillos
-          else if (aspect < 0.65) dh = 242; // Torres y monasterios altos
-          if (n.dungeonId === 'tierras_volcanicas') dh = 236;
-          const dw = Math.round(dh * aspect);
+          const dw = gm.dw;
           ctx.drawImage(gImg, -dw / 2, 34 - dh, dw, dh);
         } else {
           ctx.fillStyle = '#37474f'; ctx.fillRect(-56, -86, 112, 108);
@@ -10017,7 +11021,7 @@
 
         // Animated doorway portal shimmer (portal_anim 64x64, 4x2 cols/rows, 7 frames)
         const pImg = assets.extraImages && assets.extraImages.portal_anim;
-        if (pImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(pImg))) {
+        if (pImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(pImg))) {
           const fr = Math.floor((this.time * 7 + (n.id || 0)) % 7);
           const col = fr % 4;
           const row = Math.floor(fr / 4);
@@ -10031,13 +11035,13 @@
         // Subtle proximity-only label (no clunky floating blue box)
         const dPlayer = this.player ? Math.hypot(this.player.x - n.x, this.player.y - n.y) : 999;
         if (dPlayer <= 205) {
-          const gateTitle = (Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[n.dungeonId] && Balaclava.DUNGEON_DEFS[n.dungeonId].name)
-            || (Balaclava.DUNGEON_GATES && Balaclava.DUNGEON_GATES[n.dungeonId] && Balaclava.DUNGEON_GATES[n.dungeonId].name)
+          const gateTitle = (Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[n.dungeonId] && Abyssea.DUNGEON_DEFS[n.dungeonId].name)
+            || (Abyssea.DUNGEON_GATES && Abyssea.DUNGEON_GATES[n.dungeonId] && Abyssea.DUNGEON_GATES[n.dungeonId].name)
             || n.name;
           const fade = Math.max(0.25, Math.min(0.92, (205 - dPlayer) / 110));
           ctx.save();
           ctx.globalAlpha = fade;
-          ctx.font = '12px BalaclavaBodyPixel, monospace';
+          ctx.font = '12px AbysseaBodyPixel, monospace';
           ctx.textAlign = 'center';
           const lblY = 34;
           ctx.fillStyle = 'rgba(5, 8, 16, 0.85)';
@@ -10049,28 +11053,26 @@
       } else if (n.kind === 'secret_chest') {
         const cImg = assets.chestImages && (assets.chestImages.sapphire_closed || assets.chestImages.gold_closed);
         const glint = 0.28 + Math.sin(this.time * 4.5 + n.id) * 0.14;
-        ctx.fillStyle = 'rgba(0,0,0,0.36)';
-        ctx.beginPath(); ctx.ellipse(0, 16, 40, 12, 0, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = n.puzzleLocked ? `rgba(179, 136, 255, ${glint})` : `rgba(255, 213, 79, ${glint + 0.08})`;
-        ctx.beginPath(); ctx.ellipse(0, 14, 44, 15, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 12, 34, 12, 0, 0, Math.PI * 2); ctx.fill();
         if (cImg) {
           ctx.fillStyle = n.puzzleLocked ? 'rgba(179, 136, 255, 0.22)' : 'rgba(255, 213, 79, 0.25)';
-          ctx.beginPath(); ctx.ellipse(0, -10, 44, 24, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(0, -10, 34, 20, 0, 0, Math.PI * 2); ctx.fill();
           const cSrc = n.puzzleLocked
             ? this.getTintedSprite('sc_locked', cImg, 0, 0, cImg.width, cImg.height, { sat: 0.55, bright: 0.84, fallbackTint: 'rgba(130, 100, 195, 0.28)' })
             : cImg;
-          ctx.drawImage(cSrc || cImg, -40, -66, 80, 88);
+          ctx.drawImage(cSrc || cImg, -32, -48, 64, 64);
         } else {
-          ctx.fillStyle = '#311b92'; ctx.fillRect(-38, -42, 76, 58);
-          ctx.fillStyle = '#ffd54f'; ctx.fillRect(-38, -16, 76, 10);
+          ctx.fillStyle = '#311b92'; ctx.fillRect(-30, -36, 60, 48);
+          ctx.fillStyle = '#ffd54f'; ctx.fillRect(-30, -14, 60, 8);
         }
         const pillars = n.puzzleLocked ? this.world.nodes.filter(p => p.kind === 'puzzle_pillar' && p.secretIdx === n.secretIdx) : [];
         const pDone = pillars.filter(p => p.activated).length;
         const pReq = n.puzzleReq || pillars.length || 3;
         const lbl = n.puzzleLocked ? `Cofre Sellado (${pDone}/${pReq} Pilares)` : 'Cofre Secreto';
-        ctx.font = '14px BalaclavaPixel, monospace';
+        ctx.font = '14px AbysseaPixel, monospace';
         const lw = Math.max(138, Math.round(ctx.measureText(lbl).width + 20));
-        const scLblY = -74;
+        const scLblY = -58;
         ctx.fillStyle = 'rgba(20, 12, 28, 0.92)';
         ctx.fillRect(Math.round(-lw / 2), scLblY, lw, 22);
         ctx.strokeStyle = n.puzzleLocked ? '#b388ff' : '#ffd54f';
@@ -10083,9 +11085,11 @@
         const extraImgs = assets.extraImages || {};
         const pImg = extraImgs.prop_rune_pillar || (assets.get && assets.get('prop_rune_pillar'));
         const active = !!n.activated;
-        ctx.fillStyle = active ? 'rgba(179, 136, 255, 0.34)' : 'rgba(0, 0, 0, 0.30)';
-        ctx.beginPath(); ctx.ellipse(0, 14, active ? 28 : 20, 9, 0, 0, Math.PI * 2); ctx.fill();
-        if (pImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(pImg) : true)) {
+        if (active) {
+          ctx.fillStyle = 'rgba(179, 136, 255, 0.34)';
+          ctx.beginPath(); ctx.ellipse(0, 14, 28, 9, 0, 0, Math.PI * 2); ctx.fill();
+        }
+        if (pImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(pImg) : true)) {
           if (active) {
             ctx.fillStyle = 'rgba(179, 136, 255, 0.26)';
             ctx.beginPath(); ctx.ellipse(0, -18, 22, 32, 0, 0, Math.PI * 2); ctx.fill();
@@ -10101,7 +11105,7 @@
           ctx.fillStyle = active ? '#e0f7fa' : '#90a4ae';
           ctx.fillRect(-6, -34, 12, 12);
         }
-        ctx.font = '13px BalaclavaPixel, monospace';
+        ctx.font = '13px AbysseaPixel, monospace';
         const lbl = active ? 'Pilar Activo' : 'Pilar Rúnico';
         const lw = Math.max(96, Math.round(ctx.measureText(lbl).width + 16));
         const pLblY = -76;
@@ -10115,29 +11119,41 @@
         ctx.fillText(lbl, 0, pLblY + 14);
       } else if (n.kind === 'altar_shrine') {
         const extraImgs = assets.extraImages || {};
-        const aDef = Balaclava.ALTAR_DEFS && Balaclava.ALTAR_DEFS[n.altarId];
+        const aDef = Abyssea.ALTAR_DEFS && Abyssea.ALTAR_DEFS[n.altarId];
         const aImg = aDef && extraImgs[aDef.spriteKey];
+        const lm = this.getLandmarkFootprint(n);
         const ready = !(n.cooldownLeft > 0);
         const pulse = ready ? (0.28 + Math.sin(this.time * 3.6 + n.id) * 0.1) : 0.10;
         ctx.fillStyle = ready ? (aDef ? aDef.color : '#80deea') : '#78909c';
         ctx.globalAlpha = pulse;
-        ctx.beginPath(); ctx.ellipse(0, 10, 38, 15, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 8, lm.rx + 12, Math.round(lm.ry * 0.72), 0, 0, Math.PI * 2); ctx.fill();
         ctx.globalAlpha = 1;
-        if (aImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(aImg) : true)) {
-          if (aDef.spriteKey === 'altar_ritual') {
+        let drawnH = 64;
+        if (aImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(aImg) : true)) {
+          if (aDef.spriteKey === 'altar_ritual' && aImg.width >= aImg.height * 5) {
             const fr = Math.floor(this.time * 6) % 6;
-            ctx.drawImage(aImg, fr * 32, 0, 32, 16, -34, -22, 68, 34);
-          } else if (aDef.spriteKey === 'healing_fountain' || aDef.spriteKey === 'altar_shrine') {
-            const fr = Math.floor(this.time * 5) % 4;
-            ctx.drawImage(aImg, fr * 32, 0, 32, 32, -32, -44, 64, 64);
+            const dw = lm.w, dh = Math.round(dw * 0.5);
+            drawnH = dh;
+            ctx.drawImage(aImg, fr * 32, 0, 32, 16, Math.round(-dw / 2), Math.round(lm.ry * 0.55 - dh), dw, dh);
+          } else if (aImg.width >= aImg.height * 2.8) {
+            const fw = aImg.height || 64;
+            const frames = Math.max(1, Math.round(aImg.width / fw));
+            const altarFps = n.altarId === 'fuente_sagrada' ? 1.05 : 2.8;
+            const fr = Math.floor((this.time * altarFps + (n.id || 0)) % frames);
+            const dw = lm.w, dh = lm.w;
+            drawnH = dh;
+            ctx.drawImage(aImg, fr * fw, 0, fw, aImg.height, Math.round(-dw / 2), Math.round(lm.ry * 0.55 - dh), dw, dh);
           } else {
-            ctx.drawImage(aImg, -32, -36, 64, 52);
+            const dw = lm.w;
+            const dh = Math.round(dw * (aImg.height / Math.max(1, aImg.width)));
+            drawnH = dh;
+            ctx.drawImage(aImg, Math.round(-dw / 2), Math.round(lm.ry * 0.55 - dh), dw, dh);
           }
         }
         const altarLabel = ready ? (aDef ? aDef.name : 'Altar') : `${aDef ? aDef.name : 'Altar'} (${Math.ceil(n.cooldownLeft)}s)`;
-        ctx.font = '14px BalaclavaPixel, monospace';
+        ctx.font = '14px AbysseaPixel, monospace';
         const lw = Math.max(108, Math.round(ctx.measureText(altarLabel).width + 20));
-        const lblY = -62;
+        const lblY = Math.round(lm.ry * 0.55 - drawnH - 24);
         ctx.fillStyle = 'rgba(20, 14, 18, 0.90)';
         ctx.fillRect(Math.round(-lw / 2), lblY, lw, 20);
         ctx.strokeStyle = ready ? '#80deea' : '#78909c';
@@ -10147,9 +11163,9 @@
         ctx.textAlign = 'center';
         ctx.fillText(altarLabel, 0, lblY + 14);
 
-        const showDesc = dist(this.mouse.wx, this.mouse.wy, n.x, n.y) <= 44 || dist(this.player.x, this.player.y, n.x, n.y) <= 84;
+        const showDesc = dist(this.mouse.wx, this.mouse.wy, n.x, n.y) <= Math.max(54, lm.rx + 18) || dist(this.player.x, this.player.y, n.x, n.y) <= Math.max(92, lm.rx + 56);
         if (showDesc && aDef && aDef.desc) {
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           const dw = Math.max(166, Math.round(ctx.measureText(aDef.desc).width + 26));
           const dy = lblY - 26;
           ctx.fillStyle = 'rgba(14, 22, 32, 0.93)';
@@ -10162,50 +11178,51 @@
         }
       } else if (n.kind === 'easter_egg') {
         const extraImgs = assets.extraImages || {};
-        const eDef = Balaclava.EASTER_EGG_DEFS && Balaclava.EASTER_EGG_DEFS[n.eeId];
-        const bImg = eDef && extraImgs[eDef.baseSprite];
+        const eDef = Abyssea.EASTER_EGG_DEFS && Abyssea.EASTER_EGG_DEFS[n.eeId];
+        const bImg = eDef && eDef.baseSprite && extraImgs[eDef.baseSprite];
         const topImg = eDef && extraImgs[eDef.spriteKey];
+        const lm = this.getLandmarkFootprint(n);
         const activeGlow = !n.claimed ? (0.32 + Math.sin(this.time * 4 + n.id) * 0.12) : 0.12;
         ctx.fillStyle = eDef ? eDef.color : '#ffd54f';
         ctx.globalAlpha = activeGlow;
-        ctx.beginPath(); ctx.ellipse(0, 8, 30, 12, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 8, lm.rx + 10, Math.round(lm.ry * 0.72), 0, 0, Math.PI * 2); ctx.fill();
         ctx.globalAlpha = 1;
-        if (bImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(bImg) : true)) {
-          if (eDef.baseSprite === 'ee_lantern' || eDef.baseSprite === 'ee_log') {
-            ctx.drawImage(bImg, 0, 0, 32, 32, -22, -22, 44, 44);
+        if (bImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(bImg) : true)) {
+          if (eDef.baseSprite === 'ee_lantern') {
+            const lFrames = (bImg.width === 64 && bImg.height === 32) ? 4
+              : (bImg.width >= bImg.height * 1.8 ? Math.max(1, Math.round(bImg.width / Math.max(1, bImg.height))) : 1);
+            const lFw = Math.round(bImg.width / lFrames);
+            const lFh = bImg.height;
+            const lFr = Math.floor((this.time * 4 + (n.id || 0)) % lFrames);
+            const lDh = 42;
+            const lDw = Math.max(18, Math.round(lDh * (lFw / Math.max(1, lFh))));
+            ctx.drawImage(bImg, lFr * lFw, 0, lFw, lFh, Math.round(-lDw / 2), -24, lDw, lDh);
+          } else if (eDef.baseSprite === 'ee_log') {
+            const lFw = bImg.width >= bImg.height * 1.8 ? Math.min(bImg.width, 32) : bImg.width;
+            ctx.drawImage(bImg, 0, 0, lFw, Math.min(bImg.height, 32), -22, -22, 44, 44);
           } else {
             ctx.drawImage(bImg, -22, -20, 44, 40);
           }
         }
-        if (topImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(topImg) : true)) {
+        if (topImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(topImg) : true)) {
           if (eDef.spriteKey === 'ee_sword_legend') {
             ctx.save();
             ctx.translate(0, -14);
             ctx.rotate(Math.PI * 0.72);
             ctx.drawImage(topImg, -16, -16, 32, 32);
             ctx.restore();
-          } else if (eDef.spriteKey === 'ee_crystal') {
-            const fr = Math.floor(this.time * 6) % 5;
-            ctx.drawImage(topImg, fr * 32, 0, 32, 32, -20, -34, 40, 40);
-          } else if (eDef.spriteKey === 'ee_cauldron') {
-            const fr = Math.floor(this.time * 6) % 4;
-            ctx.drawImage(topImg, fr * 16, 0, 16, 16, -18, -28, 36, 36);
-          } else if (eDef.spriteKey === 'ee_device') {
-            const fr = Math.floor(this.time * 5) % 4;
-            ctx.drawImage(topImg, fr * 32, 0, 32, 32, -22, -32, 44, 44);
+          } else if (topImg.width >= topImg.height * 2.8) {
+            const fw = topImg.height || 64;
+            const frames = Math.max(1, Math.round(topImg.width / fw));
+            const fr = Math.floor((this.time * 2.6 + (n.id || 0)) % frames);
+            const dw = lm.w, dh = lm.w;
+            ctx.drawImage(topImg, fr * fw, 0, fw, topImg.height, Math.round(-dw / 2), Math.round(lm.ry * 0.55 - dh), dw, dh);
           } else {
-            ctx.drawImage(topImg, -20, -36, 40, 44);
+            const dw = lm.w;
+            const dh = Math.round(dw * (topImg.height / Math.max(1, topImg.width)));
+            ctx.drawImage(topImg, Math.round(-dw / 2), Math.round(lm.ry * 0.55 - dh), dw, dh);
           }
         }
-        ctx.fillStyle = 'rgba(30, 18, 12, 0.9)';
-        ctx.fillRect(-92, 16, 184, 21);
-        ctx.strokeStyle = !n.claimed ? '#ffd54f' : '#8d6e63';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-92, 16, 184, 21);
-        ctx.fillStyle = !n.claimed ? '#ffe082' : '#cfd8dc';
-        ctx.font = '13px BalaclavaPixel, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(!n.claimed ? `${eDef ? eDef.name : 'Secreto'}` : 'Secreto Descubierto', 0, 31);
       } else if (n.kind === 'skeleton_king_shrine') {
         const extraImgs = assets.extraImages || {};
         const frameIdx = (Math.floor(this.time * 2.8) % 3) + 1;
@@ -10224,27 +11241,27 @@
         ctx.beginPath(); ctx.ellipse(0, 12, 54, 22, 0, 0, Math.PI * 2); ctx.fill();
         ctx.globalAlpha = 1;
 
-        if (skullDoor && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(skullDoor) : true)) {
-          ctx.drawImage(skullDoor, -30, -86, 60, 62);
+        if (skullDoor && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(skullDoor) : true)) {
+          ctx.drawImage(skullDoor, -38, -94, 76, 76);
         }
-        if (deadTree && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(deadTree) : true)) {
-          ctx.drawImage(deadTree, -68, -62, 42, 64);
-          ctx.drawImage(deadTree, 28, -58, 38, 60);
+        if (deadTree && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(deadTree) : true)) {
+          ctx.drawImage(deadTree, -72, -66, 46, 68);
+          ctx.drawImage(deadTree, 28, -62, 42, 64);
         }
-        if (uCrystal && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(uCrystal) : true)) {
-          ctx.drawImage(uCrystal, -52, -16, 26, 30);
-          ctx.drawImage(uCrystal, 28, -14, 26, 30);
+        if (uCrystal && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(uCrystal) : true)) {
+          ctx.drawImage(uCrystal, -54, -18, 28, 32);
+          ctx.drawImage(uCrystal, 28, -16, 28, 32);
         }
-        if (skullPile && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(skullPile) : true)) {
-          ctx.drawImage(skullPile, -34, 4, 28, 22);
-          ctx.drawImage(skullPile, 10, 5, 28, 22);
+        if (skullPile && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(skullPile) : true)) {
+          ctx.drawImage(skullPile, -36, 2, 34, 26);
+          ctx.drawImage(skullPile, 8, 3, 34, 26);
         }
-        if (skImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(skImg) : true)) {
-          ctx.drawImage(skImg, -40, -74, 80, 82);
+        if (skImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(skImg) : true)) {
+          ctx.drawImage(skImg, -42, -76, 84, 86);
         }
         const kLbl = n.state === 'claimed' ? 'Rey Esqueleto Bendecido'
           : (litCount >= totems.length && totems.length >= 3 ? 'Rey Esqueleto ¡Pulsa para Reclamar!' : `Rey Esqueleto (${litCount}/${totems.length || 3} Tótems)`);
-        ctx.font = '13px BalaclavaPixel, monospace';
+        ctx.font = '13px AbysseaPixel, monospace';
         const kw = Math.max(150, Math.ceil(ctx.measureText(kLbl).width) + 20);
         ctx.fillStyle = 'rgba(24, 12, 34, 0.92)';
         ctx.fillRect(Math.round(-kw / 2), -104, kw, 20);
@@ -10262,25 +11279,33 @@
         ctx.globalAlpha = aura;
         ctx.beginPath(); ctx.ellipse(0, 8, 24, 10, 0, 0, Math.PI * 2); ctx.fill();
         ctx.globalAlpha = 1;
-        if (uImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(uImg) : true)) {
-          ctx.drawImage(uImg, -18, -32, 36, 40);
+        if (uImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(uImg) : true)) {
+          ctx.drawImage(uImg, -22, -40, 44, 48);
         }
-        if (n.lit && extraImgs.fire_brazier && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(extraImgs.fire_brazier) : true)) {
-          ctx.drawImage(extraImgs.fire_brazier, -12, -46, 24, 24);
+        if (n.lit && extraImgs.fire_brazier && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(extraImgs.fire_brazier) : true)) {
+          ctx.drawImage(extraImgs.fire_brazier, -14, -52, 28, 28);
         }
         const tLbl = n.lit ? 'Tótem Óseo Encendido' : 'Encender Tótem Óseo';
-        ctx.font = '13px BalaclavaPixel, monospace';
+        ctx.font = '13px AbysseaPixel, monospace';
         const tw = Math.max(132, Math.ceil(ctx.measureText(tLbl).width) + 18);
         ctx.fillStyle = 'rgba(20, 12, 28, 0.9)';
-        ctx.fillRect(Math.round(-tw / 2), -58, tw, 19);
+        ctx.fillRect(Math.round(-tw / 2), -64, tw, 19);
         ctx.strokeStyle = n.lit ? '#ea80fc' : '#90a4ae';
-        ctx.strokeRect(Math.round(-tw / 2), -58, tw, 19);
+        ctx.strokeRect(Math.round(-tw / 2), -64, tw, 19);
         ctx.fillStyle = n.lit ? '#f3e5f5' : '#cfd8dc';
         ctx.textAlign = 'center';
-        ctx.fillText(tLbl, 0, -44);
+        ctx.fillText(tLbl, 0, -50);
       } else if (n.kind === 'ruin_pillar') {
-        const props = assets.get('props');
-        if (props) ctx.drawImage(props, 352, 175, 36, 80, -16, -44, 32, 64);
+        const extraImgs = assets.extraImages || {};
+        const rpImg = extraImgs.ruin_pillar;
+        ctx.fillStyle = 'rgba(0,0,0,0.24)';
+        ctx.beginPath(); ctx.ellipse(0, 12, 18, 7, 0, 0, Math.PI * 2); ctx.fill();
+        if (rpImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(rpImg) : true)) {
+          ctx.drawImage(rpImg, -22, -56, 44, 70);
+        } else {
+          const props = assets.get('props');
+          if (props) ctx.drawImage(props, 352, 175, 36, 80, -16, -44, 32, 64);
+        }
       }
 
       // Health bar if damaged
@@ -10295,7 +11320,7 @@
     }
 
     drawBuilding(ctx, b, def) {
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const px = b.tx * TILE_SIZE;
       const py = b.ty * TILE_SIZE;
       const w = def.size * TILE_SIZE;
@@ -10305,48 +11330,91 @@
 
       const bImg = assets.getBuildingImg(def.sprite);
       const exImg = assets.extraImages && assets.extraImages[def.sprite];
-      const isFlushTile = ['Bridge_Tile', 'Fish_Pond', 'Corral_Pen', 'Plot_Garden'].includes(def.sprite);
+      const isGroundFloorTile = ['Bridge_Tile', 'prop_cobble', 'village_grass_turf', 'village_cobble_path'].includes(def.sprite);
+      const isFlushTile = isGroundFloorTile || ['Fish_Pond', 'Corral_Pen', 'Plot_Garden', 'prop_pipe'].includes(def.sprite);
       if (def.isChest || b.isChest) {
         const cKey = def.chestSpriteKey || 'wood';
         const isOpen = Boolean(b.isOpen || this.activeChestBuilding === b);
         const spriteId = isOpen ? `${cKey}_open` : `${cKey}_closed`;
         const cImg = assets.chestImages && (assets.chestImages[spriteId] || assets.chestImages[`${cKey}_closed`]);
-        if (cImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(cImg))) {
-          ctx.fillStyle = 'rgba(0,0,0,0.34)';
-          ctx.beginPath();
-          ctx.ellipse(cx, py + h - 2, Math.round(w * 0.62), Math.round(h * 0.19), 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          const bounce = isOpen ? -3 : 0;
-          const dw = Math.round(w * 1.44);
+        if (cImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(cImg))) {
+          const bounce = isOpen ? -2 : 0;
+          const dw = Math.round(w * 0.90);
           const dh = Math.round(dw * (cImg.height / Math.max(1, cImg.width)));
-          ctx.drawImage(cImg, cx - dw / 2, py + h - dh + 3 + bounce, dw, dh);
+          ctx.drawImage(cImg, cx - dw / 2, py + h - dh + 2 + bounce, dw, dh);
           return;
         }
       }
       if (def.sprite === 'Campfire_Anim') {
-        ctx.fillStyle = 'rgba(255, 160, 64, 0.26)';
-        ctx.beginPath(); ctx.arc(cx, cy + 4, 30 + Math.sin(this.time * 8) * 3, 0, Math.PI * 2); ctx.fill();
-        const cf = assets.extraImages && assets.extraImages.campfireAnim;
-        if (cf) {
-          const fw = 16;
-          const frames = Math.max(1, Math.floor(cf.width / fw));
-          const fr = Math.floor((this.time * 8 + b.id) % frames);
-          ctx.drawImage(cf, fr * fw, 0, fw, cf.height, cx - 27, cy - 32, 54, 54);
+        ctx.fillStyle = 'rgba(255, 160, 64, 0.22)';
+        ctx.beginPath(); ctx.arc(cx, cy + 4, 28 + Math.sin(this.time * 4.5) * 2.5, 0, Math.PI * 2); ctx.fill();
+        if (exImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(exImg))) {
+          if (exImg.width >= exImg.height * 3) {
+            const fw = exImg.height || 64;
+            const frames = Math.max(1, Math.round(exImg.width / fw));
+            const fr = Math.floor((this.time * 3.6 + (b.id || 0)) % frames);
+            const dw = Math.round(w * 1.24);
+            const dh = dw;
+            ctx.drawImage(exImg, fr * fw, 0, fw, exImg.height, cx - dw / 2, py + h - dh + 5, dw, dh);
+          } else {
+            const dw = Math.round(w * 1.18);
+            const dh = Math.round(dw * (exImg.height / Math.max(1, exImg.width)));
+            ctx.drawImage(exImg, cx - dw / 2, py + h - dh + 4, dw, dh);
+          }
         } else {
-          ctx.fillStyle = '#ef6c00'; ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2); ctx.fill();
+          const cf = assets.extraImages && assets.extraImages.campfireAnim;
+          if (cf) {
+            const fw = 16;
+            const frames = Math.max(1, Math.floor(cf.width / fw));
+            const fr = Math.floor((this.time * 3.8 + b.id) % frames);
+            ctx.drawImage(cf, fr * fw, 0, fw, cf.height, cx - 27, cy - 32, 54, 54);
+          } else {
+            ctx.fillStyle = '#ef6c00'; ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2); ctx.fill();
+          }
         }
-      } else if (exImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(exImg))) {
-        const vScale = def.visualScale ? def.visualScale * (def.size === 1 ? 1.25 : 1.15) : (def.size === 1 ? 1.35 : 1.25);
-        ctx.fillStyle = 'rgba(0,0,0,0.28)';
-        const shadowScale = (def.visualScale || 1.0);
-        ctx.beginPath(); ctx.ellipse(cx, py + h - 2, Math.round(w * (def.size === 1 ? 0.50 : 0.48) * shadowScale), Math.round(h * 0.15 * shadowScale), 0, 0, Math.PI * 2); ctx.fill();
+      } else if (def.sprite === 'Fish_Pond') {
+        const fpImg = (assets.extraImages && assets.extraImages.Fish_Pond) || (assets.extraImages && assets.extraImages.fish_pond) || bImg;
+        if (fpImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(fpImg))) {
+          const pondScale = def.visualScale || 1.14;
+          const dw = Math.round(w * pondScale);
+          const dxP = Math.round(cx - dw * 0.5);
+          const dyP = Math.round(cy - dw * 0.5);
+          if (fpImg.width >= fpImg.height * 3) {
+            const fw = fpImg.height || 256;
+            const frames = Math.max(1, Math.round(fpImg.width / fw));
+            const fr = Math.floor((this.time * 1.45 + (b.id || 0)) % frames);
+            ctx.drawImage(fpImg, fr * fw, 0, fw, fpImg.height, dxP, dyP, dw, dw);
+          } else {
+            ctx.drawImage(fpImg, dxP, dyP, dw, dw);
+            const frImg = assets.extraImages && assets.extraImages.fish_ripple;
+            if (frImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(frImg))) {
+              ctx.save();
+              ctx.globalAlpha = 0.6 + Math.sin(this.time * 3.5 + b.id) * 0.25;
+              ctx.drawImage(frImg, cx - 14, cy - 14, 28, 28);
+              ctx.restore();
+            }
+          }
+        } else {
+          ctx.fillStyle = '#0288d1';
+          ctx.fillRect(px + 4, py + 4, w - 8, h - 8);
+        }
+      } else if (exImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(exImg))) {
+        const isWallOrFence = ['prop_stone_block', 'bld_muro_madera', 'prop_fence'].includes(def.sprite);
+        const isCompactChest = def.sprite === 'prop_chest';
+        let vScale = def.visualScale ? def.visualScale * (def.size === 1 ? 1.22 : 1.14) : (def.size === 1 ? 1.26 : 1.18);
+        if (isGroundFloorTile) vScale = 1.00;
+        else if (def.sprite === 'prop_pipe') vScale = 1.04;
+        else if (isWallOrFence) vScale = 1.08;
+        else if (isCompactChest) vScale = 0.90;
         if (def.sprite === 'well_health_strip' || def.sprite === 'well_mana_strip') {
-          const fw = 32, fh = 64;
+          const isHealth6f = exImg.height === 64 && exImg.width === 192;
+          const fw = isHealth6f ? 32 : (exImg.height || 64);
+          const fh = exImg.height || 64;
           const frames = Math.max(1, Math.floor(exImg.width / fw));
-          const fr = Math.floor((this.time * 5 + b.id) % frames);
-          const dw = Math.round(w * 0.98);
-          const dh = Math.round(dw * (fh / fw));
+          const fps = def.sprite === 'well_mana_strip' ? 1.8 : 4.2;
+          const fr = Math.floor((this.time * fps + b.id) % frames);
+          const dw = Math.round(w * (isHealth6f ? 0.98 : 1.18));
+          const dh = Math.round(dw * (fh / Math.max(1, fw)));
           ctx.drawImage(exImg, fr * fw, 0, fw, fh, cx - dw / 2, py + h - dh + 4, dw, dh);
         } else if (def.sprite === 'waypoint_white_strip' || def.sprite === 'waypoint_dark_strip') {
           const fw = exImg.height || 128, fh = exImg.height || 128;
@@ -10356,7 +11424,7 @@
           ctx.drawImage(exImg, fr * fw, 0, fw, fh, cx - dw / 2, py + h - dw + 4, dw, dw);
         } else {
           let dw = Math.round(w * vScale);
-          const maxH = Math.round(h * (def.size === 1 ? 1.72 : 1.54));
+          const maxH = Math.round(h * (def.size === 1 ? 2.15 : 1.95));
           const rawH = Math.round(dw * (exImg.height / Math.max(1, exImg.width)));
           let dh = rawH;
           if (rawH > maxH) {
@@ -10367,10 +11435,8 @@
           ctx.drawImage(exImg, cx - dw / 2, dy, dw, dh);
         }
       } else if (bImg) {
-        ctx.fillStyle = 'rgba(0,0,0,0.26)';
-        ctx.beginPath(); ctx.ellipse(cx, py + h - 2, Math.round(w * 0.52), Math.round(h * 0.14), 0, 0, Math.PI * 2); ctx.fill();
         let dw = Math.round(w * (def.size === 1 ? 1.38 : 1.26));
-        const maxH = def.size === 1 ? Math.round(h * 1.66) : Math.round(h * 1.50);
+        const maxH = def.size === 1 ? Math.round(h * 2.10) : Math.round(h * 1.92);
         const rawH = Math.round(dw * (bImg.height / Math.max(1, bImg.width)));
         let dh = rawH;
         if (rawH > maxH) {
@@ -10393,36 +11459,22 @@
         }
       } else if (def.sprite === 'Corral_Pen') {
         const cpImg = assets.extraImages && assets.extraImages.corral_pen;
-        if (cpImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(cpImg))) {
+        if (cpImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(cpImg))) {
           ctx.drawImage(cpImg, px, py, w, h);
         } else {
           ctx.strokeStyle = '#8d5524'; ctx.lineWidth = 4;
           ctx.strokeRect(px + 6, py + 6, w - 12, h - 12);
         }
-        const sh = assets.get('sheep_idle');
-        if (sh) ctx.drawImage(sh, 0, 0, 128, 128, cx - 26, cy - 26, 52, 52);
-      } else if (def.sprite === 'Fish_Pond') {
-        const fpImg = assets.extraImages && assets.extraImages.fish_pond;
-        if (fpImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(fpImg))) {
-          ctx.drawImage(fpImg, px, py, w, h);
-        } else {
-          ctx.fillStyle = '#0288d1';
-          ctx.fillRect(px + 4, py + 4, w - 8, h - 8);
-        }
-        const frImg = assets.extraImages && assets.extraImages.fish_ripple;
-        if (frImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(frImg))) {
-          ctx.save();
-          ctx.globalAlpha = 0.6 + Math.sin(this.time * 3.5 + b.id) * 0.25;
-          ctx.drawImage(frImg, cx - 14, cy - 14, 28, 28);
-          ctx.restore();
+        const sh = assets.get('sheep_idle') || assets.get('sheep_move');
+        if (sh && sh.width >= 128) {
+          const sFrames = Math.max(1, Math.round(sh.width / 128));
+          const sFr = Math.floor((this.time * 5 + (b.tx || 0)) % sFrames);
+          ctx.drawImage(sh, sFr * 128, 0, 128, 128, cx - 28, cy - 28, 56, 56);
         }
       } else if (def.sprite === 'Bridge_Tile') {
-        const brImg = assets.get('bridge');
-        if (brImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(brImg))) {
-          const hasH = this.getBuildingAtTile(b.tx - 1, b.ty)?.type === b.type || this.getBuildingAtTile(b.tx + 1, b.ty)?.type === b.type;
-          const hasV = this.getBuildingAtTile(b.tx, b.ty - 1)?.type === b.type || this.getBuildingAtTile(b.tx, b.ty + 1)?.type === b.type;
-          const useVert = hasV && !hasH;
-          ctx.drawImage(brImg, useVert ? 0 : 64, useVert ? 128 : 0, 64, 64, px - 2, py - 2, w + 4, h + 4);
+        const brImg = (assets.extraImages && (assets.extraImages.bridge_h_mid || assets.extraImages.Bridge_Tile)) || assets.get('bridge');
+        if (brImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(brImg))) {
+          ctx.drawImage(brImg, 0, 0, brImg.width, brImg.height, px - 0.5, py - 1, w + 1, h + 2);
         } else {
           ctx.fillStyle = '#8d6e63'; ctx.fillRect(px + 2, py + 4, w - 4, h - 8);
           ctx.fillStyle = '#5d4037'; ctx.fillRect(px + 2, py + h - 8, w - 4, 4);
@@ -10430,58 +11482,72 @@
       } else {
         // Plot_Garden
         const gpImg = assets.extraImages && assets.extraImages.garden_plot;
-        if (gpImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(gpImg))) {
+        if (gpImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(gpImg))) {
           ctx.drawImage(gpImg, px, py, w, h);
         } else {
           ctx.fillStyle = '#5d4037'; ctx.fillRect(px + 4, py + 4, w - 8, h - 8);
         }
       }
 
-      // Render live animated animals inside Corral and Granja
+      // Render live animated animals inside Corral and Granja using authentic multi-frame spritesheets
       if (b.type === 'corral' || b.type === 'granja') {
-        const shImg = assets.get('sheep_idle');
-        const cowImg = assets.extraImages && assets.extraImages.animal_cow;
-        const pigImg = assets.extraImages && assets.extraImages.animal_pig;
-        const duckImg = assets.extraImages && assets.extraImages.animal_duck;
+        const shImg = assets.get('sheep_move') || assets.get('sheep_idle');
+        const cowImg = assets.extraImages && (assets.extraImages.cow_sheet || assets.extraImages.animal_cow);
+        const pigImg = assets.extraImages && (assets.extraImages.pig_sheet || assets.extraImages.animal_pig);
+        const duckImg = assets.extraImages && (assets.extraImages.duck_sheet || assets.extraImages.animal_duck);
         const t = this.time || 0;
         const bSeed = Number(b.id) || (b.tx * 31 + b.ty * 17);
         const animals = b.type === 'corral'
           ? [
-              { kind: 'sheep', ox: -0.22, oy: 0.04, ph: 0.0, spd: 1.4 },
-              { kind: 'cow',   ox: 0.20,  oy: -0.02, ph: 2.1, spd: 1.1 },
-              { kind: 'pig',   ox: 0.02,  oy: 0.24,  ph: 4.2, spd: 1.7 }
+              { kind: 'sheep', ox: -0.22, oy: 0.04, ph: 0.0, spd: 0.85 },
+              { kind: 'cow',   ox: 0.20,  oy: -0.02, ph: 2.1, spd: 0.70 },
+              { kind: 'pig',   ox: 0.02,  oy: 0.24,  ph: 4.2, spd: 0.95 }
             ]
           : [
-              { kind: 'cow',   ox: -0.24, oy: 0.18, ph: 0.7, spd: 1.2 },
-              { kind: 'sheep', ox: 0.22,  oy: 0.20, ph: 2.8, spd: 1.5 },
-              { kind: 'duck',  ox: -0.04, oy: 0.28, ph: 1.5, spd: 2.2 },
-              { kind: 'duck',  ox: 0.12,  oy: 0.30, ph: 3.9, spd: 2.0 }
+              { kind: 'cow',   ox: -0.24, oy: 0.18, ph: 0.7, spd: 0.75 },
+              { kind: 'sheep', ox: 0.22,  oy: 0.20, ph: 2.8, spd: 0.90 },
+              { kind: 'duck',  ox: -0.04, oy: 0.28, ph: 1.5, spd: 1.25 },
+              { kind: 'duck',  ox: 0.12,  oy: 0.30, ph: 3.9, spd: 1.15 }
             ];
         for (let ai = 0; ai < animals.length; ai++) {
           const an = animals[ai];
-          const walkX = Math.sin(t * an.spd + bSeed + an.ph) * (w * 0.08);
-          const walkY = Math.cos(t * (an.spd * 0.8) + bSeed + an.ph) * (h * 0.04);
-          const hop = Math.abs(Math.sin(t * (an.spd * 2.4) + an.ph)) * 2.5;
+          const walkX = Math.sin(t * an.spd + bSeed + an.ph) * (w * 0.075);
+          const walkY = Math.cos(t * (an.spd * 0.7) + bSeed + an.ph) * (h * 0.035);
+          const hop = an.kind === 'duck' ? Math.abs(Math.sin(t * (an.spd * 2.8) + an.ph)) * 1.8 : 0;
           const ax = cx + an.ox * w + walkX;
           const ay = cy + an.oy * h + walkY - hop;
           const flip = Math.cos(t * an.spd + bSeed + an.ph) < 0 ? -1 : 1;
           ctx.save();
-          ctx.fillStyle = 'rgba(0,0,0,0.25)';
+          ctx.fillStyle = 'rgba(0,0,0,0.16)';
           ctx.beginPath();
           ctx.ellipse(ax, ay + 10 + hop, an.kind === 'duck' ? 6 : 10, an.kind === 'duck' ? 3 : 4, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.translate(ax, ay);
           ctx.scale(flip, 1);
-          if (an.kind === 'sheep' && shImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(shImg))) {
-            const frames = Math.max(1, Math.floor(shImg.width / 128));
-            const fr = Math.floor((t * 6 + ai * 2) % frames);
-            ctx.drawImage(shImg, fr * 128, 0, 128, 128, -22, -22, 44, 44);
-          } else if (an.kind === 'cow' && cowImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(cowImg))) {
-            ctx.drawImage(cowImg, -16, -15, 32, 30);
-          } else if (an.kind === 'pig' && pigImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(pigImg))) {
-            ctx.drawImage(pigImg, -13, -12, 26, 24);
-          } else if (an.kind === 'duck' && duckImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(duckImg))) {
-            ctx.drawImage(duckImg, -10, -10, 20, 20);
+          const drawPenAnim = (im, dw, dh, speed) => {
+            if (im.width >= 256 && im.height >= 100) {
+              // Tiny Swords horizontal strip (128x128 per frame)
+              const frames = Math.max(1, Math.round(im.width / 128));
+              const fr = Math.floor((t * speed + ai * 1.7 + bSeed) % frames);
+              ctx.drawImage(im, fr * 128, 0, 128, 128, -dw / 2, -dh / 2, dw, dh);
+            } else if (im.width >= 90 && im.height >= 60) {
+              // 3x2 animated farm sheet (Row 1 = animated walk cycle)
+              const fw = Math.round(im.width / 3);
+              const fh = Math.round(im.height / 2);
+              const col = Math.floor((t * speed + ai * 1.3 + bSeed) % 3);
+              ctx.drawImage(im, col * fw, fh, fw, fh, -dw / 2, -dh / 2, dw, dh);
+            } else {
+              ctx.drawImage(im, -dw / 2, -dh / 2, dw, dh);
+            }
+          };
+          if (an.kind === 'sheep' && shImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(shImg))) {
+            drawPenAnim(shImg, 54, 54, 6.0);
+          } else if (an.kind === 'cow' && cowImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(cowImg))) {
+            drawPenAnim(cowImg, 36, 36, 5.5);
+          } else if (an.kind === 'pig' && pigImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(pigImg))) {
+            drawPenAnim(pigImg, 30, 30, 6.2);
+          } else if (an.kind === 'duck' && duckImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(duckImg))) {
+            drawPenAnim(duckImg, 24, 24, 6.8);
           }
           ctx.restore();
         }
@@ -10544,7 +11610,7 @@
       }
       if (b.noFuel) {
         ctx.fillStyle = '#ef5350';
-        ctx.font = '13px BalaclavaPixel, monospace';
+        ctx.font = '13px AbysseaPixel, monospace';
         ctx.textAlign = 'center';
         ctx.fillText('Sin Carbón', cx, py - 6);
       }
@@ -10552,62 +11618,73 @@
     }
 
     drawSheep(ctx, s) {
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const ex = assets.extraImages || {};
       const kind = s.kind || s.species || 'sheep';
-      const moving = Math.abs(s.vx || 0) + Math.abs(s.vy || 0) > 1;
-      const faceLeft = (s.facing || 1) < 0 || (s.vx || 0) < -1;
+      const spd = Math.hypot(s.vx || 0, s.vy || 0);
+      const moving = spd > 3.2;
+      const faceLeft = (s.facing || 1) < 0;
+      const aT = (s.animTime !== undefined ? s.animTime : this.time) + (s.id || 0) * 0.73;
+
       ctx.save();
       ctx.translate(s.x, s.y);
-      ctx.fillStyle = 'rgba(0,0,0,0.24)';
+      ctx.fillStyle = 'rgba(0,0,0,0.20)';
       ctx.beginPath();
       ctx.ellipse(0, 12, kind === 'vaca' ? 18 : kind === 'conejo' || kind === 'pato' ? 10 : 14, 5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      const okAn = (im) => im && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(im));
+      const okAn = (im) => im && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(im));
       const drawSheet3x2 = (img, dw, dh, hopY = 0) => {
-        const cols = 3;
-        const rows = Math.max(1, Math.floor(img.height / 32));
-        const col = Math.floor((this.time * (moving ? 7 : 3) + s.id) % cols);
+        const fw = Math.round(img.width / 3) || 32;
+        const fh = Math.round(img.height / 2) || 32;
+        const rows = Math.max(1, Math.round(img.height / fh));
+        const fps = moving ? 6.5 : 3.2;
+        const col = Math.floor(aT * fps) % 3;
         const row = (moving && rows > 1) ? 1 : 0;
         ctx.save();
         if (faceLeft) ctx.scale(-1, 1);
-        ctx.drawImage(img, col * 32, row * 32, 32, 32, -dw / 2, -dh + 15 - hopY, dw, dh);
+        ctx.drawImage(img, col * fw, row * fh, fw, fh, Math.round(-dw / 2), Math.round(14 - dh - hopY), dw, dh);
         ctx.restore();
       };
 
       if (kind === 'sheep') {
-        const sh = assets.get(moving ? 'sheep_move' : 'sheep_idle');
-        if (sh) {
-          const fr = Math.floor((this.time * 6 + s.id) % 4);
+        const sh = moving
+          ? assets.get('sheep_move')
+          : ((s.grazing && assets.get('sheep_grass')) || assets.get('sheep_idle'));
+        if (okAn(sh) && sh.height >= 100) {
+          const frames = Math.max(1, Math.round(sh.width / 128));
+          const fps = moving ? 7.5 : (s.grazing ? 6.5 : 4.8);
+          const fr = Math.floor(aT * fps) % frames;
           ctx.save();
           if (faceLeft) ctx.scale(-1, 1);
           ctx.drawImage(sh, fr * 128, 0, 128, 128, -38, -42, 76, 76);
           ctx.restore();
+        } else if (okAn(ex.sheep_farm_sheet)) {
+          drawSheet3x2(ex.sheep_farm_sheet, 40, 40, 0);
         }
       } else if (kind === 'pato') {
-        const hop = moving ? Math.abs(Math.sin(this.time * 10 + s.id)) * 3 : 0;
+        const hop = moving ? Math.abs(Math.sin(aT * 8.5)) * 2.5 : 0;
         if (okAn(ex.duck_sheet)) {
           drawSheet3x2(ex.duck_sheet, 34, 34, hop);
         } else if (okAn(ex.rubber_duck)) {
-          const fr = Math.floor((this.time * 6 + s.id) % 3);
+          const fr = Math.floor(aT * 6) % 3;
           ctx.save();
           if (faceLeft) ctx.scale(-1, 1);
-          ctx.drawImage(ex.rubber_duck, fr * 32, 0, 32, 32, -19, -24 - hop, 38, 38);
+          ctx.drawImage(ex.rubber_duck, fr * 32, 0, 32, 32, -19, Math.round(-24 - hop), 38, 38);
           ctx.restore();
         }
       } else if (kind === 'vaca') {
         if (okAn(ex.cow_sheet)) {
-          drawSheet3x2(ex.cow_sheet, 46, 46, 0);
+          drawSheet3x2(ex.cow_sheet, 48, 48, 0);
         }
       } else if (kind === 'cerdo') {
         if (okAn(ex.pig_sheet)) {
           drawSheet3x2(ex.pig_sheet, 40, 40, 0);
         }
       } else if (kind === 'conejo') {
-        const hop = moving ? Math.abs(Math.sin(this.time * 12 + s.id)) * 5 : 0;
+        const hop = moving ? Math.abs(Math.sin(aT * 10.5)) * 4.5 : 0;
         if (okAn(ex.rabbit_sheet)) {
-          drawSheet3x2(ex.rabbit_sheet, 32, 32, hop);
+          drawSheet3x2(ex.rabbit_sheet, 34, 34, hop);
         }
       }
 
@@ -10621,27 +11698,36 @@
     }
 
     drawNpc(ctx, npc, x, y) {
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const sheet = assets.npcSheets && assets.npcSheets[npc.id];
       const img = assets.get(npc.spriteKey);
       ctx.save();
       ctx.translate(x, y);
-      ctx.fillStyle = 'rgba(0,0,0,0.28)';
+      ctx.fillStyle = 'rgba(0,0,0,0.16)';
       ctx.beginPath(); ctx.ellipse(0, 12, 13, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+      let isV15Npc = false;
       if (sheet) {
-        const fw = Math.round(sheet.width / 6) || 16;
-        const fh = Math.round(sheet.height / 4) || 32;
-        const fr = Math.floor(this.time * 4) % 4;
-        ctx.drawImage(sheet, fr * fw, 0, fw, fh, -20, -52, 40, 68);
+        if (sheet.width >= sheet.height * 3) {
+          isV15Npc = true;
+          const fw = sheet.height || 64;
+          const frames = Math.max(1, Math.round(sheet.width / fw));
+          const fr = Math.floor((this.time * 3.5 + ((npc.id && npc.id.charCodeAt(0)) || 0)) % frames);
+          ctx.drawImage(sheet, fr * fw, 0, fw, sheet.height, -28, -44, 56, 56);
+        } else {
+          const fw = Math.round(sheet.width / 6) || 16;
+          const fh = Math.round(sheet.height / 4) || 32;
+          const fr = Math.floor(this.time * 4) % 4;
+          ctx.drawImage(sheet, fr * fw, 0, fw, fh, -20, -52, 40, 68);
+        }
       } else if (img) {
         const fr = Math.floor(this.time * 4) % 4;
         ctx.drawImage(img, fr * 48, 0, 48, 48, -24, -34, 48, 48);
       } else {
         ctx.fillStyle = '#ab47bc'; ctx.fillRect(-12, -26, 24, 30);
       }
-      const nameY = sheet ? -44 : -30;
+      const nameY = isV15Npc ? -48 : (sheet ? -44 : -30);
       const label = npc.name.split(' ')[0];
-      ctx.font = '13.5px BalaclavaPixel, monospace';
+      ctx.font = '13.5px AbysseaPixel, monospace';
       ctx.textAlign = 'center';
       ctx.lineWidth = 2.8;
       ctx.lineJoin = 'round';
@@ -10655,76 +11741,103 @@
     drawEnemy(ctx, e) {
       if (!e || !Number.isFinite(e.x) || !Number.isFinite(e.y)) return;
       try {
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       ctx.save();
       ctx.translate(e.x, e.y);
 
-      // 1. Advertencia / Telegraph en el suelo antes de embestir, saltar, excavar, lanzar bombas, rayos o ráfagas
+      // 1. Advertencia / Telegraph ARPG estilizado en el suelo antes de embestir, saltar, excavar, lanzar bombas, rayos o ráfagas
       if (e.state === 'windup' || (e.telegraph > 0 && (e.telegraphMode === 'dash_strike' || e.telegraphMode === 'dash_combo' || e.telegraphMode === 'miniboss_dash' || e.telegraphMode === 'aimed_volley' || e.telegraphMode === 'miniboss_fan' || e.telegraphMode === 'leap_slam' || e.telegraphMode === 'miniboss_leap' || e.telegraphMode === 'pillar_ring'))) {
         ctx.save();
+        const wProg = e.state === 'windup'
+          ? clamp(1 - Math.max(0, e.windupTimer || 0) / Math.max(0.08, e.windupMax || 0.45), 0, 1)
+          : 0.65;
         if (e.attackKind === 'charge' || e.attackKind === 'dash' || e.attackKind === 'swoop' || e.telegraphMode === 'dash_strike' || e.telegraphMode === 'dash_combo' || e.telegraphMode === 'miniboss_dash') {
           const dAng = e.targetAngle !== undefined ? e.targetAngle : (e.facing >= 0 ? 0 : Math.PI);
-          const lineLen = e.isBoss ? 155 : e.isMiniBoss ? 125 : 100;
+          const lineLen = e.isBoss ? 160 : e.isMiniBoss ? 130 : 108;
+          const halfW = e.isBoss ? 16 : e.isMiniBoss ? 13 : 10;
           ctx.rotate(dAng);
-          ctx.strokeStyle = e.isBoss ? 'rgba(255, 167, 38, 0.92)' : 'rgba(255, 82, 82, 0.88)';
-          ctx.lineWidth = e.isBoss ? 4.5 : 3;
-          ctx.setLineDash([8, 4]);
+          const laneGrad = ctx.createLinearGradient(10, 0, lineLen + 14, 0);
+          laneGrad.addColorStop(0, e.isBoss ? 'rgba(255, 167, 38, 0.12)' : 'rgba(255, 82, 82, 0.14)');
+          laneGrad.addColorStop(1, e.isBoss ? `rgba(255, 167, 38, ${(0.28 + wProg * 0.34).toFixed(2)})` : `rgba(255, 64, 64, ${(0.26 + wProg * 0.36).toFixed(2)})`);
+          ctx.fillStyle = laneGrad;
           ctx.beginPath();
-          ctx.moveTo(12, 0);
-          ctx.lineTo(lineLen, 0);
+          ctx.moveTo(10, -halfW * 0.7); ctx.lineTo(lineLen, -halfW); ctx.lineTo(lineLen + 16, 0);
+          ctx.lineTo(lineLen, halfW); ctx.lineTo(10, halfW * 0.7); ctx.closePath(); ctx.fill();
+          ctx.strokeStyle = e.isBoss ? 'rgba(255, 193, 7, 0.92)' : 'rgba(255, 92, 92, 0.90)';
+          ctx.lineWidth = 2;
           ctx.stroke();
-          ctx.fillStyle = e.isBoss ? '#ffa726' : '#ff5252';
-          ctx.beginPath();
-          ctx.moveTo(lineLen, -7); ctx.lineTo(lineLen + 14, 0); ctx.lineTo(lineLen, 7);
-          ctx.fill();
+          // Animated scrolling chevrons racing toward target
+          ctx.strokeStyle = 'rgba(255, 245, 225, 0.86)';
+          ctx.lineWidth = 2.2;
+          const shift = (this.time * 130) % 26;
+          for (let cx = 18 + shift; cx < lineLen - 4; cx += 26) {
+            ctx.beginPath();
+            ctx.moveTo(cx - 6, -halfW * 0.55); ctx.lineTo(cx, 0); ctx.lineTo(cx - 6, halfW * 0.55);
+            ctx.stroke();
+          }
         } else if (e.attackKind === 'beam') {
           const dAng = e.beamAngle !== undefined ? e.beamAngle : (e.targetAngle !== undefined ? e.targetAngle : 0);
-          const prog = clamp(e._beamProgress || 0.35, 0, 1);
+          const prog = clamp(e._beamProgress || wProg, 0, 1);
           ctx.rotate(dAng);
-          ctx.strokeStyle = `rgba(128, 216, 255, ${(0.28 + 0.55 * prog).toFixed(2)})`;
-          ctx.lineWidth = Math.max(3, 18 * (1 - prog * 0.65));
-          ctx.beginPath();
-          ctx.moveTo(10, 0);
-          ctx.lineTo(250, 0);
-          ctx.stroke();
+          ctx.strokeStyle = `rgba(128, 216, 255, ${(0.22 + 0.58 * prog).toFixed(2)})`;
+          ctx.lineWidth = Math.max(4, 22 * (1 - prog * 0.58));
+          ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(252, 0); ctx.stroke();
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 1.5 + prog * 2.5;
-          ctx.beginPath();
-          ctx.moveTo(10, 0);
-          ctx.lineTo(250, 0);
-          ctx.stroke();
+          ctx.lineWidth = 1.8 + prog * 3.0;
+          ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(252, 0); ctx.stroke();
         } else if ((e.attackKind === 'leap' || e.attackKind === 'bomb' || e.telegraphMode === 'leap_slam' || e.telegraphMode === 'miniboss_leap') && e.targetX !== undefined) {
           const relX = e.targetX - e.x;
           const relY = e.targetY - e.y;
-          const rad = e.telegraphMode === 'leap_slam' ? 115 : e.telegraphMode === 'miniboss_leap' ? 82 : 52;
-          ctx.fillStyle = e.attackKind === 'bomb' ? 'rgba(255, 112, 67, 0.22)' : 'rgba(255, 82, 82, 0.20)';
-          ctx.beginPath();
-          ctx.arc(relX, relY, rad, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 112, 67, 0.92)';
-          ctx.lineWidth = 2.5;
-          ctx.setLineDash([7, 4]);
-          ctx.beginPath();
-          ctx.arc(relX, relY, rad, 0, Math.PI * 2);
-          ctx.stroke();
-        } else if (e.attackKind === 'burrow' || e.attackKind === 'spore' || e.attackKind === 'cleave' || e.attackKind === 'miniboss_pillars' || e.telegraphMode === 'pillar_ring') {
-          const rad = e.attackKind === 'spore' ? 68 : e.attackKind === 'cleave' ? 56 : e.telegraphMode === 'pillar_ring' ? 92 : 40;
-          ctx.fillStyle = e.attackKind === 'spore' ? 'rgba(139, 195, 74, 0.18)' : 'rgba(255, 183, 77, 0.16)';
-          ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = e.attackKind === 'spore' ? 'rgba(156, 204, 101, 0.9)' : 'rgba(255, 183, 77, 0.9)';
-          ctx.lineWidth = 2.2;
-          ctx.setLineDash([6, 4]);
-          ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.stroke();
-        } else if (e.attackKind === 'miniboss_fan' || e.telegraphMode === 'aimed_volley' || e.telegraphMode === 'miniboss_fan') {
-          const dAng = e.targetAngle !== undefined ? e.targetAngle : 0;
-          ctx.strokeStyle = 'rgba(255, 213, 79, 0.72)';
+          const rad = e.telegraphMode === 'leap_slam' ? 115 : e.telegraphMode === 'miniboss_leap' ? 82 : 54;
+          const rGrad = ctx.createRadialGradient(relX, relY, 4, relX, relY, rad);
+          rGrad.addColorStop(0, 'rgba(255, 82, 82, 0.34)');
+          rGrad.addColorStop(1, 'rgba(255, 112, 67, 0.08)');
+          ctx.fillStyle = rGrad;
+          ctx.beginPath(); ctx.arc(relX, relY, rad, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = `rgba(255, 82, 82, ${(0.18 + wProg * 0.34).toFixed(2)})`;
+          ctx.beginPath(); ctx.arc(relX, relY, Math.max(6, rad * wProg), 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 138, 101, 0.95)';
+          ctx.lineWidth = 2.4;
+          ctx.beginPath(); ctx.arc(relX, relY, rad, 0, Math.PI * 2); ctx.stroke();
+          ctx.save();
+          ctx.translate(relX, relY);
+          ctx.rotate(this.time * 3.4);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.78)';
           ctx.lineWidth = 2;
-          ctx.setLineDash([5, 5]);
-          for (let k = -2; k <= 2; k++) {
+          for (let k = 0; k < 4; k++) {
+            const a = (k * Math.PI) / 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * (rad - 7), Math.sin(a) * (rad - 7));
+            ctx.lineTo(Math.cos(a) * (rad + 2), Math.sin(a) * (rad + 2));
+            ctx.stroke();
+          }
+          ctx.restore();
+        } else if (e.attackKind === 'burrow' || e.attackKind === 'spore' || e.attackKind === 'cleave' || e.attackKind === 'miniboss_pillars' || e.telegraphMode === 'pillar_ring') {
+          const rad = e.attackKind === 'spore' ? 70 : e.attackKind === 'cleave' ? 58 : e.telegraphMode === 'pillar_ring' ? 92 : 44;
+          const isSpore = e.attackKind === 'spore';
+          const cRgba = isSpore ? '139, 195, 74' : '255, 183, 77';
+          ctx.fillStyle = `rgba(${cRgba}, 0.14)`;
+          ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = `rgba(${cRgba}, ${(0.18 + wProg * 0.32).toFixed(2)})`;
+          ctx.beginPath(); ctx.arc(0, 0, Math.max(6, rad * wProg), 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = `rgba(${cRgba}, 0.94)`;
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([7, 4]);
+          ctx.lineDashOffset = -this.time * 36;
+          ctx.beginPath(); ctx.arc(0, 0, rad, 0, Math.PI * 2); ctx.stroke();
+        } else if (e.attackKind === 'cast' || e.attackKind === 'miniboss_fan' || e.telegraphMode === 'aimed_volley' || e.telegraphMode === 'miniboss_fan') {
+          const dAng = e.targetAngle !== undefined ? e.targetAngle : 0;
+          const isSingle = e.attackKind === 'cast';
+          const rays = isSingle ? [0] : [-2, -1, 0, 1, 2];
+          ctx.strokeStyle = `rgba(255, 224, 130, ${(0.45 + wProg * 0.45).toFixed(2)})`;
+          ctx.lineWidth = isSingle ? 2.4 : 2.0;
+          ctx.setLineDash([7, 5]);
+          ctx.lineDashOffset = -this.time * 60;
+          for (const k of rays) {
             const a = dAng + k * 0.22;
             ctx.beginPath();
-            ctx.moveTo(12 * Math.cos(a), 12 * Math.sin(a));
-            ctx.lineTo(130 * Math.cos(a), 130 * Math.sin(a));
+            ctx.moveTo(14 * Math.cos(a), 14 * Math.sin(a));
+            ctx.lineTo((isSingle ? 115 : 135) * Math.cos(a), (isSingle ? 115 : 135) * Math.sin(a));
             ctx.stroke();
           }
         }
@@ -10754,7 +11867,7 @@
       const isMoving = Math.abs(e.animVx || 0) > 3 || Math.abs(e.animVy || 0) > 3;
       const isFlying = /^(bat|vampire_bat|plague_bat|wisp|wisp_green|floating_eye|ghastly_eye|flaming_skull|ghost|ghost_spectral|enemy_ember_bat|enemy_dark_bat|enemy_cristal_eye|enemy_necro_skull|enemy_bat_horned|enemy_abismo_wisp|enemy_dragon_whelp|enemy_glaciar_whelp)$/i.test(e.type || '')
         || /^boss_(montanas_heladas|tierras_volcanicas|volcan_caldera|montanas_cumbre|cristal_corazon|glaciar_ojo|necro_torre|maldita_calabaza)$/i.test(e.type || '');
-      const footPads = Balaclava.ENEMY_FOOT_PADS || {};
+      const footPads = Abyssea.ENEMY_FOOT_PADS || {};
       const groundAnchorY = isFlying ? 4 : 12;
       let squashX = 1.0;
       let squashY = 1.0;
@@ -10795,9 +11908,9 @@
 
       if (e.isBoss) {
         const bossBiome = (e.type || '').replace(/^boss_/, '');
-        const bMeta = Balaclava.BOSS_SPRITE_PATHS && Balaclava.BOSS_SPRITE_PATHS[bossBiome];
+        const bMeta = Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[bossBiome];
         const bImg = assets.bossImages && assets.bossImages[bossBiome];
-        if (bMeta && bImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(bImg) : true)) {
+        if (bMeta && bImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(bImg) : true)) {
           let sx, sy, sw, sh;
           if (bMeta.multiRow) {
             const row = Math.max(0, Math.min((bMeta.rows || 8) - 1, e.animRow || 0));
@@ -10830,43 +11943,18 @@
           spriteDrawn = true;
         }
       } else {
-        const exImgs = assets.extraImages || {};
-        const mbKey = e.isMiniBoss
-          ? ((e.ranged || /mage|shaman|necro|warlock|witch|eye|psychic/i.test(e.type || ''))
-            ? 'miniboss_mage'
-            : (/golem|brute|orc|guardian|giant|mace|troll/i.test(e.type || '') || (Math.abs(idSeed) % 2 === 1))
-              ? 'miniboss_mace'
-              : 'miniboss_sword')
-          : null;
-        const mbImg = mbKey ? exImgs[mbKey] : null;
-        if (mbImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(mbImg) : mbImg.complete && mbImg.naturalWidth > 0)) {
-          const fw = mbKey === 'miniboss_mage' ? 45 : mbKey === 'miniboss_mace' ? 54 : 59;
-          const fh = mbImg.height || (mbKey === 'miniboss_mage' ? 52 : mbKey === 'miniboss_mace' ? 47 : 42);
-          const maxFr = Math.max(1, Math.min(4, Math.floor(mbImg.width / fw)));
-          const fr = Math.abs(Math.floor(this.time * 7 + idSeed)) % maxFr;
-          const mult = 1.32;
-          const dw = Math.round(fw * mult);
-          const dh = Math.round(fh * mult);
-          const mbPad = footPads[mbKey] || 0;
-          const drawY = -dh + Math.round(dh * mbPad) + 1;
-          barY = groundAnchorY + drawY - 8;
-          ctx.fillStyle = 'rgba(255, 213, 79, 0.26)';
-          ctx.beginPath(); ctx.ellipse(0, 0, 28, 9, 0, 0, Math.PI * 2); ctx.fill();
-          ctx.save();
-          if (e.facing < 0) ctx.scale(-1, 1);
-          if (e.hitFlash > 0) this.drawFlashSprite(ctx, mbImg, fr * fw, 0, fw, fh, -dw / 2, drawY, dw, dh);
-          else ctx.drawImage(mbImg, fr * fw, 0, fw, fh, -dw / 2, drawY, dw, dh);
-          ctx.restore();
-          spriteDrawn = true;
-        }
-        const meta = !spriteDrawn && Balaclava.ENEMY_SPRITE_PATHS && Balaclava.ENEMY_SPRITE_PATHS[e.type];
+        // Render biome Mini-Bosses using their own crisp 128x128 6-frame HD sprite at 1.38x champion scale + golden aura
+        const meta = !spriteDrawn && Abyssea.ENEMY_SPRITE_PATHS && Abyssea.ENEMY_SPRITE_PATHS[e.type];
         const eImg = !spriteDrawn && assets.enemyImages && assets.enemyImages[e.type];
-        if (meta && eImg && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(eImg) : eImg.complete && eImg.naturalWidth > 0)) {
+        if (meta && eImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(eImg) : eImg.complete && eImg.naturalWidth > 0)) {
           const sizeMult = e.isMiniBoss ? 1.38 : 1.0;
           const ePad = isFlying ? 0 : (footPads[e.type] || 0);
           if (e.isMiniBoss) {
-            ctx.fillStyle = 'rgba(255, 213, 79, 0.22)';
-            ctx.beginPath(); ctx.ellipse(0, 0, 26, 9, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255, 213, 79, 0.28)';
+            ctx.beginPath(); ctx.ellipse(0, 0, 28, 10, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 224, 130, 0.72)';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.ellipse(0, 0, 30, 11, 0, 0, Math.PI * 2); ctx.stroke();
           }
           ctx.save();
           const useGoldTint = !(e.hitFlash > 0) && !!meta.goldGlow;
@@ -10893,7 +11981,7 @@
               ctx.drawImage(eImg, fr * meta.fw, row * meta.fh, meta.fw, meta.fh, -dw / 2, drawY, dw, dh);
             }
           } else {
-            const maxFr = Math.max(1, Math.min(4, Math.floor(eImg.width / meta.fw)));
+            const maxFr = Math.max(1, Math.min(meta.frames || 4, Math.floor(eImg.width / meta.fw)));
             const fr = Math.abs(Math.floor(this.time * 7 + idSeed)) % maxFr;
             const dw = Math.round(meta.fw * meta.scale * sizeMult);
             const dh = Math.round(meta.fh * meta.scale * sizeMult);
@@ -10972,14 +12060,14 @@
         ctx.lineWidth = 1;
         ctx.strokeRect(-43, barY - 17, 86, 15);
         ctx.fillStyle = '#ffd54f';
-        ctx.font = '12px BalaclavaPixel, monospace';
+        ctx.font = '12px AbysseaPixel, monospace';
         ctx.textAlign = 'center';
         ctx.fillText('MINI-JEFE', 0, barY - 5);
       } else if (!e.isBoss && e.level && e.level > 1 && dist(e.x, e.y, this.player.x, this.player.y) < 340) {
         ctx.fillStyle = 'rgba(26, 16, 10, 0.85)';
         ctx.fillRect(-23, barY - 16, 46, 14);
         ctx.fillStyle = e.level >= 7 ? '#ff8a65' : '#ffe082';
-        ctx.font = '12px BalaclavaPixel, monospace';
+        ctx.font = '12px AbysseaPixel, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(`Nv.${e.level}`, 0, barY - 4.5);
       }
@@ -11001,7 +12089,7 @@
 
     drawDrop(ctx, d) {
       const bob = Math.sin(this.time * 5 + d.x) * 3.5;
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const isDrawable = (im) => im && (!('naturalWidth' in im) || (im.complete && im.naturalWidth > 0)) && (!im.width || im.width > 0);
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,0.30)';
@@ -11014,7 +12102,7 @@
         ctx.restore();
         return;
       }
-      const it = Balaclava.ITEMS[d.itemId];
+      const it = Abyssea.ITEMS[d.itemId];
       if (!it) { ctx.restore(); return; }
       const rar = RARITIES[it.rarity] || RARITIES.comun;
       ctx.fillStyle = rar.color;
@@ -11030,7 +12118,7 @@
     renderOverlaysAndPreview(ctx) {
       // Thrown TNT & Bombs (arc flight + danger ring + animated sprite)
       if (this.thrownBombs && this.thrownBombs.length > 0) {
-        const exImgs = Balaclava.Assets.extraImages || {};
+        const exImgs = Abyssea.Assets.extraImages || {};
         const dynImg = exImgs.dynamiteAnim;
         const hasDyn = dynImg && dynImg.complete && dynImg.naturalWidth > 0;
         for (const b of this.thrownBombs) {
@@ -11058,7 +12146,7 @@
             const fr = Math.floor((this.time * 14) % 6);
             ctx.drawImage(dynImg, fr * 64, 0, 64, 64, -18, -18, 36, 36);
           } else {
-            const ic = Balaclava.Assets.getItemIconCanvas(b.icon);
+            const ic = Abyssea.Assets.getItemIconCanvas(b.icon);
             if (ic) ctx.drawImage(ic, -14, -14, 28, 28);
           }
           ctx.restore();
@@ -11121,7 +12209,7 @@
       for (const ap of this.ambientParticles) {
         if (!ap || !ap.active) continue;
         if (ap.kind === 'butterfly') {
-          const bImg = Balaclava.Assets && Balaclava.Assets.extraImages && Balaclava.Assets.extraImages[ap.spriteKey];
+          const bImg = Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages[ap.spriteKey];
           if (bImg && bImg.complete && bImg.naturalWidth > 0) {
             const age = (ap.maxLife || 9) - ap.life;
             const ageFade = Math.min(1, Math.max(0, age * 1.8), Math.max(0, ap.life * 1.1));
@@ -11131,7 +12219,8 @@
             ctx.globalAlpha = 0.95 * ageFade;
             ctx.translate(ap.x, ap.y + bob);
             ctx.scale(ap.vx < 0 ? -flap : flap, 1);
-            ctx.drawImage(bImg, -ap.size / 2, -ap.size / 2, ap.size, ap.size);
+            const bDh = Math.round(ap.size * (bImg.height / Math.max(1, bImg.width)));
+            ctx.drawImage(bImg, -ap.size / 2, -bDh / 2, ap.size, bDh);
             ctx.restore();
             continue;
           }
@@ -11169,7 +12258,7 @@
         this.updateMouseWorld();
         const tx = Math.floor(this.mouse.wx / TILE_SIZE);
         const ty = Math.floor(this.mouse.wy / TILE_SIZE);
-        const def = Balaclava.BUILDINGS[this.placingBuildingId];
+        const def = Abyssea.BUILDINGS[this.placingBuildingId];
         if (def) {
           const valid = this.canPlaceBuilding(this.placingBuildingId, tx, ty);
           const w = def.size * TILE_SIZE;
@@ -11182,8 +12271,8 @@
       }
 
       // Omega Energy Grid visualization when placing Omega building or inspecting
-      const isPlacingOmega = this.placingBuildingId && Balaclava.BUILDINGS[this.placingBuildingId] && Balaclava.BUILDINGS[this.placingBuildingId].omega;
-      const isOpenOmegaModal = Balaclava.UI && Balaclava.UI.activeModal === 'building' && Balaclava.UI.modalData && Balaclava.BUILDINGS[Balaclava.UI.modalData.type] && Balaclava.BUILDINGS[Balaclava.UI.modalData.type].omega;
+      const isPlacingOmega = this.placingBuildingId && Abyssea.BUILDINGS[this.placingBuildingId] && Abyssea.BUILDINGS[this.placingBuildingId].omega;
+      const isOpenOmegaModal = Abyssea.UI && Abyssea.UI.activeModal === 'building' && Abyssea.UI.modalData && Abyssea.BUILDINGS[Abyssea.UI.modalData.type] && Abyssea.BUILDINGS[Abyssea.UI.modalData.type].omega;
       if ((isPlacingOmega || isOpenOmegaModal) && !this.activeDungeon && Array.isArray(this.buildings)) {
         ctx.save();
         const pulse = 0.5 + 0.5 * Math.sin(this.time * 4);
@@ -11191,11 +12280,11 @@
         ctx.setLineDash([5, 5]);
         ctx.lineDashOffset = -this.time * 20;
 
-        const omegaBldgs = this.buildings.filter(b => Balaclava.BUILDINGS[b.type] && Balaclava.BUILDINGS[b.type].omega);
+        const omegaBldgs = this.buildings.filter(b => Abyssea.BUILDINGS[b.type] && Abyssea.BUILDINGS[b.type].omega);
         const pylons = omegaBldgs.filter(b => b.type === 'pilon_enlace' || b.type === 'nexo_central');
         
         for (const p of pylons) {
-          const pDef = Balaclava.BUILDINGS[p.type];
+          const pDef = Abyssea.BUILDINGS[p.type];
           const px = (p.tx + (pDef.size || 1) * 0.5) * TILE_SIZE;
           const py = (p.ty + (pDef.size || 1) * 0.5) * TILE_SIZE;
           const r = ((pDef.omega && pDef.omega.radius) || 8) * TILE_SIZE;
@@ -11206,7 +12295,7 @@
 
           for (const p2 of pylons) {
             if (p2.id <= p.id) continue;
-            const p2Def = Balaclava.BUILDINGS[p2.type];
+            const p2Def = Abyssea.BUILDINGS[p2.type];
             const p2x = (p2.tx + (p2Def.size || 1) * 0.5) * TILE_SIZE;
             const p2y = (p2.ty + (p2Def.size || 1) * 0.5) * TILE_SIZE;
             const d = Math.hypot(px - p2x, py - p2y);
@@ -11224,7 +12313,7 @@
 
       // Target Hitbox Indicator + Hover Inspector + Animated [E] Prompt over interactables
       this.hoveredTarget = null;
-      if (!this.placingBuildingId && !Balaclava.UI.hasOpenModal() && !(this.player && this.player.deadTimer > 0)) {
+      if (!this.placingBuildingId && !Abyssea.UI.hasOpenModal() && !(this.player && this.player.deadTimer > 0)) {
         this.updateMouseWorld();
         const mw = this.mouse;
         const hovered = this.findHoveredEntity(mw.wx, mw.wy);
@@ -11239,39 +12328,50 @@
 
         // If nothing hovered directly, also show [E] prompt on closest nearby interactable!
         if (!interactPrompt && !this.activeDungeon) {
-          let bestDist = 82;
+          let bestScore = Infinity;
           for (const b of this.buildings) {
-            const bDef = Balaclava.BUILDINGS[b.type];
+            const bDef = Abyssea.BUILDINGS[b.type];
             if (!bDef) continue;
             const bx = (b.tx + bDef.size * 0.5) * TILE_SIZE;
             const by = (b.ty + bDef.size * 0.5) * TILE_SIZE;
+            const bReach = Math.max(84, Math.round(bDef.size * TILE_SIZE * 0.56) + 46);
             const d = dist(this.player.x, this.player.y, bx, by);
-            if (d <= bestDist) { bestDist = d; interactPrompt = { x: bx, y: b.ty * TILE_SIZE - 16 }; }
+            if (d <= bReach && d < bestScore) { bestScore = d; interactPrompt = { x: bx, y: b.ty * TILE_SIZE - 16 }; }
           }
-          for (const n of this.world.nodes) {
+          const promptNodes = (this.world && typeof this.world.queryNodesInRect === 'function')
+            ? this.world.queryNodesInRect(this.player.x - 240, this.player.y - 260, this.player.x + 240, this.player.y + 240)
+            : this.world.nodes;
+          for (const n of promptNodes) {
             if (!['dungeon_gate', 'altar_shrine', 'easter_egg', 'puzzle_pillar', 'chest', 'secret_chest', 'bone_totem', 'skeleton_king_shrine'].includes(n.kind)) continue;
-            const d = dist(this.player.x, this.player.y, n.x, n.y);
-            if (d <= bestDist) { bestDist = d; interactPrompt = { x: n.x, y: n.y - 42 }; }
+            const margin = n.kind === 'dungeon_gate' ? 56 : 52;
+            if (this.isNearInteractiveNode(n, this.player.x, this.player.y, margin)) {
+              const m = this.getNodeMetrics(n);
+              const d = dist(this.player.x, this.player.y + 10, n.x, m.colCy) - Math.max(m.colRx, m.colRy);
+              if (d < bestScore) {
+                bestScore = d;
+                interactPrompt = { x: n.x, y: m.promptY };
+              }
+            }
           }
-          for (const npc of Balaclava.NPCS) {
+          for (const npc of Abyssea.NPCS) {
             const [ngx, ngy] = this.world.getNpcPlot(npc);
             if (!this.world.isPlotUnlocked(ngx, ngy)) continue;
             const off = this.world.getNpcTileOffset(npc);
             const nx = (ngx * PLOT_TILES + off[0] + 0.5) * TILE_SIZE;
             const ny = (ngy * PLOT_TILES + off[1] + 0.5) * TILE_SIZE;
             const d = dist(this.player.x, this.player.y, nx, ny);
-            if (d <= bestDist) { bestDist = d; interactPrompt = { x: nx, y: ny - 68 }; }
+            if (d <= 82 && d < bestScore) { bestScore = d; interactPrompt = { x: nx, y: ny - 68 }; }
           }
         }
 
         if (interactPrompt) {
-          const exImgs = Balaclava.Assets.extraImages || {};
-          const intKey = (Balaclava.UI && Balaclava.UI.keybinds && Balaclava.UI.keybinds.interact) || 'KeyE';
+          const exImgs = Abyssea.Assets.extraImages || {};
+          const intKey = (Abyssea.UI && Abyssea.UI.keybinds && Abyssea.UI.keybinds.interact) || 'KeyE';
           const isHeld = !!(this.keys && this.keys[intKey]);
           const pulsePressed = isHeld || ((Math.floor(this.time * 2.2) % 2) === 1);
           const keyImg = pulsePressed ? (exImgs.key_e_pressed || exImgs.key_e) : (exImgs.key_e || exImgs.key_e_pressed);
           const bob = Math.round(Math.sin(this.time * 5.2) * 3) + (pulsePressed ? 1 : 0);
-          if (keyImg && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(keyImg))) {
+          if (keyImg && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(keyImg))) {
             ctx.drawImage(keyImg, Math.round(interactPrompt.x - 13), Math.round(interactPrompt.y - 13 + bob), 26, 26);
           } else {
             ctx.fillStyle = '#2d180e';
@@ -11279,7 +12379,7 @@
             ctx.strokeStyle = '#ffd54f';
             ctx.strokeRect(interactPrompt.x - 11, interactPrompt.y - 11 + bob, 22, 22);
             ctx.fillStyle = '#ffe082';
-            ctx.font = '15px BalaclavaPixel, monospace';
+            ctx.font = '15px AbysseaPixel, monospace';
             ctx.textAlign = 'center';
             ctx.fillText('E', interactPrompt.x, interactPrompt.y + 4 + bob);
           }
@@ -11288,7 +12388,7 @@
 
       // Floating numbers & pickup texts
       if (!this.photoMode) {
-        ctx.font = '15px BalaclavaPixel, monospace';
+        ctx.font = '15px AbysseaPixel, monospace';
         ctx.textAlign = 'center';
         for (const ft of this.floatingTexts) {
           ctx.globalAlpha = Math.min(1, ft.life * 1.4);
@@ -11303,23 +12403,34 @@
     }
 
     renderCombatEffects(ctx) {
-      const exPr = Balaclava.Assets.extraImages || {};
-      const okPr = (im) => im && (!Balaclava.Utils.isImgReady || Balaclava.Utils.isImgReady(im));
+      const exPr = Abyssea.Assets.extraImages || {};
+      const okPr = (im) => im && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(im));
       const drawProjSprite = (pr, fallbackKey, fallbackR, spin = false, isEnemy = false) => {
         const ang = Math.atan2(pr.vy || 0, pr.vx || 1);
-        const vMeta = pr.vfxKey && Balaclava.VFX_V2 ? Balaclava.VFX_V2[pr.vfxKey] : null;
+        const vMeta = pr.vfxKey && Abyssea.VFX_V2 ? Abyssea.VFX_V2[pr.vfxKey] : null;
         const vImg = pr.vfxKey ? exPr[pr.vfxKey] : null;
         if (vMeta && okPr(vImg)) {
           const total = Math.max(1, vMeta.frames || 1);
           const cols = Math.max(1, vMeta.cols || total);
-          const fr = Math.floor((this.time * 16) % total);
+          const fr = Math.floor((this.time * 18) % total);
           const col = fr % cols, row = Math.floor(fr / cols);
-          const dw = Math.min(isEnemy ? 40 : 44, Math.max(isEnemy ? 24 : 22, vMeta.fw * 0.62));
+          const dw = Math.min(isEnemy ? 56 : 48, Math.max(isEnemy ? 34 : 26, vMeta.fw * (isEnemy ? 0.78 : 0.68)));
           const dh = dw * (vMeta.fh / Math.max(1, vMeta.fw));
           ctx.save();
           ctx.translate(pr.x, pr.y);
+          // Soft elemental energy aura halo under enemy projectiles so they read vividly on every biome
+          if (isEnemy) {
+            ctx.save();
+            ctx.globalAlpha = 0.34;
+            ctx.fillStyle = pr.trailColor || pr.color || '#ff7043';
+            ctx.beginPath();
+            ctx.arc(0, 0, Math.max(12, dw * 0.36), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
           ctx.rotate(spin ? (this.time * 14) : ang);
-          if (isEnemy) ctx.globalCompositeOperation = 'lighter';
+          const isOpaqueProj = /dark|poison|blood|rock|dust|web|shadow/i.test(pr.vfxKey || '');
+          if (isEnemy && !isOpaqueProj) ctx.globalCompositeOperation = 'lighter';
           ctx.drawImage(vImg, col * vMeta.fw, row * vMeta.fh, vMeta.fw, vMeta.fh, -dw * 0.5, -dh * 0.5, dw, dh);
           ctx.restore();
           return;
@@ -11363,11 +12474,11 @@
         ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2); ctx.stroke();
         ctx.globalAlpha = 1;
       }
-      if (this.fxAnims && Balaclava.Assets.extraImages) {
+      if (this.fxAnims && Abyssea.Assets.extraImages) {
         for (const fx of this.fxAnims) {
-          const img = Balaclava.Assets.extraImages[fx.key];
+          const img = Abyssea.Assets.extraImages[fx.key];
           if (!img || !img.complete || img.naturalWidth <= 0) continue;
-          const meta = Balaclava.VFX_V2 && Balaclava.VFX_V2[fx.key];
+          const meta = Abyssea.VFX_V2 && Abyssea.VFX_V2[fx.key];
           const progress = Math.max(0, Math.min(0.999, 1 - fx.life / Math.max(0.01, fx.maxLife)));
           const baseAlpha = fx.alpha != null ? fx.alpha : 1;
           ctx.save();
@@ -11407,8 +12518,8 @@
     renderDungeon(ctx) {
       const dung = this.activeDungeon;
       const def = dung.def;
-      const dImgs = Balaclava.Assets.dungeonImages || {};
-      const cImgs = Balaclava.Assets.chestImages || {};
+      const dImgs = Abyssea.Assets.dungeonImages || {};
+      const cImgs = Abyssea.Assets.chestImages || {};
       const bKey = def.themeKey || def.id;
 
       // Always clear full screen void inside dungeon so offscreen void never leaves ghost/black glitch
@@ -11418,7 +12529,7 @@
       ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       ctx.restore();
 
-      const okImg = (im) => im && (Balaclava.Utils.isImgReady ? Balaclava.Utils.isImgReady(im) : true);
+      const okImg = (im) => im && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(im) : true);
       const floor1 = okImg(dImgs[`${bKey}_floor1`]) ? dImgs[`${bKey}_floor1`] : (okImg(dImgs.pradera_floor1) ? dImgs.pradera_floor1 : null);
       const floor2 = okImg(dImgs[`${bKey}_floor2`]) ? dImgs[`${bKey}_floor2`] : floor1;
       const floorsSheet = okImg(dImgs[`${bKey}_floorsSheet`]) ? dImgs[`${bKey}_floorsSheet`] : (okImg(dImgs.pradera_floorsSheet) ? dImgs.pradera_floorsSheet : null);
@@ -11764,7 +12875,7 @@
             ctx.lineWidth = 1;
             ctx.strokeRect(px - 14, py - 22, 76, 20);
             ctx.fillStyle = '#ffe082';
-            ctx.font = '14px BalaclavaPixel, monospace';
+            ctx.font = '14px AbysseaPixel, monospace';
             ctx.textAlign = 'center';
             ctx.fillText('SALIR', px + 24, py - 7);
           }
@@ -11862,54 +12973,53 @@
           ctx.strokeRect(mpx + 4, mpy + 6, TILE_SIZE - 8, TILE_SIZE - 12);
 
           const roman = mp.order === 1 ? 'I' : mp.order === 2 ? 'II' : mp.order === 3 ? 'III' : 'IV';
-          ctx.font = '12px BalaclavaPixel, monospace';
+          ctx.font = '12px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           ctx.fillStyle = isLit ? '#69f0ae' : '#ffe082';
           ctx.fillText(roman, mpx + 24, mpy + 20);
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           ctx.fillStyle = isLit ? '#b9f6ca' : (showFullCodex ? (mp.color || '#fff8e1') : '#9e9e9e');
           ctx.fillText(showFullCodex ? mp.glyph : '?', mpx + 24, mpy + 35);
           ctx.restore();
         }
       }
 
-      // 2d. Inspectable Ancient Runic Tablet (Pedestal of Revelation)
+      // 2d. Inspectable Ancient Runic Tablet (HD Pedestal of Revelation)
       if (dung.puzzleTablet) {
         const tbx = dung.puzzleTablet.tx * TILE_SIZE;
         const tby = dung.puzzleTablet.ty * TILE_SIZE;
         const pDist = Math.hypot((this.player.x / TILE_SIZE) - (dung.puzzleTablet.tx + 0.5), (this.player.y / TILE_SIZE) - (dung.puzzleTablet.ty + 0.5));
+        const exD = Abyssea.Assets && Abyssea.Assets.extraImages;
+        const steleImg = exD && (dung.puzzleTablet.read ? (exD.dungeon_stele_lit || exD.dungeon_stele) : exD.dungeon_stele);
         ctx.save();
-        // Ground shadow
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
         ctx.beginPath();
-        ctx.ellipse(tbx + 24, tby + 39, 14, 6, 0, 0, Math.PI * 2);
+        ctx.ellipse(tbx + 24, tby + 40, 16, 6, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Stone stele body
-        ctx.fillStyle = '#2d2638';
-        ctx.fillRect(tbx + 12, tby + 10, 24, 28);
-        ctx.strokeStyle = dung.puzzleTablet.read ? '#69f0ae' : '#ffd54f';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(tbx + 12, tby + 10, 24, 28);
-        // Glowing engraved lines on tablet
-        ctx.fillStyle = dung.puzzleTablet.read ? '#80deea' : '#ffe082';
-        ctx.fillRect(tbx + 16, tby + 16, 16, 2);
-        ctx.fillRect(tbx + 16, tby + 22, 12, 2);
-        ctx.fillRect(tbx + 16, tby + 28, 14, 2);
+        if (okImg(steleImg)) {
+          ctx.drawImage(steleImg, tbx - 2, tby - 8, 52, 52);
+        } else {
+          ctx.fillStyle = '#2d2638';
+          ctx.fillRect(tbx + 12, tby + 10, 24, 28);
+          ctx.strokeStyle = dung.puzzleTablet.read ? '#69f0ae' : '#ffd54f';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(tbx + 12, tby + 10, 24, 28);
+        }
 
         if (pDist <= 2.4) {
           const promptTxt = dung.puzzleTablet.read
             ? dung.puzzleTablet.shortHint
             : '[E] LEER ESTELA RUNICA';
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           const pw = Math.round(ctx.measureText(promptTxt).width + 14);
           ctx.fillStyle = 'rgba(16, 12, 22, 0.92)';
-          ctx.fillRect(Math.round(tbx + 24 - pw / 2), tby - 16, pw, 18);
+          ctx.fillRect(Math.round(tbx + 24 - pw / 2), tby - 20, pw, 18);
           ctx.strokeStyle = '#ffd54f';
           ctx.lineWidth = 1;
-          ctx.strokeRect(Math.round(tbx + 24 - pw / 2), tby - 16, pw, 18);
+          ctx.strokeRect(Math.round(tbx + 24 - pw / 2), tby - 20, pw, 18);
           ctx.fillStyle = '#fff59d';
-          ctx.fillText(promptTxt, tbx + 24, tby - 3);
+          ctx.fillText(promptTxt, tbx + 24, tby - 7);
         }
         ctx.restore();
       }
@@ -11966,21 +13076,85 @@
               ctx.fill();
             }
           } else if (pMode === 'obelisk_notches') {
-            // Draw a small carved stone obelisk on the right edge of the pad with 1..4 glowing horizontal notches
+            // HD carved stone obelisk on the right edge of the pad with 1..4 glowing horizontal notches
             const ox = px + TILE_SIZE - 9;
-            const oy = py + 8;
-            ctx.fillStyle = '#26222f';
-            ctx.fillRect(ox - 4, oy, 8, 28);
-            ctx.strokeStyle = '#6d5e48';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(ox - 4, oy, 8, 28);
+            const oy = py + 4;
+            const dObImg = Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.dungeon_obelisk;
+            if (okImg(dObImg)) {
+              ctx.drawImage(dObImg, ox - 11, oy - 4, 22, 34);
+            } else {
+              ctx.fillStyle = '#26222f';
+              ctx.fillRect(ox - 4, oy + 4, 8, 28);
+            }
             const spacing = clueN >= 4 ? 5 : 7;
-            const startY = clueN >= 4 ? oy + 4 : oy + 6;
+            const startY = clueN >= 4 ? oy + 7 : oy + 9;
             for (let nIdx = 0; nIdx < clueN; nIdx++) {
               const ny = startY + nIdx * spacing;
               ctx.fillStyle = r.active ? '#69f0ae' : '#4dd0e1';
-              ctx.fillRect(ox - 2, ny, 4, 3);
+              ctx.fillRect(ox - 3, ny, 6, 3);
             }
+          } else if (pMode === 'prism_rotation') {
+            // Draw golden target receiver socket + live rotating laser beam (0:N, 1:E, 2:S, 3:W)
+            const dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+            const [txOff, tyOff] = dirs[(r.targetDir || 0) % 4];
+            const [bxOff, byOff] = dirs[(r.prismDir || 0) % 4];
+            // Golden receiver socket
+            ctx.fillStyle = '#ffd54f';
+            ctx.beginPath();
+            ctx.arc(cx + txOff * 20, cy + tyOff * 20, 5, 0, Math.PI * 2);
+            ctx.fill();
+            // Live laser beam from center prism
+            ctx.strokeStyle = r.active ? '#69f0ae' : '#00e5ff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + bxOff * 22, cy + byOff * 22);
+            ctx.stroke();
+          } else if (pMode === 'chrono_braziers') {
+            // Draw countdown timer ring & remaining seconds when burning
+            if (r.active && r.burnRemaining > 0) {
+              const pct = Math.max(0, Math.min(1, r.burnRemaining / 14.0));
+              ctx.strokeStyle = pct > 0.35 ? '#ffab40' : '#ff1744';
+              ctx.lineWidth = 3;
+              ctx.beginPath();
+              ctx.arc(cx, cy, 17, -Math.PI / 2, -Math.PI / 2 + pct * Math.PI * 2);
+              ctx.stroke();
+              ctx.font = '11px AbysseaPixel, monospace';
+              ctx.textAlign = 'center';
+              ctx.fillStyle = '#fff59d';
+              ctx.fillText(`${r.burnRemaining.toFixed(1)}s`, cx, py + TILE_SIZE + 12);
+            }
+          } else if (pMode === 'astral_totem_dial') {
+            // Draw current phase vs target phase badge (no emojis)
+            const pGlyphs = ['SOL', 'LUNA', 'EST'];
+            const curG = pGlyphs[(r.totemPhase || 0) % 3];
+            const tgtG = pGlyphs[(r.targetPhase || 0) % 3];
+            ctx.font = '11px AbysseaPixel, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = r.active ? '#69f0ae' : '#ffd54f';
+            ctx.fillText(`${curG} / OBJ:${tgtG}`, cx, py + TILE_SIZE + 12);
+          } else if (pMode === 'simon_memory_echo') {
+            // Pulse beacon ring on the current target step in the echo melody
+            if (!dung.vaultOpen && r.order === (dung.seqProgress || 0) + 1) {
+              const bRad = 16 + Math.sin(this.time * 8) * 5;
+              ctx.strokeStyle = '#00e5ff';
+              ctx.lineWidth = 2.5;
+              ctx.beginPath();
+              ctx.arc(cx, cy, bRad, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          } else if (pMode === 'arcane_charge_conduit') {
+            // Draw circular charge bar (0..100%)
+            const cPct = Math.max(0, Math.min(1, (r.chargePct || 0) / 100));
+            ctx.strokeStyle = r.active ? '#69f0ae' : '#00e5ff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 16, -Math.PI / 2, -Math.PI / 2 + cPct * Math.PI * 2);
+            ctx.stroke();
+            ctx.font = '11px AbysseaPixel, monospace';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#80deea';
+            ctx.fillText(`${Math.round(cPct * 100)}%`, cx, py + TILE_SIZE + 12);
           }
         }
 
@@ -11991,12 +13165,12 @@
           : r.id === 'beta'
             ? 'B'
             : (r.kind === 'elemental_shrine' ? (r.shrineIdx === 1 ? 'I' : 'II') : (r.active ? romanStep : (r.glyph || romanStep)));
-        ctx.font = '14px BalaclavaPixel, monospace';
+        ctx.font = '14px AbysseaPixel, monospace';
         ctx.textAlign = 'center';
         ctx.fillStyle = r.active ? '#b9f6ca' : '#fff8e1';
         ctx.fillText(glyph, cx, cy + 4);
 
-        const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+        const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
         let rTxt = r.crestName || r.label || (r.active ? T('dungeon.activeLabel') : T('dungeon.runeLabel'));
         if (r.id === 'alfa') rTxt = T('dungeon.wingAlpha');
         else if (r.id === 'beta') rTxt = T('dungeon.wingBeta');
@@ -12004,7 +13178,7 @@
         const label = r.active
           ? (r.kind === 'seq' ? `${rTxt} [${romanStep} OK]` : (r.kind === 'elemental_shrine' ? `${rTxt} [ENCENDIDO]` : `${rTxt} [OK]`))
           : rTxt;
-        ctx.font = '14px BalaclavaPixel, monospace';
+        ctx.font = '14px AbysseaPixel, monospace';
         const lw = Math.round(ctx.measureText(label).width + 12);
         ctx.fillStyle = 'rgba(22, 12, 8, 0.90)';
         ctx.fillRect(Math.round(cx - lw / 2), py - 24, lw, 16);
@@ -12084,7 +13258,7 @@
           if (dChest <= 1.85) {
             ctx.save();
             const prompt = '[E] ABRIR COFRE';
-            ctx.font = '13px BalaclavaPixel, monospace';
+            ctx.font = '13px AbysseaPixel, monospace';
             ctx.textAlign = 'center';
             const pw = Math.round(ctx.measureText(prompt).width + 14);
             ctx.fillStyle = 'rgba(16, 12, 22, 0.92)';
@@ -12099,30 +13273,37 @@
         }
       }
 
-      // 4b. Point 11: Exit Portal in Boss Chamber once dungeon boss is defeated
+      // 4b. Point 11: HD Exit Portal in Boss Chamber once dungeon boss is defeated
       if (dung.exitPortal && dung.exitPortal.active) {
         const ex = (dung.exitPortal.tx + 0.5) * TILE_SIZE;
         const ey = (dung.exitPortal.ty + 0.5) * TILE_SIZE;
+        const exPortalImg = Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.dungeon_exit_portal;
         ctx.save();
-        const pulse = 20 + Math.sin(this.time * 5) * 3;
-        const grad = ctx.createRadialGradient(ex, ey, 4, ex, ey, pulse + 10);
-        grad.addColorStop(0, 'rgba(185, 246, 202, 0.95)');
-        grad.addColorStop(0.5, 'rgba(0, 230, 118, 0.65)');
+        const pulse = 24 + Math.sin(this.time * 5) * 3;
+        const grad = ctx.createRadialGradient(ex, ey, 6, ex, ey, pulse + 14);
+        grad.addColorStop(0, 'rgba(185, 246, 202, 0.72)');
+        grad.addColorStop(0.55, 'rgba(0, 230, 118, 0.36)');
         grad.addColorStop(1, 'rgba(0, 188, 212, 0)');
         ctx.fillStyle = grad;
-        ctx.beginPath(); ctx.arc(ex, ey, pulse + 10, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(ex, ey, pulse + 14, 0, Math.PI * 2); ctx.fill();
 
-        ctx.strokeStyle = '#69f0ae';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath(); ctx.arc(ex, ey, 16, this.time * 2.2, this.time * 2.2 + Math.PI * 1.45); ctx.stroke();
-        ctx.strokeStyle = '#80deea';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(ex, ey, 11, -this.time * 3.0, -this.time * 3.0 + Math.PI * 1.35); ctx.stroke();
+        if (okImg(exPortalImg)) {
+          ctx.save();
+          ctx.translate(ex, ey);
+          ctx.rotate(this.time * 0.9);
+          const psz = 58 + Math.sin(this.time * 4) * 2.5;
+          ctx.drawImage(exPortalImg, -psz / 2, -psz / 2, psz, psz);
+          ctx.restore();
+        } else {
+          ctx.strokeStyle = '#69f0ae';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.arc(ex, ey, 16, this.time * 2.2, this.time * 2.2 + Math.PI * 1.45); ctx.stroke();
+        }
 
         const dExit = this.player ? Math.hypot((this.player.x / TILE_SIZE) - (dung.exitPortal.tx + 0.5), (this.player.y / TILE_SIZE) - (dung.exitPortal.ty + 0.5)) : 99;
         if (dExit <= 3.0) {
           const prompt = '[E] PORTAL DE SALIDA';
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           const pw = Math.round(ctx.measureText(prompt).width + 14);
           ctx.fillStyle = 'rgba(12, 24, 22, 0.92)';
@@ -12158,8 +13339,8 @@
       }
 
       // 5b. Ground Hazard Zones (Boss/Mini-boss meteor craters, bombs, pillars, elemental pools, & cross fissures)
-      if (Array.isArray(dung.hazardZones) && dung.hazardZones.length > 0 && Balaclava.EnemyAttacks && Balaclava.EnemyAttacks.renderHazards) {
-        Balaclava.EnemyAttacks.renderHazards(ctx, dung.hazardZones, this.time, def.accentColor || '#ff5252');
+      if (Array.isArray(dung.hazardZones) && dung.hazardZones.length > 0 && Abyssea.EnemyAttacks && Abyssea.EnemyAttacks.renderHazards) {
+        Abyssea.EnemyAttacks.renderHazards(ctx, dung.hazardZones, this.time, def.accentColor || '#ff5252');
       }
 
       // 6. Enemies + Boss + Player + Ground Drops + Decorative Foreground Pillars
@@ -12171,8 +13352,8 @@
           y: dung.deadBossGhost.y + 10,
           fn: () => {
             const g = dung.deadBossGhost;
-            const bMeta = Balaclava.BOSS_SPRITE_PATHS && Balaclava.BOSS_SPRITE_PATHS[g.id];
-            const bImg = Balaclava.Assets && Balaclava.Assets.bossImages && Balaclava.Assets.bossImages[g.id];
+            const bMeta = Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[g.id];
+            const bImg = Abyssea.Assets && Abyssea.Assets.bossImages && Abyssea.Assets.bossImages[g.id];
             if (!bMeta || !bImg) return;
             const fr = Math.min((g.frames || 9) - 1, Math.floor(g.timer * (g.fps || 9)));
             const sx = fr * bMeta.fw;
@@ -12202,7 +13383,7 @@
       this.renderCombatEffects(ctx);
 
       this.hoveredTarget = null;
-      if (!Balaclava.UI.hasOpenModal() && !(this.player && this.player.deadTimer > 0)) {
+      if (!Abyssea.UI.hasOpenModal() && !(this.player && this.player.deadTimer > 0)) {
         this.updateMouseWorld();
         const mw = this.mouse;
         const hovered = this.findHoveredEntity(mw.wx, mw.wy);
@@ -12212,7 +13393,7 @@
         }
       }
 
-      ctx.font = '16px BalaclavaPixel, monospace';
+      ctx.font = '16px AbysseaPixel, monospace';
       if (!this.photoMode) {
         ctx.textAlign = 'center';
         for (const ft of this.floatingTexts) {
@@ -12304,10 +13485,10 @@
         ctx.lineWidth = 3;
         ctx.strokeRect(bx, by, bw, 58);
         ctx.textAlign = 'center';
-        ctx.font = '22px BalaclavaPixel, monospace';
+        ctx.font = '22px AbysseaPixel, monospace';
         ctx.fillStyle = pb.phase === 3 ? '#ff8a80' : '#ffe082';
         ctx.fillText(pb.title, vw / 2, by + 25);
-        ctx.font = '16px BalaclavaPixel, monospace';
+        ctx.font = '16px AbysseaPixel, monospace';
         ctx.fillStyle = '#f5e9d6';
         ctx.fillText(pb.subtitle, vw / 2, by + 46);
       }
@@ -12331,10 +13512,10 @@
           ctx.lineWidth = 2;
           ctx.strokeRect(mx, my, mw, mh);
           ctx.textAlign = 'center';
-          ctx.font = 'bold 16px BalaclavaPixel, monospace';
+          ctx.font = 'bold 16px AbysseaPixel, monospace';
           ctx.fillStyle = '#ffe082';
           ctx.fillText('GUIA DE MAZMORRA (PRIMERA INCURSION)', vw / 2, my + 24);
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           ctx.fillStyle = '#cfd8dc';
           ctx.fillText('1. Pisa las runas ALFA y BETA para abrir las alas laterales.', vw / 2, my + 48);
           ctx.fillText('2. Lee la Estela Runica [E] y activa los 3 Sellos en su orden real.', vw / 2, my + 67);
@@ -12377,12 +13558,12 @@
       this.introCinematic.closing = true;
       this.introCinematic.bands = 1.0;
       this.levelBannerTimer = 5.0;
-      const tr = (k, vars) => (Balaclava.I18n && typeof Balaclava.I18n.t === 'function' ? Balaclava.I18n.t(k, vars) : k);
+      const tr = (k, vars) => (Abyssea.I18n && typeof Abyssea.I18n.t === 'function' ? Abyssea.I18n.t(k, vars) : k);
       this.levelUpSummary = {
         title: tr('intro.day1Title'),
         subtitle: tr('intro.day1Sub')
       };
-      if (Balaclava.Audio) Balaclava.Audio.play('unlock_plot');
+      if (Abyssea.Audio) Abyssea.Audio.play('unlock_plot');
       this.toast(tr('intro.wakeToast'), 'info');
     }
 
@@ -12405,7 +13586,7 @@
 
       if (!c.active) return;
 
-      const tr = (k, vars) => (Balaclava.I18n && typeof Balaclava.I18n.t === 'function' ? Balaclava.I18n.t(k, vars) : k);
+      const tr = (k, vars) => (Abyssea.I18n && typeof Abyssea.I18n.t === 'function' ? Abyssea.I18n.t(k, vars) : k);
 
       ctx.save();
       const texts = [
@@ -12454,24 +13635,24 @@
       ctx.fillRect(bx + boxW - 7, by + boxH - 17, 3, 14);
 
       // Título
-      ctx.font = 'bold 22px BalaclavaPixel, monospace';
+      ctx.font = 'bold 22px AbysseaPixel, monospace';
       ctx.fillStyle = '#ffecb3';
       ctx.fillText(cur.title, w / 2, by + 44, boxW - 36);
 
       // Subtítulo
-      ctx.font = '15px BalaclavaPixel, monospace';
+      ctx.font = '15px AbysseaPixel, monospace';
       ctx.fillStyle = '#cfd8dc';
       ctx.fillText(cur.sub, w / 2, by + 86, boxW - 40);
 
       // Hint / Lore
-      ctx.font = '14px BalaclavaPixel, monospace';
+      ctx.font = '14px AbysseaPixel, monospace';
       ctx.fillStyle = '#81d4fa';
       ctx.fillText(cur.hint, w / 2, by + 120, boxW - 40);
 
       // Botón indicador
       const pulse = 0.5 + Math.sin(this.time * 6) * 0.5;
       ctx.globalAlpha = alpha * (0.65 + pulse * 0.35);
-      ctx.font = '13px BalaclavaPixel, monospace';
+      ctx.font = '13px AbysseaPixel, monospace';
       ctx.fillStyle = '#ffd54f';
       const promptText = tr('intro.controls', { step: c.step + 1, total: texts.length });
       ctx.fillText(promptText, w / 2, by + 160, boxW - 36);
@@ -12480,5 +13661,5 @@
     }
   }
 
-  Balaclava.GameEngine = GameEngine;
+  Abyssea.GameEngine = GameEngine;
 })();

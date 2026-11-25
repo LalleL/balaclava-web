@@ -1,14 +1,14 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
 
   // 12-Chapter Main Saga guiding the player across biomes, farming, fishing, minting, enchanting & dungeons
   const STORY_CHAPTERS = [
     {
       id: 'cap_1',
       title: 'I. El Despertar en la Isla Cero',
-      lore: 'Despiertas con tu capucha Balaclava en una isla diminuta. Las aguas ocultan antiguos puentes y la leyenda habla de cinco biomas fragmentados por el Colapso Rúnico.',
+      lore: 'Despiertas con tu capa de navegante en una diminuta isla de Abyssea. Las aguas ocultan antiguos puentes y la leyenda habla de cinco biomas fragmentados por el Colapso Rúnico.',
       objective: 'Recolecta madera y piedra, y construye tu primer Horno o Mercado.',
       check: (gs) => (gs.stats.gatheredTotal >= 8 && gs.buildings.length >= 1),
       getProgress: (gs) => [
@@ -125,7 +125,7 @@
     {
       id: 'cap_11',
       title: 'XI. La Cima de Fuego y Hielo',
-      lore: 'Conquista las 10 Mazmorras del archipiélago expandido. Reúne los sellos ancestrales de todos los biomas para forjar el Corazón de Balaclava.',
+      lore: 'Conquista las 10 Mazmorras del archipiélago expandido. Reúne los sellos ancestrales de todos los biomas para forjar el Corazón de Abyssea.',
       objective: 'Completa las 10 Mazmorras del mundo.',
       check: (gs) => gs.clearedDungeons.length >= 10,
       getProgress: (gs) => [
@@ -135,12 +135,12 @@
     },
     {
       id: 'cap_12',
-      title: 'XII. El Corazón de Balaclava',
-      lore: 'En tu Centro de Investigación o Laboratorio aguarda la síntesis final. Reconstruye el Corazón de Balaclava y restaura el archipiélago.',
-      objective: 'Fabrica el Corazón de Balaclava (nucleo_balaclava) y consagra el mundo.',
-      check: (gs) => (gs.inventory.nucleo_balaclava || 0) >= 1 || gs.stats.craftedCore,
+      title: 'XII. El Corazón de Abyssea',
+      lore: 'En tu Centro de Investigación o Laboratorio aguarda la síntesis final. Reconstruye el Corazón de Abyssea y restaura el archipiélago.',
+      objective: 'Fabrica el Corazón de Abyssea (nucleo_abyssea) y consagra el mundo.',
+      check: (gs) => (gs.inventory.nucleo_abyssea || 0) >= 1 || gs.stats.craftedCore,
       getProgress: (gs) => [
-        { label: 'Corazón de Balaclava', cur: ((gs.inventory.nucleo_balaclava || 0) >= 1 || gs.stats.craftedCore) ? 1 : 0, max: 1 }
+        { label: 'Corazón de Abyssea', cur: ((gs.inventory.nucleo_abyssea || 0) >= 1 || gs.stats.craftedCore) ? 1 : 0, max: 1 }
       ],
       reward: { coins: 2500, xp: 1400, items: { diamantes: 10, esmeraldas: 10 } }
     },
@@ -190,7 +190,7 @@
     {
       id: 'cap_16',
       title: 'XVI. Soberano Celestial',
-      lore: 'Solo quien domina la forja astral, la alquimia cósmica y las constelaciones merece gobernar Balaclava.',
+      lore: 'Solo quien domina la forja astral, la alquimia cósmica y las constelaciones merece gobernar Abyssea.',
       objective: 'Forja una herramienta Celestial y desbloquea 75 estrellas del Árbol.',
       check: (gs) => Object.values(gs.toolTiers || {}).includes('celestial') && (gs.unlockedSkills || []).length >= 75,
       getProgress: (gs) => [
@@ -263,7 +263,7 @@
       tileOffset: [2, 2],
       spriteKey: 'char1',
       personality: 'Sabio, paciente y fascinado por la historia olvidada de las islas.',
-      greeting: '¡Ah, portador de la Balaclava! Estas islas flotan sobre los restos de un antiguo reino. Cada moneda y cada cosecha devuelve la vida al archipiélago.',
+      greeting: '¡Ah, viajero de Abyssea! Estas islas flotan sobre los restos de un antiguo reino. Cada moneda y cada cosecha devuelve la vida al archipiélago.',
       quests: [
         {
           id: 'q_eldrin_1',
@@ -494,7 +494,7 @@
       tileOffset: [5, 5],
       spriteKey: 'char5',
       personality: 'Solemne, antiguo protector del sello volcánico y las llamas primordiales.',
-      greeting: 'Has llegado lejos, viajero. En las entrañas de este cráter arde la chispa original de Balaclava. Solo los dignos conquistan el Abismo.',
+      greeting: 'Has llegado lejos, viajero. En las entrañas de este cráter arde la chispa original de Abyssea. Solo los dignos conquistan el Abismo.',
       quests: [
         {
           id: 'q_ignis_1',
@@ -863,7 +863,7 @@
     { id: 'gc_honey_30', cat: 'Agricultura y Pesca', title: 'Colmenero Real', desc: 'Reúne 30 tarros de Miel o Cera de Abeja.', progress: gs => (gs.stats.byItem.miel || 0) + (gs.stats.byItem.cera_abeja || 0), target: 30, reward: { coins: 210, xp: 175, items: { pastel_miel: 3 } } },
     { id: 'gc_wool_milk', cat: 'Agricultura y Pesca', title: 'Granjero Próspero', desc: 'Reúne 35 unidades de Lana, Leche o Huevos.', progress: gs => (gs.stats.byItem.lana || 0) + (gs.stats.byItem.leche || 0) + (gs.stats.byItem.huevo || 0), target: 35, reward: { coins: 190, xp: 165, items: { tela: 6, queso: 3 } } },
 
-    { id: 'gc_craft_200', cat: 'Forja y Comercio', title: 'Industria Balaclava', desc: 'Fabrica 200 objetos en estaciones de trabajo.', progress: gs => gs.stats.craftedTotal || 0, target: 200, reward: { coins: 640, xp: 520, items: { lingote_adamantita: 2, polvo_estelar: 2 } } },
+    { id: 'gc_craft_200', cat: 'Forja y Comercio', title: 'Industria de Abyssea', desc: 'Fabrica 200 objetos en estaciones de trabajo.', progress: gs => gs.stats.craftedTotal || 0, target: 200, reward: { coins: 640, xp: 520, items: { lingote_adamantita: 2, polvo_estelar: 2 } } },
     { id: 'gc_mint_500', cat: 'Forja y Comercio', title: 'Casa Real de Moneda', desc: 'Acuña 500 monedas desde lingotes minerales.', progress: gs => gs.stats.coinsMinted || 0, target: 500, reward: { coins: 460, xp: 350, items: { lingote_oro: 6, diamantes: 2 } } },
     { id: 'gc_coins_5000', cat: 'Forja y Comercio', title: 'Cofres Rebosantes', desc: 'Gana un acumulado de 5,000 monedas.', progress: gs => gs.stats.coinsEarned || 0, target: 5000, reward: { coins: 500, xp: 400, items: { rubi: 2, zafiro: 2 } } },
     { id: 'gc_coins_15000', cat: 'Forja y Comercio', title: 'Gran Banquero', desc: 'Gana un acumulado de 15,000 monedas.', progress: gs => gs.stats.coinsEarned || 0, target: 15000, reward: { coins: 1200, xp: 850, items: { amuleto_diamante: 1 } } },
@@ -874,7 +874,7 @@
     { id: 'gc_armor_set', cat: 'Forja y Comercio', title: 'Armadura Completa', desc: 'Equipa Casco, Armadura, Escudo, Botas, Anillo y Amuleto.', progress: gs => ['helm', 'armor', 'shield', 'boots', 'ring', 'amulet'].filter(k => gs.equipped && gs.equipped[k]).length, target: 6, reward: { coins: 420, xp: 340, items: { onice: 2, pergamino_escudo: 2 } } },
     { id: 'gc_enchant_5', cat: 'Forja y Comercio', title: 'Maestro Runógrafo', desc: 'Inscribe 5 niveles totales de encantamiento.', progress: gs => Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.values(e).reduce((x, y) => x + y, 0), 0) + Object.values(gs.armorEnchants || {}).reduce((a, e) => a + Object.values(e).reduce((x, y) => x + y, 0), 0), target: 5, reward: { coins: 520, xp: 420, items: { tinta_arcana: 4, amatista: 2 } } },
 
-    { id: 'gc_kill_200', cat: 'Combate y Mazmorras', title: 'Cruzado de Balaclava', desc: 'Derrota 200 enemigos hostiles.', progress: gs => gs.stats.kills || 0, target: 200, reward: { coins: 540, xp: 460, items: { elixir_titan: 2, bomba_solar: 2 } } },
+    { id: 'gc_kill_200', cat: 'Combate y Mazmorras', title: 'Cruzado de Abyssea', desc: 'Derrota 200 enemigos hostiles.', progress: gs => gs.stats.kills || 0, target: 200, reward: { coins: 540, xp: 460, items: { elixir_titan: 2, bomba_solar: 2 } } },
     { id: 'gc_kill_500', cat: 'Combate y Mazmorras', title: 'Leyenda Imparable', desc: 'Derrota 500 criaturas del archipiélago.', progress: gs => gs.stats.kills || 0, target: 500, reward: { coins: 1250, xp: 980, items: { runa_muerte: 2, huevo_dragon: 1 } } },
     { id: 'gc_dung_10', cat: 'Combate y Mazmorras', title: 'Señor de las Diez Criptas', desc: 'Conquista las 10 Mazmorras del mundo.', progress: gs => gs.clearedDungeons.length, target: 10, reward: { coins: 1800, xp: 1450, items: { lingote_celestial: 4, gema_alma: 3 } } },
     { id: 'gc_relics_7', cat: 'Combate y Mazmorras', title: 'Custodio de Reliquias', desc: 'Obtén 7 Reliquias Permanentes de Jefes.', progress: gs => (gs.permanentRelics || []).length, target: 7, reward: { coins: 1100, xp: 880, items: { anillo_alma: 1, elixir_supremo: 1 } } },
@@ -891,7 +891,7 @@
     { id: 'gc_spells_6', cat: 'Exploración y Magia', title: 'Archimago en Ciernes', desc: 'Aprende 6 Hechizos Activos distintos de grimorios.', progress: gs => (gs.unlockedSpells || []).length, target: 6, reward: { coins: 680, xp: 540, items: { sombrero_hechicero: 1, tablilla_runica: 3 } } },
     { id: 'gc_spells_12', cat: 'Exploración y Magia', title: 'Grimorio Supremo Completo', desc: 'Aprende los 12 Hechizos Activos del Archipiélago.', progress: gs => (gs.unlockedSpells || []).length, target: 12, reward: { coins: 2200, xp: 1700, items: { baculo_rubi: 1, polvo_estelar: 5 } } },
     { id: 'gc_dung_15', cat: 'Combate y Mazmorras', title: 'Azote de Quince Criptas', desc: 'Conquista 15 Mazmorras distintas.', progress: gs => (gs.clearedDungeons || []).length, target: 15, reward: { coins: 2400, xp: 1950, items: { llave_maestra_mazmorra: 2, gema_alma: 3 } } },
-    { id: 'gc_dung_24', cat: 'Combate y Mazmorras', title: 'Soberano de las 24 Mazmorras', desc: 'Conquista TODAS las 24 Mazmorras de Balaclava.', progress: gs => (gs.clearedDungeons || []).length, target: 24, reward: { coins: 6500, xp: 4800, items: { espadon_legendario: 1, armadura_paladin: 1 } } },
+    { id: 'gc_dung_24', cat: 'Combate y Mazmorras', title: 'Soberano de las 24 Mazmorras', desc: 'Conquista TODAS las 24 Mazmorras de Abyssea.', progress: gs => (gs.clearedDungeons || []).length, target: 24, reward: { coins: 6500, xp: 4800, items: { espadon_legendario: 1, armadura_paladin: 1 } } },
     { id: 'gc_relics_18', cat: 'Combate y Mazmorras', title: 'Custodio del Gran Panteón', desc: 'Reúne 18 Reliquias Permanentes.', progress: gs => (gs.permanentRelics || []).length, target: 18, reward: { coins: 2600, xp: 2050, items: { anillo_diamante: 1, diamantes: 6 } } },
     { id: 'gc_relics_30', cat: 'Combate y Mazmorras', title: 'Maestro del Relicario Eterno', desc: 'Reúne al menos 30 Reliquias Permanentes.', progress: gs => (gs.permanentRelics || []).length, target: 30, reward: { coins: 5800, xp: 4200, items: { colgante_calavera: 1, lingote_celestial: 8 } } }
   ];
@@ -904,18 +904,18 @@
     { id: 'ach_tycoon', name: 'Emperador Dorado', desc: 'Acumula 10,000 monedas en total.', check: gs => gs.stats.coinsEarned >= 10000, coins: 600 },
     { id: 'ach_explorer_5', name: 'Cartógrafo', desc: 'Desbloquea 5 parcelas del mundo.', check: gs => gs.unlockedPlots.length >= 5, coins: 65 },
     { id: 'ach_explorer_15', name: 'Dueño del Mar', desc: 'Desbloquea 20 parcelas del mundo.', check: gs => gs.unlockedPlots.length >= 20, coins: 280 },
-    { id: 'ach_explorer_all', name: 'Mundo Completo', desc: 'Desbloquea las 100 parcelas de Balaclava.', check: gs => gs.unlockedPlots.length >= 100, coins: 2200 },
+    { id: 'ach_explorer_all', name: 'Mundo Completo', desc: 'Desbloquea las 100 parcelas de Abyssea.', check: gs => gs.unlockedPlots.length >= 100, coins: 2200 },
     { id: 'ach_farmer', name: 'Manos Verdes', desc: 'Cosecha 15 cultivos agrícolas.', check: gs => gs.stats.cropsHarvested >= 15, coins: 50 },
     { id: 'ach_angler', name: 'Pescador Paciente', desc: 'Captura 10 peces o tesoros marinos.', check: gs => gs.stats.fishCaught >= 10, coins: 65 },
     { id: 'ach_slayer', name: 'Defensor de las Islas', desc: 'Derrota a 25 enemigos.', check: gs => gs.stats.kills >= 25, coins: 75 },
     { id: 'ach_boss_1', name: 'Cazador de Jefes', desc: 'Derrota tu primer Jefe de Mazmorra.', check: gs => gs.clearedDungeons.length >= 1, coins: 150 },
     { id: 'ach_boss_5', name: 'Conquistador de Criptas', desc: 'Completa 5 Mazmorras distintas.', check: gs => gs.clearedDungeons.length >= 5, coins: 520 },
-    { id: 'ach_boss_10', name: 'Leyenda Absoluta de Balaclava', desc: 'Completa las 10 Mazmorras del archipiélago.', check: gs => gs.clearedDungeons.length >= 10, coins: 1600 },
+    { id: 'ach_boss_10', name: 'Leyenda Absoluta de Abyssea', desc: 'Completa las 10 Mazmorras del archipiélago.', check: gs => gs.clearedDungeons.length >= 10, coins: 1600 },
     { id: 'ach_crafter', name: 'Maestro Artesano', desc: 'Fabrica 30 objetos en mesas o estaciones.', check: gs => gs.stats.craftedTotal >= 30, coins: 85 },
     { id: 'ach_level_10', name: 'Veterano Nivel 10', desc: 'Alcanza el nivel 10 de personaje.', check: gs => gs.player.level >= 10, coins: 200 },
     { id: 'ach_legend_tool', name: 'Forja Suprema', desc: 'Mejora cualquier herramienta a nivel Legendario o Celestial.', check: gs => Object.values(gs.toolTiers).some(t => t === 'legendaria' || t === 'celestial'), coins: 500 },
     { id: 'ach_meteor', name: 'Cazador de Estrellas', desc: 'Mina un meteorito estrellado.', check: gs => gs.stats.meteorsMined >= 1, coins: 150 },
-    { id: 'ach_core', name: 'Corazón Restaurado', desc: 'Consigue el Corazón de Balaclava.', check: gs => (gs.inventory.nucleo_balaclava || 0) >= 1, coins: 1500 },
+    { id: 'ach_core', name: 'Corazón Restaurado', desc: 'Consigue el Corazón de Abyssea.', check: gs => (gs.inventory.nucleo_abyssea || 0) >= 1, coins: 1500 },
     { id: 'ach_tiller', name: 'Labrador de Tierras', desc: 'Ara la tierra y obtén tu primera Azada agrícola.', check: gs => !!gs.toolTiers.azada && (gs.stats.tilesTilled || 0) >= 5, coins: 40 },
     { id: 'ach_botanist', name: 'Gran Hortelano', desc: 'Cosecha 80 cultivos agrícolas.', check: gs => gs.stats.cropsHarvested >= 80, coins: 220 },
     { id: 'ach_sea_master', name: 'Lobos de Mar', desc: 'Captura 40 peces o reliquias marinas.', check: gs => gs.stats.fishCaught >= 40, coins: 260 },
@@ -943,7 +943,7 @@
     { id: 'ach_adamantite_forger', name: 'Templado en Adamantita', desc: 'Mejora cualquier herramienta a rango Adamantita o superior.', check: gs => Object.values(gs.toolTiers || {}).some(t => ['adamantita', 'legendaria', 'celestial'].includes(t)), coins: 420 },
     { id: 'ach_celestial_master', name: 'Soberano Celestial', desc: 'Alcanza el rango Celestial en cualquier herramienta.', check: gs => Object.values(gs.toolTiers || {}).includes('celestial'), coins: 1200 },
     { id: 'ach_rune_scholar', name: 'Maestro de Runas', desc: 'Crea al menos 5 Runas elementales.', check: gs => ((gs.stats.byItem.runa_fuego || 0) + (gs.stats.byItem.runa_agua || 0) + (gs.stats.byItem.runa_tierra || 0) + (gs.stats.byItem.runa_aire || 0) + (gs.stats.byItem.runa_luz || 0) + (gs.stats.byItem.runa_oscura || 0) + (gs.stats.byItem.runa_vida || 0) + (gs.stats.byItem.runa_muerte || 0)) >= 5, coins: 480 },
-    { id: 'ach_all_relics', name: 'Colección del Panteón', desc: 'Consigue las 10 Reliquias Permanentes de Balaclava.', check: gs => (gs.permanentRelics || []).length >= 10, coins: 1500 },
+    { id: 'ach_all_relics', name: 'Colección del Panteón', desc: 'Consigue las 10 Reliquias Permanentes de Abyssea.', check: gs => (gs.permanentRelics || []).length >= 10, coins: 1500 },
     { id: 'ach_enchant_master', name: 'Encantador Supremo', desc: 'Desbloquea 6 encantamientos diferentes en la Enciclopedia.', check: gs => gs.encyclopedia && gs.encyclopedia.enchants && gs.encyclopedia.enchants.size >= 6, coins: 650 },
     { id: 'ach_altar_devotee', name: 'Custodio de Santuarios', desc: 'Registra al menos 4 Altares distintos en la Enciclopedia.', check: gs => gs.encyclopedia && gs.encyclopedia.altars && gs.encyclopedia.altars.size >= 4, coins: 520 },
     { id: 'ach_collector_140', name: 'Archivo Cósmico', desc: 'Descubre 140 objetos distintos en la Enciclopedia.', check: gs => gs.encyclopedia && gs.encyclopedia.items && gs.encyclopedia.items.size >= 140, coins: 1400 },
@@ -955,23 +955,23 @@
     { id: 'ach_npc_8', name: 'Consejo de los Ocho Sabios', desc: 'Completa al menos 15 misiones de aldeanos por las islas.', check: gs => (gs.completedNpcQuests || []).length >= 15, coins: 1200 }
   ];
 
-  Balaclava.STORY_CHAPTERS = STORY_CHAPTERS;
-  Balaclava.NPCS = NPCS;
-  Balaclava.GUILD_CONTRACTS = GUILD_CONTRACTS;
-  Balaclava.ACHIEVEMENTS = ACHIEVEMENTS;
+  Abyssea.STORY_CHAPTERS = STORY_CHAPTERS;
+  Abyssea.NPCS = NPCS;
+  Abyssea.GUILD_CONTRACTS = GUILD_CONTRACTS;
+  Abyssea.ACHIEVEMENTS = ACHIEVEMENTS;
 
-  Balaclava.LORE = {
+  Abyssea.LORE = {
     chronicle: [
       {
         id: 'lore_colapso',
         title: 'El Colapso Rúnico del Archipiélago',
         era: 'Era Primera · Año 0',
         summary: 'Cómo un único continente próspero se fracturó en cien islas flotantes sobre el mar astral.',
-        body: 'Antiguamente, las Cinco Provincias de Balaclava estaban unidas por calzadas blancas de mármol y acero azul. Cuando los Conjuradores del Cráter intentaron encadenar el Corazón del Mundo bajo diez sellos subterráneos, la sobrecarga rúnica partió la corteza terrestre. Así nacieron las islas aisladas que hoy esperan ser reconectadas mediante oro, puentes y bloques de tierra viva.'
+        body: 'Antiguamente, las Cinco Provincias de Abyssea estaban unidas por calzadas blancas de mármol y acero azul. Cuando los Conjuradores del Cráter intentaron encadenar el Corazón del Mundo bajo diez sellos subterráneos, la sobrecarga rúnica partió la corteza terrestre. Así nacieron las islas aisladas que hoy esperan ser reconectadas mediante oro, puentes y bloques de tierra viva.'
       },
       {
         id: 'lore_capucha',
-        title: 'El Juramento de la Capucha Balaclava',
+        title: 'El Juramento de los Guardianes de Abyssea',
         era: 'Tradición Antigua',
         summary: 'El origen de la prenda tejida en sombra y lana dorada que portas desde el primer día.',
         body: 'Solo los Cartógrafos de la Vigilia recibían una capucha tejida con lana de pradera e hilo de mitrilo. Quien la viste hereda la sensibilidad para detectar vetas ocultas bajo la roca, leer monolitos antiguos y resistir la niebla oscura que emerge cuando cae la noche de tres minutos sobre los mares.'

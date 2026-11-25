@@ -1,13 +1,13 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { BIOMES, RARITIES, GRID_PLOTS, PLOT_TILES, TILE_SIZE, CENTER_PLOT, WORLD_TILES } = Balaclava.CONST;
-  const { formatNum } = Balaclava.Utils;
-  const tr = (k, vars) => (Balaclava.I18n ? Balaclava.I18n.t(k, vars) : k);
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { BIOMES, RARITIES, GRID_PLOTS, PLOT_TILES, TILE_SIZE, CENTER_PLOT, WORLD_TILES } = Abyssea.CONST;
+  const { formatNum } = Abyssea.Utils;
+  const tr = (k, vars) => (Abyssea.I18n ? Abyssea.I18n.t(k, vars) : k);
 
   const UI_SCALES = [0.75, 0.85, 0.88, 1, 1.25, 1.5];
-  const UI_SCALE_STORAGE_KEY = 'balaclava_ui_scale';
+  const UI_SCALE_STORAGE_KEY = 'abyssea_ui_scale';
   const DISCORD_URL = 'https://discord.gg/8wrsjRSMY2';
 
   function getStationDesc(id) {
@@ -27,7 +27,7 @@
     exploracion: 198
   };
 
-  const KEYBIND_STORAGE_KEY = 'balaclava_keybinds_v2';
+  const KEYBIND_STORAGE_KEY = 'abyssea_keybinds_v2';
   const DEFAULT_KEYBINDS = {
     moveUp: 'KeyW',
     moveDown: 'KeyS',
@@ -192,16 +192,24 @@
     updateControlsHelperLabels() {
       const el = this.getControlsHelperEl();
       if (!el) return;
+      const moveKey = document.getElementById('ctrl-move-key');
       const dashKey = document.getElementById('ctrl-dash-key');
       const interactKey = document.getElementById('ctrl-interact-key');
       const zoomKey = document.getElementById('ctrl-zoom-key');
+      if (moveKey) {
+        const up = this.getKeyLabel('moveUp');
+        const lt = this.getKeyLabel('moveLeft');
+        const dn = this.getKeyLabel('moveDown');
+        const rt = this.getKeyLabel('moveRight');
+        moveKey.textContent = `${up}${lt}${dn}${rt}`;
+      }
       if (dashKey) dashKey.textContent = this.getKeyLabel('dash');
       if (interactKey) interactKey.textContent = this.getKeyLabel('interact');
-      if (zoomKey && Balaclava.I18n) {
-        zoomKey.textContent = Balaclava.I18n.t('controls.keyWheel');
+      if (zoomKey && Abyssea.I18n) {
+        zoomKey.textContent = Abyssea.I18n.t('controls.keyWheel');
       }
-      if (Balaclava.I18n && typeof Balaclava.I18n.translateDOM === 'function') {
-        Balaclava.I18n.translateDOM(el);
+      if (Abyssea.I18n && typeof Abyssea.I18n.translateDOM === 'function') {
+        Abyssea.I18n.translateDOM(el);
       }
     }
 
@@ -322,17 +330,17 @@
     }
 
     itemIcon(iconType, size = 28) {
-      return Balaclava.Assets.createItemIconEl(iconType, size);
+      return Abyssea.Assets.createItemIconEl(iconType, size);
     }
 
     biomeIcon(biomeId, size = 26) {
-      const pngMap = Balaclava.ITEM_PNG_MAP || {};
+      const pngMap = Abyssea.ITEM_PNG_MAP || {};
       const urlMap = {
-        pradera: Balaclava.UI_URLS.biomePradera,
-        desierto: Balaclava.UI_URLS.biomeDesierto,
-        bosque_oscuro: Balaclava.UI_URLS.biomeBosque,
-        montanas_heladas: Balaclava.UI_URLS.biomeHielo,
-        tierras_volcanicas: Balaclava.UI_URLS.biomeVolcan,
+        pradera: Abyssea.UI_URLS.biomePradera,
+        desierto: Abyssea.UI_URLS.biomeDesierto,
+        bosque_oscuro: Abyssea.UI_URLS.biomeBosque,
+        montanas_heladas: Abyssea.UI_URLS.biomeHielo,
+        tierras_volcanicas: Abyssea.UI_URLS.biomeVolcan,
         archipielago_coral: pngMap.perla_turquesa,
         cavernas_cristal: pngMap.celestita_cristal,
         selva_esmeralda: pngMap.jade_ancestral,
@@ -343,7 +351,7 @@
         necropolis_osea: pngMap.hueso_fosil,
         tierras_malditas: pngMap.cristal_carmesi
       };
-      const url = urlMap[biomeId] || Balaclava.UI_URLS.biomePradera;
+      const url = urlMap[biomeId] || Abyssea.UI_URLS.biomePradera;
       if (url) {
         return this.el('img', {
           class: 'pixel-img',
@@ -359,15 +367,15 @@
     }
 
     toolIcon(toolId, tierId = 'basica', size = 28) {
-      return Balaclava.Assets.createToolIconEl(toolId, tierId, size);
+      return Abyssea.Assets.createToolIconEl(toolId, tierId, size);
     }
 
     skillIcon(skillId, size = 28) {
-      return Balaclava.Assets.createSkillIconEl(skillId, size);
+      return Abyssea.Assets.createSkillIconEl(skillId, size);
     }
 
     npcPortrait(npcId, size = 56) {
-      return Balaclava.Assets.createNpcPortraitEl(npcId, size);
+      return Abyssea.Assets.createNpcPortraitEl(npcId, size);
     }
 
     makeBuildingThumb(bDef, size = 44) {
@@ -379,21 +387,28 @@
       c.style.height = size + 'px';
       const ctx = c.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
 
-      if (bDef.sprite === 'Campfire_Anim' && assets.extraImages && assets.extraImages.campfireAnim) {
-        const img = assets.extraImages.campfireAnim;
-        ctx.drawImage(img, 0, 0, 16, img.height, 4, 4, size - 8, size - 8);
-        return c;
+      if (bDef.sprite === 'Campfire_Anim') {
+        const img = (assets.extraImages && (assets.extraImages.Campfire_Anim || assets.extraImages.campfireAnim)) || null;
+        if (img && img.complete && img.width > 0) {
+          const fw = img.width >= img.height * 3 ? (Math.round(img.width / 6) || img.height) : 16;
+          ctx.drawImage(img, 0, 0, fw, img.height, 4, 4, size - 8, size - 8);
+          return c;
+        }
       }
       const extraMap = { Corral_Pen: 'corral_pen', Fish_Pond: 'fish_pond', Plot_Garden: 'garden_plot' };
       const bImg = assets.getBuildingImg(bDef.sprite) || (extraMap[bDef.sprite] && assets.extraImages && assets.extraImages[extraMap[bDef.sprite]]);
-      if (bImg) {
-        const aspect = bImg.width / Math.max(1, bImg.height);
+      if (bImg && bImg.complete && bImg.width > 0) {
+        const fw = (bDef.sprite === 'well_health_strip' && bImg.width === 192 && bImg.height === 64) ? 32
+          : ((bImg.width === 64 && bImg.height === 32) ? 16
+          : (bImg.width >= bImg.height * 2.5 ? bImg.height : bImg.width));
+        const fh = bImg.height;
+        const aspect = fw / Math.max(1, fh);
         let dw = size - 4;
         let dh = dw / aspect;
         if (dh > size - 4) { dh = size - 4; dw = dh * aspect; }
-        ctx.drawImage(bImg, (size - dw) / 2, (size - dh) / 2, dw, dh);
+        ctx.drawImage(bImg, 0, 0, fw, fh, (size - dw) / 2, (size - dh) / 2, dw, dh);
         return c;
       }
       if (bDef.isChest && assets.chestImages) { const ci = assets.chestImages[(bDef.chestSpriteKey || 'wood') + '_closed']; if (ci) { const d = size - 4; ctx.drawImage(ci, (size - d) / 2, (size - d) / 2, d, d); return c; } }
@@ -417,8 +432,8 @@
       c.style.height = size + 'px';
       const ctx = c.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-      const meta = Balaclava.ENEMY_SPRITE_PATHS && Balaclava.ENEMY_SPRITE_PATHS[en.id];
-      const img = Balaclava.Assets.enemyImages && Balaclava.Assets.enemyImages[en.id];
+      const meta = Abyssea.ENEMY_SPRITE_PATHS && Abyssea.ENEMY_SPRITE_PATHS[en.id];
+      const img = Abyssea.Assets.enemyImages && Abyssea.Assets.enemyImages[en.id];
       if (meta && img) {
         const aspect = meta.fw / Math.max(1, meta.fh);
         let dh = size - 4;
@@ -455,7 +470,7 @@
     }
 
     _uiAssetFallback(relPath) {
-      const pre = (Balaclava.UI_URLS && Balaclava.UI_URLS.panelWood) || '';
+      const pre = (Abyssea.UI_URLS && Abyssea.UI_URLS.panelWood) || '';
       const base = pre.startsWith('../')
         ? '../'
         : (typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.indexOf('/tests/') !== -1 ? '../' : '');
@@ -481,7 +496,7 @@
         iconZoomIn: 'assets/ui/ico_zoom_in.png',
         iconZoomOut: 'assets/ui/ico_zoom_out.png'
       };
-      const raw = (Balaclava.UI_URLS && Balaclava.UI_URLS[key]) || (fileMap[key] ? this._uiAssetFallback(fileMap[key]) : key);
+      const raw = (Abyssea.UI_URLS && Abyssea.UI_URLS[key]) || (fileMap[key] ? this._uiAssetFallback(fileMap[key]) : key);
       return this.el('img', {
         class: 'pixel-img pixel-inline-ico',
         src: encodeURI(raw),
@@ -580,7 +595,7 @@
     }
 
     _buildItemTipSpec(itemId, opts = {}) {
-      const it = Balaclava.ITEMS && Balaclava.ITEMS[itemId];
+      const it = Abyssea.ITEMS && Abyssea.ITEMS[itemId];
       if (!it) return null;
       const rar = RARITIES[it.rarity] || RARITIES.comun;
       const stats = [];
@@ -611,12 +626,12 @@
     }
 
     _buildToolTipSpec(toolId, opts = {}) {
-      const tool = Balaclava.TOOLS && Balaclava.TOOLS[toolId];
+      const tool = Abyssea.TOOLS && Abyssea.TOOLS[toolId];
       if (!tool) return null;
       const g = this.game;
       const tier = (g && g.toolTiers && g.toolTiers[toolId]) || 'basica';
-      const tierMeta = (Balaclava.TIER_META && Balaclava.TIER_META[tier]) || { name: tier, color: '#ffe8a3' };
-      const st = Balaclava.getToolStats ? Balaclava.getToolStats(toolId, tier) : null;
+      const tierMeta = (Abyssea.TIER_META && Abyssea.TIER_META[tier]) || { name: tier, color: '#ffe8a3' };
+      const st = Abyssea.getToolStats ? Abyssea.getToolStats(toolId, tier) : null;
       const stats = [];
       if (st) {
         stats.push(tr('tip.toolPower', { n: st.power }));
@@ -625,7 +640,7 @@
       }
       const enchMap = g && g.toolEnchants && g.toolEnchants[toolId];
       const enchs = enchMap ? Object.entries(enchMap).filter(([, lv]) => lv > 0)
-        .map(([eid, lv]) => `${(Balaclava.TOOL_ENCHANTS[eid] && Balaclava.TOOL_ENCHANTS[eid].name) || eid} ${lv}`).join(' · ') : '';
+        .map(([eid, lv]) => `${(Abyssea.TOOL_ENCHANTS[eid] && Abyssea.TOOL_ENCHANTS[eid].name) || eid} ${lv}`).join(' · ') : '';
       return {
         title: `${tool.name} (${tierMeta.name})`,
         sub: enchs ? tr('tip.toolSubEnch', { enchs }) : tr('tip.toolSubDefault'),
@@ -666,7 +681,7 @@
     }
 
     showTooltip(anchor, ev) {
-      const tip = document.getElementById('balaclava-tooltip');
+      const tip = document.getElementById('abyssea-tooltip');
       if (!tip || !anchor || !anchor.isConnected) return this.hideTooltip();
       if (anchor.hasAttribute('title')) {
         const t = anchor.getAttribute('title');
@@ -752,7 +767,7 @@
 
     hideTooltip() {
       this._tipAnchor = null;
-      const tip = document.getElementById('balaclava-tooltip');
+      const tip = document.getElementById('abyssea-tooltip');
       if (!tip) return;
       tip.classList.add('hidden');
       tip.setAttribute('aria-hidden', 'true');
@@ -791,7 +806,7 @@
           this.hideTooltip();
           return;
         }
-        const tip = document.getElementById('balaclava-tooltip');
+        const tip = document.getElementById('abyssea-tooltip');
         if (tip && !tip.classList.contains('hidden')) {
           this._positionTooltip(tip, e, this._tipAnchor);
         }
@@ -909,16 +924,16 @@
           id: 'btn-title-continue',
           class: 'title-nav-btn primary',
           onclick: () => {
-            Balaclava.Audio.init();
-            if (Balaclava.Audio.fadeOutMusic) Balaclava.Audio.fadeOutMusic(650);
+            Abyssea.Audio.init();
+            if (Abyssea.Audio.fadeOutMusic) Abyssea.Audio.fadeOutMusic(650);
             this.playSceneTransition(tr('transition.loadingAdventure'), () => {
               this.game.saveSys.load(this.game, latest.slot);
               this.hideTitleScreen();
             }, { sub: tr('title.continueSub', { slot: latest.slot, level: sSum.level || 1, day: sSum.day || 1 }) });
           }
         }, [
-          this.el('span', { style: 'display:inline-flex;align-items:center;gap:11px;' }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconPlay), width: 26, height: 26, alt: '' }),
+          this.el('span', { class: 'title-btn-lead' }, [
+            this.el('img', { class: 'pixel-img title-btn-ico', src: encodeURI(Abyssea.UI_URLS.titleIcoContinue || Abyssea.UI_URLS.iconPlay), width: 28, height: 28, alt: '' }),
             tr('title.continue')
           ]),
           this.el('span', { class: 'title-nav-sub' }, tr('title.continueSub', {
@@ -941,8 +956,8 @@
           this.renderTitleScreen();
         }
       }, [
-        this.el('span', { style: 'display:inline-flex;align-items:center;gap:11px;' }, [
-          this.el('img', { class: 'pixel-img', src: 'assets/icons/scroll_map.png', width: 24, height: 24, alt: '' }),
+        this.el('span', { class: 'title-btn-lead' }, [
+          this.el('img', { class: 'pixel-img title-btn-ico', src: encodeURI(Abyssea.UI_URLS.titleIcoPlay || 'assets/icons/scroll_map.png'), width: 28, height: 28, alt: '' }),
           tr('title.play')
         ]),
         this.el('span', { class: 'title-nav-sub' }, hasAny ? tr('title.playSub') : tr('title.slotEmpty'))
@@ -950,7 +965,10 @@
 
       if (this.titleSlotPickerOpen) {
         const drawer = this.el('div', { class: 'title-slot-drawer' });
-        drawer.appendChild(this.el('div', { class: 'title-slot-drawer-head' }, tr('title.chooseSlot')));
+        drawer.appendChild(this.el('div', { class: 'title-slot-drawer-head' }, [
+          this.el('img', { class: 'pixel-img title-slot-head-ico', src: encodeURI(Abyssea.UI_URLS.titleIcoAnchor || 'assets/icons/abyssea_core.png?v=1.6.3'), width: 20, height: 20, alt: '' }),
+          this.el('span', {}, tr('title.chooseSlot'))
+        ]));
         [1, 2, 3].forEach(s => {
           const sSum = this.game.saveSys.getSlotSummary(s);
           const isConfirming = this.confirmDeleteSlot === s;
@@ -992,8 +1010,8 @@
                   id: `btn-slot-play-${s}`,
                   class: sSum ? 'title-slot-btn play' : 'title-slot-btn create',
                   onclick: () => {
-                    Balaclava.Audio.init();
-                    if (Balaclava.Audio.fadeOutMusic) Balaclava.Audio.fadeOutMusic(650);
+                    Abyssea.Audio.init();
+                    if (Abyssea.Audio.fadeOutMusic) Abyssea.Audio.fadeOutMusic(650);
                     const subText = sSum
                       ? tr('title.slotLine', { level: sSum.level, coins: sSum.coins, plots: sSum.plots || 1 })
                       : tr('transition.newWorldSub');
@@ -1028,8 +1046,8 @@
         class: 'title-nav-btn',
         onclick: () => this.openModal('title_settings')
       }, [
-        this.el('span', { style: 'display:inline-flex;align-items:center;gap:11px;' }, [
-          this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconSettings), width: 26, height: 26, alt: '' }),
+        this.el('span', { class: 'title-btn-lead' }, [
+          this.el('img', { class: 'pixel-img title-btn-ico', src: encodeURI(Abyssea.UI_URLS.titleIcoSettings || Abyssea.UI_URLS.iconSettings), width: 28, height: 28, alt: '' }),
           tr('title.settings')
         ]),
         this.el('span', { class: 'title-nav-sub' }, tr('title.settingsSub'))
@@ -1040,8 +1058,8 @@
         class: 'title-nav-btn danger',
         onclick: () => this.executeQuitGame()
       }, [
-        this.el('span', { style: 'display:inline-flex;align-items:center;gap:11px;' }, [
-          this.el('img', { class: 'pixel-img', src: 'assets/ui/ico_cross.png', width: 22, height: 22, alt: '' }),
+        this.el('span', { class: 'title-btn-lead' }, [
+          this.el('img', { class: 'pixel-img title-btn-ico', src: encodeURI(Abyssea.UI_URLS.titleIcoQuit || 'assets/ui/ico_cross.png'), width: 28, height: 28, alt: '' }),
           tr('title.quit')
         ]),
         this.el('span', { class: 'title-nav-sub' }, tr('title.quitSub'))
@@ -1049,25 +1067,25 @@
 
       box.appendChild(navStack);
 
-      const isEnTitle = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+      const isEnTitle = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       const patchBtn = this.el('button', {
         id: 'btn-title-patch-notes',
         type: 'button',
         class: 'title-patch-notes-btn',
         'data-tip-text': isEnTitle
-          ? 'View recent changes and new content in Beta 1.3.3'
-          : 'Ver todos los cambios recientes y contenido nuevo de la Beta 1.3.3',
+          ? 'View recent changes and new content in Beta 2.0.0 RC2'
+          : 'Ver todos los cambios recientes y contenido nuevo de la Beta 2.0.0 RC2',
         onclick: () => this.openModal('patch_notes')
       }, [
-        this.el('img', { class: 'pixel-img', src: 'assets/icons/scroll_map.png', width: 18, height: 18, alt: '' }),
+        this.el('img', { class: 'pixel-img title-patch-ico', src: encodeURI(Abyssea.UI_URLS.titleIcoPatch || 'assets/icons/scroll_map.png'), width: 28, height: 28, alt: '' }),
         this.el('span', { class: 'title-patch-notes-label' }, isEnTitle ? 'Patch Notes' : 'Cambios recientes'),
-        this.el('span', { class: 'title-patch-notes-badge' }, 'Beta 1.3.3')
+        this.el('span', { class: 'title-patch-notes-badge' }, 'Beta 2.0.0 RC2')
       ]);
       box.appendChild(patchBtn);
 
       const verEl = document.querySelector('#title-screen .title-version');
       if (verEl) {
-        verEl.textContent = 'Balaclava Beta v1.3.3';
+        verEl.textContent = 'Abyssea Beta v2.0.0 RC2';
         verEl.style.pointerEvents = 'auto';
         verEl.style.cursor = 'pointer';
         verEl.onclick = () => this.openModal('patch_notes');
@@ -1081,7 +1099,7 @@
           'aria-label': tr('title.discord'),
           onclick: () => this.openDiscordExternal()
         }, [
-          this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconDiscord || Balaclava.UI_URLS.iconStar), width: 28, height: 28, alt: '' })
+          this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.titleIcoDiscord || Abyssea.UI_URLS.iconDiscord || Abyssea.UI_URLS.iconStar), width: 28, height: 28, alt: '' })
         ]),
         this.el('button', {
           id: 'btn-title-credits',
@@ -1090,7 +1108,7 @@
           'aria-label': tr('title.credits'),
           onclick: () => this.openModal('credits')
         }, [
-          this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconInfo || Balaclava.UI_URLS.iconStar), width: 28, height: 28, alt: '' })
+          this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.titleIcoCredits || Abyssea.UI_URLS.iconInfo || Abyssea.UI_URLS.iconStar), width: 28, height: 28, alt: '' })
         ])
       ]);
       box.appendChild(cornerActions);
@@ -1122,7 +1140,7 @@
       overlay.classList.toggle('is-save', sceneKind === 'save');
 
       const lblEl = document.getElementById('scene-transition-label');
-      if (lblEl) lblEl.textContent = label || 'BALACLAVA';
+      if (lblEl) lblEl.textContent = label || 'ABYSSEA';
 
       const subEl = document.getElementById('scene-transition-sub');
       if (subEl) {
@@ -1148,12 +1166,12 @@
 
       const iconEl = document.getElementById('scene-transition-icon');
       if (iconEl) {
-        iconEl.src = opts.icon || 'assets/icons/balaclava_core.png';
+        iconEl.src = opts.icon || 'assets/icons/abyssea_core.png?v=1.6.3';
       }
 
       const statusEl = document.getElementById('st-loading-text');
       if (statusEl) {
-        const trFn = (k, fb) => (Balaclava.I18n && Balaclava.I18n.t) ? Balaclava.I18n.t(k) : fb;
+        const trFn = (k, fb) => (Abyssea.I18n && Abyssea.I18n.t) ? Abyssea.I18n.t(k) : fb;
         if (sceneKind === 'dungeon') statusEl.textContent = trFn('transition.statusDungeon', 'Unsealing ancient catacombs...');
         else if (sceneKind === 'save') statusEl.textContent = trFn('transition.statusSave', 'Inscribing island chronicle...');
         else statusEl.textContent = trFn('transition.statusOverworld', 'Sailing across the archipelago...');
@@ -1169,7 +1187,7 @@
         if (opts.tip) {
           tipEl.textContent = opts.tip;
         } else {
-          const isEn = Boolean(Balaclava.I18n && ((Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') || Balaclava.I18n.lang === 'en'));
+          const isEn = Boolean(Abyssea.I18n && ((Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') || Abyssea.I18n.lang === 'en'));
           const tipsEs = [
             'Construye una Mesa de Artesanía para forjar herramientas de mayor rango.',
             'Explora los bordes del archipiélago para desbloquear nuevas islas con monedas.',
@@ -1198,12 +1216,12 @@
       }
 
       // Audio cue for atmospheric transition
-      if (Balaclava.Audio) {
-        Balaclava.Audio.play('portal');
+      if (Abyssea.Audio) {
+        Abyssea.Audio.play('portal');
         if (sceneKind === 'dungeon') {
-          Balaclava.Audio.tone(130, 60, 0.65, 'sawtooth', 0.35);
+          Abyssea.Audio.tone(130, 60, 0.65, 'sawtooth', 0.35);
         } else {
-          Balaclava.Audio.tone(260, 130, 0.45, 'triangle', 0.25);
+          Abyssea.Audio.tone(260, 130, 0.45, 'triangle', 0.25);
         }
       }
 
@@ -1224,8 +1242,8 @@
         } finally {
           overlay.classList.remove('is-closing');
           overlay.classList.add('is-opening');
-          if (Balaclava.Audio) {
-            Balaclava.Audio.tone(196, 440, 0.45, 'sine', 0.22, 0.05);
+          if (Abyssea.Audio) {
+            Abyssea.Audio.tone(196, 440, 0.45, 'sine', 0.22, 0.05);
           }
           this._sceneTransitionEndTimer = setTimeout(() => {
             this._stopTransitionDiorama();
@@ -1254,7 +1272,7 @@
         const dy = Math.round((canvas.height - dh) / 2);
         ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
       };
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       let img = (meta && meta.bossKey && assets && assets.bossImages && assets.bossImages[meta.bossKey]) || null;
       if (!img && meta && meta.key) img = this._getStSprite(meta.key, fallbackPath);
       if (img && this._isStImgReady(img)) {
@@ -1267,7 +1285,7 @@
     }
 
     _renderDungeonTransitionBrief(container, meta) {
-      const isEn = Boolean(Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en');
+      const isEn = Boolean(Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en');
       const top = document.createElement('div');
       top.className = 'st-db-top';
 
@@ -1305,7 +1323,7 @@
 
       const mobWrap = document.createElement('div');
       mobWrap.className = 'st-db-mobs';
-      const ePaths = Balaclava.ENEMY_SPRITE_PATHS || {};
+      const ePaths = Abyssea.ENEMY_SPRITE_PATHS || {};
       const list = Array.isArray(meta.enemies) ? meta.enemies.slice(0, 6) : [];
       list.forEach(em => {
         const chip = document.createElement('div');
@@ -1351,7 +1369,7 @@
 
       const bossBox = document.createElement('div');
       bossBox.className = 'st-db-boss-box';
-      const bMetaMap = Balaclava.BOSS_SPRITE_PATHS || {};
+      const bMetaMap = Abyssea.BOSS_SPRITE_PATHS || {};
       const bMeta = meta.id ? bMetaMap[meta.id] : null;
       if (bMeta) {
         const bCvs = document.createElement('canvas');
@@ -1382,7 +1400,7 @@
       bName.textContent = (meta.boss && meta.boss.name) || (isEn ? 'Ancient Guardian' : 'Guardián Ancestral');
       const bStats = document.createElement('div');
       bStats.className = 'st-db-boss-stats';
-      const fmtStat = (v) => (Balaclava.Utils && Balaclava.Utils.formatNum) ? Balaclava.Utils.formatNum(Math.round(v)) : Math.round(v);
+      const fmtStat = (v) => (Abyssea.Utils && Abyssea.Utils.formatNum) ? Abyssea.Utils.formatNum(Math.round(v)) : Math.round(v);
       bStats.textContent = meta.boss ? `HP ${fmtStat(meta.boss.hp)} · ${isEn ? 'ATK' : 'ATQ'} ${fmtStat(meta.boss.dmg)}` : (isEn ? 'Boss Encounter' : 'Desafío de Jefe');
       bInfo.appendChild(bName);
       bInfo.appendChild(bStats);
@@ -1400,7 +1418,7 @@
     }
 
     _getStSprite(key, fallbackPath) {
-      const a = Balaclava.Assets;
+      const a = Abyssea.Assets;
       if (a) {
         const found = (a.get && a.get(key))
           || (a.extraImages && a.extraImages[key])
@@ -1414,7 +1432,7 @@
       let img = this._stSpriteCache[key];
       if (!img) {
         img = new Image();
-        const root = (typeof window !== 'undefined' && window.BALACLAVA_ROOT_BASE) ? window.BALACLAVA_ROOT_BASE : '';
+        const root = (typeof window !== 'undefined' && window.ABYSSEA_ROOT_BASE) ? window.ABYSSEA_ROOT_BASE : '';
         img.src = encodeURI(root + fallbackPath);
         this._stSpriteCache[key] = img;
       }
@@ -1490,7 +1508,7 @@
     }
 
     _resolveTransitionHeroSkin() {
-      const skins = Balaclava.SKINS || [];
+      const skins = Abyssea.SKINS || [];
       return skins[0] || {
         id: 'hana',
         idle: 'hana_idle',
@@ -1615,7 +1633,7 @@
       ctx.fillRect(72, 204, 2, 2);
       ctx.fillRect(548, 202, 2, 2);
 
-      // 6. Living animated ocean plane (y = 214..360) using BALACLAVA water sprites + twilight depth glaze
+      // 6. Living animated ocean plane (y = 214..360) using ABYSSEA water sprites + twilight depth glaze
       const seaTop = 214;
       const waterImg = this._getStSprite('water_profundo', 'assets/tiles/water_profundo.png');
       ctx.fillStyle = '#1f648d';
@@ -1721,18 +1739,28 @@
 
       // Phase-offset rolling ocean surf wrapping smoothly around the island shoreline BEFORE the grass plateau
       if (this._isStImgReady(foamImg)) {
-        const foamFrame = Math.floor(t * 7) % 16;
+        const isTs16 = foamImg.width >= 2048;
         ctx.save();
         ctx.globalAlpha = 0.58;
-        for (let col = 0; col < COLS; col++) {
-          const isLeft = col === 0;
-          const isRight = col === COLS - 1;
-          const colFrame = (foamFrame + col * 5) % 16;
-          const fx = colFrame * 192 + (isLeft ? 48 : 64);
-          const fw = (isLeft || isRight) ? 80 : 64;
-          const dx = isLeft ? (ix - 6) : (ix + col * TILE);
-          const dw = (isLeft || isRight) ? (TILE + 6) : TILE;
-          this._drawPixelSprite(ctx, foamImg, fx, 114, fw, 32, dx, 293, dw, 26);
+        if (isTs16) {
+          const foamFrame = Math.floor(t * 7) % 16;
+          for (let col = 0; col < COLS; col++) {
+            const isLeft = col === 0;
+            const isRight = col === COLS - 1;
+            const colFrame = (foamFrame + col * 5) % 16;
+            const fx = colFrame * 192 + (isLeft ? 48 : 64);
+            const fw = (isLeft || isRight) ? 80 : 64;
+            const dx = isLeft ? (ix - 6) : (ix + col * TILE);
+            const dw = (isLeft || isRight) ? (TILE + 6) : TILE;
+            this._drawPixelSprite(ctx, foamImg, fx, 114, fw, 32, dx, 293, dw, 26);
+          }
+        } else {
+          const fw = Math.round(foamImg.width / 4) || foamImg.height;
+          const fh = foamImg.height || 128;
+          for (let col = 0; col < COLS; col++) {
+            const fr = (Math.floor(t * 5) + col) % 4;
+            this._drawPixelSprite(ctx, foamImg, fr * fw, 0, fw, fh, ix + col * TILE, 290, TILE, 26);
+          }
         }
         ctx.restore();
       } else {
@@ -1768,7 +1796,7 @@
         ctx.fillRect(ix + 14, 250, iw - 28, 12);
       }
 
-      // 8. Native-scale world props from BALACLAVA assets
+      // 8. Native-scale world props from ABYSSEA assets
       const tree1Img = this._getStSprite('tree1', 'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree1.png');
       const tree4Img = this._getStSprite('tree4', 'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree4.png');
       const houseImg = this._getStSprite('b_house1_blue', 'assets/packs/Tiny Swords (Free Pack)/Tiny Swords (Free Pack)/Buildings/Blue Buildings/House1.png');
@@ -1796,8 +1824,12 @@
         this._drawPixelSprite(ctx, tree4Img, t4Frame * 192, 0, 192, 192, 474, 182, 96, 96);
       }
       if (this._isStImgReady(bushImg)) {
-        const bFrame = Math.floor(t * 2.5) % 8;
-        this._drawPixelSprite(ctx, bushImg, bFrame * 128, 0, 128, 128, 456, 236, 52, 52);
+        if (bushImg.width >= bushImg.height * 3) {
+          const bFrame = Math.floor(t * 2.5) % 8;
+          this._drawPixelSprite(ctx, bushImg, bFrame * 128, 0, 128, 128, 456, 236, 52, 52);
+        } else {
+          this._drawPixelSprite(ctx, bushImg, 0, 0, bushImg.width, bushImg.height, 464, 240, 38, 38);
+        }
       }
       if (this._isStImgReady(rockImg)) {
         this._drawPixelSprite(ctx, rockImg, 0, 0, rockImg.width, rockImg.height, 536, 252, 32, 32);
@@ -1808,7 +1840,9 @@
       this._drawDitherLight(ctx, 424, 268, 44 + firePulse, 16, 'rgba(255, 166, 61, 0.16)', 'rgba(255, 213, 79, 0.24)');
       if (this._isStImgReady(fireImg)) {
         const cFrame = Math.floor(t * 9) % 6;
-        this._drawPixelSprite(ctx, fireImg, cFrame * 16, 0, 16, 16, 408, 242, 32, 32);
+        const fw = fireImg.width >= fireImg.height * 4 ? Math.round(fireImg.width / 6) : 16;
+        const fh = fireImg.height || 16;
+        this._drawPixelSprite(ctx, fireImg, cFrame * fw, 0, fw, fh, 408, 242, 32, 32);
       } else {
         ctx.fillStyle = '#ff9800';
         ctx.fillRect(418, 254, 12, 14);
@@ -1834,9 +1868,12 @@
       const sheepX = useIdle ? 268 : (heroX - 60);
 
       if (this._isStImgReady(sheepImg)) {
-        const sFrames = useIdle ? Math.max(1, Math.floor(sheepImg.width / 128)) : 4;
-        const sf = Math.floor(t * (useIdle ? 4 : 7)) % sFrames;
-        this._drawPixelSprite(ctx, sheepImg, sf * 128, 0, 128, 128, sheepX, 224, 64, 64);
+        const isV15Sh = sheepImg.width >= sheepImg.height * 3;
+        const sw = isV15Sh ? (Math.round(sheepImg.width / 4) || sheepImg.height) : 128;
+        const sh = isV15Sh ? sheepImg.height : 128;
+        const sFrames = isV15Sh ? 4 : (useIdle ? Math.max(1, Math.floor(sheepImg.width / 128)) : 4);
+        const sf = Math.floor(t * (useIdle ? 3.5 : 5.5)) % sFrames;
+        this._drawPixelSprite(ctx, sheepImg, sf * sw, 0, sw, sh, sheepX, 226, 56, 56);
       }
       if (this._isStImgReady(heroImg)) {
         const hFrames = Math.max(1, Math.floor(heroImg.width / 79));
@@ -1978,8 +2015,10 @@
 
       // 8. Lurking skeleton warrior on right wing + Active Hero marching toward gate
       if (this._isStImgReady(skelImg)) {
-        const sf = Math.floor(t * 5) % 4;
-        this._drawPixelSprite(ctx, skelImg, sf * 48, 0, 48, 48, 536, 224, 68, 68, true);
+        const skFw = skelImg.height || 48;
+        const skFrames = Math.max(1, Math.floor((skelImg.width || skFw) / skFw));
+        const sf = Math.floor(t * 5) % skFrames;
+        this._drawPixelSprite(ctx, skelImg, sf * skFw, 0, skFw, skFw, 536, 224, 68, 68, true);
       }
 
       const heroImg = this._getStSprite('hana_run', 'assets/sprites_extra/hana_caraka/run.png');
@@ -2217,7 +2256,9 @@
         this._drawPixelSprite(ctx, candlesImg, caF * 16, 0, 16, 16, 280, 234, 24, 24);
       }
       if (this._isStImgReady(fireImg)) {
-        this._drawPixelSprite(ctx, fireImg, fFr * 16, 0, 16, 16, 304, 228, 32, 32);
+        const fw = fireImg.width >= fireImg.height * 4 ? Math.round(fireImg.width / 6) : 16;
+        const fh = fireImg.height || 16;
+        this._drawPixelSprite(ctx, fireImg, fFr * fw, 0, fw, fh, 304, 228, 32, 32);
       }
 
       // Rising hearth embers
@@ -2292,8 +2333,8 @@
       this.game.started = true;
       this.game.paused = false;
       this.game.uiDirty = true;
-      if (Balaclava.Audio && typeof Balaclava.Audio.setMood === 'function') {
-        Balaclava.Audio.setMood('meadow', { delayMs: 780, fadeOutMs: 300, fadeInMs: 4600 });
+      if (Abyssea.Audio && typeof Abyssea.Audio.setMood === 'function') {
+        Abyssea.Audio.setMood('meadow', { delayMs: 780, fadeOutMs: 300, fadeInMs: 4600 });
       }
       this.updateHUD(true);
       this.lastPlayerInputTime = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
@@ -2334,8 +2375,8 @@
       const bHud = document.getElementById('bottom-hud');
       if (bHud) bHud.classList.add('hidden');
       this.triggerTitleIntro();
-      if (Balaclava.Audio && typeof Balaclava.Audio.setMood === 'function') {
-        Balaclava.Audio.setMood('title', { delayMs: 480, fadeOutMs: 420, fadeInMs: 4200 });
+      if (Abyssea.Audio && typeof Abyssea.Audio.setMood === 'function') {
+        Abyssea.Audio.setMood('title', { delayMs: 480, fadeOutMs: 420, fadeInMs: 4200 });
       }
     }
 
@@ -2350,7 +2391,7 @@
           if (this._exitingFromDeath || !g.started || !(g.isPlayerDead && g.isPlayerDead())) return;
           this._exitingFromDeath = true;
           g.exitFromDeathToTitle();
-          if (Balaclava.Audio && Balaclava.Audio.fadeOutMusic) Balaclava.Audio.fadeOutMusic(620);
+          if (Abyssea.Audio && Abyssea.Audio.fadeOutMusic) Abyssea.Audio.fadeOutMusic(620);
           this.playSceneTransition(tr('transition.backMenu'), () => {
             this._exitingFromDeath = false;
             this.showTitleScreen({ skipSave: true });
@@ -2393,7 +2434,7 @@
       const objBanner = document.getElementById('objective-banner');
       if (objToggleBtn && objBanner) {
         try {
-          if (localStorage.getItem('balaclava_obj_minimized') === '1') {
+          if (localStorage.getItem('abyssea_obj_minimized') === '1') {
             objBanner.classList.add('minimized');
             objToggleBtn.textContent = '+';
           }
@@ -2402,7 +2443,7 @@
           if (e) e.stopPropagation();
           const isMin = objBanner.classList.toggle('minimized');
           objToggleBtn.textContent = isMin ? '+' : '-';
-          try { localStorage.setItem('balaclava_obj_minimized', isMin ? '1' : '0'); } catch (_) {}
+          try { localStorage.setItem('abyssea_obj_minimized', isMin ? '1' : '0'); } catch (_) {}
         };
         objToggleBtn.addEventListener('click', toggleObj);
         const objHead = objBanner.querySelector('.obj-head');
@@ -2487,8 +2528,8 @@
         if (target.disabled || target.classList.contains('disabled') || target.getAttribute('aria-disabled') === 'true') return;
         this._hoverSfxEl = target;
         if (Date.now() < this._hoverSuppressUntil) return;
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') {
-          Balaclava.Audio.play('ui_hover');
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') {
+          Abyssea.Audio.play('ui_hover');
         }
       }, true);
 
@@ -2604,12 +2645,13 @@
             }
           }
           else if (this.menuOpen) this.closeMenuDropdown();
+          else if (g.v2Runtime && g.v2Runtime.relocatorActive) { g.v2Runtime.relocatorActive = false; g.v2Runtime.relocating = null; g.toast('Modo Traslado cancelado.', 'info'); this.updateHUD(true); }
           else if (g.placingBuildingId || g.placingItemId) { g.placingBuildingId = null; g.placingItemId = null; this.updateHUD(true); }
           else this.openModal('pause');
           return;
         }
 
-        if (e.code === 'F8' || (e.code === 'KeyP' && !this.hasOpenModal() && !isTypingTarget)) {
+        if (e.code === 'F9' || e.code === 'F8' || (e.code === 'KeyP' && !this.hasOpenModal() && !isTypingTarget)) {
           e.preventDefault();
           this.togglePhotoMode();
           return;
@@ -2620,7 +2662,7 @@
           if (this.activeModal === 'inventory' && this._hoveredInvSlot && e.code >= 'Digit1' && e.code <= 'Digit9') {
             const hotbarIdx = Number(e.code.replace('Digit', '')) - 1;
             g.assignHotbarSlot(hotbarIdx, this._hoveredInvSlot.kind, this._hoveredInvSlot.id);
-            Balaclava.Audio.play('pickup');
+            Abyssea.Audio.play('pickup');
             this.updateHUD(true);
             this.renderModal();
             return;
@@ -2637,7 +2679,7 @@
           const slot = g.hotbar[slotIdx];
           if (slot && (slot.kind !== 'tool' || g.toolTiers[slot.id])) {
             g.activeSlot = slotIdx;
-            Balaclava.Audio.play('ui');
+            Abyssea.Audio.play('ui');
             g.uiDirty = true;
           }
         } else if (e.code === kb.dash) {
@@ -2683,7 +2725,7 @@
       canvas.addEventListener('mousemove', syncCanvasMouse);
 
       canvas.addEventListener('mousedown', (e) => {
-        Balaclava.Audio.init();
+        Abyssea.Audio.init();
         this.recordPlayerActivity();
         if (g.introCinematic && g.introCinematic.active) {
           g.advanceIntroCinematic();
@@ -2706,14 +2748,14 @@
           const ty = Math.floor(g.mouse.wy / TILE_SIZE);
           const b = g.getBuildingAtTile(tx, ty);
           const actSlot = g.hotbar && g.hotbar[g.activeSlot];
-          const actItem = actSlot && actSlot.kind === 'item' ? Balaclava.ITEMS[actSlot.id] : null;
+          const actItem = actSlot && actSlot.kind === 'item' ? Abyssea.ITEMS[actSlot.id] : null;
           const holdingActionItem = Boolean(actItem && (
             actItem.isBomb || (actItem.consumableEffect && actItem.consumableEffect.bombRadius) ||
             actItem.isLaserWeapon || actItem.isSpecialBlade || actItem.plantCrop ||
             actSlot.id === 'fertilizante' || actSlot.id === 'abono_dorado' || actSlot.id === 'compost_magico'
           ));
-          if (b && !holdingActionItem && Balaclava.Utils.dist(g.player.x, g.player.y, g.mouse.wx, g.mouse.wy) <= 95) {
-            const bDef = Balaclava.BUILDINGS[b.type] || {};
+          if (b && !holdingActionItem && Abyssea.Utils.dist(g.player.x, g.player.y, g.mouse.wx, g.mouse.wy) <= 95) {
+            const bDef = Abyssea.BUILDINGS[b.type] || {};
             const isChestOrLogistic = Boolean(b.isChest || bDef.isChest || b.type === 'cofre_logistico' || bDef.opensPanel === 'cofre_logistico');
             const collected = isChestOrLogistic ? false : g.automation.collectFromBuilding(g, b);
             if (isChestOrLogistic || !collected || bDef.station || bDef.opensPanel) {
@@ -2738,7 +2780,7 @@
         if (!g.started || (g.isPlayerDead && g.isPlayerDead())) return;
         if (e.ctrlKey) {
           e.preventDefault();
-          g.camera.zoom = Balaclava.Utils.clamp(g.camera.zoom + (e.deltaY < 0 ? 0.12 : -0.12), 0.7, 2.5);
+          g.camera.zoom = Abyssea.Utils.clamp(g.camera.zoom + (e.deltaY < 0 ? 0.12 : -0.12), 0.7, 2.5);
           return;
         }
         const dir = e.deltaY > 0 ? 1 : -1;
@@ -2780,34 +2822,34 @@
       if (g && g.started) {
         if (name === 'crafting' && !g.hasCraftingStructureBuilt()) {
           g.toast(tr('toast.needCraftingTable'), 'warn');
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           return;
         }
         if (name === 'market' && !g.hasBuilding('mercado')) {
           g.toast(tr('toast.needMarketBuilding'), 'warn');
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           return;
         }
         if (name === 'achievements' && !g.hasBuilding('tablon_logros')) {
           g.toast(tr('toast.needAchievementsBoard'), 'warn');
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           return;
         }
         if (name === 'enchant' && !g.hasBuilding('mesa_encantamientos')) {
           g.toast(tr('toast.needEnchantTable'), 'warn');
-          Balaclava.Audio.play('error');
+          Abyssea.Audio.play('error');
           return;
         }
       }
 
-      Balaclava.Audio.play('ui');
+      Abyssea.Audio.play('ui');
       this.activeModal = name;
       this.modalData = data;
       if (g) g.paused = (name === 'pause' || name === 'skills' || name === 'map');
       if (name === 'skills') {
         this.skillPanX = null;
         this.skillPanY = null;
-        if (typeof data === 'string' && Balaclava.SKILLS[data]) {
+        if (typeof data === 'string' && Abyssea.SKILLS[data]) {
           this.selectedSkillId = data;
         }
       }
@@ -2816,15 +2858,15 @@
         this.mapPanX = null;
         this.mapPanY = null;
         this.selectedMapPlot = [
-          Balaclava.Utils.clamp(Math.floor(g.player.x / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1),
-          Balaclava.Utils.clamp(Math.floor(g.player.y / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1)
+          Abyssea.Utils.clamp(Math.floor(g.player.x / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1),
+          Abyssea.Utils.clamp(Math.floor(g.player.y / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1)
         ];
       }
       const backdrop = document.getElementById('modal-backdrop');
       const modalBox = document.getElementById('modal-box');
       const fullModals = new Set(['skills', 'map']);
-      const leftDrawers = new Set(['inventory', 'crafting', 'build', 'market', 'quests', 'achievements', 'enchant', 'building', 'npc', 'chest']);
-      const wideDrawers = new Set(['build', 'inventory', 'crafting', 'quests', 'achievements', 'chest']);
+      const leftDrawers = new Set(['inventory', 'crafting', 'build', 'market', 'quests', 'achievements', 'building', 'npc', 'chest']);
+      const wideDrawers = new Set(['build', 'inventory', 'crafting', 'quests', 'achievements', 'building', 'chest']);
       backdrop.classList.toggle('fullscreen-modal', fullModals.has(name));
       const compactStyled = new Set(['pause', 'title_settings', 'credits', 'quit_confirm', 'quit_web_fallback', 'discord_fallback', 'exit_dungeon_confirm']);
       const isCompactModal = compactStyled.has(name);
@@ -2851,12 +2893,12 @@
 
     openBuildingModal(b) {
       if (!b) return;
-      const def = Balaclava.BUILDINGS[b.type || b.defId];
+      const def = Abyssea.BUILDINGS[b.type || b.defId];
       if (b.isChest || (def && def.isChest)) {
         b.isOpen = true;
         if (this.game) this.game.activeChestBuilding = b;
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') {
-          Balaclava.Audio.play('chest');
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') {
+          Abyssea.Audio.play('chest');
         }
         this.openModal('chest', b);
         return;
@@ -2874,8 +2916,8 @@
       if (this.game && this.game.activeChestBuilding) {
         this.game.activeChestBuilding.isOpen = false;
         this.game.activeChestBuilding = null;
-        if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') {
-          Balaclava.Audio.play('chest');
+        if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') {
+          Abyssea.Audio.play('chest');
         }
       }
       if (this._mapCleanup) { this._mapCleanup(); this._mapCleanup = null; }
@@ -2888,8 +2930,8 @@
       this.rebindingAction = null;
       this.lastPlayerInputTime = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
       if (closingModal === 'title_settings' && (!this.game || !this.game.started) &&
-          Balaclava.Audio && Balaclava.Audio._previewThemeInTitle && typeof Balaclava.Audio.setMood === 'function') {
-        Balaclava.Audio.setMood('title', { delayMs: 360, fadeOutMs: 420, fadeInMs: 4200 });
+          Abyssea.Audio && Abyssea.Audio._previewThemeInTitle && typeof Abyssea.Audio.setMood === 'function') {
+        Abyssea.Audio.setMood('title', { delayMs: 360, fadeOutMs: 420, fadeInMs: 4200 });
       }
       if (this.game) {
         this.game.paused = false;
@@ -2989,7 +3031,7 @@
         const nextXp = Math.floor(p.nextXp);
         const remXp = Math.max(0, nextXp - curXp);
         xpTxtEl.textContent = `${formatNum(curXp)}/${formatNum(nextXp)}`;
-        const isEnXp = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEnXp = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         const fullCur = curXp.toLocaleString();
         const fullNext = nextXp.toLocaleString();
         const fullRem = remXp.toLocaleString();
@@ -3019,15 +3061,17 @@
       const dIcon = document.getElementById('day-icon');
       const dLabel = document.getElementById('day-label');
       const dFill = document.getElementById('day-progress-fill');
-      if (dIcon && Balaclava.UI_URLS[dayPhase.iconKey]) {
-        const targetSrc = Balaclava.UI_URLS[dayPhase.iconKey];
+      if (dIcon && Abyssea.UI_URLS[dayPhase.iconKey]) {
+        const targetSrc = Abyssea.UI_URLS[dayPhase.iconKey];
         if (dIcon.getAttribute('src') !== targetSrc) dIcon.src = targetSrc;
       }
       if (dLabel) {
         const left = Math.max(0, Math.round(dayPhase.phaseLeftSec || 0));
         const mm = String(Math.floor(left / 60)).padStart(2, '0');
         const ss = String(left % 60).padStart(2, '0');
-        dLabel.textContent = `${tr('common.dayShort')} ${g.dayCount || 1} · ${dayPhase.label} · ${mm}:${ss}`;
+        const lp = typeof g.getLunarPhase === 'function' ? g.getLunarPhase() : null;
+        const lunarTag = lp ? ` · Luna ${lp.short}` : '';
+        dLabel.textContent = `${tr('common.dayShort')} ${g.dayCount || 1} · ${dayPhase.label}${lunarTag} · ${mm}:${ss}`;
       }
       if (dFill) {
         const pct = Math.round(((g.dayTime % 1) + 1) % 1 * 100);
@@ -3039,13 +3083,13 @@
       const qr = document.getElementById('quick-res');
       if (qr) {
         const resIds = ['madera', 'piedra', 'carbon', 'hierro', 'oro', 'cristales'];
-        const resKey = `${Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en'}|` + resIds.map(id => g.inventory[id] || 0).join(',');
+        const resKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|` + resIds.map(id => g.inventory[id] || 0).join(',');
         if (force || !this._lastResKey || resKey !== this._lastResKey || qr.children.length !== resIds.length) {
           this._lastResKey = resKey;
           if (qr.children.length !== resIds.length) {
             qr.innerHTML = '';
             resIds.forEach(id => {
-              const it = Balaclava.ITEMS[id];
+              const it = Abyssea.ITEMS[id];
               if (!it) return;
               const qty = g.inventory[id] || 0;
               const qtyEl = this.el('span', { 'data-res-qty': id }, String(qty));
@@ -3057,7 +3101,7 @@
             });
           } else {
             resIds.forEach(id => {
-              const it = Balaclava.ITEMS[id];
+              const it = Abyssea.ITEMS[id];
               const qty = g.inventory[id] || 0;
               const qtyEl = qr.querySelector(`[data-res-qty="${id}"]`);
               if (qtyEl) qtyEl.textContent = String(qty);
@@ -3090,9 +3134,9 @@
             const progBar = document.getElementById('tut-progress-bar');
             const progTxt = document.getElementById('tut-progress-text');
             const counterEl = document.getElementById('tut-step-counter');
-            const totalSteps = Balaclava.TUTORIAL_STEPS ? Balaclava.TUTORIAL_STEPS.length : 9;
+            const totalSteps = Abyssea.TUTORIAL_STEPS ? Abyssea.TUTORIAL_STEPS.length : 9;
 
-            const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+            const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
             if (titleEl) titleEl.textContent = (isEn && stepDef.title_en) ? stepDef.title_en : stepDef.title;
             if (descEl) descEl.innerHTML = tut.getFormattedDesc(stepDef, this);
             if (counterEl) counterEl.textContent = `${tut.step + 1}/${totalSteps}`;
@@ -3131,7 +3175,7 @@
                 mapActionBtn.classList.add('hidden');
               }
             }
-            if (minBtn) minBtn.textContent = tut.minimized ? '+' : '✓';
+            if (minBtn) minBtn.textContent = tut.minimized ? '+' : '-';
           }
         }
       }
@@ -3142,19 +3186,19 @@
       }
       const objProg = document.getElementById('objective-progress');
       const objRew = document.getElementById('objective-reward');
-      const ch = Balaclava.STORY_CHAPTERS && Balaclava.STORY_CHAPTERS[g.storyIndex];
+      const ch = Abyssea.STORY_CHAPTERS && Abyssea.STORY_CHAPTERS[g.storyIndex];
       if (objProg) {
         if (ch && ch.getProgress) {
           const items = ch.getProgress(g) || [];
           objProg.textContent = items.map(p => `${p.label}: ${p.cur}/${p.max}`).join(' · ');
         } else {
-          objProg.textContent = g.storyIndex >= (Balaclava.STORY_CHAPTERS || []).length ? tr('hud.mainStoryComplete') : '';
+          objProg.textContent = g.storyIndex >= (Abyssea.STORY_CHAPTERS || []).length ? tr('hud.mainStoryComplete') : '';
         }
       }
       if (objRew) {
         if (ch && ch.reward) {
           const rwItems = ch.reward.items
-            ? Object.entries(ch.reward.items).filter(([, q]) => q > 0).map(([id, q]) => `${q}x ${(Balaclava.ITEMS[id] && Balaclava.ITEMS[id].name) || id}`).join(', ')
+            ? Object.entries(ch.reward.items).filter(([, q]) => q > 0).map(([id, q]) => `${q}x ${(Abyssea.ITEMS[id] && Abyssea.ITEMS[id].name) || id}`).join(', ')
             : '';
           const parts = `+${ch.reward.coins} ${tr('common.coins')} · +${ch.reward.xp} ${tr('common.xp')}${rwItems ? ' · ' + rwItems : ''}`;
           objRew.textContent = tr('hud.rewardLine', { parts });
@@ -3180,7 +3224,7 @@
           const gateTxt = dung.gateOpen ? tr('hud.dungGateOpen') : tr('hud.dungGateClosed');
           let phaseLine = '';
           if (dung.boss && dung.boss.hp > 0) {
-            const fmtB = (v) => (Balaclava.Utils && Balaclava.Utils.formatNum) ? Balaclava.Utils.formatNum(Math.round(v)) : Math.round(v);
+            const fmtB = (v) => (Abyssea.Utils && Abyssea.Utils.formatNum) ? Abyssea.Utils.formatNum(Math.round(v)) : Math.round(v);
             phaseLine = tr('hud.dungPhaseLive', {
               phase: dung.boss.phase || 1,
               hp: fmtB(Math.ceil(dung.boss.hp)),
@@ -3192,7 +3236,7 @@
           const dName = dung.def.name;
           let dObj = '';
           if (dung.isLateBiome) {
-            const isEn = Balaclava.I18n && Balaclava.I18n.locale === 'en';
+            const isEn = Abyssea.I18n && Abyssea.I18n.locale === 'en';
             const mini2Txt = dung.miniBoss2Defeated ? tr('hud.dungDefeated') : tr('hud.dungPending');
             const shrineTxt = `${dung.shrineProgress || 0}/${dung.shrineTarget || 2}`;
             dObj = isEn
@@ -3200,6 +3244,10 @@
               : `Alas: ${wingDone}/2 · Runas: ${seqTxt} · Guardián 1: ${miniTxt} · Guardián 2: ${mini2Txt} · Altares: ${shrineTxt} · Puerta: ${gateTxt}${phaseLine}`;
           } else {
             dObj = tr('hud.dungObjLine', { wings: wingDone, seq: seqTxt, mini: miniTxt, gate: gateTxt, phaseLine });
+          }
+          if (Array.isArray(dung.affixes) && dung.affixes.length > 0 && Abyssea.DUNGEON_AFFIXES) {
+            const afNames = dung.affixes.map(id => (Abyssea.DUNGEON_AFFIXES[id] && Abyssea.DUNGEON_AFFIXES[id].name) || id).join(', ');
+            dObj += ` · Afijos: ${afNames}`;
           }
           const dKey = `${dName}|${dObj}`;
           if (force || dKey !== this._lastDungKey) {
@@ -3231,7 +3279,7 @@
           } else if (s.from !== undefined && s.to !== undefined) {
             // Subida de nivel real
             const pts = (s.pts !== undefined && s.pts !== null) ? s.pts : ((s.points !== undefined && s.points !== null) ? s.points : 1);
-            const langCode = Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en';
+            const langCode = Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en';
             const lKey = `${langCode}:${s.from}:${s.to}:${pts}`;
             if (this._lastLevelBannerKey !== lKey) {
               this._lastLevelBannerKey = lKey;
@@ -3287,7 +3335,7 @@
               : '';
             return `${n.uid}:${n.rev || 1}:${n.status}:${n.leaving ? 1 : 0}:${liveRem}`;
           });
-          const aKey = `${Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en'}|${sigParts.join('|')}`;
+          const aKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|${sigParts.join('|')}`;
           if (force || aKey !== this._lastAltarKey) {
             this._lastAltarKey = aKey;
             altarStack.innerHTML = '';
@@ -3374,7 +3422,7 @@
           }
         }
         const entries = Object.entries(g.activeBuffs || {}).filter(([, b]) => b && b.time > 0);
-        const buffKey = `${Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en'}|` + entries.map(([k, b]) => `${k}:${Math.ceil(b.time)}`).join('|');
+        const buffKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|` + entries.map(([k, b]) => `${k}:${Math.ceil(b.time)}`).join('|');
         if (force || buffKey !== this._lastBuffKey) {
           this._lastBuffKey = buffKey;
           buffBar.innerHTML = '';
@@ -3387,7 +3435,7 @@
               regen: tr('buff.regen'), crit: tr('buff.crit'), arcane: tr('buff.arcane'),
               hunter: tr('buff.hunter'), furia_arcana: tr('buff.furia_arcana')
             };
-            const urlMap = Balaclava.BUFF_ICON_URLS || {};
+            const urlMap = Abyssea.BUFF_ICON_URLS || {};
             buffBar.classList.remove('hidden');
             entries.forEach(([k, b]) => {
               const iconUrl = urlMap[k] || urlMap.speed;
@@ -3429,8 +3477,8 @@
             let iconEl = null;
             if (ht.iconUrl) {
               iconEl = this.el('img', { class: 'pixel-img', src: encodeURI(ht.iconUrl), width: 32, height: 32, alt: '' });
-            } else if (ht.thumbSpec && Balaclava.Assets && Balaclava.Assets.getSpriteThumbCanvas) {
-              const srcC = Balaclava.Assets.getSpriteThumbCanvas(ht.thumbSpec);
+            } else if (ht.thumbSpec && Abyssea.Assets && Abyssea.Assets.getSpriteThumbCanvas) {
+              const srcC = Abyssea.Assets.getSpriteThumbCanvas(ht.thumbSpec);
               if (srcC) {
                 const c = document.createElement('canvas');
                 c.width = 32; c.height = 32; c.className = 'pixel-img';
@@ -3498,9 +3546,9 @@
       }
 
       const bb = document.getElementById('build-banner');
-      if (g.placingBuildingId && Balaclava.BUILDINGS[g.placingBuildingId]) {
+      if (g.placingBuildingId && Abyssea.BUILDINGS[g.placingBuildingId]) {
         bb.classList.remove('hidden');
-        document.getElementById('build-banner-name').textContent = Balaclava.BUILDINGS[g.placingBuildingId].name;
+        document.getElementById('build-banner-name').textContent = Abyssea.BUILDINGS[g.placingBuildingId].name;
       } else {
         bb.classList.add('hidden');
       }
@@ -3518,7 +3566,7 @@
         if (g.activeSlot < 0 || g.activeSlot >= 9) {
           g.activeSlot = 0;
         }
-        const hbStateParts = [Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en', String(g.activeSlot)];
+        const hbStateParts = [Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en', String(g.activeSlot)];
         for (let idx = 0; idx < 9; idx++) {
           let slot = g.hotbar[idx];
           if (slot && slot.kind === 'item' && (g.inventory[slot.id] || 0) <= 0) {
@@ -3546,7 +3594,7 @@
           for (let idx = 0; idx < 9; idx++) {
             const slot = g.hotbar[idx];
             const isTool = slot && slot.kind === 'tool';
-            const isItemReady = slot && slot.kind === 'item' && (g.inventory[slot.id] || 0) > 0 && Balaclava.ITEMS[slot.id];
+            const isItemReady = slot && slot.kind === 'item' && (g.inventory[slot.id] || 0) > 0 && Abyssea.ITEMS[slot.id];
             const hasContent = Boolean((isTool && g.toolTiers[slot.id]) || isItemReady);
             const labelKey = String(idx + 1);
 
@@ -3576,8 +3624,8 @@
             const sDiv = this.el('div', {
               class: 'hotbar-slot' + (g.activeSlot === idx ? ' active' : ''),
               title: (isTool
-                ? `${Balaclava.TOOLS[slot.id].name} (${Balaclava.TIER_META[g.toolTiers[slot.id]].name})` + (enchCount > 0 ? tr('hud.enchantedSuffix') : '')
-                : (Balaclava.ITEMS[slot.id] ? Balaclava.ITEMS[slot.id].name : tr('hover.toolFallback'))) + tr('hud.hotbarTipSuffix'),
+                ? `${Abyssea.TOOLS[slot.id].name} (${Abyssea.TIER_META[g.toolTiers[slot.id]].name})` + (enchCount > 0 ? tr('hud.enchantedSuffix') : '')
+                : (Abyssea.ITEMS[slot.id] ? Abyssea.ITEMS[slot.id].name : tr('hover.toolFallback'))) + tr('hud.hotbarTipSuffix'),
               onclick: (ev) => {
                 if (g.isPlayerDead && g.isPlayerDead()) return;
                 if (ev && ev.shiftKey && g.transferHotbarToInventory) {
@@ -3597,7 +3645,7 @@
             if (isTool) {
               const tier = g.toolTiers[slot.id] || 'basica';
               sDiv.appendChild(this.toolIcon(slot.id, tier, 38));
-              const tm = Balaclava.TIER_META[tier];
+              const tm = Abyssea.TIER_META[tier];
               sDiv.style.boxShadow = g.activeSlot === idx
                 ? `0 0 14px rgba(255,213,79,0.5), inset 0 -3px 0 ${tm.color}`
                 : `inset 0 -3px 0 ${tm.color}`;
@@ -3613,7 +3661,7 @@
                 }, isRel ? '...' : String(arrowCnt)));
               }
             } else if (slot.kind === 'item' && (g.inventory[slot.id] || 0) > 0) {
-              const it = Balaclava.ITEMS[slot.id];
+              const it = Abyssea.ITEMS[slot.id];
               if (it) {
                 const maxStack = g.getMaxStackSize ? g.getMaxStackSize() : 25;
                 const showQty = Math.min(g.inventory[slot.id], maxStack);
@@ -3634,17 +3682,17 @@
         const cds = g.spellCooldowns || {};
         const keyCodes = [kb.spell1 || 'KeyZ', kb.spell2 || 'KeyT', kb.spell3 || 'KeyB', kb.spell4 || 'KeyN'];
         const sbParts = slots.map((sid, i) => {
-          const sp = sid && Balaclava.SPELLS && Balaclava.SPELLS[sid];
+          const sp = sid && Abyssea.SPELLS && Abyssea.SPELLS[sid];
           const rem = sid && cds[sid] ? Math.ceil(cds[sid] * 10) : 0;
           return `${keyCodes[i]}:${sp ? sp.id : 'none'}:${rem}`;
         });
-        const sbKey = `${Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en'}:${sbParts.join('|')}:${Math.floor(g.player.energy)}`;
+        const sbKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}:${sbParts.join('|')}:${Math.floor(g.player.energy)}`;
         if (force || sbKey !== this._lastSpellBarKey) {
           this._lastSpellBarKey = sbKey;
           sb.innerHTML = '';
           slots.forEach((sid, idx) => {
             const keyLbl = String(keyCodes[idx] || '').replace(/^Key/, '');
-            const sp = sid && Balaclava.SPELLS && Balaclava.SPELLS[sid];
+            const sp = sid && Abyssea.SPELLS && Abyssea.SPELLS[sid];
             if (!sp) {
               const emptyS = this.el('div', {
                 class: 'spell-slot slot-empty',
@@ -3779,7 +3827,7 @@
         feed.forEach(entry => {
           const iconKey = entry.id === '_coin'
             ? 'coin_gold'
-            : (entry.icon || (Balaclava.ITEMS[entry.id] ? Balaclava.ITEMS[entry.id].icon : 'wood_log'));
+            : (entry.icon || (Abyssea.ITEMS[entry.id] ? Abyssea.ITEMS[entry.id].icon : 'wood_log'));
           const opStr = entry.ttl < 0.75 ? Math.max(0.12, entry.ttl / 0.75).toFixed(2) : '1';
           const existing = this._pickupNodes.get(entry.id);
           if (existing) {
@@ -3820,8 +3868,8 @@
         stats: tr('inv.stats'),
         crafting: tr('craft.title'),
         build: tr('build.title'),
-        skills: tr('modal.titleSkillsCount', { n: Object.keys(Balaclava.SKILLS || {}).length }),
-        grimorio: tr('grim.learnedTitle', { cur: (this.game.unlockedSpells || []).length, total: Object.keys(Balaclava.SPELLS || {}).length }),
+        skills: tr('modal.titleSkillsCount', { n: Object.keys(Abyssea.SKILLS || {}).length }),
+        grimorio: tr('grim.learnedTitle', { cur: (this.game.unlockedSpells || []).length, total: Object.keys(Abyssea.SPELLS || {}).length }),
         map: tr('map.title'),
         market: tr('market.title'),
         quests: tr('quests.title'),
@@ -3833,15 +3881,22 @@
         title_settings: tr('settings.title'),
         controls: tr('settings.title'),
         credits: tr('credits.title'),
-        relics: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Permanent Relics Vault' : 'Cofre de Reliquias',
-        patch_notes: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en')
-          ? `Patch Notes — Beta ${this._activePatchVer || '1.3.3'}`
-          : `Cambios Recientes — Beta ${this._activePatchVer || '1.3.3'}`,
+        relics: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Permanent Relics Vault' : 'Cofre de Reliquias',
+        patch_notes: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en')
+          ? `Patch Notes — Beta ${this._activePatchVer || '2.0.0-rc2'}`
+          : `Cambios Recientes — Beta ${this._activePatchVer || '2.0.0-rc2'}`,
+        aquarium: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Dimensional Aquatic Sanctuary' : 'Santuario Acuático Dimensional',
+        spell_ritual: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Arcane Summoning Ritual' : 'Ritual de Invocación Arcana',
+        reforge: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Reforging Table' : 'Mesa de Reforja',
+        alchemy: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Grand Alchemy Laboratory' : 'Gran Laboratorio de Alquimia',
+        trophy_hall: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Trophy Hall & Museum' : 'Salón de Trofeos y Museo',
+        ghost_merchant: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Ghost Merchant Ship' : 'Barco Mercader Fantasma',
+        guild_shop: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Guild Contracts & Cosmetics Shop' : 'Tienda y Contratos del Gremio',
         quit_confirm: tr('quit.title'),
         quit_web_fallback: tr('quit.webFallbackTitle'),
         discord_fallback: tr('title.discord'),
         exit_dungeon_confirm: tr('dungeon.exitTitle'),
-        chest: (this.modalData && Balaclava.BUILDINGS[this.modalData.type] && Balaclava.BUILDINGS[this.modalData.type].name) || 'Cofre'
+        chest: (this.modalData && Abyssea.BUILDINGS[this.modalData.type] && Abyssea.BUILDINGS[this.modalData.type].name) || 'Cofre'
       };
       const backdrop = document.getElementById('modal-backdrop');
       const modalBox = document.getElementById('modal-box');
@@ -3859,7 +3914,21 @@
         modalBox.classList.toggle('pause-settings-compact', this.pauseView === 'settings' || this.activeModal === 'title_settings');
         modalBox.classList.toggle('steam-dialog-box', isCompactMenu);
         modalBox.classList.toggle('patch-notes-modal', this.activeModal === 'patch_notes');
-        modalBox.classList.toggle('chest-wide-modal', this.activeModal === 'chest');
+        const bTypeNow = this.modalData && (this.modalData.type || this.modalData.defId);
+        const isLargeWorkshop = ['alchemy', 'spell_ritual', 'enchant', 'reforge', 'aquarium', 'grimorio'].includes(this.activeModal)
+          || (this.activeModal === 'building' && ['caldero_alquimia', 'mesa_reforja', 'mesa_encantamientos', 'portal_acuario', 'mesa_hechiceria'].includes(bTypeNow));
+        const isWideWorkshop = ['chest'].includes(this.activeModal) || isLargeWorkshop;
+        modalBox.classList.toggle('chest-wide-modal', isWideWorkshop);
+        if (isLargeWorkshop) {
+          if (backdrop) backdrop.classList.remove('drawer-left');
+          modalBox.style.width = 'min(96vw, 1320px)';
+          modalBox.style.maxWidth = '1320px';
+          modalBox.style.minHeight = 'min(84vh, 760px)';
+        } else {
+          modalBox.style.width = '';
+          modalBox.style.maxWidth = '';
+          modalBox.style.minHeight = '';
+        }
       }
       if (titles[this.activeModal]) titleEl.textContent = titles[this.activeModal];
 
@@ -3879,6 +3948,13 @@
       else if (this.activeModal === 'achievements') this.renderAchievements(body);
       else if (this.activeModal === 'enchant') this.renderEnchanting(body);
       else if (this.activeModal === 'encyclopedia') this.renderEncyclopedia(body);
+      else if (this.activeModal === 'aquarium' && typeof this.renderAquariumModal === 'function') this.renderAquariumModal(body);
+      else if (this.activeModal === 'spell_ritual' && typeof this.renderSpellRitualModal === 'function') this.renderSpellRitualModal(body);
+      else if (this.activeModal === 'reforge' && typeof this.renderReforgeTab === 'function') this.renderReforgeTab(body);
+      else if (this.activeModal === 'alchemy' && typeof this.renderAlchemyLab === 'function') this.renderAlchemyLab(body);
+      else if (this.activeModal === 'trophy_hall' && typeof this.renderTrophyHallModal === 'function') { titleEl.textContent = 'Salón de Trofeos y Museo'; this.renderTrophyHallModal(body); }
+      else if (this.activeModal === 'ghost_merchant' && typeof this.renderGhostMerchantModal === 'function') { titleEl.textContent = 'Barco Fantasma Mercante'; this.renderGhostMerchantModal(body); }
+      else if (this.activeModal === 'specialist_villager' && typeof this.renderSpecialistVillagerModal === 'function') { titleEl.textContent = (this.modalData && this.modalData.name) || 'Especialista'; this.renderSpecialistVillagerModal(body, this.modalData); }
       else if (this.activeModal === 'pause' || this.activeModal === 'settings') this.renderPauseMenu(body);
       else if (this.activeModal === 'title_settings') this.renderTitleAudioSettings(body);
       else if (this.activeModal === 'credits') this.renderCreditsModal(body);
@@ -3915,7 +3991,7 @@
     }
 
     _storageItemMatches(itemId, catId, needle) {
-      const it = Balaclava.ITEMS && Balaclava.ITEMS[itemId];
+      const it = Abyssea.ITEMS && Abyssea.ITEMS[itemId];
       const catGroups = {
         todos: null,
         recursos: ['recursos', 'minerales', 'gemas', 'monstruo'],
@@ -3982,13 +4058,13 @@
       const keyCodes = [kb.spell1 || 'KeyZ', kb.spell2 || 'KeyT', kb.spell3 || 'KeyB', kb.spell4 || 'KeyN'];
 
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:12px;' }, [
-        this.el('strong', { style: 'font-size:16px;display:block;margin-bottom:4px;' }, tr('grim.learnedTitle', { cur: unlocked.length, total: Object.keys(Balaclava.SPELLS || {}).length })),
+        this.el('strong', { style: 'font-size:16px;display:block;margin-bottom:4px;' }, tr('grim.learnedTitle', { cur: unlocked.length, total: Object.keys(Abyssea.SPELLS || {}).length })),
         this.el('div', { style: 'font-size:14px;color:#dbe7f5;line-height:1.45;' }, tr('grim.intro'))
       ]));
 
       const slotBar = this.el('div', { class: 'grimorio-slots-bar' });
       slots.forEach((sid, idx) => {
-        const sp = sid && Balaclava.SPELLS && Balaclava.SPELLS[sid];
+        const sp = sid && Abyssea.SPELLS && Abyssea.SPELLS[sid];
         const kLbl = this.formatKeyCode(keyCodes[idx] || '');
         slotBar.appendChild(this.el('div', { class: 'card' + (sp ? ' selected' : '') }, [
           this.el('strong', { style: 'color:#ffd54f;font-size:14px;' }, tr('grim.slotTitle', { n: idx + 1, key: kLbl })),
@@ -4005,7 +4081,7 @@
       body.appendChild(slotBar);
 
       const grid = this.el('div', { class: 'grid-cards' });
-      Object.values(Balaclava.SPELLS || {}).forEach(sp => {
+      Object.values(Abyssea.SPELLS || {}).forEach(sp => {
         const known = unlocked.includes(sp.id);
         const equippedAt = slots.indexOf(sp.id);
         const card = this.el('div', { class: 'card' + (known ? (equippedAt >= 0 ? ' selected' : '') : ' card-locked') }, [
@@ -4032,19 +4108,21 @@
             const canUp = g.canUpgradeSpell ? g.canUpgradeSpell(sp.id) : false;
             if (cost) {
               upgradeRow.appendChild(this.el('span', { style: 'font-size:13px;color:#94a3b8;' },
-                `Mejora: ${cost.coins} 💰 + ${cost.crystals} 💎`));
+                `Mejora: ${cost.coins} Oro + ${cost.crystals} Cristales`));
               upgradeRow.appendChild(this.el('button', {
                 class: canUp ? 'btn btn-gold btn-sm' : 'btn btn-stone btn-sm',
                 onclick: () => {
-                  if (g.upgradeSpell && g.upgradeSpell(sp.id)) {
+                  if (typeof this.openSpellRitualModal === 'function') {
+                    this.openSpellRitualModal(sp.id, true);
+                  } else if (g.upgradeSpell && g.upgradeSpell(sp.id)) {
                     this.updateHUD(true);
                     this.renderModal();
                   }
                 }
-              }, `⚡ Mejorar a Nv. ${cost.level} (+25% Daño)`));
+              }, `Ritual de Ascensión Nv. ${cost.level} (+25% Daño)`));
             }
           } else {
-            upgradeRow.appendChild(this.el('span', { style: 'font-size:13px;color:#ffd54f;font-weight:bold;' }, '★ Maestría Máxima (Nivel 5)'));
+            upgradeRow.appendChild(this.el('span', { style: 'color:#ffd54f;font-size:13px;font-weight:bold;' }, 'Maestría Máxima (Nivel 5)'));
           }
           card.appendChild(upgradeRow);
           const btnRow = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;' });
@@ -4057,7 +4135,25 @@
           }
           card.appendChild(btnRow);
         } else {
-          card.appendChild(this.el('div', { style: 'font-size:14px;color:#ffb74d;margin-top:6px;' }, tr('grim.reqGrimoire')));
+          const ritRec = Abyssea.getSpellRitualRecipe ? Abyssea.getSpellRitualRecipe(sp.id) : { coins: 100, items: { cristales: 2 } };
+          const cOk = g.coins >= (ritRec.coins || 0);
+          const iOk = Object.entries(ritRec.items || {}).every(([id, q]) => (g.inventory[id] || 0) >= q);
+          const canRit = cOk && iOk;
+          const offParts = [
+            `${ritRec.coins || 0} Oro`,
+            ...Object.entries(ritRec.items || {}).map(([id, q]) => `${q}x ${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}`)
+          ];
+          card.appendChild(this.el('div', { style: 'font-size:13px;color:#ffe082;margin-top:6px;' },
+            `Ofrenda Ritual: ${offParts.join(' + ')}`));
+          card.appendChild(this.el('button', {
+            class: canRit ? 'btn btn-gold btn-sm' : 'btn btn-primary btn-sm',
+            style: 'margin-top:6px;',
+            onclick: () => {
+              if (typeof this.openSpellRitualModal === 'function') {
+                this.openSpellRitualModal(sp.id, false);
+              }
+            }
+          }, 'Iniciar Ritual de Invocación'));
         }
         grid.appendChild(card);
       });
@@ -4126,12 +4222,12 @@
       const allowedCats = catGroups[this.invFilter];
       const showTools = !allowedCats || allowedCats.includes('herramientas');
       const ownedTools = showTools
-        ? Object.values(Balaclava.TOOLS)
+        ? Object.values(Abyssea.TOOLS)
             .filter(t => Boolean(g.toolTiers && g.toolTiers[t.id]))
             .filter(t => !(g.hotbar || []).some(s => s && s.kind === 'tool' && s.id === t.id))
         : [];
       const ids = Object.keys(g.inventory).filter(id => {
-        const it = Balaclava.ITEMS[id];
+        const it = Abyssea.ITEMS[id];
         if (!it || !g.inventory[id] || (allowedCats && !allowedCats.includes(it.category))) return false;
         const hbSlots = (g.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
         const invCount = Math.max(0, g.inventory[id] - hbSlots * maxStack);
@@ -4149,7 +4245,7 @@
       } else {
         ownedTools.forEach(tool => {
           const tierId = g.toolTiers[tool.id] || 'basica';
-          const tierMeta = Balaclava.TIER_META[tierId] || Balaclava.TIER_META.basica;
+          const tierMeta = Abyssea.TIER_META[tierId] || Abyssea.TIER_META.basica;
           const rarity = tierMeta.rarity || 'comun';
           const isSelected = this.selectedToolId === tool.id;
           const slot = this.el('div', {
@@ -4161,7 +4257,7 @@
             onclick: (ev) => {
               if (ev && ev.shiftKey && g.quickTransferToHotbar) {
                 const idx = g.quickTransferToHotbar('tool', tool.id);
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 g.toast(tr('inv.sentHotbar', { name: `${tool.name} (${tierMeta.name})`, slot: idx + 1 }), 'success');
                 this.updateHUD(true);
                 this.renderModal();
@@ -4182,7 +4278,7 @@
           grid.appendChild(slot);
         });
         ids.forEach(id => {
-          const it = Balaclava.ITEMS[id];
+          const it = Abyssea.ITEMS[id];
           const isSelected = !this.selectedToolId && this.selectedItemId === id;
           const hbSlots = (g.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
           const totalCount = Math.max(0, (g.inventory[id] || 0) - hbSlots * maxStack);
@@ -4200,7 +4296,7 @@
               onclick: (ev) => {
                 if (ev && ev.shiftKey && g.quickTransferToHotbar) {
                   const idx = g.quickTransferToHotbar('item', id);
-                  Balaclava.Audio.play('pickup');
+                  Abyssea.Audio.play('pickup');
                   g.toast(tr('inv.sentHotbar', { name: it.name, slot: idx + 1 }), 'success');
                   this.updateHUD(true);
                   this.renderModal();
@@ -4234,12 +4330,12 @@
       // Right Parchment Detail & 5-Slot Paperdoll Inspector
       const rightCol = this.el('div', { style: 'display:flex;flex-direction:column;gap:10px;' });
 
-      const selTool = this.selectedToolId && g.toolTiers[this.selectedToolId] && Balaclava.TOOLS[this.selectedToolId];
-      const sel = !selTool && this.selectedItemId && Balaclava.ITEMS[this.selectedItemId];
+      const selTool = this.selectedToolId && g.toolTiers[this.selectedToolId] && Abyssea.TOOLS[this.selectedToolId];
+      const sel = !selTool && this.selectedItemId && Abyssea.ITEMS[this.selectedItemId];
       if (selTool) {
         const tierId = g.toolTiers[selTool.id] || 'basica';
-        const stats = Balaclava.getToolStats(selTool.id, tierId);
-        const rar = RARITIES[Balaclava.TIER_META[tierId].rarity] || RARITIES.comun;
+        const stats = Abyssea.getToolStats(selTool.id, tierId);
+        const rar = RARITIES[Abyssea.TIER_META[tierId].rarity] || RARITIES.comun;
         const det = this.el('div', { class: 'parchment-box', style: 'display:flex;flex-direction:column;gap:8px;' }, [
           this.el('div', { class: 'card-head' }, [
             this.toolIcon(selTool.id, tierId, 48),
@@ -4353,7 +4449,7 @@
           (sel.equipSlot && (sel.stats || sel.bonus)) ? (() => {
             const sk = sel.equipSlot === 'helmet' ? 'helm' : sel.equipSlot;
             const eqId = g.equipped && g.equipped[sk];
-            const eqIt = eqId && eqId !== sel.id ? Balaclava.ITEMS[eqId] : null;
+            const eqIt = eqId && eqId !== sel.id ? Abyssea.ITEMS[eqId] : null;
             return this._buildArmorComparisonBox(eqIt, sel);
           })() : null,
           statChips.length > 0 ? this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;' }, statChips) : null,
@@ -4426,7 +4522,7 @@
               title: 'Eliminar 1 unidad de este objeto permanentemente',
               onclick: () => {
                 g.removeItem(sel.id, 1);
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('destroy');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('destroy');
                 g.toast(`Eliminado: 1x ${sel.name}`, 'info');
                 if (!g.inventory[sel.id]) this.selectedItemId = null;
                 this.updateHUD(true);
@@ -4440,7 +4536,7 @@
                 const qty = g.inventory[sel.id] || 0;
                 if (qty > 0) {
                   g.removeItem(sel.id, qty);
-                  if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('destroy');
+                  if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('destroy');
                   g.toast(`Eliminado: ${qty}x ${sel.name}`, 'warn');
                   this.selectedItemId = null;
                   this.updateHUD(true);
@@ -4474,24 +4570,24 @@
 
       // 10-Slot Dedicated Equipment Paperdoll with FDA Slot Frames
       const equipDefs = [
-        ['helm', 'Casco', Balaclava.UI_URLS.slotHead],
-        ['armor', 'Pechera', Balaclava.UI_URLS.slotChest],
-        ['legs', 'Pantalones', Balaclava.UI_URLS.slotFeet],
-        ['boots', 'Botas', Balaclava.UI_URLS.slotFeet],
-        ['shield', 'Escudo', Balaclava.UI_URLS.slotOffhand],
-        ['ring', 'Accesorio 1', Balaclava.UI_URLS.slotRing],
-        ['amulet', 'Accesorio 2', Balaclava.UI_URLS.slotNeck],
-        ['relic', 'Reliquia 1', Balaclava.UI_URLS.slotRing],
-        ['relic2', 'Reliquia 2', Balaclava.UI_URLS.slotRing],
-        ['relic3', 'Reliquia 3', Balaclava.UI_URLS.slotRing]
+        ['helm', 'Casco', Abyssea.UI_URLS.slotHead],
+        ['armor', 'Pechera', Abyssea.UI_URLS.slotChest],
+        ['legs', 'Pantalones', Abyssea.UI_URLS.slotFeet],
+        ['boots', 'Botas', Abyssea.UI_URLS.slotFeet],
+        ['shield', 'Escudo', Abyssea.UI_URLS.slotOffhand],
+        ['ring', 'Accesorio 1', Abyssea.UI_URLS.slotRing],
+        ['amulet', 'Accesorio 2', Abyssea.UI_URLS.slotNeck],
+        ['relic', 'Reliquia 1', Abyssea.UI_URLS.slotRing],
+        ['relic2', 'Reliquia 2', Abyssea.UI_URLS.slotRing],
+        ['relic3', 'Reliquia 3', Abyssea.UI_URLS.slotRing]
       ];
       const dollGrid = this.el('div', { class: 'equip-doll-grid' });
       equipDefs.forEach(([slotKey, slotLabel, bgUrl]) => {
         const eqId = g.equipped[slotKey];
-        const eqItem = eqId && Balaclava.ITEMS[eqId];
+        const eqItem = eqId && Abyssea.ITEMS[eqId];
         const enchs = eqId && g.armorEnchants && g.armorEnchants[eqId]
           ? Object.entries(g.armorEnchants[eqId]).filter(([, l]) => l > 0)
-            .map(([eid, l]) => `${Balaclava.ARMOR_ENCHANTS[eid] ? Balaclava.ARMOR_ENCHANTS[eid].name : eid} ${tr('common.levelShort')}${l}`).join(', ')
+            .map(([eid, l]) => `${Abyssea.ARMOR_ENCHANTS[eid] ? Abyssea.ARMOR_ENCHANTS[eid].name : eid} ${tr('common.levelShort')}${l}`).join(', ')
           : '';
         const frame = this.el('div', {
           class: 'equip-doll-frame',
@@ -4539,7 +4635,7 @@
             this.uiIcon(st.icon, 14),
             st.label + ':'
           ]),
-          this.el('span', { style: `color:${st.color};font-weight:700;font-family:\'BalaclavaPixel\',monospace;` }, st.val)
+          this.el('span', { style: `color:${st.color};font-weight:700;font-family:\'AbysseaPixel\',monospace;` }, st.val)
         ]);
       }));
 
@@ -4557,10 +4653,10 @@
       rightCol.appendChild(eqPanel);
 
       // Permanent Boss & Secret Relics button (opens compact Chest-Grid Relics modal)
-      const relics = Balaclava.PERMANENT_RELICS ? Object.values(Balaclava.PERMANENT_RELICS) : [];
+      const relics = Abyssea.PERMANENT_RELICS ? Object.values(Abyssea.PERMANENT_RELICS) : [];
       if (relics.length) {
         const ownedCount = relics.filter(rel => g.hasPermanentRelic(rel.id)).length;
-        const isEnInv = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEnInv = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         rightCol.appendChild(this.el('div', { class: 'card', style: 'display:flex;align-items:center;justify-content:space-between;gap:10px;' }, [
           this.el('div', {}, [
             this.el('strong', { style: 'color:#ffd54f;font-size:15px;display:block;' }, tr('inv.permRelicsCount', { cur: ownedCount, total: relics.length })),
@@ -4579,12 +4675,15 @@
 
       layout.appendChild(rightCol);
       body.appendChild(layout);
+      if (typeof this.renderV2PetsAndSynergiesBar === 'function') {
+        this.renderV2PetsAndSynergiesBar(body);
+      }
     }
 
     renderRelicsModal(body) {
       const g = this.game;
-      const relics = Balaclava.PERMANENT_RELICS ? Object.values(Balaclava.PERMANENT_RELICS) : [];
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+      const relics = Abyssea.PERMANENT_RELICS ? Object.values(Abyssea.PERMANENT_RELICS) : [];
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       const ownedCount = relics.filter(r => g.hasPermanentRelic(r.id)).length;
       if (!this._selectedRelicId || !relics.some(r => r.id === this._selectedRelicId)) {
         const firstOwned = relics.find(r => g.hasPermanentRelic(r.id));
@@ -4650,7 +4749,7 @@
           }
         }, [
           this.itemIcon(rel.icon, 36),
-          owned ? this.el('span', { class: 'relic-chest-cell-badge' }, '✓') : null
+          owned ? this.el('span', { class: 'relic-chest-cell-badge' }, 'OK') : null
         ]);
         cellMap.set(rel.id, cell);
         gridEl.appendChild(cell);
@@ -4666,7 +4765,7 @@
       const g = this.game;
       if (!b) return;
       b.storage = b.storage || {};
-      const def = Balaclava.BUILDINGS[b.type || b.defId] || { name: 'Cofre', capacity: 30 };
+      const def = Abyssea.BUILDINGS[b.type || b.defId] || { name: 'Cofre', capacity: 30 };
       const chestCapacity = def.capacity || 30;
       const CHEST_MAX_STACK = 1000;
       const maxStack = g.getMaxStackSize ? g.getMaxStackSize() : 25;
@@ -4676,7 +4775,7 @@
       const getChestUsedSlots = () => {
         let used = 0;
         for (const [id, q] of Object.entries(b.storage || {})) {
-          if (q > 0 && Balaclava.ITEMS[id]) {
+          if (q > 0 && Abyssea.ITEMS[id]) {
             used += Math.ceil(q / CHEST_MAX_STACK);
           }
         }
@@ -4743,6 +4842,36 @@
         ]),
         this.el('div', { class: 'chest-actions-row' }, [
           this.el('button', {
+            class: 'btn btn-gold btn-sm',
+            title: 'Mover desde tu inventario solo los objetos que ya tengan stack en este cofre',
+            onclick: () => {
+              let anyMoved = false;
+              for (const [id, curQ] of Object.entries(b.storage || {})) {
+                if (!curQ || curQ <= 0) continue;
+                const count = g.inventory[id] || 0;
+                if (count <= 0) continue;
+                const hbSlots = (g.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
+                const invOnlyCount = Math.max(0, count - hbSlots * maxStack);
+                if (invOnlyCount <= 0) continue;
+                const fit = getChestFit(id);
+                const toMove = Math.min(invOnlyCount, fit);
+                if (toMove > 0) {
+                  b.storage[id] = (b.storage[id] || 0) + toMove;
+                  g.removeItem(id, toMove);
+                  anyMoved = true;
+                }
+              }
+              if (anyMoved) {
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
+                g.toast('Objetos coincidentes apilados al cofre.', 'success');
+                this.updateHUD(true);
+                this.renderModal();
+              } else {
+                g.toast('No hay objetos coincidentes para apilar.', 'info');
+              }
+            }
+          }, 'Guardar iguales'),
+          this.el('button', {
             class: 'btn btn-stone btn-sm',
             title: 'Mover todos los objetos de tu inventario al cofre (los objetos de tu Hotbar se conservan)',
             onclick: () => {
@@ -4761,7 +4890,7 @@
                 }
               }
               if (anyMoved) {
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                 this.updateHUD(true);
                 this.renderModal();
               } else {
@@ -4786,7 +4915,7 @@
                 }
               }
               if (anyMoved) {
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                 this.updateHUD(true);
                 this.renderModal();
               } else {
@@ -4799,7 +4928,7 @@
             title: 'Demoler este cofre (arroja todo su contenido al suelo)',
             onclick: () => {
               g.demolishBuilding(b);
-              if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('destroy');
+              if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('destroy');
               this.closeModal();
             }
           }, 'Demoler')
@@ -4808,9 +4937,9 @@
       chestBox.appendChild(chestHead);
 
       const chestGrid = this.el('div', { class: 'chest-grid' });
-      const chestItems = Object.entries(b.storage).filter(([id, q]) => q > 0 && Balaclava.ITEMS[id]);
+      const chestItems = Object.entries(b.storage).filter(([id, q]) => q > 0 && Abyssea.ITEMS[id]);
       chestItems.forEach(([id, qty]) => {
-        const it = Balaclava.ITEMS[id];
+        const it = Abyssea.ITEMS[id];
         let rem = qty;
         while (rem > 0) {
           const stackQty = Math.min(rem, CHEST_MAX_STACK);
@@ -4828,7 +4957,7 @@
                 g.addItem(id, actualMove);
                 b.storage[id] -= actualMove;
                 if (b.storage[id] <= 0) delete b.storage[id];
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                 this.updateHUD(true);
                 this.renderModal();
               } else {
@@ -4843,7 +4972,7 @@
                 g.addItem(id, 1);
                 b.storage[id] -= 1;
                 if (b.storage[id] <= 0) delete b.storage[id];
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                 this.updateHUD(true);
                 this.renderModal();
               } else {
@@ -4876,7 +5005,7 @@
           const invQ = Math.max(0, q - hbSlots * maxStack);
           return [id, invQ];
         })
-        .filter(([id, q]) => q > 0 && Balaclava.ITEMS[id]);
+        .filter(([id, q]) => q > 0 && Abyssea.ITEMS[id]);
       const bpName = g.backpackTier === 3 ? 'Mochila Astral (+24 slots)'
                    : g.backpackTier === 2 ? 'Mochila Reforzada (+16 slots)'
                    : g.backpackTier === 1 ? 'Mochila de Cuero (+8 slots)'
@@ -4894,7 +5023,7 @@
 
       const playerGrid = this.el('div', { class: 'chest-grid' });
       playerItems.forEach(([id, qty]) => {
-        const it = Balaclava.ITEMS[id];
+        const it = Abyssea.ITEMS[id];
         let rem = qty;
         while (rem > 0) {
           const stackQty = Math.min(rem, maxStack);
@@ -4913,7 +5042,7 @@
               if (actualMove > 0) {
                 b.storage[id] = (b.storage[id] || 0) + actualMove;
                 g.removeItem(id, actualMove);
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                 this.updateHUD(true);
                 this.renderModal();
               } else {
@@ -4927,7 +5056,7 @@
               if (fit >= 1) {
                 b.storage[id] = (b.storage[id] || 0) + 1;
                 g.removeItem(id, 1);
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                 this.updateHUD(true);
                 this.renderModal();
               } else {
@@ -5010,14 +5139,14 @@
 
       const recordsCard = this.el('div', { class: 'card' }, [
         this.el('strong', { style: 'color:#ffd54f;font-size:15px;margin-bottom:4px;display:block;' }, tr('stats.recordsSec')),
-        makeRow(tr('stats.goldRow'), `${Balaclava.Utils.formatNum(g.coins)} / ${Balaclava.Utils.formatNum(g.stats.coinsEarned || 0)}`),
+        makeRow(tr('stats.goldRow'), `${Abyssea.Utils.formatNum(g.coins)} / ${Abyssea.Utils.formatNum(g.stats.coinsEarned || 0)}`),
         makeRow(tr('stats.plotsRow'), `${g.unlockedPlots.length} / ${GRID_PLOTS * GRID_PLOTS}`),
-        makeRow(tr('stats.dungeonsRow'), `${g.clearedDungeons.length} / ${Object.keys(Balaclava.DUNGEON_DEFS || {}).length}`),
-        makeRow(tr('stats.starsRow'), `${g.unlockedSkills.length} / ${Object.keys(Balaclava.SKILLS || {}).length}`),
-        makeRow(tr('stats.relicsRow'), `${(g.permanentRelics || []).length} / ${Object.keys(Balaclava.PERMANENT_RELICS || {}).length}`),
-        makeRow(tr('stats.killsRow'), Balaclava.Utils.formatNum(g.stats.kills || 0)),
-        makeRow(tr('stats.gatheredRow'), Balaclava.Utils.formatNum(g.stats.gatheredTotal || 0)),
-        makeRow(tr('stats.craftedRow'), Balaclava.Utils.formatNum(g.stats.craftedTotal || 0)),
+        makeRow(tr('stats.dungeonsRow'), `${g.clearedDungeons.length} / ${Object.keys(Abyssea.DUNGEON_DEFS || {}).length}`),
+        makeRow(tr('stats.starsRow'), `${g.unlockedSkills.length} / ${Object.keys(Abyssea.SKILLS || {}).length}`),
+        makeRow(tr('stats.relicsRow'), `${(g.permanentRelics || []).length} / ${Object.keys(Abyssea.PERMANENT_RELICS || {}).length}`),
+        makeRow(tr('stats.killsRow'), Abyssea.Utils.formatNum(g.stats.kills || 0)),
+        makeRow(tr('stats.gatheredRow'), Abyssea.Utils.formatNum(g.stats.gatheredTotal || 0)),
+        makeRow(tr('stats.craftedRow'), Abyssea.Utils.formatNum(g.stats.craftedTotal || 0)),
         makeRow(tr('stats.farmRow'), `${g.stats.fishCaught || 0} / ${g.stats.cropsHarvested || 0} / ${g.stats.chestsOpened || 0}`)
       ]);
 
@@ -5049,7 +5178,7 @@
         ]);
         const rGrid = this.el('div', { class: 'craft-ready-grid' });
         ready.forEach((entry, ri) => {
-          const itDef = Balaclava.ITEMS[entry.out];
+          const itDef = Abyssea.ITEMS[entry.out];
           rGrid.appendChild(this.el('div', { class: 'craft-ready-item' }, [
             itDef ? this.itemIcon(itDef.icon, 26) : null,
             this.el('div', {}, [
@@ -5094,7 +5223,7 @@
       const g = this.game;
       const invQty = g.inventory[id] || 0;
       if (invQty >= q) return { ok: true, have: invQty, viaEquipped: false };
-      const itDef = Balaclava.ITEMS[id];
+      const itDef = Abyssea.ITEMS[id];
       if (q === 1 && itDef && itDef.equipSlot) {
         const sk = itDef.equipSlot === 'helmet' ? 'helm' : itDef.equipSlot;
         if (g.equipped && g.equipped[sk] === id) {
@@ -5106,7 +5235,7 @@
 
     _getWeaponAttributes(item) {
       if (!item) return null;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
       const wm = item.weaponMelee;
       const bs = item.bladeStats;
       const rs = item.rangedStats;
@@ -5188,19 +5317,19 @@
     _getBaselineWeaponForComparison(targetItem) {
       const g = this.game;
       if (!g) return null;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
       // Check active hotbar slot first if it holds another weapon
       const activeEntry = g.hotbar && g.hotbar[g.activeSlot || 0];
       if (activeEntry && activeEntry.kind === 'item' && activeEntry.id !== targetItem.id) {
-        const eqIt = Balaclava.ITEMS && Balaclava.ITEMS[activeEntry.id];
+        const eqIt = Abyssea.ITEMS && Abyssea.ITEMS[activeEntry.id];
         const eqW = this._getWeaponAttributes(eqIt);
         if (eqW) return { name: eqIt.name, dmg: eqW.dmg, aps: eqW.aps, rangeTiles: eqW.rangeTiles };
       }
       // Otherwise compare against owned sword or bow tier
       const isRanged = Boolean(targetItem.rangedStats || targetItem.staffStats || targetItem.laserStats);
       const refToolId = isRanged && g.toolTiers && g.toolTiers.arco ? 'arco' : (g.toolTiers && g.toolTiers.espada ? 'espada' : null);
-      if (refToolId && Balaclava.getToolStats) {
-        const st = Balaclava.getToolStats(refToolId, g.toolTiers[refToolId]);
+      if (refToolId && Abyssea.getToolStats) {
+        const st = Abyssea.getToolStats(refToolId, g.toolTiers[refToolId]);
         if (st) {
           return {
             name: `${st.name} (${st.tierName})`,
@@ -5216,7 +5345,7 @@
     _buildWeaponStatsBox(item) {
       const w = this._getWeaponAttributes(item);
       if (!w) return null;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
       const baseRef = this._getBaselineWeaponForComparison(item);
 
       const fmtDiff = (diff, suffix = '') => {
@@ -5273,7 +5402,7 @@
     }
 
     _renderUpgradeComparisonPanel({ title, subtitle, accent = '#ffd54f', curColLabel, nextColLabel, rows }) {
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       const box = this.el('div', { class: 'upgrade-cmp-panel', style: `--cmp-accent:${accent};` });
       const head = this.el('div', { class: 'upgrade-cmp-head' }, [
         this.el('div', { class: 'upgrade-cmp-title' }, title),
@@ -5305,11 +5434,11 @@
     }
 
     _buildToolUpgradeComparisonBox(toolId, curTier, nextTier) {
-      if (!Balaclava.getToolStats || !curTier || !nextTier) return null;
-      const curS = Balaclava.getToolStats(toolId, curTier);
-      const nextS = Balaclava.getToolStats(toolId, nextTier);
+      if (!Abyssea.getToolStats || !curTier || !nextTier) return null;
+      const curS = Abyssea.getToolStats(toolId, curTier);
+      const nextS = Abyssea.getToolStats(toolId, nextTier);
       if (!curS || !nextS) return null;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
       const pDiff = nextS.power - curS.power;
       const spdDiff = +(nextS.speed - curS.speed).toFixed(2);
       const rCur = +(curS.reach / 48).toFixed(1);
@@ -5366,7 +5495,7 @@
       if (!nextItem) return null;
       const curSt = (curItem && (curItem.stats || curItem.bonus)) || {};
       const nextSt = nextItem.stats || nextItem.bonus || {};
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
 
       const fields = [
         { label: isEn ? 'Defense' : 'Defensa', cur: curSt.def || 0, next: nextSt.def || 0, suffix: '' },
@@ -5474,7 +5603,7 @@
       const score = (rec) => {
         if (rec.toolUnlock) return 50;
         if (rec.out === '_coin') return 10;
-        const out = Balaclava.ITEMS[rec.out];
+        const out = Abyssea.ITEMS[rec.out];
         const tier = getTierScore(rec.out, out);
         const cat = getCatScore(out);
         const val = out && out.value ? Math.min(out.value, 999) : 0;
@@ -5485,17 +5614,17 @@
         const sa = score(a);
         const sb = score(b);
         if (sa !== sb) return sa - sb;
-        const nameA = (Balaclava.ITEMS[a.out] ? Balaclava.ITEMS[a.out].name : (a.out || '')).toLowerCase();
-        const nameB = (Balaclava.ITEMS[b.out] ? Balaclava.ITEMS[b.out].name : (b.out || '')).toLowerCase();
+        const nameA = (Abyssea.ITEMS[a.out] ? Abyssea.ITEMS[a.out].name : (a.out || '')).toLowerCase();
+        const nameB = (Abyssea.ITEMS[b.out] ? Abyssea.ITEMS[b.out].name : (b.out || '')).toLowerCase();
         return nameA.localeCompare(nameB);
       });
     }
 
     _buildRecipeCard(rec, showStationLabel = true) {
       const g = this.game;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       const hasStation = g.hasStationAvailable(rec.station);
-      const reqSkill = rec.reqSkill ? (Balaclava.SKILLS && Balaclava.SKILLS[rec.reqSkill]) : null;
+      const reqSkill = rec.reqSkill ? (Abyssea.SKILLS && Abyssea.SKILLS[rec.reqSkill]) : null;
       const hasSkill = !rec.reqSkill || (Array.isArray(g.unlockedSkills) && g.unlockedSkills.includes(rec.reqSkill));
       const hasOmegaRes = !rec.reqOmega || Boolean(g.omega && g.omega.hasResearch(rec.reqOmega));
       const canAfford = hasStation && hasSkill && hasOmegaRes && Object.entries(rec.in).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
@@ -5504,12 +5633,12 @@
       Object.entries(rec.in).forEach(([id, q]) => {
         const check = this._checkCraftIngredient(id, q);
         ingList.appendChild(this.el('div', { style: `color:${check.ok ? '#81c784' : '#ff8a65'};font-weight:600;` },
-          `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${check.have}/${q}${check.viaEquipped ? ` (${tr('common.equipped')})` : ''}`));
+          `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${check.have}/${q}${check.viaEquipped ? ` (${tr('common.equipped')})` : ''}`));
       });
 
       const dur = g.getCraftDuration ? g.getCraftDuration(rec) : (rec.craftTime || 2.0);
       if (rec.toolUnlock) {
-        const tDef = Balaclava.TOOLS[rec.toolUnlock];
+        const tDef = Abyssea.TOOLS[rec.toolUnlock];
         if (!tDef) return null;
         const alreadyOwned = Boolean(g.toolTiers[rec.toolUnlock]);
         const queuedJob = (g.craftQueue || []).find(j => j.toolUnlock === rec.toolUnlock);
@@ -5539,14 +5668,14 @@
       }
 
       const isCoin = rec.out === '_coin';
-      const progArmor = !isCoin && Balaclava.isProgressiveArmorItem ? Balaclava.isProgressiveArmorItem(rec.out) : null;
+      const progArmor = !isCoin && Abyssea.isProgressiveArmorItem ? Abyssea.isProgressiveArmorItem(rec.out) : null;
       if (progArmor) {
         return this._buildArmorSlotCard(progArmor.slot);
       }
-      const outItem = isCoin ? { name: tr('craft.coinName'), icon: 'coin_gold', desc: tr('craft.coinDesc') } : Balaclava.ITEMS[rec.out];
+      const outItem = isCoin ? { name: tr('craft.coinName'), icon: 'coin_gold', desc: tr('craft.coinDesc') } : Abyssea.ITEMS[rec.out];
       if (!outItem) return null;
       const itemSummary = this._describeItemExtras(outItem);
-      const stLabel = (Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(rec.station) : rec.station;
+      const stLabel = (Abyssea.I18n && Abyssea.I18n.getStationName) ? Abyssea.I18n.getStationName(rec.station) : rec.station;
       const subText = showStationLabel
         ? tr('craft.stationLine', { station: stLabel, dur: dur.toFixed(1), missing: hasStation ? '' : tr('craft.notBuilt') })
         : tr('craft.timeLine', { dur: dur.toFixed(1) });
@@ -5593,7 +5722,7 @@
         (outItem.equipSlot && (outItem.stats || outItem.bonus)) ? (() => {
           const sk = outItem.equipSlot === 'helmet' ? 'helm' : outItem.equipSlot;
           const eqId = g.equipped && g.equipped[sk];
-          const eqIt = eqId && eqId !== outItem.id ? Balaclava.ITEMS[eqId] : null;
+          const eqIt = eqId && eqId !== outItem.id ? Abyssea.ITEMS[eqId] : null;
           return this._buildArmorComparisonBox(eqIt, outItem);
         })() : null,
         reqSkill ? this.el('div', {
@@ -5608,7 +5737,7 @@
 
     _renderCraftingWorkspace(body, recList, opts = {}) {
       const g = this.game;
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       const showStationLabel = opts.showStationLabel !== false;
       const sortedRecs = this._sortRecipes(recList || []);
 
@@ -5669,10 +5798,10 @@
 
         const isCoin = rec.out === '_coin';
         const isTool = Boolean(rec.toolUnlock);
-        const tDef = isTool ? Balaclava.TOOLS[rec.toolUnlock] : null;
+        const tDef = isTool ? Abyssea.TOOLS[rec.toolUnlock] : null;
         const outItem = isTool
           ? { name: tDef ? tDef.name : rec.toolUnlock, icon: rec.toolUnlock, desc: tDef ? (tDef.desc || tDef.role) : '' }
-          : (isCoin ? { name: tr('craft.coinName'), icon: 'coin_gold', desc: tr('craft.coinDesc'), category: 'economia' } : Balaclava.ITEMS[rec.out]);
+          : (isCoin ? { name: tr('craft.coinName'), icon: 'coin_gold', desc: tr('craft.coinDesc'), category: 'economia' } : Abyssea.ITEMS[rec.out]);
 
         if (!outItem) {
           inspectorEl.appendChild(this.el('div', { class: 'craft-inspector-empty' }, 'Información de receta no disponible.'));
@@ -5681,7 +5810,7 @@
 
         const dur = g.getCraftDuration ? g.getCraftDuration(rec) : (rec.craftTime || 2.0);
         const hasStation = g.hasStationAvailable(rec.station);
-        const reqSkill = rec.reqSkill ? (Balaclava.SKILLS && Balaclava.SKILLS[rec.reqSkill]) : null;
+        const reqSkill = rec.reqSkill ? (Abyssea.SKILLS && Abyssea.SKILLS[rec.reqSkill]) : null;
         const hasSkill = !rec.reqSkill || (Array.isArray(g.unlockedSkills) && g.unlockedSkills.includes(rec.reqSkill));
         const hasOmegaRes = !rec.reqOmega || Boolean(g.omega && g.omega.hasResearch(rec.reqOmega));
         const canAfford = hasStation && hasSkill && hasOmegaRes && Object.entries(rec.in || {}).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
@@ -5705,7 +5834,7 @@
             ]),
             this.el('div', { style: 'display:flex;gap:6px;margin-top:3px;flex-wrap:wrap;' }, [
               this.el('span', { style: 'font-size:12px;color:#90caf9;background:rgba(33,150,243,0.15);border:1px solid rgba(33,150,243,0.3);padding:1px 6px;border-radius:3px;' },
-                (Balaclava.I18n && Balaclava.I18n.getStationName ? Balaclava.I18n.getStationName(rec.station) : rec.station) || 'Mesa'),
+                (Abyssea.I18n && Abyssea.I18n.getStationName ? Abyssea.I18n.getStationName(rec.station) : rec.station) || 'Mesa'),
               this.el('span', { style: 'font-size:12px;color:#cfd8dc;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;' },
                 `Tiempo: ${dur.toFixed(1)}s`)
             ])
@@ -5725,7 +5854,7 @@
         if (outItem.equipSlot && (outItem.stats || outItem.bonus)) {
           const sk = outItem.equipSlot === 'helmet' ? 'helm' : outItem.equipSlot;
           const eqId = g.equipped && g.equipped[sk];
-          const eqIt = eqId && eqId !== outItem.id ? Balaclava.ITEMS[eqId] : null;
+          const eqIt = eqId && eqId !== outItem.id ? Abyssea.ITEMS[eqId] : null;
           const armBox = this._buildArmorComparisonBox(eqIt, outItem);
           if (armBox) inspectorEl.appendChild(armBox);
         }
@@ -5746,7 +5875,7 @@
 
         // Station warning if not available
         if (!hasStation) {
-          const stLabel = (Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(rec.station) : rec.station;
+          const stLabel = (Abyssea.I18n && Abyssea.I18n.getStationName) ? Abyssea.I18n.getStationName(rec.station) : rec.station;
           inspectorEl.appendChild(this.el('div', {
             style: 'font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;background:rgba(239,83,80,0.2);border:1px solid #ef5350;color:#ffab91;margin-top:6px;'
           }, `Requiere estación cercana: ${stLabel}`));
@@ -5758,7 +5887,7 @@
         ]);
         Object.entries(rec.in || {}).forEach(([ingId, needQty]) => {
           const check = this._checkCraftIngredient(ingId, needQty);
-          const ingDef = Balaclava.ITEMS[ingId] || { name: ingId, icon: 'item_default' };
+          const ingDef = Abyssea.ITEMS[ingId] || { name: ingId, icon: 'item_default' };
           const row = this.el('div', {
             class: `craft-ing-row ${check.ok ? 'ing-ok' : 'ing-missing'}`
           }, [
@@ -5767,7 +5896,7 @@
               this.el('span', { style: `color:${check.ok ? '#e2e8f0' : '#ffa4a2'};font-size:13px;` },
                 `${ingDef.name}${check.viaEquipped ? ' (equipado)' : ''}`)
             ]),
-            this.el('strong', { style: `color:${check.ok ? '#81c784' : '#ef5350'};font-family:'BalaclavaPixel',monospace;font-size:14px;` },
+            this.el('strong', { style: `color:${check.ok ? '#81c784' : '#ef5350'};font-family:'AbysseaPixel',monospace;font-size:14px;` },
               `${check.have} / ${needQty}`)
           ]);
           ingCard.appendChild(row);
@@ -5850,10 +5979,10 @@
       sortedRecs.forEach(rec => {
         const key = rec.id || rec.toolUnlock || rec.out;
         const isTool = Boolean(rec.toolUnlock);
-        const tDef = isTool ? Balaclava.TOOLS[rec.toolUnlock] : null;
+        const tDef = isTool ? Abyssea.TOOLS[rec.toolUnlock] : null;
         const outItem = isTool
           ? { name: tDef ? tDef.name : rec.toolUnlock, icon: rec.toolUnlock }
-          : (rec.out === '_coin' ? { name: tr('craft.coinName'), icon: 'coin_gold' } : Balaclava.ITEMS[rec.out]);
+          : (rec.out === '_coin' ? { name: tr('craft.coinName'), icon: 'coin_gold' } : Abyssea.ITEMS[rec.out]);
 
         if (!outItem) return;
 
@@ -5912,6 +6041,8 @@
           ['taller', tr('craft.tabTaller')],
           ['forja', tr('craft.tabForja')],
           ['yunque_runico', tr('craft.tabYunque')],
+          ['reforja', 'Reforja'],
+          ['alquimia', 'Alquimia'],
           ['mesa_hechiceria', tr('craft.tabSorcery')],
           ['herramientas', tr('craft.tabTools')]
         ].forEach(([id, label]) => {
@@ -5921,6 +6052,15 @@
           }, label));
         });
         body.appendChild(tabs);
+      }
+
+      if (activeFilter === 'alquimia' && typeof this.renderAlchemyLab === 'function') {
+        this.renderAlchemyLab(body);
+        return;
+      }
+      if (activeFilter === 'reforja' && typeof this.renderReforgeTab === 'function') {
+        this.renderReforgeTab(body);
+        return;
       }
 
       const stInfo = getStationDesc(activeFilter);
@@ -5964,9 +6104,9 @@
         return s === activeFilter;
       };
 
-      const filteredRecs = Balaclava.RECIPES.filter(r => {
+      const filteredRecs = Abyssea.RECIPES.filter(r => {
         if (!matchStation(r.station)) return false;
-        const pa = Balaclava.isProgressiveArmorItem && Balaclava.isProgressiveArmorItem(r.out);
+        const pa = Abyssea.isProgressiveArmorItem && Abyssea.isProgressiveArmorItem(r.out);
         if (pa && pa.tierIdx > 0) return false;
         return true;
       });
@@ -5977,10 +6117,10 @@
       const g = this.game;
       const grid = this.el('div', { class: 'grid-cards', style: gridStyle || null });
       const queue = g.craftQueue || [];
-      Object.values(Balaclava.TOOLS).forEach(tool => {
+      Object.values(Abyssea.TOOLS).forEach(tool => {
         const curTier = g.toolTiers[tool.id];
         if (!curTier) {
-          const rec = Balaclava.RECIPES.find(r => r.toolUnlock === tool.id);
+          const rec = Abyssea.RECIPES.find(r => r.toolUnlock === tool.id);
           const queuedCraft = queue.find(j => j.toolUnlock === tool.id);
           const rem = queuedCraft ? Math.max(0, (queuedCraft.totalTime || 0) - (queuedCraft.elapsed || 0)).toFixed(1) : null;
           const dur = rec && g.getCraftDuration ? g.getCraftDuration(rec) : 2.0;
@@ -5990,10 +6130,10 @@
             Object.entries(rec.in).forEach(([id, q]) => {
               const have = g.inventory[id] || 0;
               costBox.appendChild(this.el('div', { style: `color:${have >= q ? '#81c784' : '#ff8a65'}` },
-                `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${have}/${q}`));
+                `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${have}/${q}`));
             });
           }
-          const baseStats = Balaclava.getToolStats ? Balaclava.getToolStats(tool.id, 'basica') : null;
+          const baseStats = Abyssea.getToolStats ? Abyssea.getToolStats(tool.id, 'basica') : null;
           const card = this.el('div', { class: 'card card-locked' }, [
             this.el('div', { class: 'card-head' }, [
               this.toolIcon(tool.id, 'basica', 34),
@@ -6019,15 +6159,22 @@
           return;
         }
 
-        const nextTier = Balaclava.getNextTier(curTier);
-        const curStats = Balaclava.getToolStats(tool.id, curTier);
+        const nextTier = Abyssea.getNextTier(curTier);
+        const curStats = Abyssea.getToolStats(tool.id, curTier);
+        const toolRarity = g.getGearRarity ? g.getGearRarity('tool', tool.id) : null;
         const hotSlotIdx = g.hotbar.findIndex(s => s && s.kind === 'tool' && s.id === tool.id);
         const card = this.el('div', { class: 'card' }, [
           this.el('div', { class: 'card-head' }, [
             this.toolIcon(tool.id, curTier, 34),
             this.el('div', {}, [
-              this.el('strong', { style: `color:${curStats.tierColor}` }, `${tool.name} (${curStats.tierName})`),
-              this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.45;' }, `${tr('inv.powerTag', { n: curStats.power })} · ${tr('inv.speedTag', { n: curStats.speed })} · ${tr('inv.reachTag', { n: (curStats.reach / 48).toFixed(1) })}`)
+              this.el('div', { style: 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;' }, [
+                this.el('strong', { style: `color:${curStats.tierColor}` }, `${tool.name} (${curStats.tierName})`),
+                (toolRarity && typeof this.renderGearRarityBadge === 'function') ? this.renderGearRarityBadge(toolRarity.id) : null
+              ]),
+              this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.45;' }, `${tr('inv.powerTag', { n: Math.round(curStats.power * (toolRarity ? toolRarity.powerMult : 1)) })} · ${tr('inv.speedTag', { n: curStats.speed })} · ${tr('inv.reachTag', { n: (curStats.reach / 48).toFixed(1) })}`),
+              toolRarity && toolRarity.id !== 'comun'
+                ? this.el('div', { style: `font-size:12px;color:${toolRarity.color};font-weight:700;` }, toolRarity.desc)
+                : null
             ])
           ]),
           this.el('div', { style: 'font-size:14px;color:#dde8f4;line-height:1.48;' }, tool.desc || tool.role || '')
@@ -6061,12 +6208,12 @@
             this.el('div', { style: `color:${g.coins >= (cost ? cost.coins : 0) ? '#ffd54f' : '#ff8a65'}` }, `${tr('tooltip.goldLabel')}: ${g.coins}/${cost ? cost.coins : 0}`),
             ...(cost && cost.items ? Object.entries(cost.items).map(([id, q]) =>
               this.el('div', { style: `color:${(g.inventory[id] || 0) >= q ? '#81c784' : '#ff8a65'}` },
-                `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${q}`)
+                `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${q}`)
             ) : [])
           ]);
           if (needsForja) cDiv.appendChild(this.el('div', { style: 'color:#ff8a65;' }, tr('tools.forjaRequired')));
           if (needsOmegaRes) {
-            const isEnT = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+            const isEnT = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
             cDiv.appendChild(this.el('div', { style: 'color:#e040fb;font-weight:700;' }, isEnT ? 'Requires Central Nexus: Omega Metallurgy' : 'Requiere Nexo Central: Metalurgia Omega'));
           }
           card.appendChild(cDiv);
@@ -6078,17 +6225,34 @@
             upLabel = tr('craft.upgradeCooldown', { sec: cdLeft.toFixed(1) });
           } else {
             const dur = g.getToolUpgradeDuration ? g.getToolUpgradeDuration(nextTier) : 2.0;
-            upLabel = tr('craft.upgradeTimedBtn', { tier: Balaclava.TIER_META[nextTier].name, dur: dur.toFixed(1) });
+            upLabel = tr('craft.upgradeTimedBtn', { tier: Abyssea.TIER_META[nextTier].name, dur: dur.toFixed(1) });
           }
-          card.appendChild(this.el('button', {
-            class: 'btn btn-gold btn-sm',
-            'data-tool-busy-id': busy ? tool.id : null,
-            'data-busy-kind': queuedUp ? 'up' : (cdLeft > 0 ? 'cd' : null),
-            disabled: canUp ? null : 'disabled',
-            onclick: () => { g.upgradeTool(tool.id); this.renderModal(); }
-          }, upLabel));
+          card.appendChild(this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;' }, [
+            this.el('button', {
+              class: 'btn btn-gold btn-sm',
+              'data-tool-busy-id': busy ? tool.id : null,
+              'data-busy-kind': queuedUp ? 'up' : (cdLeft > 0 ? 'cd' : null),
+              disabled: canUp ? null : 'disabled',
+              onclick: () => {
+                g.upgradeTool(tool.id);
+                this.renderModal();
+              }
+            }, upLabel),
+            this.el('button', {
+              class: 'btn btn-primary btn-sm',
+              onclick: () => {
+                this.openModal('reforge');
+              }
+            }, 'Reforjar Rareza')
+          ]));
         } else {
-          card.appendChild(this.el('span', { style: 'color:#81c784;font-weight:700;font-size:14px;' }, tr('craft.maxCelestial')));
+          card.appendChild(this.el('div', { style: 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;' }, [
+            this.el('span', { style: 'color:#81c784;font-weight:700;font-size:14px;' }, tr('craft.maxCelestial')),
+            this.el('button', {
+              class: 'btn btn-primary btn-sm',
+              onclick: () => this.openModal('reforge')
+            }, 'Reforjar Rareza')
+          ]));
         }
         grid.appendChild(card);
       });
@@ -6097,15 +6261,15 @@
 
     _buildArmorSlotCard(slot) {
       const g = this.game;
-      const chain = Balaclava.ARMORS && Balaclava.ARMORS[slot];
+      const chain = Abyssea.ARMORS && Abyssea.ARMORS[slot];
       if (!chain) return null;
       const queue = g.craftQueue || [];
       const curId = g.getOwnedArmorItem ? g.getOwnedArmorItem(slot) : null;
       const slotLabel = chain.nameKey ? tr(chain.nameKey) : (chain.fallbackName || slot);
 
       if (!curId) {
-        const baseItem = Balaclava.ITEMS[chain.baseItem];
-        const rec = Balaclava.RECIPES.find(r => r.out === chain.baseItem);
+        const baseItem = Abyssea.ITEMS[chain.baseItem];
+        const rec = Abyssea.RECIPES.find(r => r.out === chain.baseItem);
         const queuedCraft = queue.find(j => j.armorUnlock === slot);
         const rem = queuedCraft ? Math.max(0, (queuedCraft.totalTime || 0) - (queuedCraft.elapsed || 0)).toFixed(1) : null;
         const dur = g.getCraftDuration ? g.getCraftDuration({ craftTime: 2.0 }) : 2.0;
@@ -6116,7 +6280,7 @@
           Object.entries(rec.in || {}).forEach(([id, q]) => {
             const have = g.inventory[id] || 0;
             costBox.appendChild(this.el('div', { style: `color:${have >= q ? '#81c784' : '#ff8a65'}` },
-              `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${have}/${q}`));
+              `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${have}/${q}`));
           });
         }
         return this.el('div', { class: 'card card-locked' }, [
@@ -6129,7 +6293,7 @@
             ])
           ]),
           baseItem ? this.el('div', { style: 'font-size:14px;color:#e6eef6;line-height:1.48;' }, this._describeItemExtras(baseItem) || baseItem.desc || '') : null,
-          (!hasSt && rec) ? this.el('div', { style: 'color:#ff8a65;font-size:13px;font-weight:700;' }, `Requiere: ${(Balaclava.I18n && Balaclava.I18n.getStationName) ? Balaclava.I18n.getStationName(rec.station) : rec.station}`) : null,
+          (!hasSt && rec) ? this.el('div', { style: 'color:#ff8a65;font-size:13px;font-weight:700;' }, `Requiere: ${(Abyssea.I18n && Abyssea.I18n.getStationName) ? Abyssea.I18n.getStationName(rec.station) : rec.station}`) : null,
           costBox,
           this.el('button', {
             class: 'btn btn-green btn-sm',
@@ -6141,10 +6305,10 @@
         ]);
       }
 
-      const curItem = Balaclava.ITEMS[curId];
-      const nextId = Balaclava.getArmorNextItem ? Balaclava.getArmorNextItem(slot, curId) : null;
-      const nextItem = nextId ? Balaclava.ITEMS[nextId] : null;
-      const tierIdx = Balaclava.getArmorTierIndex ? Balaclava.getArmorTierIndex(slot, curId) : 0;
+      const curItem = Abyssea.ITEMS[curId];
+      const nextId = Abyssea.getArmorNextItem ? Abyssea.getArmorNextItem(slot, curId) : null;
+      const nextItem = nextId ? Abyssea.ITEMS[nextId] : null;
+      const tierIdx = Abyssea.getArmorTierIndex ? Abyssea.getArmorTierIndex(slot, curId) : 0;
       const isEquipped = g.equipped && g.equipped[slot] === curId;
       const rarityColors = { comun: '#cfd8dc', poco_comun: '#81c784', raro: '#64b5f6', epico: '#ce93d8', legendario: '#ffd54f' };
       const titleColor = (curItem && rarityColors[curItem.rarity]) || '#ffd54f';
@@ -6167,19 +6331,19 @@
           if (g.inventory && g.inventory[curId]) delete g.inventory[curId];
           if (g.equipped[slot] && g.equipped[slot] !== curId) {
             const prevEq = g.equipped[slot];
-            if (!(Balaclava.isProgressiveArmorItem && Balaclava.isProgressiveArmorItem(prevEq))) {
+            if (!(Abyssea.isProgressiveArmorItem && Abyssea.isProgressiveArmorItem(prevEq))) {
               g.addItem(prevEq, 1);
             }
           }
           g.equipped[slot] = curId;
           g.recomputeModifiers();
-          Balaclava.Audio.play('equip');
+          Abyssea.Audio.play('equip');
           this.renderModal();
         }
       }, isEquipped ? tr('craft.equippedArmorSlot') : tr('craft.equipArmorSlot', { name: curItem ? curItem.name : slotLabel })));
 
       if (nextId && nextItem) {
-        const mat = Balaclava.getArmorUpgradeMaterials ? Balaclava.getArmorUpgradeMaterials(slot, nextId) : null;
+        const mat = Abyssea.getArmorUpgradeMaterials ? Abyssea.getArmorUpgradeMaterials(slot, nextId) : null;
         const stOk = !mat ? true : (mat.station === 'investigacion'
           ? (g.hasStationAvailable('investigacion') || g.hasStationAvailable('forja'))
           : g.hasStationAvailable(mat.station));
@@ -6198,15 +6362,15 @@
           !armorCmp && nextItem.desc ? this.el('div', { style: 'color:#bfe2ff;font-size:13px;margin-bottom:2px;' }, `${nextItem.name}: ${nextItem.desc}`) : null,
           ...(mat && mat.items ? Object.entries(mat.items).map(([id, q]) =>
             this.el('div', { style: `color:${(g.inventory[id] || 0) >= q ? '#81c784' : '#ff8a65'}` },
-              `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${q}`)
+              `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${q}`)
           ) : [])
         ]);
         if (!stOk) {
-          const reqStLabel = (mat && mat.station && mat.station !== 'forja' && Balaclava.I18n && Balaclava.I18n.getStationName) ? `Requiere ${Balaclava.I18n.getStationName(mat.station)}` : tr('tools.forjaRequired');
+          const reqStLabel = (mat && mat.station && mat.station !== 'forja' && Abyssea.I18n && Abyssea.I18n.getStationName) ? `Requiere ${Abyssea.I18n.getStationName(mat.station)}` : tr('tools.forjaRequired');
           cDiv.appendChild(this.el('div', { style: 'color:#ff8a65;' }, reqStLabel));
         }
         if (needsOmegaRes) {
-          const isEnA = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+          const isEnA = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
           cDiv.appendChild(this.el('div', { style: 'color:#e040fb;font-weight:700;' }, isEnA ? 'Requires Central Nexus: Omega Metallurgy' : 'Requiere Nexo Central: Metalurgia Omega'));
         }
         card.appendChild(cDiv);
@@ -6227,7 +6391,10 @@
           'data-armor-busy-slot': busy ? slot : null,
           'data-busy-kind': queuedUp ? 'up' : (cdLeft > 0 ? 'cd' : null),
           disabled: canUp ? null : 'disabled',
-          onclick: () => { g.upgradeArmor(slot); this.renderModal(); }
+          onclick: () => {
+            g.upgradeArmor(slot);
+            this.renderModal();
+          }
         }, upLabel));
       } else {
         card.appendChild(this.el('span', { style: 'color:#81c784;font-weight:700;font-size:14px;' }, tr('craft.maxArmorRank')));
@@ -6237,7 +6404,7 @@
 
     _buildArmorGrid(gridStyle = '') {
       const grid = this.el('div', { class: 'grid-cards', style: gridStyle || null });
-      Object.keys(Balaclava.ARMORS || {}).forEach(slot => {
+      Object.keys(Abyssea.ARMORS || {}).forEach(slot => {
         const card = this._buildArmorSlotCard(slot);
         if (card) grid.appendChild(card);
       });
@@ -6269,14 +6436,14 @@
       }
 
       if (this.artesaniaTab === 'economia') {
-        const stRecs = Balaclava.RECIPES.filter(r => r.station === 'mano' && (r.out === '_coin' || r.coinIcon));
+        const stRecs = Abyssea.RECIPES.filter(r => r.station === 'mano' && (r.out === '_coin' || r.coinIcon));
         this._renderCraftingWorkspace(body, stRecs, { showStationLabel });
         return;
       }
 
       if (this.artesaniaTab === 'otros') {
         const armorBaseIds = ['casco_cuero', 'armadura_cuero', 'escudo_madera', 'botas_cuero'];
-        const otherRecs = Balaclava.RECIPES.filter(r => {
+        const otherRecs = Abyssea.RECIPES.filter(r => {
           if (r.station !== 'mano' && r.station !== 'mesa_artesania') return false;
           if (r.toolUnlock) return false;
           if (r.out === '_coin' || r.coinIcon) return false;
@@ -6292,7 +6459,7 @@
     renderForjaCategories(body, stationId = 'forja', showStationLabel = false) {
       const g = this.game;
       this.forjaTab = this.forjaTab || 'armas';
-      const validTabs = ['armas', 'armas_especiales', 'armadura', 'otros'];
+      const validTabs = ['armas', 'armas_especiales', 'armadura', 'reforja', 'otros'];
       if (!validTabs.includes(this.forjaTab)) this.forjaTab = 'armas';
 
       const tabs = this.el('div', { class: 'tab-row', style: 'margin-bottom:12px;' });
@@ -6300,6 +6467,7 @@
         ['armas', tr('craft.tabWeapons')],
         ['armas_especiales', tr('craft.tabSpecialWeapons')],
         ['armadura', tr('craft.tabArmor')],
+        ['reforja', 'Reforjar Rareza'],
         ['otros', tr('craft.tabOther')]
       ].forEach(([catId, label]) => {
         tabs.appendChild(this.el('button', {
@@ -6309,9 +6477,14 @@
       });
       body.appendChild(tabs);
 
+      if (this.forjaTab === 'reforja' && typeof this.renderReforgeTab === 'function') {
+        this.renderReforgeTab(body);
+        return;
+      }
+
       const standardWeaponTypes = ['daga_hierro', 'lanza_hierro', 'maza_hierro', 'hacha_batalla_hierro', 'espadon_hierro', 'ballesta_madera', 'daga_acero', 'daga_oro'];
       const isWeaponOut = (id) => {
-        const item = Balaclava.ITEMS[id];
+        const item = Abyssea.ITEMS[id];
         if (!item) return false;
         if (item.equipSlot === 'weapon' || item.type === 'weapon') return true;
         return ['espada_', 'daga_', 'lanza_', 'maza_', 'hacha_batalla_', 'espadon_', 'ballesta_', 'varita_', 'cetro_', 'alabarda_', 'martillo_', 'katana_', 'hoja_'].some(p => id.startsWith(p));
@@ -6319,7 +6492,7 @@
 
       if (this.forjaTab === 'armas' || this.forjaTab === 'armas_especiales') {
         const isSpecialTab = this.forjaTab === 'armas_especiales';
-        const stRecs = Balaclava.RECIPES.filter(r => {
+        const stRecs = Abyssea.RECIPES.filter(r => {
           if (r.station !== stationId && r.station !== 'forja' && r.station !== 'yunque_runico') return false;
           if (!isWeaponOut(r.out)) return false;
           const isStd = standardWeaponTypes.includes(r.out);
@@ -6338,13 +6511,13 @@
         body.appendChild(this._buildArmorGrid('margin-bottom:14px;'));
 
         const armorSlots = ['helm', 'armor', 'legs', 'shield', 'boots'];
-        const exoticRecs = Balaclava.RECIPES.filter(r => {
+        const exoticRecs = Abyssea.RECIPES.filter(r => {
           if (r.station !== stationId && r.station !== 'forja' && r.station !== 'yunque_runico') return false;
-          const it = Balaclava.ITEMS[r.out];
+          const it = Abyssea.ITEMS[r.out];
           if (!it || !it.equipSlot) return false;
           const sk = it.equipSlot === 'helmet' ? 'helm' : it.equipSlot;
           if (!armorSlots.includes(sk)) return false;
-          return !(Balaclava.isProgressiveArmorItem && Balaclava.isProgressiveArmorItem(r.out));
+          return !(Abyssea.isProgressiveArmorItem && Abyssea.isProgressiveArmorItem(r.out));
         });
 
         if (exoticRecs.length > 0) {
@@ -6356,10 +6529,10 @@
 
       if (this.forjaTab === 'otros') {
         const armorSlots = ['helm', 'armor', 'legs', 'shield', 'boots'];
-        const otherRecs = Balaclava.RECIPES.filter(r => {
+        const otherRecs = Abyssea.RECIPES.filter(r => {
           if (r.station !== stationId && r.station !== 'forja' && r.station !== 'yunque_runico') return false;
           if (isWeaponOut(r.out)) return false;
-          const it = Balaclava.ITEMS[r.out];
+          const it = Abyssea.ITEMS[r.out];
           if (it && it.equipSlot) {
             const sk = it.equipSlot === 'helmet' ? 'helm' : it.equipSlot;
             if (armorSlots.includes(sk)) return false;
@@ -6375,19 +6548,19 @@
     renderBuildMenu(body) {
       const g = this.game;
       const catIcons = {
-        produccion: { src: Balaclava.UI_URLS.anvil, short: tr('build.catOficio') },
-        economia: { src: Balaclava.UI_URLS.iconCoin, short: tr('build.catComercio') },
-        agricultura: { src: Balaclava.UI_URLS.iconFood, short: tr('build.catCultivo') },
-        tecnologia: { src: Balaclava.UI_URLS.iconSettings, short: tr('build.catTecno') },
-        especiales: { src: Balaclava.UI_URLS.spellbook, short: tr('build.catArcano') },
-        automatizacion: { src: Balaclava.UI_URLS.iconHammer, short: tr('build.catAuto') },
-        fortificacion: { src: Balaclava.UI_URLS.iconWood, short: tr('build.catAldea') }
+        produccion: { src: Abyssea.UI_URLS.anvil, short: tr('build.catOficio') },
+        economia: { src: Abyssea.UI_URLS.iconCoin, short: tr('build.catComercio') },
+        agricultura: { src: Abyssea.UI_URLS.iconFood, short: tr('build.catCultivo') },
+        tecnologia: { src: Abyssea.UI_URLS.iconSettings, short: tr('build.catTecno') },
+        especiales: { src: Abyssea.UI_URLS.spellbook, short: tr('build.catArcano') },
+        automatizacion: { src: Abyssea.UI_URLS.iconHammer, short: tr('build.catAuto') },
+        fortificacion: { src: Abyssea.UI_URLS.iconWood, short: tr('build.catAldea') }
       };
 
       const layout = this.el('div', { class: 'build-layout' });
       const rail = this.el('div', { class: 'build-cat-rail' });
-      Balaclava.BUILDING_CATEGORIES.forEach(cat => {
-        const meta = catIcons[cat.id] || { src: Balaclava.UI_URLS.iconHammer, short: cat.name.slice(0, 6) };
+      Abyssea.BUILDING_CATEGORIES.forEach(cat => {
+        const meta = catIcons[cat.id] || { src: Abyssea.UI_URLS.iconHammer, short: cat.name.slice(0, 6) };
         rail.appendChild(this.el('button', {
           class: 'build-cat-btn' + (this.buildFilter === cat.id ? ' active' : ''),
           title: cat.name,
@@ -6410,26 +6583,26 @@
         });
       };
       rightCol.appendChild(this._buildSearchBar(this.buildSearch, tr('build.searchPlaceholder'), applyBuildSearch));
-      const activeCat = Balaclava.BUILDING_CATEGORIES.find(c => c.id === this.buildFilter);
+      const activeCat = Abyssea.BUILDING_CATEGORIES.find(c => c.id === this.buildFilter);
       rightCol.appendChild(this.el('div', { class: 'parchment-box', style: 'padding:7px 10px;' }, [
         this.el('strong', { style: 'font-size:16px;' }, activeCat ? activeCat.name : tr('build.defaultTitle')),
         this.el('div', { style: 'font-size:14px;color:#bfd0ea;margin-top:2px;' }, tr('build.subtitle'))
       ]));
 
-      Object.values(Balaclava.BUILDINGS)
+      Object.values(Abyssea.BUILDINGS)
         .filter(b => b.category === this.buildFilter || b.altCategory === this.buildFilter)
         .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999))
         .forEach(b => {
         const buildCheck = g.canBuild(b.id);
         const skillUnlocked = Boolean(buildCheck && buildCheck.ok);
-        const reqSkillObj = b.reqSkill && Balaclava.SKILLS[b.reqSkill];
+        const reqSkillObj = b.reqSkill && Abyssea.SKILLS[b.reqSkill];
         const cost = g.getAdjustedBuildCost(b.id);
         const canAfford = skillUnlocked && Object.entries(cost).every(([id, q]) => (g.inventory[id] || 0) >= q);
 
         const costLines = this.el('div', { style: 'display:flex;flex-wrap:wrap;gap:8px;font-size:14px;font-weight:700;' });
         Object.entries(cost).forEach(([id, q]) => {
           const have = g.inventory[id] || 0;
-          const it = Balaclava.ITEMS[id];
+          const it = Abyssea.ITEMS[id];
           costLines.appendChild(this.el('span', {
             style: `display:inline-flex;align-items:center;gap:4px;color:${have >= q ? '#9be89d' : '#ff9e80'}`
           }, [
@@ -6753,7 +6926,7 @@
       });
 
       // Subtle dithered branch nebula clusters along each constellation arm
-      const branches = Array.isArray(Balaclava.SKILL_BRANCHES) ? Balaclava.SKILL_BRANCHES : [];
+      const branches = Array.isArray(Abyssea.SKILL_BRANCHES) ? Abyssea.SKILL_BRANCHES : [];
       branches.forEach((br, bi) => {
         const ang = typeof br.angle === 'number' ? br.angle : (bi * Math.PI * 2 / Math.max(1, branches.length));
         octx.fillStyle = br.color || '#60a5fa';
@@ -6824,9 +6997,9 @@
       this._ensureSkillSpriteStyles();
       const g = this.game;
       const unlockedCount = g.unlockedSkills.length;
-      const allSkills = Object.values(Balaclava.SKILLS);
+      const allSkills = Object.values(Abyssea.SKILLS);
       const totalCount = allSkills.length;
-      const dim = Balaclava.SKILL_CONSTELLATION_SIZE || { width: 1680, height: 1260, cx: 840, cy: 630 };
+      const dim = Abyssea.SKILL_CONSTELLATION_SIZE || { width: 1680, height: 1260, cx: 840, cy: 630 };
 
       const wrap = this.el('div', { class: 'skill-board-wrap' });
       const board = this.el('div', {
@@ -6852,7 +7025,7 @@
 
       const viewW = Math.max(760, (typeof window !== 'undefined' ? window.innerWidth : 1280) - 430);
       const viewH = Math.max(520, (typeof window !== 'undefined' ? window.innerHeight : 800) - 140);
-      const fitZoom = Balaclava.Utils.clamp(
+      const fitZoom = Abyssea.Utils.clamp(
         Math.min((viewW - 44) / 2520, (viewH - 44) / 2160),
         0.28,
         0.52
@@ -6882,7 +7055,7 @@
       };
 
       const setZoomAround = (nextZoom, anchorX = wrap.clientWidth / 2 || viewW / 2, anchorY = wrap.clientHeight / 2 || viewH / 2, immediate = false) => {
-        const clamped = Balaclava.Utils.clamp(nextZoom, 0.25, 1.85);
+        const clamped = Abyssea.Utils.clamp(nextZoom, 0.25, 1.85);
         const worldX = (anchorX - this.skillPanX) / this.skillZoom;
         const worldY = (anchorY - this.skillPanY) / this.skillZoom;
         this.skillZoom = clamped;
@@ -6895,7 +7068,7 @@
       const focusPoint = (wx, wy, z = 1.0) => {
         const vw = wrap.clientWidth || viewW;
         const vh = wrap.clientHeight || viewH;
-        this.skillZoom = Balaclava.Utils.clamp(z, 0.25, 1.85);
+        this.skillZoom = Abyssea.Utils.clamp(z, 0.25, 1.85);
         this.skillPanX = vw / 2 - wx * this.skillZoom;
         this.skillPanY = vh / 2 - wy * this.skillZoom;
         applyTransformNow();
@@ -6921,7 +7094,7 @@
           }, [this.uiIcon('iconZoomIn', 18)]),
           this.el('button', { class: 'btn btn-gold btn-sm', onclick: () => focusPoint(dim.cx, dim.cy, fitZoom) }, tr('skills.resetZoom')),
           this.el('button', { class: 'btn btn-primary btn-sm', onclick: () => this.openModal('grimorio') }, tr('skills.grimoireBtn')),
-          ...Balaclava.SKILL_BRANCHES.map(br => this.el('button', {
+          ...Abyssea.SKILL_BRANCHES.map(br => this.el('button', {
             class: 'btn btn-sm',
             style: `color:${br.color};`,
             onclick: () => focusPoint(dim.cx + Math.cos(br.angle) * 480, dim.cy + Math.sin(br.angle) * 480, 0.80)
@@ -6942,7 +7115,7 @@
       // Build coordinate map straight from skills.js constellation layout
       const posById = {};
       allSkills.forEach(sk => {
-        const br = Balaclava.SKILL_BRANCHES.find(b => b.id === sk.branch) || Balaclava.SKILL_BRANCHES[0];
+        const br = Abyssea.SKILL_BRANCHES.find(b => b.id === sk.branch) || Abyssea.SKILL_BRANCHES[0];
         posById[sk.id] = { x: sk.x, y: sk.y, br };
       });
 
@@ -7114,8 +7287,8 @@
         if (this._skillHoldCleanup) { this._skillHoldCleanup(); this._skillHoldCleanup = null; }
         inspector.innerHTML = '';
 
-        const selSk = Balaclava.SKILLS[this.selectedSkillId] || allSkills[0];
-        const br = Balaclava.SKILL_BRANCHES.find(b => b.id === selSk.branch) || Balaclava.SKILL_BRANCHES[0];
+        const selSk = Abyssea.SKILLS[this.selectedSkillId] || allSkills[0];
+        const br = Abyssea.SKILL_BRANCHES.find(b => b.id === selSk.branch) || Abyssea.SKILL_BRANCHES[0];
         const owned = g.unlockedSkills.includes(selSk.id);
         const reqMet = !selSk.req || g.unlockedSkills.includes(selSk.req);
         const canBuy = !owned && reqMet && g.player.skillPoints >= selSk.cost;
@@ -7124,7 +7297,7 @@
         if (selSk.unlocksBuildings && selSk.unlocksBuildings.length) {
           unlocksBox.appendChild(this.el('strong', { style: 'font-size:14px;color:#bae6fd;display:block;margin-bottom:5px;' }, tr('skills.unlocksTitle')));
           selSk.unlocksBuildings.forEach(bid => {
-            const bd = Balaclava.BUILDINGS[bid];
+            const bd = Abyssea.BUILDINGS[bid];
             if (!bd) return;
             unlocksBox.appendChild(this.el('div', {
               style: 'display:flex;align-items:center;gap:8px;background:rgba(30,50,95,0.45);border:1px solid rgba(128,216,255,0.22);padding:5px 7px;border-radius:6px;margin-bottom:5px;'
@@ -7142,7 +7315,7 @@
 
         const reqText = !selSk.req ? tr('skills.rootReq')
           : tr('skills.reqLine', {
-            name: Balaclava.SKILLS[selSk.req] ? Balaclava.SKILLS[selSk.req].name : selSk.req,
+            name: Abyssea.SKILLS[selSk.req] ? Abyssea.SKILLS[selSk.req].name : selSk.req,
             state: g.unlockedSkills.includes(selSk.req) ? tr('skills.reqDone') : tr('skills.reqPending')
           });
 
@@ -7177,7 +7350,7 @@
         }
 
         // Hold-to-learn button (holds for 2.3 seconds with live progress fill, channeling aura, tone & particle flow)
-        const isEnSk = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+        const isEnSk = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
         const holdHintText = isEnSk ? '(Hold)' : '(Mantener)';
         const fillBar = this.el('div', { class: 'btn-skill-hold-fill' });
         const baseLabel = tr('skills.activateCost', { cost: selSk.cost, unit: selSk.cost === 1 ? tr('skills.pointOne') : tr('skills.pointMany') });
@@ -7207,8 +7380,8 @@
           const targetNode = nodeBtnById[selSk.id];
           if (targetNode) targetNode.classList.add('skill-node-channeling');
 
-          if (Balaclava.Audio) {
-            Balaclava.Audio.tone(220, 360, 0.2, 'triangle', 0.22);
+          if (Abyssea.Audio) {
+            Abyssea.Audio.tone(220, 360, 0.2, 'triangle', 0.22);
           }
 
           let nextSparkTime = 0;
@@ -7239,10 +7412,10 @@
               setTimeout(() => { if (spark.parentNode) spark.parentNode.removeChild(spark); }, 650);
             }
 
-            if (pctInt >= lastPctStep + 20 && Balaclava.Audio) {
+            if (pctInt >= lastPctStep + 20 && Abyssea.Audio) {
               lastPctStep = pctInt;
               const freq = 260 + (pctInt * 5);
-              Balaclava.Audio.tone(freq, freq + 40, 0.08, 'sine', 0.18);
+              Abyssea.Audio.tone(freq, freq + 40, 0.08, 'sine', 0.18);
             }
 
             if (progress >= 1) {
@@ -7271,8 +7444,8 @@
           const targetNode = nodeBtnById[selSk.id];
           if (targetNode) targetNode.classList.remove('skill-node-channeling');
 
-          if (cancelled && Balaclava.Audio) {
-            Balaclava.Audio.play('cancel');
+          if (cancelled && Abyssea.Audio) {
+            Abyssea.Audio.play('cancel');
           }
         };
         this._skillHoldCleanup = () => stopHold(false);
@@ -7299,7 +7472,7 @@
 
       const unlockAndAdvance = (skillId) => {
         if (!g.unlockSkill(skillId)) return;
-        const skDef = Balaclava.SKILLS[skillId];
+        const skDef = Abyssea.SKILLS[skillId];
         const fxPos = posById[skillId];
         const fxColor = (fxPos && fxPos.br && fxPos.br.color) || '#ffd54f';
 
@@ -7328,12 +7501,12 @@
           workspace.classList.remove('cosmic-quake-active');
         }, 300);
 
-        if (Balaclava.Audio) {
-          Balaclava.Audio.play('levelup');
-          Balaclava.Audio.play('unlock_skill');
-          Balaclava.Audio.tone(115, 38, 0.48, 'sawtooth', 0.42);
-          Balaclava.Audio.tone(523.25, 1046.5, 0.38, 'triangle', 0.3, 0.05);
-          Balaclava.Audio.tone(659.25, 1318.5, 0.42, 'sine', 0.25, 0.1);
+        if (Abyssea.Audio) {
+          Abyssea.Audio.play('levelup');
+          Abyssea.Audio.play('unlock_skill');
+          Abyssea.Audio.tone(115, 38, 0.48, 'sawtooth', 0.42);
+          Abyssea.Audio.tone(523.25, 1046.5, 0.38, 'triangle', 0.3, 0.05);
+          Abyssea.Audio.tone(659.25, 1318.5, 0.42, 'sine', 0.25, 0.1);
         }
 
         const nodeBtn = nodeBtnById[skillId];
@@ -7372,14 +7545,14 @@
         class: 'skill-core-hub',
         style: `left:${dim.cx}px;top:${dim.cy}px;`
       }, [
-        this.itemIcon('balaclava_core', 34),
-        this.el('span', {}, 'BALACLAVA')
+        this.itemIcon('abyssea_core', 34),
+        this.el('span', {}, 'ABYSSEA')
       ]);
       board.appendChild(hub);
 
       // Constellation labels positioned outside the outer T8 orbital ring so no star overlaps
       const metaFrag = document.createDocumentFragment();
-      Balaclava.SKILL_BRANCHES.forEach(br => {
+      Abyssea.SKILL_BRANCHES.forEach(br => {
         const lx = dim.cx + Math.cos(br.angle) * 1065;
         const ly = dim.cy + Math.sin(br.angle) * 1015;
         metaFrag.appendChild(this.el('div', {
@@ -7504,8 +7677,8 @@
 
     renderMap(body) {
       const g = this.game;
-      const pGx = Balaclava.Utils.clamp(Math.floor(g.player.x / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
-      const pGy = Balaclava.Utils.clamp(Math.floor(g.player.y / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
+      const pGx = Abyssea.Utils.clamp(Math.floor(g.player.x / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
+      const pGy = Abyssea.Utils.clamp(Math.floor(g.player.y / (PLOT_TILES * TILE_SIZE)), 0, GRID_PLOTS - 1);
       const getTutorialRecommendedPlot = () => {
         const tut = g.tutorialSys;
         const onlyFirstIsland = Array.isArray(g.unlockedPlots) && g.unlockedPlots.length === 1;
@@ -7537,7 +7710,7 @@
       mapCanvas.width = viewW;
       mapCanvas.height = viewH;
 
-      const fitZoom = Balaclava.Utils.clamp(Math.min((viewW - 40) / MAP_WORLD_SZ, (viewH - 40) / MAP_WORLD_SZ), 0.45, 1.35);
+      const fitZoom = Abyssea.Utils.clamp(Math.min((viewW - 40) / MAP_WORLD_SZ, (viewH - 40) / MAP_WORLD_SZ), 0.45, 1.35);
       if (!this.mapZoom || this.mapZoom < 0.45) this.mapZoom = Math.max(0.92, fitZoom * 1.25);
       if (this.mapPanX === null || this.mapPanY === null || this.mapPanX === undefined) {
         const focusGx = this.selectedMapPlot ? this.selectedMapPlot[0] : pGx;
@@ -7550,34 +7723,274 @@
       const zoomReadout = this.el('span', { class: 'skill-zoom-readout', style: 'color:#ffe082;' }, `${Math.round(this.mapZoom * 100)}%`);
       const inspectorSlot = this.el('div', { class: 'map-inspector' });
 
+      // Live skill-style Map Unlock FX state (channeling aura + burst shockwaves + starburst particles + energy links)
+      let mapChannelState = null; // { gx, gy, progress, color, sparks: [] }
+      const mapUnlockBursts = []; // { gx, gy, startTs, dur, color, accent, sparks: [], adjFrom: [[ax,ay]] }
+      let mapFxRaf = null;
+      let mapHoldCleanup = null;
+      let mapQuakeTimer = null;
+
+      const tickMapFx = () => {
+        mapFxRaf = null;
+        if (this.activeModal !== 'map') return;
+        const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+        for (let i = mapUnlockBursts.length - 1; i >= 0; i--) {
+          if (now - mapUnlockBursts[i].startTs >= mapUnlockBursts[i].dur) {
+            mapUnlockBursts.splice(i, 1);
+          }
+        }
+        drawMapCanvas();
+        if (mapChannelState || mapUnlockBursts.length > 0) {
+          mapFxRaf = requestAnimationFrame(tickMapFx);
+        }
+      };
+      const ensureMapFxLoop = () => {
+        if (mapFxRaf === null && typeof requestAnimationFrame === 'function') {
+          mapFxRaf = requestAnimationFrame(tickMapFx);
+        }
+      };
+
+      const triggerMapUnlockCelebration = (ugx, ugy) => {
+        const uBiomeId = (g.world.plotBiomes && g.world.plotBiomes[ugy] && g.world.plotBiomes[ugy][ugx]) || 'pradera';
+        const uBiome = BIOMES[uBiomeId] || { name: uBiomeId, color: '#63ab3f', accent: '#ffd54f' };
+        const fxColor = uBiome.accent || '#ffd54f';
+        const fxAccent = uBiome.color || '#69f0ae';
+        const isEnMap = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
+
+        // Collect adjacent owned islands to draw surging energy bridges into the newly conquered plot
+        const adjFrom = [];
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          if (g.world.isPlotUnlocked(ugx + dx, ugy + dy)) adjFrom.push([ugx + dx, ugy + dy]);
+        }
+
+        // 32 radial starburst particles
+        const sparks = [];
+        for (let i = 0; i < 32; i++) {
+          const ang = (Math.PI * 2 * i) / 32 + (Math.random() - 0.5) * 0.22;
+          const spd = 28 + Math.random() * 68;
+          sparks.push({
+            ang,
+            spd,
+            sz: 2.2 + Math.random() * 3.2,
+            col: i % 3 === 0 ? '#ffffff' : (i % 2 === 0 ? '#ffd54f' : fxColor),
+            spin: (Math.random() - 0.5) * 6
+          });
+        }
+        mapUnlockBursts.push({
+          gx: ugx,
+          gy: ugy,
+          startTs: (typeof performance !== 'undefined' ? performance.now() : Date.now()),
+          dur: 1350,
+          color: fxColor,
+          accent: fxAccent,
+          sparks,
+          adjFrom
+        });
+        ensureMapFxLoop();
+
+        // Focus smoothly on the newly unlocked island
+        focusMapPlot(ugx, ugy, Math.max(1.25, this.mapZoom));
+
+        // Cosmic micro-impact shake matching the Skill Constellation Tree
+        if (mapQuakeTimer) { clearTimeout(mapQuakeTimer); mapQuakeTimer = null; }
+        const modalBoxEl = document.getElementById('modal-box');
+        if (modalBoxEl) {
+          modalBoxEl.classList.remove('cosmic-quake-active');
+          void modalBoxEl.offsetWidth;
+          modalBoxEl.classList.add('cosmic-quake-active');
+        }
+        workspace.classList.remove('cosmic-quake-active');
+        void workspace.offsetWidth;
+        workspace.classList.add('cosmic-quake-active');
+        mapQuakeTimer = setTimeout(() => {
+          mapQuakeTimer = null;
+          if (modalBoxEl) modalBoxEl.classList.remove('cosmic-quake-active');
+          workspace.classList.remove('cosmic-quake-active');
+        }, 300);
+
+        // Epic fanfare chord matching Skill Constellation unlock
+        if (Abyssea.Audio) {
+          Abyssea.Audio.play('unlock_skill');
+          Abyssea.Audio.tone(115, 42, 0.42, 'sawtooth', 0.34);
+          Abyssea.Audio.tone(523.25, 1046.5, 0.36, 'triangle', 0.28, 0.04);
+          Abyssea.Audio.tone(659.25, 1318.5, 0.40, 'sine', 0.24, 0.09);
+          Abyssea.Audio.tone(783.99, 1567.98, 0.44, 'sine', 0.20, 0.14);
+        }
+
+        // Floating Skill-Style Celebration Banner over the map workspace
+        workspace.querySelectorAll('.skill-unlock-celebration').forEach(el => {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        });
+        const banner = document.createElement('div');
+        banner.className = 'skill-unlock-celebration';
+        banner.style.top = '78px';
+        banner.innerHTML = `
+          <div class="skill-cel-title">${isEnMap ? 'ISLAND CONQUERED!' : '¡ISLA CONQUISTADA!'}</div>
+          <div class="skill-cel-name">${uBiome.name} (${ugx}, ${ugy})</div>
+        `;
+        workspace.appendChild(banner);
+        setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 1900);
+      };
+
+      let mapImgLoadGen = 0;
       const mapImg = (url) => {
         if (!this._mapImgCache) this._mapImgCache = {};
         if (!url) return null;
         const enc = encodeURI(url);
-        const pre = Balaclava.Assets && Balaclava.Assets.preloadedUrls && Balaclava.Assets.preloadedUrls[enc];
+        const pre = Abyssea.Assets && Abyssea.Assets.preloadedUrls && Abyssea.Assets.preloadedUrls[enc];
         if (pre && pre.complete && pre.naturalWidth > 0) return pre;
         if (this._mapImgCache[url]) return this._mapImgCache[url];
         const im = new Image();
-        im.onload = () => { if (this.activeModal === 'map') drawMapCanvas(); };
+        im.onload = () => { mapImgLoadGen++; if (this.activeModal === 'map') drawMapCanvas(); };
         im.src = enc;
         this._mapImgCache[url] = im;
         return im;
       };
 
-      const drawBadgeIcon = (ctx, x, y, radius, bg, stroke, url, fallbackTxt, fallbackColor = '#ffffff') => {
-        ctx.fillStyle = bg;
-        ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke();
-        const im = url ? mapImg(url) : null;
-        if (im && im.complete && im.naturalWidth > 0) {
-          const s = radius * 1.45;
-          ctx.drawImage(im, x - s / 2, y - s / 2, s, s);
-        } else if (fallbackTxt) {
-          ctx.fillStyle = fallbackColor;
-          ctx.font = '14px BalaclavaPixel, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(fallbackTxt, x, y + 5);
+      const drawMapPin = (ctx, x, y, kind, opts = {}) => {
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        const r = opts.r || 6.5;
+
+        // Soft drop shadow for clean map readability
+        ctx.fillStyle = 'rgba(4, 10, 20, 0.55)';
+        ctx.beginPath();
+        ctx.arc(x, y + 1.0, r + 0.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (kind === 'player') {
+          ctx.fillStyle = '#0f9f6e';
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+          // Minimalist directional diamond/chevron inside
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(x, y - r * 0.55);
+          ctx.lineTo(x + r * 0.48, y + r * 0.42);
+          ctx.lineTo(x, y + r * 0.16);
+          ctx.lineTo(x - r * 0.48, y + r * 0.42);
+          ctx.closePath();
+          ctx.fill();
+        } else if (kind === 'dungeon' || kind === 'dungeon_cleared') {
+          const cleared = kind === 'dungeon_cleared';
+          // Sleek diamond badge
+          ctx.fillStyle = cleared ? '#15803d' : '#b91c1c';
+          ctx.beginPath();
+          ctx.moveTo(x, y - r);
+          ctx.lineTo(x + r, y);
+          ctx.lineTo(x, y + r);
+          ctx.lineTo(x - r, y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = cleared ? '#bbf7d0' : '#fde68a';
+          ctx.lineWidth = 1.1;
+          ctx.stroke();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.25;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          if (cleared) {
+            ctx.beginPath();
+            ctx.moveTo(x - r * 0.36, y + 0.2);
+            ctx.lineTo(x - r * 0.08, y + r * 0.34);
+            ctx.lineTo(x + r * 0.38, y - r * 0.30);
+            ctx.stroke();
+          } else {
+            // Minimalist doorway arch
+            ctx.beginPath();
+            ctx.moveTo(x - r * 0.32, y + r * 0.36);
+            ctx.lineTo(x - r * 0.32, y - r * 0.08);
+            ctx.arc(x, y - r * 0.08, r * 0.32, Math.PI, 0, false);
+            ctx.lineTo(x + r * 0.32, y + r * 0.36);
+            ctx.stroke();
+          }
+        } else if (kind === 'npc') {
+          ctx.fillStyle = '#0369a1';
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+          const im = opts.url ? mapImg(opts.url) : null;
+          if (im && im.complete && im.naturalWidth > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, Math.max(1, r - 0.9), 0, Math.PI * 2);
+            ctx.clip();
+            const s = (r - 0.5) * 2.15;
+            ctx.drawImage(im, x - s / 2, y - s / 2, s, s);
+            ctx.restore();
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x, y - r * 0.2, r * 0.28, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x, y + r * 0.52, r * 0.45, Math.PI, 0, false);
+            ctx.fill();
+          }
+          ctx.strokeStyle = '#bae6fd';
+          ctx.lineWidth = 1.15;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (kind === 'altar') {
+          ctx.fillStyle = '#6d28d9';
+          ctx.beginPath();
+          ctx.moveTo(x, y - r);
+          ctx.lineTo(x + r * 0.85, y);
+          ctx.lineTo(x, y + r);
+          ctx.lineTo(x - r * 0.85, y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = '#e9d5ff';
+          ctx.lineWidth = 1.05;
+          ctx.stroke();
+          ctx.fillStyle = '#f5f3ff';
+          ctx.beginPath();
+          ctx.arc(x, y, r * 0.28, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (kind === 'secret' || kind === 'secret_done') {
+          const done = kind === 'secret_done';
+          ctx.fillStyle = done ? '#475569' : (opts.locked ? '#7e22ce' : '#d97706');
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = done ? '#cbd5e1' : '#fef08a';
+          ctx.lineWidth = 1.05;
+          ctx.stroke();
+          // Minimalist 4-point sparkle star
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          const ro = r * 0.56, ri = r * 0.20;
+          for (let i = 0; i < 8; i++) {
+            const ang = (i * Math.PI) / 4 - Math.PI / 2;
+            const rr = i % 2 === 0 ? ro : ri;
+            const pxS = x + Math.cos(ang) * rr;
+            const pyS = y + Math.sin(ang) * rr;
+            if (i === 0) ctx.moveTo(pxS, pyS);
+            else ctx.lineTo(pxS, pyS);
+          }
+          ctx.closePath();
+          ctx.fill();
+        } else if (kind === 'portal') {
+          ctx.fillStyle = '#0e7490';
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#67e8f9';
+          ctx.lineWidth = 1.15;
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          ctx.arc(x, y, r * 0.42, 0, Math.PI * 2);
+          ctx.stroke();
         }
+        ctx.restore();
       };
 
       const renderInspector = () => {
@@ -7601,9 +8014,9 @@
         const portalB = g.buildings.find(b => b.type === 'portal' && Math.floor(b.tx / PLOT_TILES) === sgx && Math.floor(b.ty / PLOT_TILES) === sgy);
         const gate = g.world.getDungeonGateForPlot(sgx, sgy);
         const altarKey = unlocked && g.world.altarPlots && g.world.altarPlots[`${sgx},${sgy}`];
-        const altarDef = altarKey && Balaclava.ALTAR_DEFS && Balaclava.ALTAR_DEFS[altarKey];
+        const altarDef = altarKey && Abyssea.ALTAR_DEFS && Abyssea.ALTAR_DEFS[altarKey];
         const eeKey = unlocked && g.world.easterEggPlots && g.world.easterEggPlots[`${sgx},${sgy}`];
-        const eeDef = eeKey && Balaclava.EASTER_EGG_DEFS && Balaclava.EASTER_EGG_DEFS[eeKey];
+        const eeDef = eeKey && Abyssea.EASTER_EGG_DEFS && Abyssea.EASTER_EGG_DEFS[eeKey];
         const hasSecretKey = unlocked && g.world.secretChestPlots && g.world.secretChestPlots[`${sgx},${sgy}`] !== undefined;
         const secretNode = hasSecretKey
           ? g.world.nodes.find(n => n.kind === 'secret_chest' && Math.floor(n.tx / PLOT_TILES) === sgx && Math.floor(n.ty / PLOT_TILES) === sgy)
@@ -7611,13 +8024,13 @@
         const secretPillarsDone = secretNode
           ? g.world.nodes.filter(n => n.kind === 'puzzle_pillar' && n.secretIdx === secretNode.secretIdx && n.activated).length
           : 0;
-        const npc = Balaclava.NPCS.find(n => {
+        const npc = Abyssea.NPCS.find(n => {
           const p = g.world.getNpcPlot(n);
           return p[0] === sgx && p[1] === sgy;
         });
         const localBuildings = g.buildings.filter(b => Math.floor(b.tx / PLOT_TILES) === sgx && Math.floor(b.ty / PLOT_TILES) === sgy);
 
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const recPlot = getTutorialRecommendedPlot();
         const isRecSelected = Boolean(recPlot && recPlot[0] === sgx && recPlot[1] === sgy);
 
@@ -7681,7 +8094,7 @@
           ]) : null,
           this.el('div', { style: 'font-size:14px;line-height:1.45;color:#e8eef6;' },
             unlocked
-              ? tr('map.unlockedDesc', { b: localBuildings.length, d: g.clearedDungeons.length, dt: Object.keys(Balaclava.DUNGEON_DEFS).length })
+              ? tr('map.unlockedDesc', { b: localBuildings.length, d: g.clearedDungeons.length, dt: Object.keys(Abyssea.DUNGEON_DEFS).length })
               : tr('map.lockedCostDesc', { price, coins: g.coins })),
           npc ? this.el('div', { style: 'display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);padding:8px;border-radius:6px;border:1px solid rgba(128,216,255,0.28);' }, [
             this.npcPortrait(npc.id, 40),
@@ -7702,6 +8115,7 @@
               : tr('map.secretPillars', { done: secretPillarsDone }))) : null
         ]);
 
+        if (mapHoldCleanup) { mapHoldCleanup(); mapHoldCleanup = null; }
         if (!unlocked) {
           const canUnlockHere = adj && !biomeLock.lockedByBiome;
           const btnLabel = biomeLock.lockedByBiome
@@ -7711,17 +8125,97 @@
             : (!adj
               ? tr('map.reqAdjacent')
               : (canAfford ? tr('map.unlockPlot', { coins: price }) : tr('map.lowCoins', { cur: g.coins, req: price })));
-          card.appendChild(this.el('button', {
-            class: canUnlockHere && canAfford ? 'btn btn-gold' : 'btn btn-stone',
-            style: `margin-top:4px;${(canUnlockHere && !canAfford) || biomeLock.lockedByBiome ? 'color:#ff8a80;border-color:#c62828;' : ''}`,
-            disabled: canUnlockHere ? null : 'disabled',
-            onclick: () => {
-              g.economy.buyPlot(g, sgx, sgy);
+
+          if (canUnlockHere && canAfford) {
+            // Skill-Tree-Style Hold-to-Conquer button with channeling progress, live map energy vortex & burst celebration!
+            const holdHintText = isEn ? '(Hold)' : '(Mantener)';
+            const fillBar = this.el('div', { class: 'btn-skill-hold-fill' });
+            const textSpan = this.el('span', { class: 'btn-skill-hold-text' }, [
+              this.el('span', {}, btnLabel),
+              this.el('span', { style: 'font-size:13px;opacity:0.88;font-weight:normal;' }, holdHintText)
+            ]);
+            const holdBtn = this.el('div', {
+              class: 'btn-skill-hold-activate',
+              role: 'button',
+              tabindex: '0',
+              style: 'margin-top:4px;'
+            }, [fillBar, textSpan]);
+
+            let holdRaf = null;
+            let holdStart = 0;
+            const HOLD_MS = 1350;
+            let isHolding = false;
+
+            const stopHold = (cancelled = true) => {
+              if (!isHolding) return;
+              isHolding = false;
+              if (holdRaf) { cancelAnimationFrame(holdRaf); holdRaf = null; }
+              holdBtn.classList.remove('channeling');
+              fillBar.style.width = '0%';
+              textSpan.innerHTML = `<span>${btnLabel}</span> <span style="font-size:13px;opacity:0.88;font-weight:normal;">${holdHintText}</span>`;
+              mapChannelState = null;
               drawMapCanvas();
-              renderInspector();
-              this.updateHUD(true);
-            }
-          }, btnLabel));
+              if (cancelled && Abyssea.Audio) Abyssea.Audio.play('cancel');
+            };
+
+            const startHold = (e) => {
+              if (e.pointerType === 'mouse' && e.button !== 0) return;
+              if (isHolding) return;
+              isHolding = true;
+              holdStart = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+              holdBtn.classList.add('channeling');
+              const bAccent = (biome && biome.accent) || '#ffd54f';
+              mapChannelState = { gx: sgx, gy: sgy, progress: 0, color: bAccent, startTs: holdStart };
+              ensureMapFxLoop();
+              if (Abyssea.Audio) Abyssea.Audio.tone(220, 340, 0.18, 'triangle', 0.22);
+
+              let lastPctStep = 0;
+              const onFrame = (now) => {
+                if (!isHolding) return;
+                if (this.activeModal !== 'map') { stopHold(false); return; }
+                const progress = Math.min(1, (now - holdStart) / HOLD_MS);
+                fillBar.style.width = `${(progress * 100).toFixed(1)}%`;
+                const pctInt = Math.floor(progress * 100);
+                textSpan.innerHTML = `<span>${isEn ? 'Conquering...' : 'Desbloqueando...'}</span> <span style="color:#ffe082;font-weight:900;">${pctInt}%</span>`;
+                if (mapChannelState) mapChannelState.progress = progress;
+
+                if (pctInt >= lastPctStep + 20 && Abyssea.Audio) {
+                  lastPctStep = pctInt;
+                  const freq = 260 + pctInt * 4.8;
+                  Abyssea.Audio.tone(freq, freq + 45, 0.08, 'sine', 0.18);
+                }
+
+                if (progress >= 1) {
+                  stopHold(false);
+                  const bought = g.economy.buyPlot(g, sgx, sgy);
+                  if (bought) {
+                    triggerMapUnlockCelebration(sgx, sgy);
+                  } else {
+                    drawMapCanvas();
+                  }
+                  renderInspector();
+                  this.updateHUD(true);
+                  return;
+                }
+                holdRaf = requestAnimationFrame(onFrame);
+              };
+              holdRaf = requestAnimationFrame(onFrame);
+            };
+
+            mapHoldCleanup = () => stopHold(false);
+            holdBtn.addEventListener('pointerdown', startHold);
+            holdBtn.addEventListener('pointerup', () => stopHold(true));
+            holdBtn.addEventListener('pointerleave', () => stopHold(true));
+            holdBtn.addEventListener('pointercancel', () => stopHold(true));
+            holdBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+            card.appendChild(holdBtn);
+          } else {
+            card.appendChild(this.el('button', {
+              class: 'btn btn-stone',
+              style: `margin-top:4px;${(canUnlockHere && !canAfford) || biomeLock.lockedByBiome ? 'color:#ff8a80;border-color:#c62828;' : ''}`,
+              disabled: 'disabled'
+            }, btnLabel));
+          }
         } else if (portalB) {
           card.appendChild(this.el('button', {
             class: 'btn btn-primary',
@@ -7729,10 +8223,34 @@
             onclick: () => {
               g.player.x = (portalB.tx + 0.5) * TILE_SIZE;
               g.player.y = (portalB.ty + 1.2) * TILE_SIZE;
-              Balaclava.Audio.play('portal');
+              Abyssea.Audio.play('portal');
               this.closeModal();
             }
           }, tr('map.fastTravel')));
+        }
+        // RC2 (#5): Archipelago Teleport Beacon fast travel from Map Inspector!
+        if (unlocked) {
+          const beaconB = (g.buildings || []).find(b =>
+            b.type === 'baliza_teletransporte' &&
+            Math.floor(b.tx / PLOT_TILES) === sgx &&
+            Math.floor(b.ty / PLOT_TILES) === sgy
+          );
+          if (beaconB) {
+            card.appendChild(this.el('button', {
+              class: 'btn btn-gold',
+              style: 'margin-top:6px;border-color:#00e5ff;',
+              onclick: () => {
+                g.player.x = (beaconB.tx + 0.5) * TILE_SIZE;
+                g.player.y = (beaconB.ty + 1.1) * TILE_SIZE;
+                g.camera.x = g.player.x;
+                g.camera.y = g.player.y;
+                Abyssea.Audio.play('portal');
+                g.spawnParticles(g.player.x, g.player.y, '#00e5ff', 22);
+                g.toast(`Viaje rápido completado a Baliza en (${sgx}, ${sgy}).`, 'success');
+                this.closeModal();
+              }
+            }, 'Viaje Rápido a Baliza Rúnica'));
+          }
         }
 
         if (unlocked && g.omega) {
@@ -7752,13 +8270,13 @@
               onclick: () => {
                 const res = g.omega.ascendIsland(g, plotKey);
                 if (res.ok) {
-                  Balaclava.Audio.play('levelup');
+                  Abyssea.Audio.play('levelup');
                   g.toast(`¡Isla (${sgx}, ${sgy}) ascendida a Rango Omega!`, 'success');
                   drawMapCanvas();
                   renderInspector();
                   this.updateHUD(true);
                 } else {
-                  Balaclava.Audio.play('error');
+                  Abyssea.Audio.play('error');
                   g.toast(res.reason, 'warn');
                 }
               }
@@ -7768,8 +8286,8 @@
         card.appendChild(this.el('div', { style: 'margin-top:6px;font-size:14px;color:#8bb3d1;line-height:1.4;' }, tr('map.controlsHint')));
         if (this.showDungeonAtlas) {
           const atlasBox = this.el('div', { class: 'dungeon-atlas-list', style: 'margin-top:8px;' });
-          const defs = Object.values(Balaclava.DUNGEON_DEFS || {});
-          const gatesObj = Balaclava.DUNGEON_GATES || {};
+          const defs = Object.values(Abyssea.DUNGEON_DEFS || {});
+          const gatesObj = Abyssea.DUNGEON_GATES || {};
           defs.forEach(dDef => {
             const gateEntry = Array.isArray(gatesObj) ? gatesObj.find(gt => gt.id === dDef.id) : gatesObj[dDef.id];
             const resolvedPlot = (g.world.dungeonGatePlots && g.world.dungeonGatePlots[dDef.id]) || (gateEntry && gateEntry.plot);
@@ -7800,7 +8318,7 @@
       };
 
       const drawMapBuilding = (ctx, b, tilePx) => {
-        const def = (Balaclava.BUILDINGS && Balaclava.BUILDINGS[b.type]) || { size: 1, name: b.type, sprite: 'building' };
+        const def = (Abyssea.BUILDINGS && Abyssea.BUILDINGS[b.type]) || { size: 1, name: b.type, sprite: 'building' };
         const bSize = def.size || 1;
         const bx = b.tx * tilePx;
         const by = b.ty * tilePx;
@@ -7816,12 +8334,14 @@
         ctx.fill();
 
         // 2. Check if a preloaded image sprite exists
-        const assets = Balaclava.Assets;
+        const assets = Abyssea.Assets;
         const bImg = assets && assets.getBuildingImg && assets.getBuildingImg(def.sprite);
         if (bImg && bImg.complete && bImg.naturalWidth > 0 && !(bImg.naturalWidth > 200 && bImg.naturalHeight <= 64)) {
+          const fw = bImg.width >= bImg.height * 2.5 ? bImg.height : bImg.width;
+          const aspect = fw / Math.max(1, bImg.height);
           const sW = bw * (def.visualScale || 1.15);
-          const sH = bh * (def.visualScale || 1.15);
-          ctx.drawImage(bImg, cx - sW / 2, cy - sH / 2, sW, sH);
+          const sH = sW / aspect;
+          ctx.drawImage(bImg, 0, 0, fw, bImg.height, cx - sW / 2, cy - sH / 2, sW, sH);
         } else {
           // 3. Minecraft-style high-detail architectural isometric miniature
           const type = b.type;
@@ -7969,7 +8489,7 @@
           ctx.fillStyle = 'rgba(12, 16, 28, 0.90)';
           ctx.fillRect(bx + bw - 9, by, 9, 7);
           ctx.fillStyle = '#ffd54f';
-          ctx.font = '7px BalaclavaPixel, monospace';
+          ctx.font = '7px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           ctx.fillText(`${b.level}`, bx + bw - 4.5, by + 6);
         }
@@ -7979,28 +8499,30 @@
         }
       };
 
-      const drawMapCanvas = () => {
-        const ctx = mapCanvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
-        const cw = mapCanvas.width;
-        const ch = mapCanvas.height;
-        const plotPx = MAP_WORLD_SZ / GRID_PLOTS; // 120px per plot
-        const tilePx = plotPx / PLOT_TILES; // 10px per tile
+      // Offscreen static world-map layer cache (rebuilds only when world state changes; pan/zoom/skill FX stay locked at 60 FPS!)
+      let mapStaticCanvas = null;
+      let mapStaticKey = '';
+      let mapAdjPlotsCache = [];
+      let cachedOceanGrad = null;
+      let cachedOceanW = 0;
+      let cachedOceanH = 0;
 
-        const oceanGrad = ctx.createRadialGradient(cw * 0.45, ch * 0.45, 40, cw * 0.5, ch * 0.5, Math.max(cw, ch) * 0.72);
-        oceanGrad.addColorStop(0, '#19577a');
-        oceanGrad.addColorStop(0.6, '#103b57');
-        oceanGrad.addColorStop(1, '#081b2c');
-        ctx.fillStyle = oceanGrad;
-        ctx.fillRect(0, 0, cw, ch);
+      const rebuildMapStaticLayer = (plotPx, tilePx) => {
+        if (!mapStaticCanvas) {
+          mapStaticCanvas = document.createElement('canvas');
+          mapStaticCanvas.width = MAP_WORLD_SZ;
+          mapStaticCanvas.height = MAP_WORLD_SZ;
+        }
+        const sctx = mapStaticCanvas.getContext('2d');
+        sctx.imageSmoothingEnabled = false;
+        sctx.clearRect(0, 0, MAP_WORLD_SZ, MAP_WORLD_SZ);
 
-        zoomReadout.textContent = `${Math.round(this.mapZoom * 100)}%`;
-
-        ctx.save();
-        ctx.translate(this.mapPanX, this.mapPanY);
-        ctx.scale(this.mapZoom, this.mapZoom);
-
-        const terraformedSet = new Set((g.world.terraformedTiles || []).map(p => `${p[0]},${p[1]}`));
+        const terraformedSet = new Set();
+        const tfList = g.world.terraformedTiles || [];
+        for (let i = 0; i < tfList.length; i++) {
+          const p = tfList[i];
+          terraformedSet.add((p[0] & 0xfff) | ((p[1] & 0xfff) << 12));
+        }
 
         const maxTiles = (typeof WORLD_TILES !== 'undefined' ? WORLD_TILES : GRID_PLOTS * PLOT_TILES);
         const cliffColors = {
@@ -8013,6 +8535,64 @@
         const getMapVisualBiome = (tx, ty, fallbackBiome) => (
           g.world.getVisualBiomeAtTile ? g.world.getVisualBiomeAtTile(tx, ty) : fallbackBiome
         );
+        const isLand = (x, y) => {
+          if (x < 0 || y < 0 || x >= maxTiles || y >= maxTiles) return false;
+          const pX = Math.floor(x / PLOT_TILES);
+          const pY = Math.floor(y / PLOT_TILES);
+          if (!g.world.isPlotUnlocked(pX, pY)) return false;
+          const tVal = g.world.tiles[y]?.[x];
+          return tVal === 1 || tVal === 2 || tVal === 3 || tVal === 4;
+        };
+
+        // Single O(N) pre-pass bucketing nodes by plot (eliminates O(361 * N) = 1.8M loop!)
+        const plotCount = GRID_PLOTS * GRID_PLOTS;
+        const nodesByPlot = new Array(plotCount);
+        const gateNodeByPlot = new Map();
+        const gateNodeById = new Map();
+        const secretNodeByPlot = new Map();
+        const altarNodeByPlot = new Map();
+        const eeNodeByPlot = new Map();
+        const npcNodeById = new Map();
+        if (Array.isArray(g.world.nodes)) {
+          for (let ni = 0; ni < g.world.nodes.length; ni++) {
+            const n = g.world.nodes[ni];
+            if (!n) continue;
+            const pgx = Math.floor(n.tx / PLOT_TILES);
+            const pgy = Math.floor(n.ty / PLOT_TILES);
+            if (pgx < 0 || pgy < 0 || pgx >= GRID_PLOTS || pgy >= GRID_PLOTS) continue;
+            const pidx = pgy * GRID_PLOTS + pgx;
+            if (n.kind === 'dungeon_gate') {
+              gateNodeByPlot.set(pidx, n);
+              if (n.dungeonId) gateNodeById.set(n.dungeonId, n);
+            } else if (n.kind === 'secret_chest') {
+              secretNodeByPlot.set(pidx, n);
+            } else if (n.kind === 'altar_shrine') {
+              altarNodeByPlot.set(pidx, n);
+            } else if (n.kind === 'easter_egg') {
+              eeNodeByPlot.set(pidx, n);
+            } else if (n.kind === 'npc') {
+              if (n.npcId) npcNodeById.set(n.npcId, n);
+            } else {
+              let bucket = nodesByPlot[pidx];
+              if (!bucket) { bucket = []; nodesByPlot[pidx] = bucket; }
+              bucket.push(n);
+            }
+          }
+        }
+        const npcByPlot = new Map();
+        for (let i = 0; i < Abyssea.NPCS.length; i++) {
+          const npc = Abyssea.NPCS[i];
+          const p = g.world.getNpcPlot(npc);
+          if (p) npcByPlot.set(p[1] * GRID_PLOTS + p[0], npc);
+        }
+
+        const bridgeImg = (Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.bridge_h_mid)
+          || (Abyssea.Assets && Abyssea.Assets.get && Abyssea.Assets.get('bridge_h_mid'));
+        const bridgeReady = !!(bridgeImg && bridgeImg.complete && bridgeImg.naturalWidth > 0);
+        const soilImg = Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.tilled_soil;
+        const soilReady = !!(soilImg && soilImg.complete && soilImg.naturalWidth > 0);
+        const clearedSet = new Set(g.clearedDungeons || []);
+        mapAdjPlotsCache = [];
 
         for (let gy = 0; gy < GRID_PLOTS; gy++) {
           for (let gx = 0; gx < GRID_PLOTS; gx++) {
@@ -8021,23 +8601,10 @@
             const biome = BIOMES[biomeId];
             const px0 = gx * plotPx;
             const py0 = gy * plotPx;
-            const hcx = px0 + plotPx * 0.5;
-            const hcy = py0 + plotPx * 0.5;
-            const toHexX = (wx) => wx;
-            const toHexY = (wy) => wy;
+            const pidx = gy * GRID_PLOTS + gx;
 
             if (unlocked) {
               const bColor = biome?.color || '#5c9e31';
-
-              const isLand = (x, y) => {
-                if (x < 0 || y < 0 || x >= maxTiles || y >= maxTiles) return false;
-                const pX = Math.floor(x / PLOT_TILES);
-                const pY = Math.floor(y / PLOT_TILES);
-                if (!g.world.isPlotUnlocked(pX, pY)) return false;
-                const tVal = g.world.tiles[y]?.[x];
-                return tVal === 1 || tVal === 2 || tVal === 3 || tVal === 4;
-              };
-
               for (let ly = 0; ly < PLOT_TILES; ly++) {
                 for (let lx = 0; lx < PLOT_TILES; lx++) {
                   const tx = gx * PLOT_TILES + lx;
@@ -8049,224 +8616,179 @@
                   const rh = Math.ceil(tilePx) + 0.5;
 
                   if (t === 0) {
-                    // Unified ocean canvas underneath — only add crisp coastal shallows foam hugging land
                     const isShallow = isLand(tx, ty - 1) || isLand(tx, ty + 1) || isLand(tx - 1, ty) || isLand(tx + 1, ty);
                     if (isShallow) {
-                      ctx.fillStyle = 'rgba(135, 218, 240, 0.20)';
-                      ctx.fillRect(rx, ry, rw, rh);
+                      sctx.fillStyle = 'rgba(135, 218, 240, 0.20)';
+                      sctx.fillRect(rx, ry, rw, rh);
                       if (isLand(tx, ty - 1)) {
-                        ctx.fillStyle = 'rgba(220, 246, 255, 0.52)';
-                        ctx.fillRect(rx, ry, rw, 1.4);
+                        sctx.fillStyle = 'rgba(220, 246, 255, 0.52)';
+                        sctx.fillRect(rx, ry, rw, 1.4);
                       }
                     }
                   } else if (t === 3) {
-                    // Bridge
-                    const bridgeImg = Balaclava.Assets && Balaclava.Assets.get && Balaclava.Assets.get('bridge');
-                    if (bridgeImg && bridgeImg.complete && bridgeImg.naturalWidth > 0) {
-                      try {
-                        ctx.drawImage(bridgeImg, 64, 0, 64, 64, rx, ry, rw, rh);
-                      } catch (e) {
-                        ctx.fillStyle = '#8d6e63';
-                        ctx.fillRect(rx, ry, rw, rh);
-                      }
+                    if (bridgeReady) {
+                      sctx.drawImage(bridgeImg, 0, 0, bridgeImg.width, bridgeImg.height, rx, ry, rw, rh);
                     } else {
-                      ctx.fillStyle = '#8d6e63';
-                      ctx.fillRect(rx, ry, rw, rh);
-                      ctx.fillStyle = '#5d4037';
-                      ctx.fillRect(rx, ry + rh * 0.45, rw, rh * 0.15);
+                      sctx.fillStyle = '#b46e3c';
+                      sctx.fillRect(rx, ry, rw, rh);
                     }
                   } else if (t === 4) {
-                    // Sunken volcanic caldera lava tile on map
-                    ctx.fillStyle = '#3b2421';
-                    ctx.fillRect(rx, ry, rw, rh);
-                    ctx.fillStyle = '#180a0c';
-                    ctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
-                    ctx.fillStyle = '#c62828';
-                    ctx.fillRect(rx + 1.5, ry + 2.2, rw - 3, rh - 3.5);
-                    ctx.fillStyle = '#ff8f00';
-                    ctx.fillRect(rx + rw * 0.28, ry + rh * 0.36, rw * 0.44, rh * 0.34);
+                    sctx.fillStyle = '#3b2421';
+                    sctx.fillRect(rx, ry, rw, rh);
+                    sctx.fillStyle = '#180a0c';
+                    sctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
+                    sctx.fillStyle = '#c62828';
+                    sctx.fillRect(rx + 1.5, ry + 2.2, rw - 3, rh - 3.5);
+                    sctx.fillStyle = '#ff8f00';
+                    sctx.fillRect(rx + rw * 0.28, ry + rh * 0.36, rw * 0.44, rh * 0.34);
                   } else {
                     const tBiome = getMapVisualBiome(tx, ty, biomeId);
-                    const tSheet = Balaclava.Assets && Balaclava.Assets.biomeTiles && Balaclava.Assets.biomeTiles[tBiome];
+                    const tSheet = Abyssea.Assets && Abyssea.Assets.biomeTiles && Abyssea.Assets.biomeTiles[tBiome];
                     const tcPal = cliffColors[tBiome] || cliffColors.pradera;
                     const tbColor = (BIOMES[tBiome] && BIOMES[tBiome].color) || bColor;
                     const up = isLand(tx, ty - 1);
                     const dn = isLand(tx, ty + 1);
                     const lt = isLand(tx - 1, ty);
                     const rt = isLand(tx + 1, ty);
-                    const sx = !lt ? 0 : !rt ? 128 : 64;
-                    const sy = !up ? 0 : !dn ? 128 : 64;
 
-                    // Coastal southern cliff skirt directly over unified sea
                     if (!dn) {
-                      ctx.fillStyle = tcPal.mid;
-                      ctx.fillRect(rx, ry + rh - 1.5, rw, 3.2);
-                      ctx.fillStyle = tcPal.shadow;
-                      ctx.fillRect(rx, ry + rh + 1, rw, 1.8);
+                      sctx.fillStyle = tcPal.mid;
+                      sctx.fillRect(rx, ry + rh - 1.5, rw, 3.2);
+                      sctx.fillStyle = tcPal.shadow;
+                      sctx.fillRect(rx, ry + rh + 1, rw, 1.8);
                     }
 
-                    const canDrawSheet = tSheet && (tSheet.width > 0 && tSheet.height > 0);
-                    if (canDrawSheet) {
-                      try {
-                        ctx.drawImage(tSheet, sx, sy, 64, 64, rx, ry, rw, rh);
-                      } catch (e) {
-                        ctx.fillStyle = tbColor;
-                        ctx.fillRect(rx, ry, rw, rh);
-                      }
+                    if (tSheet && tSheet.width > 0 && tSheet.height > 0) {
+                      const bts = Math.round(tSheet.width / 3) || 64;
+                      const tsx = !lt ? 0 : !rt ? bts * 2 : bts;
+                      const tsy = !up ? 0 : !dn ? bts * 2 : bts;
+                      sctx.drawImage(tSheet, tsx, tsy, bts, bts, rx, ry, rw, rh);
                     } else {
-                      ctx.fillStyle = tbColor;
-                      ctx.fillRect(rx, ry, rw, rh);
+                      sctx.fillStyle = tbColor;
+                      sctx.fillRect(rx, ry, rw, rh);
                     }
 
-                    // Tilled soil / farmland layer
                     if (t === 2) {
-                      const soilImg = Balaclava.Assets && Balaclava.Assets.extraImages && Balaclava.Assets.extraImages.tilled_soil;
-                      if (soilImg && soilImg.complete && soilImg.naturalWidth > 0) {
-                        try {
-                          ctx.drawImage(soilImg, rx, ry, rw, rh);
-                        } catch (e) {
-                          ctx.fillStyle = '#4e342e';
-                          ctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
-                        }
+                      if (soilReady) {
+                        sctx.drawImage(soilImg, rx, ry, rw, rh);
                       } else {
-                        ctx.fillStyle = '#4e342e';
-                        ctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
-                        ctx.fillStyle = '#3e2723';
-                        ctx.fillRect(rx + 1, ry + rh * 0.35, rw - 2, 1.5);
-                        ctx.fillRect(rx + 1, ry + rh * 0.70, rw - 2, 1.5);
+                        sctx.fillStyle = '#4e342e';
+                        sctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
+                        sctx.fillStyle = '#3e2723';
+                        sctx.fillRect(rx + 1, ry + rh * 0.35, rw - 2, 1.5);
+                        sctx.fillRect(rx + 1, ry + rh * 0.70, rw - 2, 1.5);
                       }
                     }
 
-                    // Paved stone cobblestone road on terraformed paths
-                    if (terraformedSet.has(`${tx},${ty}`) && t === 1) {
-                      ctx.fillStyle = 'rgba(96, 125, 139, 0.75)';
-                      ctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
-                      ctx.fillStyle = '#455a64';
-                      ctx.fillRect(rx + 1.5, ry + 1.5, rw * 0.4, rh * 0.4);
-                      ctx.fillRect(rx + rw * 0.5, ry + rh * 0.5, rw * 0.4, rh * 0.4);
+                    if (t === 1 && terraformedSet.has((tx & 0xfff) | ((ty & 0xfff) << 12))) {
+                      sctx.fillStyle = 'rgba(96, 125, 139, 0.75)';
+                      sctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
+                      sctx.fillStyle = '#455a64';
+                      sctx.fillRect(rx + 1.5, ry + 1.5, rw * 0.4, rh * 0.4);
+                      sctx.fillRect(rx + rw * 0.5, ry + rh * 0.5, rw * 0.4, rh * 0.4);
                     }
                   }
                 }
               }
 
-              // Detailed miniature pixel flora & resource nodes
-              if (Array.isArray(g.world.nodes)) {
-                for (let ni = 0; ni < g.world.nodes.length; ni++) {
-                  const n = g.world.nodes[ni];
-                  if (!n || Math.floor(n.tx / PLOT_TILES) !== gx || Math.floor(n.ty / PLOT_TILES) !== gy) continue;
-                  if (n.kind === 'dungeon_gate' || n.kind === 'altar_shrine' || n.kind === 'secret_chest' || n.kind === 'easter_egg' || n.kind === 'npc') continue;
-
+              // Detailed miniature pixel flora & resource nodes (from O(1) plot bucket)
+              const bucket = nodesByPlot[pidx];
+              if (bucket) {
+                for (let ni = 0; ni < bucket.length; ni++) {
+                  const n = bucket[ni];
                   const nx = (n.tx + 0.5) * tilePx;
                   const ny = (n.ty + 0.5) * tilePx;
                   const k = n.kind || '';
 
                   if (k.includes('tree')) {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
-                    ctx.beginPath(); ctx.ellipse(nx, ny + 2.5, 3.2, 1.4, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#5d4037';
-                    ctx.fillRect(nx - 0.9, ny + 0.8, 1.8, 2.2);
+                    sctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+                    sctx.beginPath(); sctx.ellipse(nx, ny + 2.5, 3.2, 1.4, 0, 0, Math.PI * 2); sctx.fill();
+                    sctx.fillStyle = '#5d4037';
+                    sctx.fillRect(nx - 0.9, ny + 0.8, 1.8, 2.2);
 
                     if (k.includes('pine')) {
-                      ctx.fillStyle = '#14421b';
-                      ctx.beginPath();
-                      ctx.moveTo(nx, ny - 4.5);
-                      ctx.lineTo(nx + 3.2, ny + 1.2);
-                      ctx.lineTo(nx - 3.2, ny + 1.2);
-                      ctx.closePath(); ctx.fill();
-                      ctx.fillStyle = '#2e7d32';
-                      ctx.beginPath();
-                      ctx.moveTo(nx, ny - 4.5);
-                      ctx.lineTo(nx + 2.2, ny - 0.5);
-                      ctx.lineTo(nx - 2.2, ny - 0.5);
-                      ctx.closePath(); ctx.fill();
+                      sctx.fillStyle = '#14421b';
+                      sctx.beginPath();
+                      sctx.moveTo(nx, ny - 4.5); sctx.lineTo(nx + 3.2, ny + 1.2); sctx.lineTo(nx - 3.2, ny + 1.2);
+                      sctx.closePath(); sctx.fill();
+                      sctx.fillStyle = '#2e7d32';
+                      sctx.beginPath();
+                      sctx.moveTo(nx, ny - 4.5); sctx.lineTo(nx + 2.2, ny - 0.5); sctx.lineTo(nx - 2.2, ny - 0.5);
+                      sctx.closePath(); sctx.fill();
                     } else if (k.includes('palm')) {
-                      ctx.fillStyle = '#388e3c';
-                      ctx.beginPath(); ctx.arc(nx, ny - 1.5, 3.2, 0, Math.PI * 2); ctx.fill();
-                      ctx.fillStyle = '#81c784';
-                      ctx.fillRect(nx - 1, ny - 3, 2, 2);
+                      sctx.fillStyle = '#388e3c';
+                      sctx.beginPath(); sctx.arc(nx, ny - 1.5, 3.2, 0, Math.PI * 2); sctx.fill();
+                      sctx.fillStyle = '#81c784';
+                      sctx.fillRect(nx - 1, ny - 3, 2, 2);
                     } else {
-                      ctx.fillStyle = '#1b5e20';
-                      ctx.beginPath(); ctx.arc(nx, ny - 0.6, 3.5, 0, Math.PI * 2); ctx.fill();
-                      ctx.fillStyle = '#2e7d32';
-                      ctx.beginPath(); ctx.arc(nx - 0.4, ny - 1.2, 2.7, 0, Math.PI * 2); ctx.fill();
-                      ctx.fillStyle = '#66bb6a';
-                      ctx.beginPath(); ctx.arc(nx - 0.8, ny - 1.8, 1.5, 0, Math.PI * 2); ctx.fill();
-
+                      sctx.fillStyle = '#1b5e20';
+                      sctx.beginPath(); sctx.arc(nx, ny - 0.6, 3.5, 0, Math.PI * 2); sctx.fill();
+                      sctx.fillStyle = '#2e7d32';
+                      sctx.beginPath(); sctx.arc(nx - 0.4, ny - 1.2, 2.7, 0, Math.PI * 2); sctx.fill();
+                      sctx.fillStyle = '#66bb6a';
+                      sctx.beginPath(); sctx.arc(nx - 0.8, ny - 1.8, 1.5, 0, Math.PI * 2); sctx.fill();
                       if (k.includes('apple')) {
-                        ctx.fillStyle = '#ef5350';
-                        ctx.fillRect(nx + 1, ny - 0.5, 1.2, 1.2);
-                        ctx.fillRect(nx - 1.5, ny - 2.2, 1.2, 1.2);
+                        sctx.fillStyle = '#ef5350';
+                        sctx.fillRect(nx + 1, ny - 0.5, 1.2, 1.2); sctx.fillRect(nx - 1.5, ny - 2.2, 1.2, 1.2);
                       } else if (k.includes('orange')) {
-                        ctx.fillStyle = '#ffa726';
-                        ctx.fillRect(nx + 1, ny - 0.5, 1.2, 1.2);
-                        ctx.fillRect(nx - 1.5, ny - 2.2, 1.2, 1.2);
+                        sctx.fillStyle = '#ffa726';
+                        sctx.fillRect(nx + 1, ny - 0.5, 1.2, 1.2); sctx.fillRect(nx - 1.5, ny - 2.2, 1.2, 1.2);
                       }
                     }
-                  } else if (k.includes('rock')) {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                    ctx.beginPath(); ctx.ellipse(nx, ny + 1.8, 3.0, 1.3, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#37474f';
-                    ctx.beginPath(); ctx.arc(nx, ny, 2.7, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#78909c';
-                    ctx.beginPath(); ctx.arc(nx - 0.6, ny - 0.6, 1.8, 0, Math.PI * 2); ctx.fill();
-
+                  } else if (k.includes('rock') || k.includes('vein') || k.includes('node')) {
+                    sctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+                    sctx.beginPath(); sctx.ellipse(nx, ny + 1.8, 3.0, 1.3, 0, 0, Math.PI * 2); sctx.fill();
+                    sctx.fillStyle = '#37474f';
+                    sctx.beginPath(); sctx.arc(nx, ny, 2.7, 0, Math.PI * 2); sctx.fill();
+                    sctx.fillStyle = '#78909c';
+                    sctx.beginPath(); sctx.arc(nx - 0.6, ny - 0.6, 1.8, 0, Math.PI * 2); sctx.fill();
                     if (k.includes('gold')) {
-                      ctx.fillStyle = '#ffd54f';
-                      ctx.fillRect(nx - 1, ny - 1.2, 1.5, 1.5);
-                      ctx.fillRect(nx + 0.8, ny + 0.2, 1.2, 1.2);
-                    } else if (k.includes('gem') || k.includes('crystal')) {
-                      ctx.fillStyle = '#00e5ff';
-                      ctx.fillRect(nx - 0.8, ny - 1.2, 1.6, 1.6);
-                      ctx.fillStyle = '#e040fb';
-                      ctx.fillRect(nx + 0.6, ny + 0.2, 1.2, 1.2);
+                      sctx.fillStyle = '#ffd54f';
+                      sctx.fillRect(nx - 1, ny - 1.2, 1.5, 1.5); sctx.fillRect(nx + 0.8, ny + 0.2, 1.2, 1.2);
+                    } else if (k.includes('gem') || k.includes('crystal') || k.includes('diamond') || k.includes('emerald')) {
+                      sctx.fillStyle = '#00e5ff';
+                      sctx.fillRect(nx - 0.8, ny - 1.2, 1.6, 1.6);
+                      sctx.fillStyle = '#e040fb';
+                      sctx.fillRect(nx + 0.6, ny + 0.2, 1.2, 1.2);
                     } else if (k.includes('iron')) {
-                      ctx.fillStyle = '#cfd8dc';
-                      ctx.fillRect(nx - 0.8, ny - 1, 1.5, 1.5);
+                      sctx.fillStyle = '#cfd8dc';
+                      sctx.fillRect(nx - 0.8, ny - 1, 1.5, 1.5);
                     } else if (k.includes('coal')) {
-                      ctx.fillStyle = '#212121';
-                      ctx.fillRect(nx - 0.8, ny - 1, 1.5, 1.5);
+                      sctx.fillStyle = '#212121';
+                      sctx.fillRect(nx - 0.8, ny - 1, 1.5, 1.5);
                     }
-                  } else if (k === 'berry_bush') {
-                    ctx.fillStyle = '#2e7d32';
-                    ctx.beginPath(); ctx.arc(nx, ny, 2.5, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#e91e63';
-                    ctx.fillRect(nx - 1, ny - 1, 1.2, 1.2);
-                    ctx.fillRect(nx + 0.8, ny - 0.5, 1.2, 1.2);
-                    ctx.fillRect(nx - 0.2, ny + 0.8, 1.2, 1.2);
+                  } else if (k === 'berry_bush' || k === 'bush') {
+                    sctx.fillStyle = '#2e7d32';
+                    sctx.beginPath(); sctx.arc(nx, ny, 2.5, 0, Math.PI * 2); sctx.fill();
+                    sctx.fillStyle = '#e91e63';
+                    sctx.fillRect(nx - 1, ny - 1, 1.2, 1.2);
+                    sctx.fillRect(nx + 0.8, ny - 0.5, 1.2, 1.2);
+                    sctx.fillRect(nx - 0.2, ny + 0.8, 1.2, 1.2);
                   } else if (k.includes('wheat')) {
-                    ctx.fillStyle = '#ffd54f';
-                    ctx.fillRect(nx - 1.2, ny - 2, 0.8, 3.5);
-                    ctx.fillRect(nx + 0.4, ny - 2.5, 0.8, 4);
-                    ctx.fillStyle = '#f57f17';
-                    ctx.fillRect(nx - 1.2, ny - 2.5, 1, 1.2);
-                    ctx.fillRect(nx + 0.4, ny - 3, 1, 1.2);
+                    sctx.fillStyle = '#ffd54f';
+                    sctx.fillRect(nx - 1.2, ny - 2, 0.8, 3.5); sctx.fillRect(nx + 0.4, ny - 2.5, 0.8, 4);
+                    sctx.fillStyle = '#f57f17';
+                    sctx.fillRect(nx - 1.2, ny - 2.5, 1, 1.2); sctx.fillRect(nx + 0.4, ny - 3, 1, 1.2);
                   } else if (k.includes('carrot')) {
-                    ctx.fillStyle = '#4caf50';
-                    ctx.fillRect(nx - 1, ny - 2, 2, 1.5);
-                    ctx.fillStyle = '#ff9800';
-                    ctx.fillRect(nx - 0.5, ny - 0.5, 1.2, 2);
+                    sctx.fillStyle = '#4caf50';
+                    sctx.fillRect(nx - 1, ny - 2, 2, 1.5);
+                    sctx.fillStyle = '#ff9800';
+                    sctx.fillRect(nx - 0.5, ny - 0.5, 1.2, 2);
                   } else if (k === 'flower') {
-                    ctx.fillStyle = '#ff4081';
-                    ctx.beginPath(); ctx.arc(nx, ny, 1.6, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#ffe082';
-                    ctx.fillRect(nx - 0.5, ny - 0.5, 1, 1);
+                    sctx.fillStyle = '#ff4081';
+                    sctx.beginPath(); sctx.arc(nx, ny, 1.6, 0, Math.PI * 2); sctx.fill();
+                    sctx.fillStyle = '#ffe082';
+                    sctx.fillRect(nx - 0.5, ny - 0.5, 1, 1);
                   }
                 }
               }
-
-              const isCenter = gx === (CENTER_PLOT || 4) && gy === (CENTER_PLOT || 4);
-              if (isCenter) {
-                ctx.strokeStyle = 'rgba(255, 213, 79, 0.65)';
-                ctx.lineWidth = 2.0 / this.mapZoom;
-                ctx.strokeRect(px0 + 0.5, py0 + 0.5, plotPx - 1, plotPx - 1);
-              }
             } else {
-              // Locked plot: render true fogged island silhouette over the uniform ocean (no flat solid squares)
               const adj = (g.economy && typeof g.economy.isPlotAdjacentlyReachable === 'function')
                 ? g.economy.isPlotAdjacentlyReachable(g, gx, gy)
                 : false;
-              ctx.save();
-              ctx.globalAlpha = adj ? 0.42 : 0.28;
+              if (adj) mapAdjPlotsCache.push([gx, gy]);
+              sctx.save();
+              sctx.globalAlpha = adj ? 0.42 : 0.28;
               for (let ly = 0; ly < PLOT_TILES; ly++) {
                 const ry = Math.round(py0 + ly * tilePx);
                 const rh = Math.max(1, Math.round(py0 + (ly + 1) * tilePx) - ry);
@@ -8281,138 +8803,195 @@
                   const belowT = g.world.tiles[ty + 1]?.[tx] ?? 0;
                   if (belowT === 0) {
                     const tcPal = cliffColors[tBiome] || cliffColors.pradera;
-                    ctx.fillStyle = tcPal.mid;
-                    ctx.fillRect(rx, ry + rh, rw, 2);
+                    sctx.fillStyle = tcPal.mid;
+                    sctx.fillRect(rx, ry + rh, rw, 2);
                   }
-                  ctx.fillStyle = t === 4 ? '#8e240c' : ((BIOMES[tBiome] && BIOMES[tBiome].color) || biome.color);
-                  ctx.fillRect(rx, ry, rw, rh);
+                  sctx.fillStyle = t === 4 ? '#8e240c' : ((BIOMES[tBiome] && BIOMES[tBiome].color) || biome.color);
+                  sctx.fillRect(rx, ry, rw, rh);
                 }
               }
-              ctx.restore();
-
-              const plotBiomeLock = (g.economy && typeof g.economy.getBiomeLockStatus === 'function')
-                ? g.economy.getBiomeLockStatus(g, gx, gy)
-                : { lockedByBiome: false };
-              const price = adj ? g.economy.getPlotPrice(g, gx, gy) : 0;
-              const canAfford = adj && !plotBiomeLock.lockedByBiome && g.coins >= price;
-
-              if (adj && !plotBiomeLock.lockedByBiome) {
-                ctx.strokeStyle = canAfford ? 'rgba(255, 213, 79, 0.85)' : 'rgba(239, 83, 80, 0.72)';
-                ctx.lineWidth = 1.8 / this.mapZoom;
-                ctx.strokeRect(px0 + 1, py0 + 1, plotPx - 2, plotPx - 2);
-              }
-
-              if (adj) {
-                const bw = plotBiomeLock.lockedByBiome ? 106 : 88;
-                const bh = 26;
-                ctx.fillStyle = 'rgba(12, 16, 28, 0.92)';
-                ctx.fillRect(hcx - bw / 2, hcy - bh / 2, bw, bh);
-                ctx.strokeStyle = plotBiomeLock.lockedByBiome ? '#64748b' : (canAfford ? '#ffd54f' : '#ef5350');
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(hcx - bw / 2, hcy - bh / 2, bw, bh);
-                if (plotBiomeLock.lockedByBiome) {
-                  const lockIm = mapImg(Balaclava.UI_URLS && Balaclava.UI_URLS.iconLock);
-                  if (lockIm && lockIm.complete && lockIm.naturalWidth > 0) {
-                    ctx.drawImage(lockIm, hcx - bw / 2 + 5, hcy - 9, 17, 17);
-                  }
-                  ctx.fillStyle = '#cbd5e1';
-                  ctx.font = '13px BalaclavaPixel, monospace';
-                  ctx.textAlign = 'center';
-                  ctx.fillText(`${plotBiomeLock.unlocked}/${plotBiomeLock.total}·${plotBiomeLock.dungeonsDone}/${plotBiomeLock.dungeonsTotal}`, hcx + 9, hcy + 5);
-                } else {
-                  const coinIm = mapImg(Balaclava.UI_URLS.iconCoin);
-                  if (coinIm && coinIm.complete && coinIm.naturalWidth > 0) {
-                    ctx.drawImage(coinIm, hcx - bw / 2 + 6, hcy - 9, 18, 18);
-                  }
-                  ctx.fillStyle = canAfford ? '#ffd54f' : '#ff8a80';
-                  ctx.font = '17px BalaclavaPixel, monospace';
-                  ctx.textAlign = 'center';
-                  ctx.fillText(`${price}`, hcx + 8, hcy + 6);
-                }
-              }
+              sctx.restore();
             }
 
             const gate = g.world.getDungeonGateForPlot(gx, gy);
             if (gate) {
-              const cleared = g.clearedDungeons.includes(gate.id);
+              const cleared = clearedSet.has(gate.id);
               if (unlocked) {
-                const gNode = g.world.nodes.find(n => n.kind === 'dungeon_gate' && Math.floor(n.tx / PLOT_TILES) === gx && Math.floor(n.ty / PLOT_TILES) === gy) ||
-                              g.world.nodes.find(n => n.kind === 'dungeon_gate' && n.dungeonId === gate.id);
+                const gNode = gateNodeByPlot.get(pidx) || gateNodeById.get(gate.id);
                 if (gNode) {
-                  const kx = toHexX((gNode.tx + 0.5) * tilePx);
-                  const ky = toHexY((gNode.ty + 0.5) * tilePx);
-                  drawBadgeIcon(
-                    ctx, kx, ky, 7.5,
-                    cleared ? 'rgba(46, 125, 50, 0.95)' : 'rgba(183, 28, 28, 0.95)',
-                    '#ffd54f', Balaclava.UI_URLS.iconKey, cleared ? 'OK' : 'D'
-                  );
+                  drawMapPin(sctx, (gNode.tx + 0.5) * tilePx, (gNode.ty + 0.5) * tilePx, cleared ? 'dungeon_cleared' : 'dungeon', { r: 5.8 });
                 }
               } else {
-                drawBadgeIcon(
-                  ctx, px0 + plotPx - 14, py0 + 14, 7.5,
-                  cleared ? 'rgba(46, 125, 50, 0.90)' : 'rgba(183, 28, 28, 0.90)',
-                  '#ffd54f', Balaclava.UI_URLS.iconKey, cleared ? 'OK' : 'D'
-                );
+                drawMapPin(sctx, px0 + plotPx - 9, py0 + 9, cleared ? 'dungeon_cleared' : 'dungeon', { r: 5.2 });
               }
             }
 
             const hasSecret = unlocked && g.world.secretChestPlots && g.world.secretChestPlots[`${gx},${gy}`] !== undefined;
             if (hasSecret) {
-              const sNode = g.world.nodes.find(n => n.kind === 'secret_chest' && Math.floor(n.tx / PLOT_TILES) === gx && Math.floor(n.ty / PLOT_TILES) === gy);
+              const sNode = secretNodeByPlot.get(pidx);
               const sDone = sNode && sNode.opened;
               const sUnlocked = sNode && !sNode.puzzleLocked;
-              const sx = toHexX(sNode ? (sNode.tx + 0.5) * tilePx : px0 + plotPx / 2);
-              const sy = toHexY(sNode ? (sNode.ty + 0.5) * tilePx : py0 + 14);
-              drawBadgeIcon(
-                ctx, sx, sy, 7,
-                sDone ? 'rgba(69, 90, 100, 0.85)' : (sUnlocked ? 'rgba(245, 127, 23, 0.94)' : 'rgba(106, 27, 154, 0.92)'),
-                '#ffe082', Balaclava.UI_URLS.chest, 'S'
+              drawMapPin(
+                sctx,
+                sNode ? (sNode.tx + 0.5) * tilePx : px0 + plotPx / 2,
+                sNode ? (sNode.ty + 0.5) * tilePx : py0 + 10,
+                sDone ? 'secret_done' : 'secret',
+                { r: 5.2, locked: !sUnlocked }
               );
             }
 
             const altarId = unlocked && g.world.altarPlots && g.world.altarPlots[`${gx},${gy}`];
             if (altarId) {
-              const aNode = g.world.nodes.find(n => n.kind === 'altar_shrine' && Math.floor(n.tx / PLOT_TILES) === gx && Math.floor(n.ty / PLOT_TILES) === gy);
-              const ax = toHexX(aNode ? (aNode.tx + 0.5) * tilePx : px0 + 14);
-              const ay = toHexY(aNode ? (aNode.ty + 0.5) * tilePx : py0 + plotPx - 14);
-              drawBadgeIcon(
-                ctx, ax, ay, 7,
-                'rgba(123, 31, 162, 0.92)', '#ffe082', Balaclava.ITEM_PNG_MAP.magic_crystal, 'A'
-              );
+              const aNode = altarNodeByPlot.get(pidx);
+              drawMapPin(sctx, aNode ? (aNode.tx + 0.5) * tilePx : px0 + 10, aNode ? (aNode.ty + 0.5) * tilePx : py0 + plotPx - 10, 'altar', { r: 5.2 });
             }
 
             const eeId = unlocked && g.world.easterEggPlots && g.world.easterEggPlots[`${gx},${gy}`];
             if (eeId) {
-              const eeNode = g.world.nodes.find(n => n.kind === 'easter_egg' && Math.floor(n.tx / PLOT_TILES) === gx && Math.floor(n.ty / PLOT_TILES) === gy);
-              const ex = toHexX(eeNode ? (eeNode.tx + 0.5) * tilePx : px0 + plotPx - 14);
-              const ey = toHexY(eeNode ? (eeNode.ty + 0.5) * tilePx : py0 + plotPx - 14);
-              drawBadgeIcon(
-                ctx, ex, ey, 7,
-                'rgba(230, 81, 0, 0.92)', '#ffffff', Balaclava.UI_URLS.chest, 'S', '#ffffff'
-              );
+              const eeNode = eeNodeByPlot.get(pidx);
+              drawMapPin(sctx, eeNode ? (eeNode.tx + 0.5) * tilePx : px0 + plotPx - 10, eeNode ? (eeNode.ty + 0.5) * tilePx : py0 + plotPx - 10, 'secret', { r: 5.0 });
             }
 
-            const npc = Balaclava.NPCS.find(n => {
-              const p = g.world.getNpcPlot(n);
-              return p[0] === gx && p[1] === gy;
-            });
+            const npc = npcByPlot.get(pidx);
             if (npc && unlocked) {
-              const nNode = g.world.nodes.find(node => node.kind === 'npc' && node.npcId === npc.id);
-              const nx = toHexX(nNode ? (nNode.tx + 0.5) * tilePx : px0 + 14);
-              const ny = toHexY(nNode ? (nNode.ty + 0.5) * tilePx : py0 + 14);
-              drawBadgeIcon(
-                ctx, nx, ny, 8.5,
-                'rgba(2, 119, 189, 0.92)', '#ffffff', Balaclava.NPC_PORTRAIT_URLS && Balaclava.NPC_PORTRAIT_URLS[npc.id], 'N'
+              const nNode = npcNodeById.get(npc.id);
+              drawMapPin(
+                sctx,
+                nNode ? (nNode.tx + 0.5) * tilePx : px0 + 11,
+                nNode ? (nNode.ty + 0.5) * tilePx : py0 + 11,
+                'npc',
+                { r: 6.4, url: Abyssea.NPC_PORTRAIT_URLS && Abyssea.NPC_PORTRAIT_URLS[npc.id] }
               );
             }
           }
         }
 
-        // Draw every building directly in square map coordinates
         if (Array.isArray(g.buildings)) {
-          g.buildings.forEach(b => {
-            drawMapBuilding(ctx, b, tilePx);
-          });
+          for (let bi = 0; bi < g.buildings.length; bi++) {
+            const bld = g.buildings[bi];
+            drawMapBuilding(sctx, bld, tilePx);
+            if (bld && (bld.type === 'portal' || bld.type === 'baliza_teletransporte')) {
+              drawMapPin(sctx, (bld.tx + 0.5) * tilePx, (bld.ty + 0.5) * tilePx, 'portal', { r: 5.0 });
+            }
+          }
+        }
+      };
+
+      const drawMapCanvas = () => {
+        const ctx = mapCanvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        const cw = mapCanvas.width;
+        const ch = mapCanvas.height;
+        const plotPx = MAP_WORLD_SZ / GRID_PLOTS; // 120px per plot
+        const tilePx = plotPx / PLOT_TILES; // 10px per tile
+
+        if (!cachedOceanGrad || cachedOceanW !== cw || cachedOceanH !== ch) {
+          cachedOceanGrad = ctx.createRadialGradient(cw * 0.45, ch * 0.45, 40, cw * 0.5, ch * 0.5, Math.max(cw, ch) * 0.72);
+          cachedOceanGrad.addColorStop(0, '#19577a');
+          cachedOceanGrad.addColorStop(0.6, '#103b57');
+          cachedOceanGrad.addColorStop(1, '#081b2c');
+          cachedOceanW = cw;
+          cachedOceanH = ch;
+        }
+        ctx.fillStyle = cachedOceanGrad;
+        ctx.fillRect(0, 0, cw, ch);
+
+        zoomReadout.textContent = `${Math.round(this.mapZoom * 100)}%`;
+
+        const nextStaticKey = `${g.unlockedPlots.length}|${g.buildings.length}|${g.world.nodes.length}|${(g.world.terraformedTiles || []).length}|${(g.clearedDungeons || []).length}|${mapImgLoadGen}`;
+        if (!mapStaticCanvas || mapStaticKey !== nextStaticKey) {
+          rebuildMapStaticLayer(plotPx, tilePx);
+          mapStaticKey = nextStaticKey;
+        }
+
+        ctx.save();
+        ctx.translate(this.mapPanX, this.mapPanY);
+        ctx.scale(this.mapZoom, this.mapZoom);
+
+        // Blit entire pre-rendered 19x19 archipelago + nodes + buildings in ONE GPU drawImage!
+        ctx.drawImage(mapStaticCanvas, 0, 0);
+
+        // Crisp zoom-invariant border on Center Island
+        const cPlot = (CENTER_PLOT !== undefined ? CENTER_PLOT : 9);
+        if (g.world.isPlotUnlocked(cPlot, cPlot)) {
+          ctx.strokeStyle = 'rgba(255, 213, 79, 0.65)';
+          ctx.lineWidth = 2.0 / this.mapZoom;
+          ctx.strokeRect(cPlot * plotPx + 0.5, cPlot * plotPx + 0.5, plotPx - 1, plotPx - 1);
+        }
+
+        // Dynamic adjacent-island price & biome-lock badges (reacts immediately to coins & zoom)
+        for (let ai = 0; ai < mapAdjPlotsCache.length; ai++) {
+          const [gx, gy] = mapAdjPlotsCache[ai];
+          if (g.world.isPlotUnlocked(gx, gy)) continue;
+          const px0 = gx * plotPx;
+          const py0 = gy * plotPx;
+          const hcx = px0 + plotPx * 0.5;
+          const hcy = py0 + plotPx * 0.5;
+          const plotBiomeLock = (g.economy && typeof g.economy.getBiomeLockStatus === 'function')
+            ? g.economy.getBiomeLockStatus(g, gx, gy)
+            : { lockedByBiome: false };
+          const price = g.economy.getPlotPrice(g, gx, gy);
+          const canAfford = !plotBiomeLock.lockedByBiome && g.coins >= price;
+
+          if (!plotBiomeLock.lockedByBiome) {
+            ctx.strokeStyle = canAfford ? 'rgba(245, 204, 102, 0.68)' : 'rgba(239, 83, 80, 0.58)';
+            ctx.lineWidth = 1.25 / this.mapZoom;
+            ctx.strokeRect(px0 + 1.5, py0 + 1.5, plotPx - 3, plotPx - 3);
+          }
+
+          // Compact rounded price pill strictly fitted inside plotPx (~63px) — never overflows neighboring plots
+          const pillTxt = plotBiomeLock.lockedByBiome
+            ? `${plotBiomeLock.unlocked}/${plotBiomeLock.total}`
+            : (price >= 10000 ? `${Math.round(price / 1000)}k` : `${price}`);
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.font = 'bold 10.5px monospace';
+          const txtW = ctx.measureText(pillTxt).width;
+          const bw = Math.min(plotPx - 10, Math.max(30, Math.round(txtW + 17)));
+          const bh = 16;
+          const bx = hcx - bw / 2;
+          const by = hcy - bh / 2;
+
+          ctx.fillStyle = 'rgba(8, 16, 30, 0.88)';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 4);
+          else ctx.rect(bx, by, bw, bh);
+          ctx.fill();
+          ctx.strokeStyle = plotBiomeLock.lockedByBiome ? 'rgba(148, 163, 184, 0.72)' : (canAfford ? 'rgba(245, 204, 102, 0.90)' : 'rgba(239, 83, 80, 0.82)');
+          ctx.lineWidth = 1.05;
+          ctx.stroke();
+
+          if (plotBiomeLock.lockedByBiome) {
+            // Minimalist vector padlock glyph
+            const lx = bx + 7.5;
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.arc(lx, hcy - 1.8, 2.2, Math.PI, 0, false);
+            ctx.stroke();
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(lx - 2.6, hcy - 1.4, 5.2, 4.2);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pillTxt, bx + 13.5, hcy + 0.5);
+          } else {
+            // Crisp minimalist vector gold coin dot
+            const cxCoin = bx + 7.5;
+            ctx.fillStyle = canAfford ? '#fbbf24' : '#f87171';
+            ctx.beginPath();
+            ctx.arc(cxCoin, hcy, 3.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = canAfford ? '#fef3c7' : '#fecaca';
+            ctx.beginPath();
+            ctx.arc(cxCoin - 0.8, hcy - 0.8, 1.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = canAfford ? '#fef08a' : '#fca5a5';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pillTxt, bx + 13.5, hcy + 0.5);
+          }
+          ctx.restore();
         }
 
         // Square plot grid overlay (toggled by Cuadrícula button)
@@ -8426,16 +9005,19 @@
           }
         }
 
-        // Pulsating player avatar & radar ring at exact world position on square map
+        // Pulsating minimalist player beacon at exact world position
         const ptx = (g.player.x / TILE_SIZE) * tilePx;
         const pty = (g.player.y / TILE_SIZE) * tilePx;
-        const pulse = (Math.sin(Date.now() / 240) + 1) * 0.5;
-        ctx.strokeStyle = `rgba(0, 230, 118, ${0.35 + pulse * 0.45})`;
-        ctx.lineWidth = 1.8;
+        const pulse = (Math.sin(Date.now() / 260) + 1) * 0.5;
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.strokeStyle = `rgba(52, 211, 153, ${(0.28 + pulse * 0.42).toFixed(2)})`;
+        ctx.lineWidth = 1.3;
         ctx.beginPath();
-        ctx.arc(ptx, pty, 13 + pulse * 5, 0, Math.PI * 2);
+        ctx.arc(ptx, pty, 7.5 + pulse * 3.5, 0, Math.PI * 2);
         ctx.stroke();
-        drawBadgeIcon(ctx, ptx, pty, 13, 'rgba(0, 200, 83, 0.95)', '#ffffff', Balaclava.UI_URLS.avatarHero, '*');
+        ctx.restore();
+        drawMapPin(ctx, ptx, pty, 'player', { r: 6.4 });
 
         // Selected square highlight
         const [sx, sy] = this.selectedMapPlot;
@@ -8443,12 +9025,130 @@
         ctx.lineWidth = 3.2 / this.mapZoom;
         ctx.strokeRect(sx * plotPx + 1.5, sy * plotPx + 1.5, plotPx - 3, plotPx - 3);
 
+        // Skill-Style Live Channeling Aura on the target island while holding to conquer
+        if (mapChannelState) {
+          const ch = mapChannelState;
+          const cp = getPlotCenterPx(ch.gx, ch.gy);
+          const p = Math.max(0, Math.min(1, ch.progress || 0));
+          const tNow = (typeof performance !== 'undefined' ? performance.now() : Date.now()) * 0.006;
+          ctx.save();
+          // Golden glowing fill charging across the plot
+          ctx.fillStyle = `rgba(255, 213, 79, ${(0.12 + p * 0.34).toFixed(3)})`;
+          ctx.fillRect(ch.gx * plotPx, ch.gy * plotPx, plotPx, plotPx);
+          // Contracting arcane energy ring + spinning constellation arc
+          const outerR = plotPx * (1.15 - p * 0.45);
+          ctx.strokeStyle = ch.color || '#ffd54f';
+          ctx.lineWidth = (2.6 + p * 2.4) / this.mapZoom;
+          ctx.beginPath();
+          ctx.arc(cp.x, cp.y, outerR, tNow, tNow + Math.PI * 2 * Math.max(0.15, p));
+          ctx.stroke();
+          // Progress ring snug around the plot center
+          ctx.strokeStyle = '#fff59d';
+          ctx.lineWidth = 3.4 / this.mapZoom;
+          ctx.beginPath();
+          ctx.arc(cp.x, cp.y, plotPx * 0.48, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p);
+          ctx.stroke();
+          // Inward-rushing golden channeling sparks (just like Skill Tree sparks!)
+          for (let i = 0; i < 10; i++) {
+            const ph = ((tNow * 0.55 + i * 0.1) % 1);
+            const ang = i * (Math.PI * 2 / 10) + tNow * 0.4;
+            const distR = plotPx * (1.25 * (1 - ph));
+            const pxS = cp.x + Math.cos(ang) * distR;
+            const pyS = cp.y + Math.sin(ang) * distR;
+            ctx.fillStyle = i % 2 === 0 ? '#ffffff' : '#ffd54f';
+            ctx.globalAlpha = Math.sin(ph * Math.PI);
+            ctx.beginPath();
+            ctx.arc(pxS, pyS, (2.2 + p * 2.0) / this.mapZoom, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Skill-Style Island Conquest Starburst, Shockwaves & Neighbor Energy Bridges!
+        if (mapUnlockBursts.length > 0) {
+          const nowTs = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+          for (const fx of mapUnlockBursts) {
+            const u = Math.max(0, Math.min(1, (nowTs - fx.startTs) / fx.dur));
+            const easeOut = 1 - Math.pow(1 - u, 3);
+            const cp = getPlotCenterPx(fx.gx, fx.gy);
+            ctx.save();
+
+            // 1. Surging constellation-style golden link beams from adjacent owned islands
+            if (Array.isArray(fx.adjFrom) && u < 0.72) {
+              const linkA = (1 - u / 0.72) * 0.92;
+              for (const [ax, ay] of fx.adjFrom) {
+                const ap = getPlotCenterPx(ax, ay);
+                const grad = ctx.createLinearGradient(ap.x, ap.y, cp.x, cp.y);
+                grad.addColorStop(0, `rgba(255, 213, 79, ${(linkA * 0.35).toFixed(3)})`);
+                grad.addColorStop(0.5, `rgba(255, 255, 255, ${linkA.toFixed(3)})`);
+                grad.addColorStop(1, `rgba(128, 222, 234, ${linkA.toFixed(3)})`);
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = (5.5 * (1 - u * 0.6)) / this.mapZoom;
+                ctx.beginPath();
+                ctx.moveTo(ap.x, ap.y);
+                ctx.lineTo(cp.x, cp.y);
+                ctx.stroke();
+              }
+            }
+
+            // 2. Brilliant reveal flash over newly conquered island
+            if (u < 0.45) {
+              const flashA = Math.pow(1 - u / 0.45, 2) * 0.85;
+              ctx.fillStyle = `rgba(255, 249, 196, ${flashA.toFixed(3)})`;
+              ctx.fillRect(fx.gx * plotPx, fx.gy * plotPx, plotPx, plotPx);
+            }
+
+            // 3. Double expanding cosmic shockwave rings
+            const r1 = plotPx * (0.38 + easeOut * 1.65);
+            ctx.strokeStyle = `rgba(255, 213, 79, ${(Math.pow(1 - u, 1.5) * 0.95).toFixed(3)})`;
+            ctx.lineWidth = (6.0 * (1 - u * 0.75)) / this.mapZoom;
+            ctx.beginPath();
+            ctx.arc(cp.x, cp.y, r1, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const u2 = Math.max(0, Math.min(1, (u - 0.08) / 0.92));
+            if (u2 > 0) {
+              const r2 = plotPx * (0.30 + (1 - Math.pow(1 - u2, 2.5)) * 1.25);
+              ctx.strokeStyle = fx.color || '#80deea';
+              ctx.globalAlpha = Math.pow(1 - u2, 1.4) * 0.85;
+              ctx.lineWidth = (3.8 * (1 - u2 * 0.7)) / this.mapZoom;
+              ctx.beginPath();
+              ctx.arc(cp.x, cp.y, r2, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
+
+            // 4. Radial starburst diamond sparks flying outward
+            for (const sp of fx.sparks) {
+              const distR = sp.spd * easeOut * 1.35;
+              const sxP = cp.x + Math.cos(sp.ang) * distR;
+              const syP = cp.y + Math.sin(sp.ang) * distR;
+              const sAlpha = Math.pow(1 - u, 1.35);
+              const sSize = (sp.sz * (1 - u * 0.55)) / Math.max(0.7, this.mapZoom * 0.75);
+              ctx.save();
+              ctx.translate(sxP, syP);
+              ctx.rotate(sp.ang + u * sp.spin);
+              ctx.globalAlpha = sAlpha;
+              ctx.fillStyle = sp.col;
+              ctx.beginPath();
+              ctx.moveTo(0, -sSize * 1.4);
+              ctx.lineTo(sSize * 0.8, 0);
+              ctx.lineTo(0, sSize * 1.4);
+              ctx.lineTo(-sSize * 0.8, 0);
+              ctx.closePath();
+              ctx.fill();
+              ctx.restore();
+            }
+            ctx.restore();
+          }
+        }
+
         // Tutorial Recommended 1st Island Golden Callout on Map Canvas
         const tutRecPlot = getTutorialRecommendedPlot();
         if (tutRecPlot) {
           const [rgx, rgy] = tutRecPlot;
           const recCenter = getPlotCenterPx(rgx, rgy);
-          const isEnMap = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+          const isEnMap = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
           const lbl = isEnMap ? '1ST ISLAND' : '1ra ISLA';
           ctx.save();
           ctx.strokeStyle = `rgba(255, 213, 79, ${0.75 + pulse * 0.25})`;
@@ -8460,7 +9160,7 @@
           ctx.lineWidth = 1.5;
           ctx.strokeRect(recCenter.x - 42, rgy * plotPx + 8, 84, 20);
           ctx.fillStyle = '#ffd54f';
-          ctx.font = '13px BalaclavaPixel, monospace';
+          ctx.font = '13px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           ctx.fillText(lbl, recCenter.x, rgy * plotPx + 22);
           ctx.restore();
@@ -8469,7 +9169,7 @@
 
         // Crisp fixed bottom-right pixel-art compass rose in screen space
         const westCh = tr('map.westLetter') || 'W';
-        const compImg = mapImg((Balaclava.UI_URLS && Balaclava.UI_URLS.rpgCompass) || this._uiAssetFallback('assets/ui/rpg_compass.png'));
+        const compImg = mapImg((Abyssea.UI_URLS && Abyssea.UI_URLS.rpgCompass) || this._uiAssetFallback('assets/ui/rpg_compass.png'));
         if (compImg && compImg.complete && compImg.naturalWidth > 0) {
           const cwPx = 68;
           const chPx = Math.round(cwPx * (compImg.naturalHeight / Math.max(1, compImg.naturalWidth)));
@@ -8480,7 +9180,7 @@
           ctx.fillStyle = 'rgba(10, 14, 28, 0.80)';
           ctx.beginPath(); ctx.arc(cx, cy, Math.max(cwPx, chPx) * 0.44, 0, Math.PI * 2); ctx.fill();
           ctx.drawImage(compImg, bx, by, cwPx, chPx);
-          ctx.font = '14px BalaclavaPixel, monospace';
+          ctx.font = '14px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = '#090d1a';
@@ -8501,7 +9201,7 @@
           ctx.fillStyle = 'rgba(10, 22, 38, 0.86)';
           ctx.beginPath(); ctx.arc(compX, compY, 24, 0, Math.PI * 2); ctx.fill();
           ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 2; ctx.stroke();
-          ctx.fillStyle = '#ffd54f'; ctx.font = '15px BalaclavaPixel, monospace'; ctx.textAlign = 'center';
+          ctx.fillStyle = '#ffd54f'; ctx.font = '15px AbysseaPixel, monospace'; ctx.textAlign = 'center';
           ctx.fillText('N', compX, compY - 10);
           ctx.fillText('S', compX, compY + 18);
           ctx.fillText(westCh, compX - 15, compY + 4);
@@ -8511,7 +9211,7 @@
       };
 
       const setMapZoomAround = (nextZoom, ax = viewW / 2, ay = viewH / 2) => {
-        const z = Balaclava.Utils.clamp(nextZoom, 0.55, 2.8);
+        const z = Abyssea.Utils.clamp(nextZoom, 0.55, 2.8);
         const wx = (ax - this.mapPanX) / this.mapZoom;
         const wy = (ay - this.mapPanY) / this.mapZoom;
         this.mapZoom = z;
@@ -8522,7 +9222,7 @@
 
       const focusMapPlot = (gx, gy, z = 1.45) => {
         const pt = getPlotCenterPx(gx, gy);
-        this.mapZoom = Balaclava.Utils.clamp(z, 0.45, 2.8);
+        this.mapZoom = Abyssea.Utils.clamp(z, 0.45, 2.8);
         this.mapPanX = mapCanvas.width / 2 - pt.x * this.mapZoom;
         this.mapPanY = mapCanvas.height / 2 - pt.y * this.mapZoom;
         drawMapCanvas();
@@ -8564,6 +9264,11 @@
       window.addEventListener('mousemove', onMapMove);
       window.addEventListener('mouseup', onMapUp);
       this._mapCleanup = () => {
+        if (mapFxRaf !== null) { cancelAnimationFrame(mapFxRaf); mapFxRaf = null; }
+        if (mapHoldCleanup) { mapHoldCleanup(); mapHoldCleanup = null; }
+        if (mapQuakeTimer) { clearTimeout(mapQuakeTimer); mapQuakeTimer = null; }
+        mapChannelState = null;
+        mapUnlockBursts.length = 0;
         window.removeEventListener('mousemove', onMapMove);
         window.removeEventListener('mouseup', onMapUp);
       };
@@ -8576,8 +9281,8 @@
         const wx = (sx - this.mapPanX) / this.mapZoom;
         const wy = (sy - this.mapPanY) / this.mapZoom;
         if (wx < 0 || wy < 0 || wx > MAP_WORLD_SZ || wy > MAP_WORLD_SZ) return;
-        const gx = Balaclava.Utils.clamp(Math.floor(wx / (MAP_WORLD_SZ / GRID_PLOTS)), 0, GRID_PLOTS - 1);
-        const gy = Balaclava.Utils.clamp(Math.floor(wy / (MAP_WORLD_SZ / GRID_PLOTS)), 0, GRID_PLOTS - 1);
+        const gx = Abyssea.Utils.clamp(Math.floor(wx / (MAP_WORLD_SZ / GRID_PLOTS)), 0, GRID_PLOTS - 1);
+        const gy = Abyssea.Utils.clamp(Math.floor(wy / (MAP_WORLD_SZ / GRID_PLOTS)), 0, GRID_PLOTS - 1);
         this.selectedMapPlot = [gx, gy];
         drawMapCanvas();
         renderInspector();
@@ -8616,30 +9321,25 @@
         this.el('button', {
           class: 'btn ' + (this.mapShowGrid ? 'btn-gold' : 'btn-sm'),
           style: 'padding:3px 8px;font-size:13px;',
-          title: (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Toggle plot grid' : 'Alternar cuadrícula de parcelas',
+          title: (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Toggle plot grid' : 'Alternar cuadrícula de parcelas',
           onclick: (e) => {
             this.mapShowGrid = !this.mapShowGrid;
             e.currentTarget.className = 'btn ' + (this.mapShowGrid ? 'btn-gold' : 'btn-sm');
             drawMapCanvas();
           }
-        }, [this.el('span', {}, (Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en') ? 'Grid' : 'Cuadrícula')]),
+        }, [this.el('span', {}, (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Grid' : 'Cuadrícula')]),
         this.el('button', {
           class: 'btn ' + (this.showDungeonAtlas ? 'btn-gold' : 'btn-primary') + ' btn-sm',
           onclick: () => { this.showDungeonAtlas = !this.showDungeonAtlas; renderInspector(); }
-        }, tr('map.dungeonsBtn', { n: Object.keys(Balaclava.DUNGEON_DEFS || {}).length }))
+        }, tr('map.dungeonsBtn', { n: Object.keys(Abyssea.DUNGEON_DEFS || {}).length }))
       ]);
 
-      const legendItem = (url, label, ringColor) => this.el('span', { style: 'display:inline-flex;align-items:center;gap:4px;' }, [
-        this.el('img', {
-          class: 'pixel-img',
-          src: encodeURI(url),
-          width: 16,
-          height: 16,
-          alt: '',
-          style: `border-radius:4px;background:#161d2e;padding:1px;border:1.5px solid ${ringColor};`
-        }),
-        label
-      ]);
+      const legendSvg = (svgInner, label) => {
+        const ico = document.createElement('span');
+        ico.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;flex-shrink:0;';
+        ico.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">${svgInner}</svg>`;
+        return this.el('span', { style: 'display:inline-flex;align-items:center;gap:5px;' }, [ico, label]);
+      };
 
       const headerTools = document.getElementById('modal-header-tools');
       if (headerTools) {
@@ -8651,13 +9351,13 @@
       }
       boardWrap.appendChild(mapCanvas);
       boardWrap.appendChild(this.el('div', { class: 'map-legend-floating' }, [
-        legendItem(Balaclava.UI_URLS.avatarHero, tr('map.playerHere'), '#00e676'),
-        legendItem(Balaclava.UI_URLS.iconCoin, tr('map.legForSale'), '#ffd54f'),
-        legendItem(Balaclava.NPC_PORTRAIT_URLS.eldrin, tr('map.legNpc'), '#29b6f6'),
-        legendItem(Balaclava.UI_URLS.iconKey, tr('map.legDungeon'), '#d32f2f'),
-        legendItem(Balaclava.ITEM_PNG_MAP.magic_crystal, tr('map.legAltar'), '#ab47bc'),
-        legendItem(Balaclava.UI_URLS.chest, tr('map.legSecret'), '#ffa726'),
-        legendItem(Balaclava.ITEM_PNG_MAP.ancient_fragment, tr('map.legPortal'), '#00e5ff')
+        legendSvg('<circle cx="8" cy="8" r="6.5" fill="#0f9f6e" stroke="#ffffff" stroke-width="1.3"/><path d="M8 4.2 L11 10.6 L8 9 L5 10.6 Z" fill="#ffffff"/>', tr('map.playerHere')),
+        legendSvg('<rect x="1.5" y="3.5" width="13" height="9" rx="2.5" fill="#08101e" stroke="#f5cc66" stroke-width="1.2"/><circle cx="6" cy="8" r="2.2" fill="#fbbf24"/><rect x="9.5" y="7.1" width="3" height="1.8" rx="0.6" fill="#fef08a"/>', tr('map.legForSale')),
+        legendSvg('<circle cx="8" cy="8" r="6.5" fill="#0369a1" stroke="#bae6fd" stroke-width="1.2"/><circle cx="8" cy="6.2" r="2" fill="#ffffff"/><path d="M4.6 12 A3.4 3.4 0 0 1 11.4 12" fill="#ffffff"/>', tr('map.legNpc')),
+        legendSvg('<polygon points="8,1.5 14.5,8 8,14.5 1.5,8" fill="#b91c1c" stroke="#fde68a" stroke-width="1.1"/><path d="M6.1 10.5 V7.5 A1.9 1.9 0 0 1 9.9 7.5 V10.5" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>', tr('map.legDungeon')),
+        legendSvg('<polygon points="8,1.5 13.5,8 8,14.5 2.5,8" fill="#6d28d9" stroke="#e9d5ff" stroke-width="1.1"/><circle cx="8" cy="8" r="2" fill="#ffffff"/>', tr('map.legAltar')),
+        legendSvg('<circle cx="8" cy="8" r="6.2" fill="#d97706" stroke="#fef08a" stroke-width="1.1"/><path d="M8 4.2 L9 7 L11.8 8 L9 9 L8 11.8 L7 9 L4.2 8 L7 7 Z" fill="#ffffff"/>', tr('map.legSecret')),
+        legendSvg('<circle cx="8" cy="8" r="6.2" fill="#0e7490" stroke="#67e8f9" stroke-width="1.2"/><circle cx="8" cy="8" r="2.6" fill="none" stroke="#ffffff" stroke-width="1.2"/>', tr('map.legPortal'))
       ]));
 
       workspace.appendChild(boardWrap);
@@ -8689,6 +9389,19 @@
         this.el('strong', { style: 'font-size:16px;display:block;margin-bottom:2px;' }, tr('market.postTitle')),
         tr('market.rotInfo', { mm, ss, pct: Math.round((sellMult - 1) * 100) })
       ]));
+
+      // RC2 (G): Daily Dynamic Market Demand Banner
+      if (typeof g.getDailyMarketDemand === 'function') {
+        const dem = g.getDailyMarketDemand();
+        if (dem) {
+          body.appendChild(this.el('div', {
+            style: `background:linear-gradient(135deg,rgba(16,28,44,0.95),rgba(34,24,48,0.95));border:1.5px solid ${dem.color};border-radius:8px;padding:9px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;`
+          }, [
+            this.el('strong', { style: `color:${dem.color};font-size:14px;` }, `Demanda Diaria (Día ${g.dayCount || 1}): ${dem.title}`),
+            this.el('span', { style: 'font-size:12px;color:#cfd8dc;' }, 'Aplica automáticamente al vender en el Mercado o Inventario')
+          ]));
+        }
+      }
 
       const topRow = this.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;' }, [
         this.el('div', { class: 'tab-row', style: 'margin-bottom:0;' }, [
@@ -8727,7 +9440,7 @@
       const list = this.el('div', { class: 'build-list' });
       if (this.marketTab === 'comprar') {
         (g.economy.marketStock || []).slice(0, 5).forEach((offer, idx) => {
-          const it = Balaclava.ITEMS[offer.itemId];
+          const it = Abyssea.ITEMS[offer.itemId];
           if (!it) return;
           const cost = g.economy.getBuyPrice(g, offer.price);
           const rar = RARITIES[it.rarity] || RARITIES.comun;
@@ -8761,7 +9474,7 @@
         });
       } else {
         (g.economy.sellContracts || []).slice(0, 5).forEach((c, idx) => {
-          const it = Balaclava.ITEMS[c.itemId];
+          const it = Abyssea.ITEMS[c.itemId];
           if (!it) return;
           const owned = g.inventory[c.itemId] || 0;
           const unit = Math.max(1, Math.round(c.price * sellMult));
@@ -8800,27 +9513,45 @@
 
     renderQuests(body) {
       const g = this.game;
-      const contracts = Balaclava.GUILD_CONTRACTS || [];
+      const contracts = Abyssea.GUILD_CONTRACTS || [];
       const claimedIds = g.claimedContracts || [];
       const readyContracts = contracts.filter(c => !claimedIds.includes(c.id) && c.progress(g) >= c.target).length;
       const readyDaily = g.events.dailyChallenges.filter(dc => !dc.claimed && dc.progress >= dc.target).length;
-      const totalNpcQuests = Balaclava.NPCS.reduce((acc, n) => acc + n.quests.length, 0);
-      const doneNpcQuests = Balaclava.NPCS.reduce((acc, n) => acc + Math.min(n.quests.length, g.npcQuestProgress[n.id] || 0), 0);
+      const totalNpcQuests = Abyssea.NPCS.reduce((acc, n) => acc + n.quests.length, 0);
+      const doneNpcQuests = Abyssea.NPCS.reduce((acc, n) => acc + Math.min(n.quests.length, g.npcQuestProgress[n.id] || 0), 0);
 
       // Summary Parchment Banner
       body.appendChild(this.el('div', { class: 'parchment-box quests-summary' }, [
         this.el('div', {}, [
           this.el('strong', { class: 'quests-summary-title' }, tr('quests.logTitle')),
           this.el('span', { class: 'quests-summary-meta' },
-            tr('quests.logMeta', { s: g.storyIndex, st: Balaclava.STORY_CHAPTERS.length, n: doneNpcQuests, nt: totalNpcQuests, c: claimedIds.length, ct: contracts.length }))
+            tr('quests.logMeta', { s: g.storyIndex, st: Abyssea.STORY_CHAPTERS.length, n: doneNpcQuests, nt: totalNpcQuests, c: claimedIds.length, ct: contracts.length }))
         ]),
         this.el('div', { class: 'skill-points-pill' },
-          tr('quests.totalPill', { tot: contracts.length + Balaclava.STORY_CHAPTERS.length + totalNpcQuests + g.events.dailyChallenges.length }))
+          tr('quests.totalPill', { tot: contracts.length + Abyssea.STORY_CHAPTERS.length + totalNpcQuests + g.events.dailyChallenges.length }))
       ]));
+
+      // RC2 (C): Visual "What To Do Now?" Progression Guide
+      if (typeof g.getProgressionGuideSteps === 'function') {
+        const steps = g.getProgressionGuideSteps();
+        const nextStep = steps.find(s => !s.done) || steps[steps.length - 1];
+        const doneCnt = steps.filter(s => s.done).length;
+        body.appendChild(this.el('div', {
+          style: 'background:linear-gradient(135deg,rgba(14,26,42,0.92),rgba(20,38,52,0.92));border:1.5px solid #00e5ff;border-radius:8px;padding:9px 12px;margin-bottom:10px;'
+        }, [
+          this.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;' }, [
+            this.el('strong', { style: 'color:#00e5ff;font-size:14px;' }, `¿Qué hacer ahora? (Guía de Progresión: ${doneCnt}/${steps.length})`),
+            this.el('span', { style: 'font-size:12px;color:#69f0ae;font-weight:bold;' }, doneCnt === steps.length ? '¡Maestro de Abyssea!' : 'Siguiente Hito')
+          ]),
+          this.el('div', { style: 'font-size:13px;color:#e0f7fa;margin-top:4px;' }, nextStep ? nextStep.label : '')
+        ]));
+      }
 
       const tabs = this.el('div', { class: 'tab-row quests-tabs' });
       [
-        ['historia', tr('quests.tabStoryCount', { cur: g.storyIndex, tot: Balaclava.STORY_CHAPTERS.length })],
+        ['historia', tr('quests.tabStoryCount', { cur: g.storyIndex, tot: Abyssea.STORY_CHAPTERS.length })],
+        ['legado', 'Legado de la Isla'],
+        ['gremio', `Gremio (${(g.inventory && g.inventory.ficha_gremio) || 0} Fichas)`],
         ['contratos', readyContracts > 0 ? tr('quests.tabContractsReady', { n: readyContracts }) : tr('quests.tabContractsCount', { cur: claimedIds.length, tot: contracts.length })],
         ['npcs', tr('quests.tabNpcsCount', { cur: doneNpcQuests, tot: totalNpcQuests })],
         ['diarios', readyDaily > 0 ? tr('quests.tabDailyReady', { n: readyDaily }) : tr('quests.tabDaily')]
@@ -8832,6 +9563,14 @@
       });
       body.appendChild(tabs);
       if (this.questFilter === 'logros') this.questFilter = 'historia';
+      if (this.questFilter === 'legado' && typeof this.renderIslandLegacyTab === 'function') {
+        this.renderIslandLegacyTab(body);
+        return;
+      }
+      if (this.questFilter === 'gremio' && typeof this.renderGuildShopTab === 'function') {
+        this.renderGuildShopTab(body);
+        return;
+      }
 
       let filteredContracts = contracts;
       if (this.questFilter === 'contratos') {
@@ -8863,11 +9602,11 @@
 
       const grid = this.el('div', { class: 'grid-cards quests-grid' });
       if (this.questFilter === 'historia') {
-        Balaclava.STORY_CHAPTERS.forEach((ch, idx) => {
+        Abyssea.STORY_CHAPTERS.forEach((ch, idx) => {
           const done = idx < g.storyIndex;
           const active = idx === g.storyIndex;
           const rewardItems = ch.reward && ch.reward.items
-            ? Object.entries(ch.reward.items).filter(([k, q]) => q > 0 && Balaclava.ITEMS[k]).map(([k, q]) => `${q}x ${Balaclava.ITEMS[k].name}`).join(', ')
+            ? Object.entries(ch.reward.items).filter(([k, q]) => q > 0 && Abyssea.ITEMS[k]).map(([k, q]) => `${q}x ${Abyssea.ITEMS[k].name}`).join(', ')
             : '';
           grid.appendChild(this.el('div', { class: 'card quests-card' + (active ? ' selected' : '') + (done ? ' is-done' : '') }, [
             this.el('strong', { class: 'quests-title', style: `color:${done ? '#9be89e' : active ? '#ffe082' : '#f2e6d4'};` }, [
@@ -8886,7 +9625,7 @@
           const cur = Math.min(c.target, c.progress(g));
           const ready = !claimed && cur >= c.target;
           const itemStr = c.reward && c.reward.items
-            ? Object.entries(c.reward.items).filter(([id, q]) => q > 0 && Balaclava.ITEMS[id]).map(([id, q]) => `${q}x ${Balaclava.ITEMS[id].name}`).join(', ')
+            ? Object.entries(c.reward.items).filter(([id, q]) => q > 0 && Abyssea.ITEMS[id]).map(([id, q]) => `${q}x ${Abyssea.ITEMS[id].name}`).join(', ')
             : '';
           grid.appendChild(this.el('div', { class: 'card quests-card' + (ready ? ' selected' : '') + (claimed ? ' is-done' : '') }, [
             this.el('div', { class: 'quests-card-head' }, [
@@ -8910,7 +9649,7 @@
           ]));
         });
       } else if (this.questFilter === 'npcs') {
-        Balaclava.NPCS.forEach(npc => {
+        Abyssea.NPCS.forEach(npc => {
           const step = g.npcQuestProgress[npc.id] || 0;
           const q = npc.quests[step];
           const nPlot = g.world.getNpcPlot(npc);
@@ -8962,7 +9701,7 @@
       const g = this.game;
       if (g.events) g.events.checkProgress(g);
       const done = g.unlockedAchievements.length;
-      const total = Balaclava.ACHIEVEMENTS.length;
+      const total = Abyssea.ACHIEVEMENTS.length;
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;' }, [
         this.el('div', {}, [
           this.el('strong', { style: 'font-size:16px;display:block;' }, tr('ach.boardTitle', { cur: done, tot: total })),
@@ -8972,11 +9711,11 @@
       ]));
 
       const grid = this.el('div', { class: 'grid-cards' });
-      Balaclava.ACHIEVEMENTS.forEach(ach => {
+      Abyssea.ACHIEVEMENTS.forEach(ach => {
         const ok = g.unlockedAchievements.includes(ach.id);
         grid.appendChild(this.el('div', { class: 'card' + (ok ? ' selected' : ''), style: ok ? '' : 'opacity:0.74' }, [
           this.el('div', { class: 'card-head' }, [
-            this.itemIcon(ok ? 'balaclava_core' : 'ancient_fragment', 30),
+            this.itemIcon(ok ? 'abyssea_core' : 'ancient_fragment', 30),
             this.el('strong', { style: `color:${ok ? '#a5e6a1' : '#eadfcf'};font-size:16px;` }, [
               ok ? this.uiIcon('iconCheck', 14) : null,
               ach.name
@@ -8999,8 +9738,8 @@
       ]));
 
       // Owned tools & modular armor pieces (helm, armor, shield, boots)
-      const ownedTools = Object.values(Balaclava.TOOLS).filter(t => Boolean(g.toolTiers[t.id]));
-      const ownedArmors = Object.values(Balaclava.ITEMS).filter(it => {
+      const ownedTools = Object.values(Abyssea.TOOLS).filter(t => Boolean(g.toolTiers[t.id]));
+      const ownedArmors = Object.values(Abyssea.ITEMS).filter(it => {
         const slot = it.equipSlot === 'helmet' ? 'helm' : it.equipSlot;
         return ['armor', 'helm', 'shield', 'boots', 'ring', 'amulet'].includes(slot) &&
           ((g.inventory[it.id] || 0) > 0 || g.equipped[slot] === it.id);
@@ -9034,7 +9773,7 @@
 
       const tKind = this.enchantTarget.kind;
       const tId = this.enchantTarget.id;
-      const table = tKind === 'armor' ? Balaclava.ARMOR_ENCHANTS : Balaclava.TOOL_ENCHANTS;
+      const table = tKind === 'armor' ? Abyssea.ARMOR_ENCHANTS : Abyssea.TOOL_ENCHANTS;
       const curStore = tKind === 'armor' ? (g.armorEnchants && g.armorEnchants[tId]) : (g.toolEnchants && g.toolEnchants[tId]);
       const curLevels = curStore || {};
 
@@ -9044,8 +9783,8 @@
       }
 
       const targetLabel = tKind === 'armor'
-        ? (Balaclava.ITEMS[tId] ? Balaclava.ITEMS[tId].name : tId)
-        : `${Balaclava.TOOLS[tId].name} (${Balaclava.TIER_META[g.toolTiers[tId]].name})`;
+        ? (Abyssea.ITEMS[tId] ? Abyssea.ITEMS[tId].name : tId)
+        : `${Abyssea.TOOLS[tId].name} (${Abyssea.TIER_META[g.toolTiers[tId]].name})`;
       const appliedEntries = Object.entries(curLevels).filter(([, v]) => v > 0);
       const usedSlots = appliedEntries.length;
       const maxSlots = g.getMaxEnchantSlots ? g.getMaxEnchantSlots() : 3;
@@ -9066,6 +9805,9 @@
       ]));
 
       const tableTier = g.getEnchantTableTier ? g.getEnchantTableTier() : 1;
+      if (typeof this.renderRunicEnchantingAltar === 'function') {
+        this.renderRunicEnchantingAltar(body, tKind, tId, table, curLevels, usedSlots, maxSlots, tableTier);
+      }
       const grid = this.el('div', { class: 'grid-cards' });
       Object.values(table).forEach(ench => {
         const lvl = curLevels[ench.id] || 0;
@@ -9073,7 +9815,7 @@
         const slotsFull = lvl === 0 && usedSlots >= maxSlots;
         const conflictName = g.getEnchantConflict ? g.getEnchantConflict(tKind, tId, ench.id) : null;
         const tierLocked = (ench.reqTier || 1) > tableTier;
-        const cost = !maxed ? Balaclava.getEnchantCost(tKind, ench.id, lvl + 1) : null;
+        const cost = !maxed ? Abyssea.getEnchantCost(tKind, ench.id, lvl + 1) : null;
         const coinsOk = cost && g.coins >= cost.coins;
         const itemsOk = cost && Object.entries(cost.items).every(([id, q]) => (g.inventory[id] || 0) >= q);
         const can = Boolean(cost && coinsOk && itemsOk && !slotsFull && !conflictName && !tierLocked);
@@ -9083,7 +9825,7 @@
           costBox.appendChild(this.el('div', { style: `color:${coinsOk ? '#ffd54f' : '#ff8a65'};font-weight:700;` }, tr('ench.coinsRow', { cur: g.coins, req: cost.coins })));
           Object.entries(cost.items).forEach(([id, q]) => {
             const have = g.inventory[id] || 0;
-            const iName = Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id;
+            const iName = Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id;
             costBox.appendChild(this.el('div', { style: `color:${have >= q ? '#81c784' : '#ff8a65'}` }, `${iName}: ${have}/${q}`));
           });
         }
@@ -9127,7 +9869,7 @@
     }
 
     makeShrineThumb(spriteKey, fallbackIcon = 'ancient_fragment', size = 40) {
-      const assets = Balaclava.Assets;
+      const assets = Abyssea.Assets;
       const img = assets && assets.extraImages && assets.extraImages[spriteKey];
       if (!img || !img.complete || img.width <= 0) {
         return this.itemIcon(fallbackIcon, size);
@@ -9140,11 +9882,12 @@
       c.style.height = size + 'px';
       const ctx = c.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-      const frameCounts = { altar_ritual: 6, healing_fountain: 4, altar_shrine: 4 };
+      const frameCounts = { healing_fountain: 4, fuente_sagrada: 4, ee_cauldron: 4, ee_caldero: 4, ee_fuente_mana: 4, well_mana_strip: 4, well_health_strip: 6, ee_lantern: 4, Campfire_Anim: 6, Fish_Pond: 4, prop_burning_tree: 4 };
       let sw = img.width;
       const sh = img.height;
-      if (frameCounts[spriteKey]) sw = Math.max(1, Math.floor(img.width / frameCounts[spriteKey]));
-      else if (img.width >= img.height * 2 && img.height > 0) sw = img.height;
+      if (frameCounts[spriteKey] && img.width >= img.height * 1.8) sw = Math.max(1, Math.floor(img.width / frameCounts[spriteKey]));
+      else if (img.width === 64 && img.height === 32) sw = 16;
+      else if (img.width >= img.height * 2.5 && img.height > 0) sw = img.height;
       const aspect = sw / Math.max(1, sh);
       let dw = size - 4;
       let dh = dw / aspect;
@@ -9154,16 +9897,16 @@
     }
 
     getEncyclopediaTabDefs(g) {
-      const totalRelics = Object.keys(Balaclava.PERMANENT_RELICS || {}).length;
+      const totalRelics = Object.keys(Abyssea.PERMANENT_RELICS || {}).length;
       const foundRelics = g.encyclopedia && g.encyclopedia.relics ? g.encyclopedia.relics.size : (g.permanentRelics || []).length;
-      const totalEnchants = Object.keys(Balaclava.TOOL_ENCHANTS || {}).length + Object.keys(Balaclava.ARMOR_ENCHANTS || {}).length;
+      const totalEnchants = Object.keys(Abyssea.TOOL_ENCHANTS || {}).length + Object.keys(Abyssea.ARMOR_ENCHANTS || {}).length;
       const foundEnchants = g.encyclopedia && g.encyclopedia.enchants ? g.encyclopedia.enchants.size : 0;
-      const totalAltars = Object.keys(Balaclava.ALTAR_DEFS || {}).length + Object.keys(Balaclava.EASTER_EGG_DEFS || {}).length;
+      const totalAltars = Object.keys(Abyssea.ALTAR_DEFS || {}).length + Object.keys(Abyssea.EASTER_EGG_DEFS || {}).length;
       const foundAltars = g.encyclopedia && g.encyclopedia.altars ? g.encyclopedia.altars.size : 0;
       return [
-        ['items', tr('enc.tabItems', { cur: g.encyclopedia.items.size, tot: Object.keys(Balaclava.ITEMS).length })],
-        ['enemies', tr('enc.tabEnemies', { cur: g.encyclopedia.enemies.size, tot: Object.keys(Balaclava.ENEMY_DEFS).length })],
-        ['buildings', tr('enc.tabBuildings', { cur: g.encyclopedia.buildings.size, tot: Object.keys(Balaclava.BUILDINGS).length })],
+        ['items', tr('enc.tabItems', { cur: g.encyclopedia.items.size, tot: Object.keys(Abyssea.ITEMS).length })],
+        ['enemies', tr('enc.tabEnemies', { cur: g.encyclopedia.enemies.size, tot: Object.keys(Abyssea.ENEMY_DEFS).length })],
+        ['buildings', tr('enc.tabBuildings', { cur: g.encyclopedia.buildings.size, tot: Object.keys(Abyssea.BUILDINGS).length })],
         ['relics', tr('enc.tabRelics', { cur: foundRelics, tot: totalRelics })],
         ['enchants', tr('enc.tabEnchants', { cur: foundEnchants, tot: totalEnchants })],
         ['altars', tr('enc.tabAltars', { cur: foundAltars, tot: totalAltars })],
@@ -9188,7 +9931,7 @@
       const grid = this.el('div', { class: 'grid-cards' });
 
       if (filter === 'relics') {
-        const relics = Object.values(Balaclava.PERMANENT_RELICS || {});
+        const relics = Object.values(Abyssea.PERMANENT_RELICS || {});
         const ownedSet = new Set([...(g.permanentRelics || []), ...(g.encyclopedia && g.encyclopedia.relics ? Array.from(g.encyclopedia.relics) : [])]);
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;' }, [
           this.el('span', { style: 'font-size:14px;' }, tr('enc.relicsDesc')),
@@ -9215,8 +9958,8 @@
         });
       } else if (filter === 'enchants') {
         const allEnch = [
-          ...Object.values(Balaclava.TOOL_ENCHANTS || {}),
-          ...Object.values(Balaclava.ARMOR_ENCHANTS || {})
+          ...Object.values(Abyssea.TOOL_ENCHANTS || {}),
+          ...Object.values(Abyssea.ARMOR_ENCHANTS || {})
         ];
         const discSet = g.encyclopedia && g.encyclopedia.enchants ? g.encyclopedia.enchants : new Set();
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;' }, [
@@ -9226,7 +9969,7 @@
         allEnch.forEach(ench => {
           const found = discSet.has(ench.id);
           const costItems = ench.costBase && ench.costBase.items
-            ? Object.entries(ench.costBase.items).map(([k, v]) => `${v}x ${(Balaclava.ITEMS[k] && Balaclava.ITEMS[k].name) || k}`).join(', ')
+            ? Object.entries(ench.costBase.items).map(([k, v]) => `${v}x ${(Abyssea.ITEMS[k] && Abyssea.ITEMS[k].name) || k}`).join(', ')
             : '';
           grid.appendChild(this.el('div', { class: 'card' + (found ? ' selected' : ''), style: found ? '' : 'opacity:0.84;' }, [
             this.el('div', { class: 'card-head' }, [
@@ -9242,8 +9985,8 @@
           ]));
         });
       } else if (filter === 'altars') {
-        const altars = Object.values(Balaclava.ALTAR_DEFS || {}).map(a => Object.assign({ kindLabel: tr('enc.kindAltar'), biome: null }, a));
-        const secrets = Object.values(Balaclava.EASTER_EGG_DEFS || {}).map(s => Object.assign({ kindLabel: tr('enc.kindSecret') }, s));
+        const altars = Object.values(Abyssea.ALTAR_DEFS || {}).map(a => Object.assign({ kindLabel: tr('enc.kindAltar'), biome: null }, a));
+        const secrets = Object.values(Abyssea.EASTER_EGG_DEFS || {}).map(s => Object.assign({ kindLabel: tr('enc.kindSecret') }, s));
         const entries = [...altars, ...secrets];
         const discSet = g.encyclopedia && g.encyclopedia.altars ? g.encyclopedia.altars : new Set();
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;' }, [
@@ -9267,7 +10010,7 @@
           ]));
         });
       } else if (filter === 'lore') {
-        const loreData = Balaclava.LORE || { chronicle: [], biomes: [] };
+        const loreData = Abyssea.LORE || { chronicle: [], biomes: [] };
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;' }, [
           this.el('span', { style: 'font-size:14px;font-weight:600;' }, tr('enc.loreDesc')),
           this.el('strong', { style: 'font-size:14px;color:#ffe8a3;' }, tr('enc.loreCounts', { ch: loreData.chronicle.length, bm: loreData.biomes.length }))
@@ -9337,7 +10080,7 @@
       };
       body.appendChild(this._buildSearchBar(this.encycSearch, tr('enc.searchPlaceholder'), applyEncycSearch));
       if (this.encycFilter === 'items') {
-        Object.values(Balaclava.ITEMS).forEach(it => {
+        Object.values(Abyssea.ITEMS).forEach(it => {
           const found = g.encyclopedia.items.has(it.id);
           grid.appendChild(this.el('div', { class: 'card', style: found ? '' : 'opacity:0.5' }, [
             this.el('div', { class: 'card-head' }, [
@@ -9348,21 +10091,36 @@
           ]));
         });
       } else if (this.encycFilter === 'enemies') {
-        Object.values(Balaclava.ENEMY_DEFS).forEach(en => {
+        // RC2 (#2): Interactive Bestiary with Silhouettes, Exact Drops & Mastery Bonuses (25/100/250 kills)
+        Object.values(Abyssea.ENEMY_DEFS).forEach(en => {
           const found = g.encyclopedia.enemies.has(en.id);
-          grid.appendChild(this.el('div', { class: 'card', style: found ? '' : 'opacity:0.55' }, [
+          const bm = typeof g.getBestiaryMastery === 'function' ? g.getBestiaryMastery(en.id) : { kills: 0, tier: 0, nextTarget: 25, dmgBonus: 0, dropBonus: 0 };
+          const thumb = this.makeEnemyThumb(en, 42);
+          if (!found && thumb) thumb.style.filter = 'brightness(0) contrast(1.2)';
+          const dropsText = found && en.drops
+            ? Object.keys(en.drops).map(k => (Abyssea.ITEMS[k] && Abyssea.ITEMS[k].name) || k).join(', ')
+            : '';
+          const tierColors = ['#78909c', '#69f0ae', '#4fc3f7', '#ffd54f'];
+          const tierLabels = ['Sin Maestría', 'Maestría I', 'Maestría II', 'Maestría III (MAX)'];
+          grid.appendChild(this.el('div', {
+            class: 'card',
+            style: `border-color:${found ? tierColors[bm.tier] : '#37474f'};opacity:${found ? 1 : 0.62};`
+          }, [
             this.el('div', { class: 'card-head' }, [
-              this.makeEnemyThumb(en, 40),
+              thumb,
               this.el('div', {}, [
-                this.el('strong', { style: `color:${en.color || '#ffd54f'}` }, found ? en.name : tr('enc.unknownCreature')),
-                this.el('div', { style: 'font-size:14px;color:#dce8f5;line-height:1.45;' }, en.nocturnal ? tr('enc.nocturnalCreature') : BIOMES[en.biome].name)
+                this.el('strong', { style: `color:${found ? (en.color || '#ffd54f') : '#90a4ae'}` }, found ? en.name : tr('enc.unknownCreature')),
+                this.el('div', { style: 'font-size:13px;color:#dce8f5;line-height:1.4;' }, en.nocturnal ? tr('enc.nocturnalCreature') : ((BIOMES[en.biome] && BIOMES[en.biome].name) || en.biome)),
+                found ? this.el('div', { style: `font-size:12px;color:${tierColors[bm.tier]};font-weight:bold;` }, `${tierLabels[bm.tier]} · Bajas: ${bm.kills}/${bm.nextTarget}`) : null
               ])
             ]),
-            this.el('div', { style: 'font-size:14px;color:#efe8db;line-height:1.48;' }, found ? tr('enc.enemyStats', { hp: en.hp, dmg: en.dmg, coins: en.coins }) : tr('enc.enemyHint'))
+            this.el('div', { style: 'font-size:13px;color:#efe8db;line-height:1.45;' }, found ? tr('enc.enemyStats', { hp: en.hp, dmg: en.dmg, coins: en.coins }) : tr('enc.enemyHint')),
+            found && dropsText ? this.el('div', { style: 'font-size:12px;color:#80cbc4;margin-top:3px;' }, `Botín: ${dropsText}`) : null,
+            found && bm.tier > 0 ? this.el('div', { style: 'font-size:12px;color:#ffd54f;margin-top:2px;' }, `Bono Permanente: +${Math.round(bm.dmgBonus * 100)}% Daño y +${Math.round(bm.dropBonus * 100)}% Drops`) : null
           ]));
         });
       } else {
-        Object.values(Balaclava.BUILDINGS).forEach(b => {
+        Object.values(Abyssea.BUILDINGS).forEach(b => {
           const found = g.encyclopedia.buildings.has(b.id);
           grid.appendChild(this.el('div', { class: 'card', style: found ? '' : 'opacity:0.5' }, [
             this.el('div', { class: 'card-head' }, [
@@ -9392,9 +10150,9 @@
     }
 
     _buildAudioCard() {
-      const masterPct = Math.round((Balaclava.Audio.masterVolume ?? 1.0) * 100);
-      const musicPct = Math.round(Balaclava.Audio.musicVolume * 100);
-      const sfxPct = Math.round(Balaclava.Audio.sfxVolume * 100);
+      const masterPct = Math.round((Abyssea.Audio.masterVolume ?? 1.0) * 100);
+      const musicPct = Math.round(Abyssea.Audio.musicVolume * 100);
+      const sfxPct = Math.round(Abyssea.Audio.sfxVolume * 100);
       const mastVal = this.el('span', { class: 'compact-audio-pct' }, `${masterPct}%`);
       const mVal = this.el('span', { class: 'compact-audio-pct' }, `${musicPct}%`);
       const sVal = this.el('span', { class: 'compact-audio-pct' }, `${sfxPct}%`);
@@ -9408,15 +10166,15 @@
           this.el('div', { class: 'pixel-range-wrap' }, [
             this.el('div', { class: 'pixel-slider-track' }, [mastFill]),
             this.el('input', {
-              type: 'range', class: 'pixel-range', min: 0, max: 1, step: 0.05, value: Balaclava.Audio.masterVolume ?? 1.0,
+              type: 'range', class: 'pixel-range', min: 0, max: 1, step: 0.05, value: Abyssea.Audio.masterVolume ?? 1.0,
               oninput: (e) => {
                 const v = Number(e.target.value);
-                if (typeof Balaclava.Audio.setMasterVolume === 'function') {
-                  Balaclava.Audio.setMasterVolume(v);
+                if (typeof Abyssea.Audio.setMasterVolume === 'function') {
+                  Abyssea.Audio.setMasterVolume(v);
                 } else {
-                  Balaclava.Audio.masterVolume = v;
-                  Balaclava.Audio.applyVolumes();
-                  Balaclava.Audio.savePrefs();
+                  Abyssea.Audio.masterVolume = v;
+                  Abyssea.Audio.applyVolumes();
+                  Abyssea.Audio.savePrefs();
                 }
                 const pct = Math.round(v * 100);
                 mastVal.textContent = `${pct}%`;
@@ -9431,10 +10189,10 @@
           this.el('div', { class: 'pixel-range-wrap' }, [
             this.el('div', { class: 'pixel-slider-track' }, [mFill]),
             this.el('input', {
-              type: 'range', class: 'pixel-range', min: 0, max: 1, step: 0.05, value: Balaclava.Audio.musicVolume,
+              type: 'range', class: 'pixel-range', min: 0, max: 1, step: 0.05, value: Abyssea.Audio.musicVolume,
               oninput: (e) => {
                 const v = Number(e.target.value);
-                Balaclava.Audio.setMusicVolume(v);
+                Abyssea.Audio.setMusicVolume(v);
                 const pct = Math.round(v * 100);
                 mVal.textContent = `${pct}%`;
                 mFill.style.width = `${pct}%`;
@@ -9448,10 +10206,10 @@
           this.el('div', { class: 'pixel-range-wrap' }, [
             this.el('div', { class: 'pixel-slider-track' }, [sFill]),
             this.el('input', {
-              type: 'range', class: 'pixel-range', min: 0, max: 1, step: 0.05, value: Balaclava.Audio.sfxVolume,
+              type: 'range', class: 'pixel-range', min: 0, max: 1, step: 0.05, value: Abyssea.Audio.sfxVolume,
               oninput: (e) => {
                 const v = Number(e.target.value);
-                Balaclava.Audio.setSfxVolume(v);
+                Abyssea.Audio.setSfxVolume(v);
                 const pct = Math.round(v * 100);
                 sVal.textContent = `${pct}%`;
                 sFill.style.width = `${pct}%`;
@@ -9463,36 +10221,36 @@
         this.el('div', { class: 'audio-mute-grid' }, [
           this.el('button', {
             id: 'btn-toggle-music-mute',
-            class: Balaclava.Audio.musicMuted ? 'btn btn-danger btn-sm' : 'btn btn-green btn-sm',
+            class: Abyssea.Audio.musicMuted ? 'btn btn-danger btn-sm' : 'btn btn-green btn-sm',
             onclick: () => {
-              Balaclava.Audio.setMusicMuted(!Balaclava.Audio.musicMuted);
+              Abyssea.Audio.setMusicMuted(!Abyssea.Audio.musicMuted);
               this.renderModal();
             }
-          }, tr('settings.musicBtn', { state: Balaclava.Audio.musicMuted ? tr('common.off') : tr('common.on') })),
+          }, tr('settings.musicBtn', { state: Abyssea.Audio.musicMuted ? tr('common.off') : tr('common.on') })),
           this.el('button', {
             id: 'btn-toggle-sfx-mute',
-            class: Balaclava.Audio.sfxMuted ? 'btn btn-danger btn-sm' : 'btn btn-green btn-sm',
+            class: Abyssea.Audio.sfxMuted ? 'btn btn-danger btn-sm' : 'btn btn-green btn-sm',
             onclick: () => {
-              Balaclava.Audio.setSfxMuted(!Balaclava.Audio.sfxMuted);
+              Abyssea.Audio.setSfxMuted(!Abyssea.Audio.sfxMuted);
               this.renderModal();
             }
-          }, tr('settings.sfxBtn', { state: Balaclava.Audio.sfxMuted ? tr('common.off') : tr('common.on') })),
+          }, tr('settings.sfxBtn', { state: Abyssea.Audio.sfxMuted ? tr('common.off') : tr('common.on') })),
           this.el('button', {
             id: 'btn-toggle-master-mute',
-            class: Balaclava.Audio.muted ? 'btn btn-green btn-sm' : 'btn btn-primary btn-sm',
+            class: Abyssea.Audio.muted ? 'btn btn-green btn-sm' : 'btn btn-primary btn-sm',
             style: 'display:inline-flex;align-items:center;justify-content:center;gap:6px;',
             onclick: () => {
-              Balaclava.Audio.setMuted(!Balaclava.Audio.muted);
+              Abyssea.Audio.setMuted(!Abyssea.Audio.muted);
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.Audio.muted ? Balaclava.UI_URLS.iconMute : Balaclava.UI_URLS.iconSound), width: 16, height: 16, alt: '' }),
-            Balaclava.Audio.muted ? tr('settings.unmuteAll') : tr('settings.muteAll')
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.Audio.muted ? Abyssea.UI_URLS.iconMute : Abyssea.UI_URLS.iconSound), width: 16, height: 16, alt: '' }),
+            Abyssea.Audio.muted ? tr('settings.unmuteAll') : tr('settings.muteAll')
           ])
         ]),
         (() => {
-          const themeOptions = (typeof Balaclava.Audio.getAvailableThemes === 'function')
-            ? Balaclava.Audio.getAvailableThemes()
+          const themeOptions = (typeof Abyssea.Audio.getAvailableThemes === 'function')
+            ? Abyssea.Audio.getAvailableThemes()
             : [
                 { id: 'adventure', key: 'settings.musicThemeAdv', descKey: 'settings.musicThemeAdvDesc' },
                 { id: 'chill', key: 'settings.musicThemeChill', descKey: 'settings.musicThemeChillDesc' },
@@ -9500,9 +10258,9 @@
                 { id: 'meadow', key: 'settings.musicThemeMeadow', descKey: 'settings.musicThemeMeadowDesc' }
               ];
 
-          const curThemeId = (typeof Balaclava.Audio.getMusicTheme === 'function')
-            ? Balaclava.Audio.getMusicTheme()
-            : (Balaclava.Audio.musicTheme || 'adventure');
+          const curThemeId = (typeof Abyssea.Audio.getMusicTheme === 'function')
+            ? Abyssea.Audio.getMusicTheme()
+            : (Abyssea.Audio.musicTheme || 'adventure');
 
           let themeIdx = themeOptions.findIndex(t => t.id === curThemeId);
           if (themeIdx < 0) themeIdx = 0;
@@ -9511,12 +10269,12 @@
           const setMusicThemeAt = (idx) => {
             const nextIdx = (idx + themeOptions.length) % themeOptions.length;
             const nextTheme = themeOptions[nextIdx];
-            if (typeof Balaclava.Audio.setMusicTheme === 'function') {
-              Balaclava.Audio.setMusicTheme(nextTheme.id);
+            if (typeof Abyssea.Audio.setMusicTheme === 'function') {
+              Abyssea.Audio.setMusicTheme(nextTheme.id);
             } else {
-              Balaclava.Audio.musicTheme = nextTheme.id;
-              Balaclava.Audio.savePrefs();
-              Balaclava.Audio.startMusic(true);
+              Abyssea.Audio.musicTheme = nextTheme.id;
+              Abyssea.Audio.savePrefs();
+              Abyssea.Audio.startMusic(true);
             }
             this.renderModal();
           };
@@ -9532,7 +10290,7 @@
                   title: tr('settings.prevOption'),
                   onclick: () => setMusicThemeAt(themeIdx - 1)
                 }, [
-                  this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
+                  this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
                 ]),
                 this.el('div', {
                   class: 'water-preview-box',
@@ -9552,7 +10310,7 @@
                   title: tr('settings.nextOption'),
                   onclick: () => setMusicThemeAt(themeIdx + 1)
                 }, [
-                  this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
+                  this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
                 ])
               ])
             ]),
@@ -9563,9 +10321,9 @@
           ]);
         })(),
         (() => {
-          const mediaOn = Balaclava.MediaOverlay && typeof Balaclava.MediaOverlay.isEnabled === 'function'
-            ? Balaclava.MediaOverlay.isEnabled()
-            : true;
+          const mediaOn = Abyssea.MediaOverlay && typeof Abyssea.MediaOverlay.isEnabled === 'function'
+            ? Abyssea.MediaOverlay.isEnabled()
+            : false;
           const chk = this.el('input', {
             id: 'chk-media-overlay',
             type: 'checkbox',
@@ -9573,8 +10331,8 @@
             checked: mediaOn ? 'checked' : null,
             onchange: (e) => {
               const checked = !!e.target.checked;
-              if (Balaclava.MediaOverlay && typeof Balaclava.MediaOverlay.setEnabled === 'function') {
-                Balaclava.MediaOverlay.setEnabled(checked);
+              if (Abyssea.MediaOverlay && typeof Abyssea.MediaOverlay.setEnabled === 'function') {
+                Abyssea.MediaOverlay.setEnabled(checked);
               }
               this.renderModal();
             }
@@ -9589,7 +10347,7 @@
                 chk,
                 this.el('img', {
                   class: 'setting-toggle-img',
-                  src: mediaOn ? Balaclava.UI_URLS.toggleOn : Balaclava.UI_URLS.toggleOff,
+                  src: mediaOn ? Abyssea.UI_URLS.toggleOn : Abyssea.UI_URLS.toggleOff,
                   alt: mediaOn ? tr('common.on') : tr('common.off')
                 })
               ])
@@ -9655,7 +10413,7 @@
       g.settings = g.settings || {
         screenShake: true, waterAnim: true, waterStyle: 'clasico', waterSpeed: 'normal',
         treeSway: true, particles: true, floatingText: true, showHitbox: true,
-        lang: Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en',
+        lang: Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en',
         uiScale: this.getUiScale()
       };
       if (!g.settings.waterStyle) g.settings.waterStyle = 'clasico';
@@ -9665,14 +10423,14 @@
         if (g.started && g.saveSys) g.saveSys.save(g, g.currentSlot || 1, true);
       };
 
-      const langs = (Balaclava.I18n && Balaclava.I18n.SUPPORTED_LANGS) || ['en', 'es'];
-      const curLang = Balaclava.I18n ? Balaclava.I18n.getLanguage() : 'en';
+      const langs = (Abyssea.I18n && Abyssea.I18n.SUPPORTED_LANGS) || ['en', 'es'];
+      const curLang = Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en';
       let langIdx = langs.indexOf(curLang);
       if (langIdx < 0) langIdx = 0;
       const setLangAt = (idx) => {
         const nextLang = langs[(idx + langs.length) % langs.length];
         g.settings.lang = nextLang;
-        if (Balaclava.I18n) Balaclava.I18n.setLanguage(nextLang);
+        if (Abyssea.I18n) Abyssea.I18n.setLanguage(nextLang);
         saveSettings();
       };
       const langCarousel = this.el('div', { class: 'water-carousel-row compact-speed' }, [
@@ -9685,7 +10443,7 @@
             title: tr('settings.prevOption'),
             onclick: () => setLangAt(langIdx - 1)
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
           ]),
           this.el('span', { id: 'settings-lang-readout', class: 'water-speed-value' }, curLang === 'es' ? tr('lang.es') : tr('lang.en')),
           this.el('button', {
@@ -9695,7 +10453,7 @@
             title: tr('settings.nextOption'),
             onclick: () => setLangAt(langIdx + 1)
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
           ])
         ])
       ]);
@@ -9719,7 +10477,7 @@
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
           ]),
           this.el('span', { id: 'ui-scale-readout', class: 'water-speed-value' }, `${curScale}x`),
           this.el('button', {
@@ -9735,7 +10493,7 @@
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
           ])
         ])
       ]);
@@ -9774,7 +10532,7 @@
             title: tr('settings.prevOption'),
             onclick: toggleDisplayMode
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
           ]),
           this.el('span', { id: 'display-mode-readout', class: 'water-speed-value' }, isFullscreen ? tr('settings.fullscreen') : tr('settings.windowed')),
           this.el('button', {
@@ -9784,16 +10542,16 @@
             title: tr('settings.nextOption'),
             onclick: toggleDisplayMode
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
           ])
         ])
       ]);
 
       const waterOpts = [
-        { id: 'clasico', label: tr('settings.waterClassic'), img: Balaclava.UI_URLS.waterClasico },
-        { id: 'profundo', label: tr('settings.waterDeep'), img: Balaclava.UI_URLS.waterProfundo },
-        { id: 'esmeralda', label: tr('settings.waterEmerald'), img: Balaclava.UI_URLS.waterEsmeralda },
-        { id: 'abisal', label: tr('settings.waterAbyssal'), img: Balaclava.UI_URLS.waterAbisal }
+        { id: 'clasico', label: tr('settings.waterClassic'), img: Abyssea.UI_URLS.waterClasico },
+        { id: 'profundo', label: tr('settings.waterDeep'), img: Abyssea.UI_URLS.waterProfundo },
+        { id: 'esmeralda', label: tr('settings.waterEmerald'), img: Abyssea.UI_URLS.waterEsmeralda },
+        { id: 'abisal', label: tr('settings.waterAbyssal'), img: Abyssea.UI_URLS.waterAbisal }
       ];
       let waterIdx = waterOpts.findIndex(o => o.id === g.settings.waterStyle);
       if (waterIdx < 0) waterIdx = 0;
@@ -9814,7 +10572,7 @@
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
           ]),
           this.el('div', { class: 'water-preview-box' }, [
             this.el('div', { class: 'water-preview-meta' }, [
@@ -9834,7 +10592,7 @@
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
           ])
         ])
       ]);
@@ -9864,7 +10622,7 @@
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowLeft), width: 16, height: 16, alt: '<' })
           ]),
           this.el('span', { class: 'water-speed-value' }, curSpeed.label),
           this.el('button', {
@@ -9879,7 +10637,7 @@
               this.renderModal();
             }
           }, [
-            this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
+            this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.arrowRight), width: 16, height: 16, alt: '>' })
           ])
         ])
       ]);
@@ -9907,7 +10665,7 @@
           this.el('span', {}, label),
           this.el('img', {
             class: 'setting-toggle-img',
-            src: on ? Balaclava.UI_URLS.toggleOn : Balaclava.UI_URLS.toggleOff,
+            src: on ? Abyssea.UI_URLS.toggleOn : Abyssea.UI_URLS.toggleOff,
             alt: on ? tr('common.on') : tr('common.off')
           })
         ]));
@@ -9980,7 +10738,11 @@
     renderCreditsModal(body) {
       body.appendChild(this.el('div', { class: 'pause-stack credits-box' }, [
         this.el('div', { class: 'card credits-card' }, [
-          this.el('div', { class: 'credits-game-title' }, 'BALACLAVA'),
+          this.el('img', {
+            class: 'credits-logo-img pixel-img',
+            src: 'assets/ui/abyssea_logo.png?v=2.0.0-rc2',
+            alt: 'ABYSSEA'
+          }),
           this.el('div', { class: 'credits-role' }, tr('credits.developedBy')),
           this.el('div', { class: 'credits-creator' }, tr('credits.creator')),
           this.el('div', { class: 'credits-studio' }, tr('credits.studio')),
@@ -9999,8 +10761,125 @@
     }
 
     renderPatchNotesModal(body) {
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
-      if (!this._activePatchVer) this._activePatchVer = '1.3.3';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
+      if (!this._activePatchVer) this._activePatchVer = '2.0.0-rc2';
+      const sections200rc2 = isEn ? [
+        {
+          badge: 'VISUAL OVERHAUL & ABYSSEA',
+          color: '#5be3d1',
+          icon: 'nucleo_abyssea',
+          title: 'Full Rebrand to Abyssea & Vectorized HD Texture Overhaul',
+          items: [
+            'Official rebrand to Abyssea with a smooth biome-gradient logo (Emerald Coast to Crimson Abyss), crisp monochrome white minimalist title icons, split early/endgame animated archipelago title diorama, and updated Discord Rich Presence.',
+            'Complete 1-by-1 visual quality audit across all dungeon gates, structures, biome nodes, crops, farm animals, props, icons, and 42 brand-new vectorized HD sprites for RC2 (pets, alchemy potions, exotic fish, marine encounters, and stations).',
+            'Windowed-maximized 1280x720 launch defaults in Tauri and music media overlay disabled by default.'
+          ]
+        },
+        {
+          badge: 'LIVING ARCHIPELAGO',
+          color: '#ffd54f',
+          icon: 'pet_pez_linterna',
+          title: 'Active Pets, Dynamic Events, Lunar Cycle & Marine Encounters',
+          items: [
+            '5 Active Companion Pets (Golden Slime, Coral Crab, Astral Owl, Ember Spirit, Abyssal Lanternfish) that follow Hana with auto-loot, combat bolts, and light passives, plus Specialist Villagers roaming your built cottages.',
+            'Dynamic World Events: Island Raids, Abyssal Night Pulses, Biome Weather (Sandstorms, Blizzards, Crimson Ash, Acid Rain), and the Ghost Merchant Ship docking at coastlines with rare rotating stock.',
+            '5-Phase Lunar Cycle (New Moon, Waxing Quarter, Full Moon, Blood Moon, Astral Eclipse) affecting magic, crop growth, nocturnal drops, rare catches, and combat challenge.',
+            'Marine Encounters: Deep-Sea Whirlpools with rare fishing luck and the Coastal Leviathan Boss with 3 destructible tentacles dropping Leviathan Pearls.'
+          ]
+        },
+        {
+          badge: 'COMBAT & DUNGEONS',
+          color: '#ff6b7a',
+          icon: 'espada_eclipse',
+          title: 'Perfect Dodge, 6 Roguelike Dungeon Affixes & Armor Set Synergies',
+          items: [
+            'Perfect Dodge timing window grants brief invulnerability, a slow-mo flash, energy recovery, and a guaranteed next critical hit.',
+            '6 Roguelike Dungeon Affixes (Volcanic Floor, Swift Foes, Rain of Gold, Infinite Mana, Critical Fury, Vampiric Echo) adding variety and bonus rewards to dungeon runs.',
+            'Full Armor Set Synergies (2/4/5 pieces) across every biome & tier plus Bestiary Mastery tiers revealing enemy drop tables and permanent species damage bonuses.',
+            'Complete combat damage rebalance across all 14 biomes and 75 dungeons eliminating unfair instant one-shots.'
+          ]
+        },
+        {
+          badge: 'CRAFTING, BASE & QOL',
+          color: '#81c784',
+          icon: 'cetro_traslado',
+          title: 'Trophy Hall, Teleport Beacons, Relocator, Chest QoL & Guild Shop',
+          items: [
+            'Trophy Hall Museum to donate items/fish/boss drops for permanent archipelago-wide milestones, plus Archipelago Teleport Beacons for instant fast travel from the World Map.',
+            'Structure Relocator Scepter to move chests, machines, and stations without losing contents, Chest Stack-All button, and Logistic Chest category reception filters.',
+            'Fishing Dock automated bait traps, Fish Pond breeding, Offering Altar a-la-carte buffs, Rarity Preservation & Catalyst Reforge for all 62 weapons, and Daily Dynamic Market Demand.',
+            'Weekly Guild Contracts & Token Shop with cosmetic auras for Hana, contextual hints & "What To Do Now?" guide, Gamepad API support, and Enhanced Photo Mode (F9/F8/P + WASD pan + PNG capture).'
+          ]
+        },
+        {
+          badge: 'FULL FUNCTIONAL RE-AUDIT',
+          color: '#b388ff',
+          icon: 'catalizador_reforja',
+          title: 'System-Wide Bug Fixes & Dead-End Material Recipes',
+          items: [
+            'Fixed full-inventory addItem crash, Backpack equip modifier calculation, Endless Abyss dungeon entry & scaling, Omega building initialization, and buff potion/scroll consumption.',
+            'Fixed all broken alchemy/ritual/legacy recipes, enabled all 5 fishing baits and 14-biome fishing/auto-drill tables, and added 18 new recipes giving every material real gameplay utility.'
+          ]
+        }
+      ] : [
+        {
+          badge: 'REDISEÑO VISUAL Y ABYSSEA',
+          color: '#5be3d1',
+          icon: 'nucleo_abyssea',
+          title: 'Rebrand Oficial a Abyssea y Rework Completo de Texturas HD',
+          items: [
+            'Rebrand completo a Abyssea con logo degradado continuo de biomas (de costa esmeralda a abismo carmesí), iconos minimalistas monocromáticos blancos en el menú principal, diorama animado dividido en islas iniciales y finales, y Discord Rich Presence actualizado.',
+            'Auditoría visual 1 por 1 en todas las entradas de mazmorras, estructuras, nodos de bioma, cultivos, animales, props e iconos, además de 42 nuevos sprites vectorizados HD para RC2 (mascotas, pociones alquímicas, peces exóticos, encuentros marinos y estaciones).',
+            'Ventana inicial maximizada 1280x720 en Tauri y overlay de música desactivado por defecto.'
+          ]
+        },
+        {
+          badge: 'ARCHIPIÉLAGO VIVO',
+          color: '#ffd54f',
+          icon: 'pet_pez_linterna',
+          title: 'Mascotas Activas, Eventos Dinámicos, Ciclo Lunar y Encuentros Marinos',
+          items: [
+            '5 Mascotas Compañeras Activas (Limo Dorado, Cangrejo Coralino, Búho Astral, Espíritu Ígneo y Pez Linterna Abisal) que siguen a Hana recogiendo botín, atacando enemigos e iluminando, más Aldeanos Especialistas en tus cabañas.',
+            'Eventos Dinámicos Interactivos: Incursiones de Isla, Pulso Nocturno Abisal, Clima por Bioma (tormentas de arena, ventiscas, ceniza carmesí, lluvia ácida) y el Barco Mercader Fantasma con ofertas raras.',
+            'Ciclo Lunar de 5 fases (Luna Nueva, Cuarto Creciente, Luna Llena, Luna de Sangre y Eclipse Astral) con impacto en magia, cultivos, pesca exótica y dificultad nocturna.',
+            'Encuentros Marinos: Remolinos Abisales de pesca rara y el Jefe Costero Leviatán con 3 tentáculos destruibles que sueltan Perlas de Leviatán.'
+          ]
+        },
+        {
+          badge: 'COMBATE Y MAZMORRAS',
+          color: '#ff6b7a',
+          icon: 'espada_eclipse',
+          title: 'Esquiva Perfecta, 6 Afijos Roguelike y Sinergias de Sets',
+          items: [
+            'Ventana de Esquiva Perfecta que otorga invulnerabilidad breve, destello slow-mo, recuperación de energía y crítico garantizado en el siguiente golpe.',
+            '6 Afijos Roguelike de Mazmorra (Suelo Volcánico, Enemigos Veloces, Lluvia de Oro, Maná Infinito, Furia Crítica y Eco Vampírico) con botín extra.',
+            'Sinergias completas de sets de armadura (2/4/5 piezas) en todos los biomas y tiers, además de Maestría del Bestiario con tablas de drops y bonos permanentes por especie.',
+            'Rebalance integral de daño de enemigos y jefes en los 14 biomas y 75 mazmorras eliminando golpes letales injustos.'
+          ]
+        },
+        {
+          badge: 'BASE, ECONOMÍA Y CALIDAD DE VIDA',
+          color: '#81c784',
+          icon: 'cetro_traslado',
+          title: 'Salón de Trofeos, Balizas de Teletransporte, Cetro de Traslado y Gremio',
+          items: [
+            'Salón de Trofeos (Museo) con donaciones y bonos permanentes globales, además de Balizas de Teletransporte para viaje rápido directo desde el Mapa del Mundo.',
+            'Cetro de Traslado de Estructuras para reubicar cofres y máquinas sin perder su contenido, botón "Guardar iguales" en cofres y filtros por categoría en Cofres Logísticos.',
+            'Trampas de cebo automáticas en Muelles de Pesca, crianza en Estanques de Peces, Altar de Ofrendas a la carta, Preservación de Rareza y Catalizador de Reforja para las 62 armas, y Demanda Diaria Dinámica en el Mercado.',
+            'Contratos Semanales del Gremio y Tienda de Fichas con auras cosméticas para Hana, pistas contextuales y guía "¿Qué hago ahora?", soporte para mando (Gamepad API) y Modo Foto mejorado (F9/F8/P + cámara WASD + captura PNG).'
+          ]
+        },
+        {
+          badge: 'RE-AUDITORÍA FUNCIONAL TOTAL',
+          color: '#b388ff',
+          icon: 'catalizador_reforja',
+          title: 'Correcciones Críticas y Utilidad Real para Todos los Ítems',
+          items: [
+            'Corregidos el error al llenar inventario en addItem, modificadores al equipar mochilas, entrada y escalado del Abismo Infinito, inicialización de estructuras Omega y consumo real de pociones/pergaminos de buff.',
+            'Reparadas recetas rotas de alquimia, rituales y legado, activados los 5 cebos y tablas de pesca/taladro en los 14 biomas, y añadidas 18 recetas nuevas para que ningún material quede sin uso.'
+          ]
+        }
+      ];
       const sections121 = isEn ? [
         {
           badge: 'BETA 1.2.1',
@@ -10278,7 +11157,7 @@
           ] : [
             'El Santuario de Mazmorras valida estrictamente la progresión del mundo: acceder a una mazmorra requiere explorar y desbloquear su bioma primero.',
             'Se eliminó el botón de atajo directo al Jefe Final. La Ciudadela del Eclipse Carmesí requiere desbloquear las Tierras Malditas.',
-            'Las mazmorras en biomas aún no alcanzados se muestran bloqueadas (🔒) indicando el bioma requerido.'
+            'Las mazmorras en biomas aún no alcanzados se muestran bloqueadas indicando el bioma requerido.'
           ]
         },
         {
@@ -10335,11 +11214,22 @@
 
       const patchVersions = [
         {
+          id: '2.0.0-rc2',
+          label: 'Beta 2.0.0 RC2',
+          pill: 'BETA 2.0.0 RC2',
+          subtitle: isEn ? 'Abyssea HD Rework, Pets, Events, Lunar Cycle & Re-Audit' : 'Rework HD Abyssea, Mascotas, Eventos, Ciclo Lunar y Re-Auditoría',
+          heroTitle: isEn ? 'ABYSSEA — Beta 2.0.0 RC2 Release Notes' : 'ABYSSEA — Notas de la Versión Beta 2.0.0 RC2',
+          heroSub: isEn
+            ? 'Complete Abyssea visual & HD texture overhaul, functional re-audit, combat rebalance, active pets, dynamic events, lunar cycle, marine encounters, trophy hall, beacons, and quality-of-life upgrades.'
+            : 'Rework visual completo de Abyssea con texturas HD, re-auditoría funcional integral, rebalance de combate, mascotas activas, eventos dinámicos, ciclo lunar, encuentros marinos, salón de trofeos, balizas y mejoras de calidad de vida.',
+          sections: sections200rc2
+        },
+        {
           id: '1.3.3',
           label: 'Beta 1.3.3',
           pill: 'BETA v1.3.3',
           subtitle: isEn ? '23-Tier Progression & True Late-Game Omega' : '23 Tiers de Equipo y Omega Late-Game',
-          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.3 Release Notes' : 'BALACLAVA — Notas de la Versión Beta 1.3.3',
+          heroTitle: isEn ? 'ABYSSEA — Beta 1.3.3 Release Notes' : 'ABYSSEA — Notas de la Versión Beta 1.3.3',
           heroSub: isEn
             ? 'Massive 23-tier progression expansion integrating Zone III-IV biome metals (T14-T20), Legendary T21, Celestial T22, and true late-game Omega T23.'
             : 'Expansión completa a 23 tiers de herramientas y armaduras integrando los minerales de Zona III-IV (T14-T20), Legendaria T21, Celestial T22 y Omega T23 como verdadero late-game.',
@@ -10350,7 +11240,7 @@
           label: 'Beta 1.3.2',
           pill: 'BETA v1.3.2',
           subtitle: isEn ? 'Dungeon Progression Fix & Clean Typography' : 'Bloqueo de Mazmorras por Bioma y Correcciones',
-          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.2 Release Notes' : 'BALACLAVA — Notas de la Versión Beta 1.3.2',
+          heroTitle: isEn ? 'ABYSSEA — Beta 1.3.2 Release Notes' : 'ABYSSEA — Notas de la Versión Beta 1.3.2',
           heroSub: isEn
             ? 'Dungeon Sanctuary biome progression locks, boss portal fixes, canvas fallbacks and clean UTF-8 text.'
             : 'Bloqueo estricto de mazmorras por bioma en el Santuario, corrección del portal del Jefe Final, fallbacks de iconos y tipografía UTF-8 limpia.',
@@ -10361,7 +11251,7 @@
           label: 'Beta 1.3.1',
           pill: 'BETA v1.3.1',
           subtitle: isEn ? 'Spell Leveling, Omega Power & Proportions' : 'Nivel de Hechizos, Red Omega & Escala 2x2',
-          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.1 Release Notes' : 'BALACLAVA — Notas de la Versión Beta 1.3.1',
+          heroTitle: isEn ? 'ABYSSEA — Beta 1.3.1 Release Notes' : 'ABYSSEA — Notas de la Versión Beta 1.3.1',
           heroSub: isEn
             ? 'Central Nexus auto-vacuum, Spell Leveling Lv.1-5, Smart Collector Tower, Trash Bin fix and 2x2 grand building proportions.'
             : 'Nexo Central autónomo, subida de nivel de hechizos (Nv.1-5), Torre Recolectora inteligente, Basurero reparado y edificios grandes 2x2.',
@@ -10399,7 +11289,7 @@
           label: 'Beta 1.3.0',
           pill: 'BETA v1.3.0',
           subtitle: isEn ? '361-Island Expansion & Crimson Abyss' : 'Gran Expansion Beta 1.3.0',
-          heroTitle: isEn ? 'BALACLAVA — Beta 1.3.0 Release Notes' : 'BALACLAVA — Notas de la Version Beta 1.3.0',
+          heroTitle: isEn ? 'ABYSSEA — Beta 1.3.0 Release Notes' : 'ABYSSEA — Notas de la Version Beta 1.3.0',
           heroSub: isEn
             ? 'Complete summary of all 14 biomes, 75 dungeons, Omega balance, texture overhaul, Chest Relics UI and trailer debug tools.'
             : 'Resumen completo de las 361 islas, 14 biomas, 75 mazmorras, Jefe Final Carmesi Abisal, balance Omega y herramientas de trailer.',
@@ -10410,7 +11300,7 @@
           label: 'Beta 1.2.1',
           pill: 'BETA v1.2.1',
           subtitle: isEn ? 'Chests (1,000 Stacks) & Storage Fix' : 'Cofres (Stacks de 1000) y Correcciones',
-          heroTitle: isEn ? 'BALACLAVA — Beta 1.2.1 Release Notes' : 'BALACLAVA — Notas de la Version Beta 1.2.1',
+          heroTitle: isEn ? 'ABYSSEA — Beta 1.2.1 Release Notes' : 'ABYSSEA — Notas de la Version Beta 1.2.1',
           heroSub: isEn
             ? 'Previous release notes kept for reference: 1,000 stack chests, storage durability, combat scaling and UI refinements.'
             : 'Historial de cambios de la version anterior Beta 1.2.1.',
@@ -10517,7 +11407,7 @@
     renderCorruptedDungeonChoice(titleEl, body) {
       const g = this.game;
       const dId = this.modalData?.dungeonId;
-      const def = (Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[dId]) || {};
+      const def = (Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[dId]) || {};
       titleEl.textContent = `Desafío Corrupto: ${def.name || 'Mazmorra'}`;
 
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:12px;' }, [
@@ -10634,7 +11524,7 @@
       stack.appendChild(this.el('div', { class: 'parchment-box pause-hero-bar' }, [
         this.el('img', {
           class: 'pixel-img pause-hero-avatar',
-          src: encodeURI(Balaclava.UI_URLS.avatarHero),
+          src: encodeURI(Abyssea.UI_URLS.avatarHero),
           width: 44,
           height: 44,
           alt: tr('pause.heroAlt')
@@ -10653,12 +11543,12 @@
         ])
       ]));
 
-      const skins = Balaclava.SKINS || [];
+      const skins = Abyssea.SKINS || [];
       if (skins.length > 1) {
         const curSkinId = g.player.skinId || 'hana';
         const curSkin = skins.find(s => s.id === curSkinId) || skins[0];
         const curIndex = skins.findIndex(s => s.id === curSkin.id);
-        const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage() === 'en';
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const skinName = (isEn && curSkin.name_en) ? curSkin.name_en : curSkin.name;
         const skinRole = (isEn && curSkin.role_en) ? curSkin.role_en : (curSkin.role || '');
         const skinDesc = (isEn && curSkin.desc_en) ? curSkin.desc_en : (curSkin.desc || '');
@@ -10683,7 +11573,7 @@
                 if (g.cyclePlayerSkin) g.cyclePlayerSkin(-1);
                 this.renderModal();
               }
-            }, '⚙'),
+            }, '<'),
             this.el('button', {
               type: 'button',
               class: 'btn btn-gold',
@@ -10693,7 +11583,7 @@
                 if (g.cyclePlayerSkin) g.cyclePlayerSkin(1);
                 this.renderModal();
               }
-            }, '★')
+            }, '>')
           ])
         ]);
         stack.appendChild(skinBox);
@@ -10705,8 +11595,21 @@
         class: 'btn btn-green pause-big-btn',
         onclick: () => this.closeModal()
       }, [
-        this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconPlay), width: 18, height: 18, alt: '' }),
+        this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.iconPlay), width: 18, height: 18, alt: '' }),
         tr('pause.resume')
+      ]));
+
+      stack.appendChild(this.el('button', {
+        id: 'btn-pause-photo',
+        type: 'button',
+        class: 'btn btn-primary pause-big-btn',
+        onclick: () => {
+          this.closeModal();
+          this.togglePhotoMode();
+        }
+      }, [
+        this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.iconStar), width: 18, height: 18, alt: '' }),
+        'Modo Foto / Cámara Libre (F9)'
       ]));
 
       stack.appendChild(this.el('button', {
@@ -10718,7 +11621,7 @@
           this.renderModal();
         }
       }, [
-        this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconSettings), width: 18, height: 18, alt: '' }),
+        this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.iconSettings), width: 18, height: 18, alt: '' }),
         tr('pause.settings')
       ]));
 
@@ -10728,13 +11631,13 @@
         class: 'btn btn-danger pause-big-btn',
         onclick: () => {
           if (g.saveSys) g.saveSys.save(g, g.currentSlot || 1, true);
-          if (Balaclava.Audio && Balaclava.Audio.fadeOutMusic) Balaclava.Audio.fadeOutMusic(620);
+          if (Abyssea.Audio && Abyssea.Audio.fadeOutMusic) Abyssea.Audio.fadeOutMusic(620);
           this.playSceneTransition(tr('transition.savingExit'), () => {
             this.showTitleScreen();
           }, { sub: 'Guardando datos y regresando al campamento...' });
         }
       }, [
-        this.el('img', { class: 'pixel-img', src: encodeURI(Balaclava.UI_URLS.iconSave), width: 18, height: 18, alt: '' }),
+        this.el('img', { class: 'pixel-img', src: encodeURI(Abyssea.UI_URLS.iconSave), width: 18, height: 18, alt: '' }),
         tr('pause.saveExit')
       ]));
 
@@ -10742,7 +11645,7 @@
     }
 
     _buildBuildingUpgradePerksCard(b, def) {
-      const isEn = Balaclava.I18n && Balaclava.I18n.getLanguage && Balaclava.I18n.getLanguage() === 'en';
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       const lvl = Math.max(1, Number(b && b.level) || 1);
       const rows = [];
 
@@ -10831,7 +11734,7 @@
 
     renderBuildingInspector(titleEl, body, b) {
       const g = this.game;
-      const def = Balaclava.BUILDINGS[b.type];
+      const def = Abyssea.BUILDINGS[b.type];
       titleEl.textContent = `${def.name} (${tr('common.levelShort')}${b.level}/3)`;
       body.appendChild(this.el('div', { class: 'parchment-box', style: 'margin-bottom:12px;display:flex;align-items:center;gap:12px;' }, [
         this.makeBuildingThumb(def, 52),
@@ -10930,10 +11833,101 @@
         appendFooter();
         return;
       }
+      if (def.opensPanel === 'aquarium' || b.type === 'portal_acuario') {
+        if (typeof this.renderAquariumModal === 'function') this.renderAquariumModal(body);
+        appendFooter();
+        return;
+      }
+      if (def.opensPanel === 'reforge' || b.type === 'mesa_reforja') {
+        if (typeof this.renderReforgeTab === 'function') this.renderReforgeTab(body);
+        appendFooter();
+        return;
+      }
+      if (def.opensPanel === 'trophy_hall' || b.type === 'salon_trofeos') {
+        if (typeof this.renderTrophyHallModal === 'function') this.renderTrophyHallModal(body);
+        appendFooter();
+        return;
+      }
+      if (def.opensPanel === 'teleport_beacon' || b.type === 'baliza_teletransporte') {
+        if (typeof this.renderTeleportBeaconModal === 'function') this.renderTeleportBeaconModal(body, b);
+        appendFooter();
+        return;
+      }
+      // RC2 (K): Fishing Dock Passive Bait Trap & Fish Pond Rare Fish Breeding
+      if (b.type === 'muelle_pesca') {
+        const baits = ['cebo_arcano', 'cebo_volcanico', 'cebo_dorado', 'cebo_gusano', 'cebo_lombriz'];
+        const curBait = b.baitSlot && b.baitSlot.qty > 0 ? `${(Abyssea.ITEMS[b.baitSlot.id]?.name) || b.baitSlot.id} x${b.baitSlot.qty}` : 'Sin cebo cargado';
+        const baitBtns = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;' });
+        baits.forEach(bid => {
+          const owned = g.inventory[bid] || 0;
+          const bIt = Abyssea.ITEMS[bid];
+          if (!bIt) return;
+          baitBtns.appendChild(this.el('button', {
+            class: owned > 0 ? 'btn btn-primary btn-sm' : 'btn btn-stone btn-sm',
+            disabled: owned > 0 ? null : 'disabled',
+            onclick: () => {
+              const loadQty = Math.min(owned, 5);
+              if (loadQty <= 0) return;
+              g.removeItem(bid, loadQty);
+              if (b.baitSlot && b.baitSlot.id === bid) b.baitSlot.qty += loadQty;
+              else b.baitSlot = { id: bid, qty: loadQty };
+              g.toast(`Cargado ${loadQty}x ${bIt.name} en las trampas del Muelle.`, 'success');
+              this.renderModal();
+            }
+          }, `Cargar ${bIt.name} (${owned})`));
+        });
+        body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:12px;' }, [
+          this.el('strong', { style: 'color:#4fc3f7;' }, `Trampas Pasivas de Pesca — Cebo activo: ${curBait}`),
+          this.el('div', { style: 'font-size:13px;color:#cfd8dc;margin-top:3px;' }, 'Deja cebos aquí para capturar automáticamente peces raros y exóticos mientras exploras o entras en mazmorras.'),
+          baitBtns
+        ]));
+      }
+      if (b.type === 'estanque') {
+        const fishIds = Object.keys(g.inventory || {}).filter(id => (g.inventory[id] || 0) > 0 && Abyssea.AQUARIUM_FISH_PASSIVES && Abyssea.AQUARIUM_FISH_PASSIVES[id]);
+        const curBreed = b.breedFish && Abyssea.ITEMS[b.breedFish] ? Abyssea.ITEMS[b.breedFish].name : 'Ninguno (pesca aleatoria)';
+        const breedRow = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;' });
+        fishIds.slice(0, 10).forEach(fid => {
+          const fIt = Abyssea.ITEMS[fid];
+          breedRow.appendChild(this.el('button', {
+            class: b.breedFish === fid ? 'btn btn-gold btn-sm' : 'btn btn-primary btn-sm',
+            onclick: () => {
+              if (b.breedFish === fid) return;
+              g.removeItem(fid, 1);
+              b.breedFish = fid;
+              g.toast(`Cría activa en Estanque: ${fIt.name} se reproducirá pasivamente.`, 'success');
+              this.renderModal();
+            }
+          }, `Criar ${fIt.name}`));
+        });
+        if (b.breedFish) {
+          breedRow.appendChild(this.el('button', {
+            class: 'btn btn-stone btn-sm',
+            onclick: () => { b.breedFish = null; this.renderModal(); }
+          }, 'Limpiar Cría'));
+        }
+        body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:12px;' }, [
+          this.el('strong', { style: 'color:#69f0ae;' }, `Cría de Peces Raros — Especie actual: ${curBreed}`),
+          this.el('div', { style: 'font-size:13px;color:#cfd8dc;margin-top:3px;' }, 'Coloca 1 ejemplar capturado para reproducir duplicados pasivamente (ideal para Acuario y Alquimia).'),
+          breedRow
+        ]));
+      }
       if (def.opensPanel === 'portal') {
         const portals = g.buildings.filter(x => x.type === 'portal');
         const pCard = this.el('div', { class: 'card', style: 'margin-bottom:12px;' }, [
-          this.el('strong', { style: 'color:#4fc3f7;' }, tr('bldg.portalsDest'))
+          this.el('strong', { style: 'color:#4fc3f7;' }, tr('bldg.portalsDest')),
+          this.el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;' }, [
+            this.el('button', {
+              class: 'btn btn-gold btn-sm',
+              onclick: () => {
+                this.closeModal();
+                if (typeof g.enterAquarium === 'function') g.enterAquarium();
+              }
+            }, 'Viajar a la Dimensión del Acuario'),
+            this.el('button', {
+              class: 'btn btn-primary btn-sm',
+              onclick: () => this.openModal('aquarium')
+            }, 'Gestionar Peces del Acuario')
+          ])
         ]);
         portals.forEach((pt, idx) => {
           const biome = BIOMES[g.world.getBiomeAtPixel(pt.tx * TILE_SIZE, pt.ty * TILE_SIZE)];
@@ -10942,7 +11936,7 @@
             onclick: () => {
               g.player.x = (pt.tx + 0.5) * TILE_SIZE;
               g.player.y = (pt.ty + 1.2) * TILE_SIZE;
-              Balaclava.Audio.play('portal');
+              Abyssea.Audio.play('portal');
               this.closeModal();
             }
           }, tr('bldg.portalLine', { idx: idx + 1, biome: biome.name, x: pt.tx, y: pt.ty })));
@@ -10950,30 +11944,71 @@
         body.appendChild(pCard);
       }
       if (def.opensPanel === 'altar') {
-        const aCard = this.el('div', { class: 'card', style: 'margin-bottom:12px;' }, [
-          this.el('strong', { style: 'color:#ce93d8;' }, tr('bldg.altarOfferings')),
+        // RC2 (L): Offering Altar A-la-Carte (Fish -> Luck/Fishing, Ingots -> Mining/Chopping, Essences -> Dungeon/Boss DMG, Summon Sea Boss)
+        const anyFish = Object.keys(g.inventory || {}).find(id => (g.inventory[id] || 0) >= 2 && Abyssea.AQUARIUM_FISH_PASSIVES && Abyssea.AQUARIUM_FISH_PASSIVES[id]);
+        const anyIngot = Object.keys(g.inventory || {}).find(id => (g.inventory[id] || 0) >= 3 && id.startsWith('lingote_'));
+        const hasEss = (g.inventory.esencia_oscura || 0) >= 1 || (g.inventory.esencia_lunar || 0) >= 1;
+        const aCard = this.el('div', { class: 'card', style: 'margin-bottom:12px;display:flex;flex-direction:column;gap:8px;' }, [
+          this.el('strong', { style: 'color:#ce93d8;font-size:15px;' }, 'Altar de Ofrendas a la Carta'),
           this.el('button', {
-            class: 'btn btn-primary btn-sm',
+            class: anyFish ? 'btn btn-primary btn-sm' : 'btn btn-stone btn-sm',
             onclick: () => {
-              if (g.coins < 40) return g.toast(tr('bldg.altarNeedCoins'), 'warn');
-              g.coins -= 40;
-              g.activeBuffs.speed = { mult: 1.4, time: 90 };
-              g.activeBuffs.luck = { mult: 2.0, time: 90 };
+              if (!anyFish) return g.toast('Necesitas al menos 2 unidades de cualquier pez.', 'warn');
+              g.removeItem(anyFish, 2);
+              g.activeBuffs.luck = { mult: 1.55, time: 120 };
               g.recomputeModifiers();
-              Balaclava.Audio.play('levelup');
-              g.toast(tr('bldg.altarBlessToast'), 'success');
+              Abyssea.Audio.play('levelup');
+              g.toast(`Ofrenda Marina aceptada (${Abyssea.ITEMS[anyFish].name} x2): +55% Suerte y Pesca por 120s.`, 'success');
               this.closeModal();
             }
-          }, tr('bldg.altarBlessBtn')),
+          }, `Ofrenda de Peces (2x ${anyFish ? Abyssea.ITEMS[anyFish].name : 'cualquier pez'}) -> +55% Suerte y Pesca (120s)`),
           this.el('button', {
-            class: 'btn btn-gold btn-sm',
+            class: anyIngot ? 'btn btn-gold btn-sm' : 'btn btn-stone btn-sm',
             onclick: () => {
-              if ((g.inventory.esencia_oscura || 0) < 1) return g.toast(tr('bldg.altarNeedEssence'), 'warn');
-              g.removeItem('esencia_oscura', 1);
-              g.events.triggerRandomEvent(g);
+              if (!anyIngot) return g.toast('Necesitas al menos 3 unidades de cualquier lingote.', 'warn');
+              g.removeItem(anyIngot, 3);
+              g.activeBuffs.miner_sight = { mult: 1.55, time: 120 };
+              g.recomputeModifiers();
+              Abyssea.Audio.play('levelup');
+              g.toast(`Ofrenda de Forja aceptada (${Abyssea.ITEMS[anyIngot].name} x3): +55% Minería y Tala por 120s.`, 'success');
               this.closeModal();
             }
-          }, tr('bldg.altarEventBtn'))
+          }, `Ofrenda de Lingotes (3x ${anyIngot ? Abyssea.ITEMS[anyIngot].name : 'cualquier lingote'}) -> +55% Minería y Tala (120s)`),
+          this.el('button', {
+            class: hasEss ? 'btn btn-danger btn-sm' : 'btn btn-stone btn-sm',
+            onclick: () => {
+              const essId = (g.inventory.esencia_lunar || 0) >= 1 ? 'esencia_lunar' : (g.inventory.esencia_oscura || 0) >= 1 ? 'esencia_oscura' : null;
+              if (!essId) return g.toast('Necesitas 1 Esencia Oscura o Esencia Lunar.', 'warn');
+              g.removeItem(essId, 1);
+              g.activeBuffs.dmg = { mult: 1.40, time: 120 };
+              g.recomputeModifiers();
+              Abyssea.Audio.play('levelup');
+              g.toast(`Ofrenda Abisal aceptada (1x ${Abyssea.ITEMS[essId].name}): +40% Daño en Mazmorras y Jefes (120s).`, 'success');
+              this.closeModal();
+            }
+          }, 'Ofrenda de Esencia (1x Esencia Oscura o Lunar) -> +40% Daño en Combate (120s)'),
+          this.el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;' }, [
+            this.el('button', {
+              class: 'btn btn-gold btn-sm',
+              onclick: () => {
+                if ((g.inventory.esencia_oscura || 0) < 1) return g.toast(tr('bldg.altarNeedEssence'), 'warn');
+                g.removeItem('esencia_oscura', 1);
+                g.events.triggerRandomEvent(g);
+                this.closeModal();
+              }
+            }, tr('bldg.altarEventBtn')),
+            this.el('button', {
+              class: 'btn btn-primary btn-sm',
+              onclick: () => {
+                const useKey = (g.inventory.llave_jefe || 0) >= 1;
+                const useEss = (g.inventory.esencia_oscura || 0) >= 2;
+                if (!useKey && !useEss) return g.toast('Requiere 1x Llave de Jefe o 2x Esencia Oscura para invocar al Leviatán Marino.', 'warn');
+                if (useKey) g.removeItem('llave_jefe', 1); else g.removeItem('esencia_oscura', 2);
+                if (typeof g.spawnSeaBoss === 'function') g.spawnSeaBoss(true);
+                this.closeModal();
+              }
+            }, 'Invocar Leviatán Abisal (1x Llave Jefe o 2x Esencia)')
+          ])
         ]);
         body.appendChild(aCard);
       }
@@ -10986,10 +12021,13 @@
           unlockedPlots.map(([gx, gy]) => (g.world && g.world.plotBiomes && g.world.plotBiomes[gy] && g.world.plotBiomes[gy][gx]) || 'pradera')
         );
         const clearedSet = new Set(Array.isArray(g.clearedDungeons) ? g.clearedDungeons : []);
-        const gatesObj = Balaclava.DUNGEON_GATES || {};
+        const gatesObj = Abyssea.DUNGEON_GATES || {};
 
-        // T16 Endgame: El Abismo Infinito (requiere 24+ mazmorras completadas)
-        if (clearedSet.size >= 24) {
+        // T23 Endgame: El Abismo Infinito (usa omega.abyssUnlocked)
+        const abyssReady = g.omega && typeof g.omega.abyssUnlocked === 'function'
+          ? g.omega.abyssUnlocked(g)
+          : clearedSet.size >= 45;
+        if (abyssReady) {
           const abFl = (g.omega && g.omega.state.abyss && g.omega.state.abyss.current) || 1;
           const abBest = (g.omega && g.omega.state.abyss && g.omega.state.abyss.best) || 0;
           dList.appendChild(this.el('button', {
@@ -11000,13 +12038,13 @@
               g.enterDungeon('abismo_infinito');
             }
           }, [
-            this.el('span', {}, `🌌 El Abismo Infinito (Piso ${abFl} · Récord: ${abBest})`),
+            this.el('span', {}, `El Abismo Infinito (Piso ${abFl} · Récord: ${abBest})`),
             this.el('span', { style: 'color:#ffd54f;font-size:12px;font-weight:900;' }, 'T23 ENDGAME')
           ]));
         }
 
         // List all 75 dungeons with strict Biome Lock enforcement
-        const allDefs = Object.values(Balaclava.DUNGEON_DEFS || {});
+        const allDefs = Object.values(Abyssea.DUNGEON_DEFS || {});
         allDefs.forEach(d => {
           const gate = gatesObj[d.id] || null;
           const targetBiomeKey = (gate && gate.biome) || d.themeKey || d.biomeId || 'pradera';
@@ -11024,7 +12062,7 @@
               onclick: () => { this.closeModal(); g.enterDungeon(d.id); }
             }, [
               this.el('span', { style: isFinalBoss ? 'color:#ff8a80;font-weight:900;' : '' }, [
-                isFinalBoss ? '👑 ' : '',
+                isFinalBoss ? '[JEFE] ' : '',
                 tr('bldg.dungeonRow', { name: d.name, biome: dmBiome.name, lvl: d.recLevel || 2 })
               ]),
               isCleared ? this.uiIcon('iconCheck', 14) : (isFinalBoss ? this.el('span', { style: 'color:#ffd54f;font-size:11px;font-weight:900;padding:2px 6px;background:rgba(0,0,0,0.4);border-radius:3px;' }, 'JEFE FINAL') : null)
@@ -11035,12 +12073,12 @@
               class: 'btn btn-sm',
               style: 'justify-content:space-between;margin-bottom:4px;opacity:0.42;background:rgba(20,22,28,0.7);border:1px dashed #546e7a;cursor:not-allowed;color:#90a4ae;',
               onclick: () => {
-                g.toast(`🔒 Mazmorra bloqueada: debes explorar y desbloquear el bioma ${dmBiome.name} en el archipiélago primero.`, 'warn');
-                if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('error');
+                g.toast(`Mazmorra bloqueada: debes explorar y desbloquear el bioma ${dmBiome.name} en el archipiélago primero.`, 'warn');
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('error');
               }
             }, [
               this.el('span', {}, [
-                isFinalBoss ? '🔒👑 ' : '🔒 ',
+                isFinalBoss ? '[BLOQUEADA - JEFE] ' : '[BLOQUEADA] ',
                 `${d.name} (${dmBiome.name} · Nv.${d.recLevel || 2}+)`
               ]),
               this.el('span', { style: 'color:#ffab91;font-size:11px;font-weight:bold;' }, 'BLOQUEADA')
@@ -11069,7 +12107,18 @@
       if (def.station) {
         if (def.station === 'forja' || def.station === 'yunque_runico') {
           this.renderForjaCategories(body, def.station, false);
+        } else if (def.station === 'alquimia' && typeof this.renderAlchemyLab === 'function') {
+          this.renderAlchemyLab(body);
         } else {
+          if (def.station === 'mesa_hechiceria') {
+            body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;' }, [
+              this.el('strong', { style: 'color:#ce93d8;' }, 'Círculo de Invocación y Rituales del Grimorio'),
+              this.el('button', {
+                class: 'btn btn-gold btn-sm',
+                onclick: () => this.openModal('grimorio')
+              }, 'Abrir Rituales de Hechizos')
+            ]));
+          }
           this.renderStationCategories(body, def.station);
         }
       }
@@ -11080,7 +12129,7 @@
     renderOmegaNexus(body, b, def) {
       const g = this.game;
       if (!g.omega) return;
-      const plotKey = Balaclava.OmegaSystem.plotKeyOf(b.tx, b.ty);
+      const plotKey = Abyssea.OmegaSystem.plotKeyOf(b.tx, b.ty);
       this.omegaNexusTab = this.omegaNexusTab || 'storage';
 
       const tabRow = this.el('div', { style: 'display:flex;gap:8px;margin-bottom:12px;border-bottom:1px solid rgba(255,213,79,0.25);padding-bottom:8px;' }, [
@@ -11123,7 +12172,7 @@
               let count = 0;
               for (const [id, q] of Object.entries(g.inventory || {})) {
                 if (q > 0) {
-                  const it = Balaclava.ITEMS[id];
+                  const it = Abyssea.ITEMS[id];
                   if (it && (it.isOre || it.isIngot || it.isCrop || it.category === 'minerales' || it.category === 'cultivos' || it.category === 'especiales' || /fragmento_|polvo_|cristal_datos_|lingote_|mineral_|materia_/.test(id))) {
                     const r = g.omega.depositFromInventory(g, plotKey, id, q);
                     if (r.ok) count += q;
@@ -11131,7 +12180,7 @@
                 }
               }
               if (count > 0) {
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 g.toast(`Depositados ${count} objetos en el Nexo.`, 'success');
                 this.renderModal();
               } else {
@@ -11150,7 +12199,7 @@
                 }
               }
               if (count > 0) {
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 g.toast(`Retirados ${count} objetos al inventario.`, 'info');
                 this.renderModal();
               } else {
@@ -11178,7 +12227,7 @@
             'Almacén virtual vacío. Los extractores, domos y procesadoras conectadas depositarán automáticamente sus productos aquí.'));
         } else {
           for (const [id, q] of entries) {
-            const it = Balaclava.ITEMS[id] || { name: id, icon: 'piedra' };
+            const it = Abyssea.ITEMS[id] || { name: id, icon: 'piedra' };
             const itemBox = this.el('button', {
               class: 'btn btn-stone',
               style: 'padding:4px;display:flex;flex-direction:column;align-items:center;position:relative;min-height:64px;justify-content:center;',
@@ -11187,7 +12236,7 @@
                 const takeQty = e.shiftKey ? Math.min(10, q) : 1;
                 const r = g.omega.withdrawToInventory(g, plotKey, id, takeQty);
                 if (r.ok) {
-                  Balaclava.Audio.play('pickup');
+                  Abyssea.Audio.play('pickup');
                   this.renderModal();
                 } else {
                   g.toast(r.reason, 'warn');
@@ -11207,7 +12256,7 @@
         const nets = g.omega.networks(g);
         const net = nets.get(plotKey) || { gens: [], consumers: [], pylons: [] };
         const nData = g.omega.nexusData(plotKey);
-        const baseBuf = (Balaclava.OMEGA_CONFIG && Balaclava.OMEGA_CONFIG.nexusEnergyBuffer && Balaclava.OMEGA_CONFIG.nexusEnergyBuffer[Math.min(2, Math.max(0, (b.level || 1) - 1))]) || 2000;
+        const baseBuf = (Abyssea.OMEGA_CONFIG && Abyssea.OMEGA_CONFIG.nexusEnergyBuffer && Abyssea.OMEGA_CONFIG.nexusEnergyBuffer[Math.min(2, Math.max(0, (b.level || 1) - 1))]) || 2000;
         let batBonus = 0;
         for (const cEntry of net.consumers) {
           if (cEntry.def.omega.kind === 'battery') {
@@ -11261,7 +12310,7 @@
             'No hay generadores ni máquinas conectadas a este Nexo. Coloca generadores y pilones de enlace para extender la red.'));
         } else {
           for (const node of allNodes) {
-            const bDef = Balaclava.BUILDINGS[node.b.type];
+            const bDef = Abyssea.BUILDINGS[node.b.type];
             const isGen = node.def.omega.kind === 'generator';
             const statText = isGen ? `+${Math.round(g.omega.genOutput(node, plotKey))} W` : `-${Math.round(g.omega.consumerDemand(node))} W`;
             const row = this.el('div', {
@@ -11282,7 +12331,7 @@
                   style: 'font-size:11px;padding:2px 6px;',
                   title: 'Cambiar prioridad energética (1: Baja, 2: Media, 3: Alta)',
                   onclick: () => {
-                    node.b.omega.prio = (node.b.omega.prio % 3) + 1;
+                    node.b.omega.prio = ((node.b.omega.prio || 2) % 3) + 1;
                     this.renderModal();
                   }
                 }, `Prio: ${node.b.omega.prio || 2}`) : null
@@ -11294,7 +12343,7 @@
         body.appendChild(listWrap);
       } else if (this.omegaNexusTab === 'research') {
         const state = g.omega.state;
-        const R_LIST = Balaclava.OmegaSystem.RESEARCH || [];
+        const R_LIST = Abyssea.OmegaSystem.RESEARCH || [];
         const researchedCount = Object.keys(state.research || {}).length;
 
         const headerCard = this.el('div', { class: 'card', style: 'padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;' }, [
@@ -11331,11 +12380,11 @@
               onclick: () => {
                 const res = g.omega.researchAtomic(g, plotKey, r.id);
                 if (res.ok) {
-                  Balaclava.Audio.play('levelup');
+                  Abyssea.Audio.play('levelup');
                   g.toast(`¡Investigado: ${r.name}!`, 'success');
                   this.renderModal();
                 } else {
-                  Balaclava.Audio.play('error');
+                  Abyssea.Audio.play('error');
                   g.toast(res.reason, 'warn');
                 }
               }
@@ -11350,10 +12399,10 @@
     renderOmegaPress(body, b, def) {
       const g = this.game;
       if (!g.omega) return;
-      const plotKey = Balaclava.OmegaSystem.plotKeyOf(b.tx, b.ty);
+      const plotKey = Abyssea.OmegaSystem.plotKeyOf(b.tx, b.ty);
       const o = g.omega.ensureOmegaState(b);
       const cost = g.omega.pressCost();
-      const CATS = Balaclava.OmegaSystem.PRESS_CATEGORIES;
+      const CATS = Abyssea.OmegaSystem.PRESS_CATEGORIES;
       const currentCat = o.category;
 
       const catSelectRow = this.el('div', { style: 'display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;' });
@@ -11411,7 +12460,7 @@
                 }
               }
               if (added > 0) {
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 g.toast(`Transferidos ${added} recursos del Nexo a la prensa.`, 'success');
                 this.renderModal();
               } else {
@@ -11424,7 +12473,7 @@
             onclick: () => {
               const r = g.omega.pressCancel(plotKey, b);
               if (r.ok) {
-                Balaclava.Audio.play('pickup');
+                Abyssea.Audio.play('pickup');
                 g.toast('Compresión cancelada. Materiales devueltos al Nexo.', 'info');
                 this.renderModal();
               } else {
@@ -11440,7 +12489,7 @@
     renderOmegaChamber(body, b, def) {
       const g = this.game;
       if (!g.omega) return;
-      const plotKey = Balaclava.OmegaSystem.plotKeyOf(b.tx, b.ty);
+      const plotKey = Abyssea.OmegaSystem.plotKeyOf(b.tx, b.ty);
       const o = g.omega.ensureOmegaState(b);
 
       const statusCard = this.el('div', { class: 'card', style: 'padding:10px;margin-bottom:12px;' }, [
@@ -11452,7 +12501,7 @@
         ]),
         o.crystal ? this.el('div', {}, [
           this.el('div', { style: 'font-size:13px;color:#e1f5fe;margin-bottom:4px;' },
-            `Jefe Simulado: ${Balaclava.DUNGEON_DEFS[o.crystal.did]?.boss?.name || o.crystal.did} (Ciclos restantes: ${o.crystal.cycles})`),
+            `Jefe Simulado: ${Abyssea.DUNGEON_DEFS[o.crystal.did]?.boss?.name || o.crystal.did} (Ciclos restantes: ${o.crystal.cycles})`),
           this.el('div', { style: 'width:100%;height:8px;background:rgba(0,0,0,0.5);border-radius:4px;overflow:hidden;border:1px solid #00e5ff;' }, [
             this.el('div', { style: `width:${Math.min(100, Math.round(((o.progress || 0) / 30) * 100))}%;height:100%;background:#00e5ff;` })
           ])
@@ -11462,7 +12511,7 @@
       body.appendChild(statusCard);
 
       const bossListWrap = this.el('div', { style: 'max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;' });
-      const dungDefs = Object.values(Balaclava.DUNGEON_DEFS || {});
+      const dungDefs = Object.values(Abyssea.DUNGEON_DEFS || {});
 
       for (const d of dungDefs) {
         if (!d.boss) continue;
@@ -11489,7 +12538,7 @@
                 }
                 const r = g.omega.insertCrystal(g, plotKey, b, d.id);
                 if (r.ok) {
-                  Balaclava.Audio.play('portal');
+                  Abyssea.Audio.play('portal');
                   g.toast(`¡Iniciada simulación de ${d.boss.name}!`, 'success');
                   this.renderModal();
                 } else {
@@ -11502,11 +12551,11 @@
               onclick: () => {
                 const r = g.omega.craftCrystal(g, plotKey, d.id);
                 if (r.ok) {
-                  Balaclava.Audio.play('pickup');
+                  Abyssea.Audio.play('pickup');
                   g.toast(`Cristal de ${d.boss.name} sintetizado.`, 'success');
                   this.renderModal();
                 } else {
-                  Balaclava.Audio.play('error');
+                  Abyssea.Audio.play('error');
                   g.toast(r.reason, 'warn');
                 }
               }
@@ -11521,7 +12570,7 @@
     renderOmegaAltar(body, b, def) {
       const g = this.game;
       if (!g.omega) return;
-      const plotKey = Balaclava.OmegaSystem.plotKeyOf(b.tx, b.ty);
+      const plotKey = Abyssea.OmegaSystem.plotKeyOf(b.tx, b.ty);
       this.omegaAltarTarget = this.omegaAltarTarget || 'tool:espada';
 
       const candidateKeys = [];
@@ -11529,7 +12578,7 @@
         if (g.toolTiers && g.toolTiers[tid]) candidateKeys.push('tool:' + tid);
       }
       for (const [slot, id] of Object.entries(g.equipped || {})) {
-        if (id && Balaclava.ITEMS[id]) candidateKeys.push(id);
+        if (id && Abyssea.ITEMS[id]) candidateKeys.push(id);
       }
 
       const selRow = this.el('div', { style: 'display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:6px;' });
@@ -11579,11 +12628,11 @@
           onclick: () => {
             const r = g.omega.overloadBuy(g, targetKey, n, plotKey);
             if (r.ok) {
-              Balaclava.Audio.play('levelup');
+              Abyssea.Audio.play('levelup');
               g.toast(`¡Sobrecargado ${info.name} a +${r.to}!`, 'success');
               this.renderModal();
             } else {
-              Balaclava.Audio.play('error');
+              Abyssea.Audio.play('error');
               g.toast(r.reason, 'warn');
             }
           }
@@ -11603,11 +12652,11 @@
           if (maxN <= 0) return;
           const r = g.omega.overloadBuy(g, targetKey, maxN, plotKey);
           if (r.ok) {
-            Balaclava.Audio.play('levelup');
+            Abyssea.Audio.play('levelup');
             g.toast(`¡Sobrecargado al máximo posible: +${r.to}!`, 'success');
             this.renderModal();
           } else {
-            Balaclava.Audio.play('error');
+            Abyssea.Audio.play('error');
             g.toast(r.reason, 'warn');
           }
         }
@@ -11622,13 +12671,13 @@
     renderOmegaMachine(body, b, def) {
       const g = this.game;
       if (!g.omega) return;
-      const plotKey = Balaclava.OmegaSystem.plotKeyOf(b.tx, b.ty);
+      const plotKey = Abyssea.OmegaSystem.plotKeyOf(b.tx, b.ty);
       const o = g.omega.ensureOmegaState(b);
       const kind = def.omega.kind;
       const isGen = kind === 'generator';
       const isBat = kind === 'battery';
       const isPylon = kind === 'pylon';
-      const genDef = isGen && Balaclava.OmegaSystem.GENERATORS ? Balaclava.OmegaSystem.GENERATORS[b.type] : null;
+      const genDef = isGen && Abyssea.OmegaSystem.GENERATORS ? Abyssea.OmegaSystem.GENERATORS[b.type] : null;
       const lvlIdx = Math.min(2, Math.max(0, (b.level || 1) - 1));
       const genMult = [1, 1.6, 2.4][lvlIdx] || 1;
       const powerVal = isGen
@@ -11640,7 +12689,7 @@
         : isBat
         ? `+${(def.omega.capBonus && def.omega.capBonus[lvlIdx]) || 5000} W·s (Reserva de Batería)`
         : isPylon
-        ? `Capacidad de transmisión: ${((Balaclava.OMEGA_CONFIG && Balaclava.OMEGA_CONFIG.pylonCapacity) || [60, 180, 540])[lvlIdx]} W/s`
+        ? `Capacidad de transmisión: ${((Abyssea.OMEGA_CONFIG && Abyssea.OMEGA_CONFIG.pylonCapacity) || [60, 180, 540])[lvlIdx]} W/s`
         : `-${powerVal} W/s (Consumo de Red)`;
 
       const card = this.el('div', { class: 'card', style: 'padding:12px;margin-bottom:12px;' }, [
@@ -11675,13 +12724,13 @@
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'padding:10px;font-size:13px;margin-bottom:10px;' }, [
           this.el('strong', { style: 'color:#69f0ae;display:block;margin-bottom:4px;' }, 'Combustibles Compatibles (desde el Nexo):'),
           this.el('div', { style: 'color:#dce8f5;line-height:1.45;' },
-            genDef.fuels.map(f => `${(Balaclava.ITEMS[f.id] && Balaclava.ITEMS[f.id].name) || f.id} (${f.t}s por unidad · En Nexo: ${g.omega.nexusCount(plotKey, f.id)})`).join(' · '))
+            genDef.fuels.map(f => `${(Abyssea.ITEMS[f.id] && Abyssea.ITEMS[f.id].name) || f.id} (${f.t}s por unidad · En Nexo: ${g.omega.nexusCount(plotKey, f.id)})`).join(' · '))
         ]));
       }
 
       if (kind === 'machine') {
         const mtype = def.omega.mtype;
-        const recipes = (Balaclava.OmegaSystem.MACHINE_RECIPES && Balaclava.OmegaSystem.MACHINE_RECIPES[mtype]) || [];
+        const recipes = (Abyssea.OmegaSystem.MACHINE_RECIPES && Abyssea.OmegaSystem.MACHINE_RECIPES[mtype]) || [];
         const curRec = o.recipe || 'auto';
         const recBox = this.el('div', { class: 'card', style: 'padding:10px;margin-bottom:10px;' }, [
           this.el('strong', { style: 'color:#ffe082;display:block;margin-bottom:8px;font-size:14px;' }, 'Receta de Procesamiento (Automático o Fijo):')
@@ -11713,14 +12762,14 @@
       }
 
       if (kind === 'extractor') {
-        const biomeId = g.world.getBiomeAtPixel(b.tx * Balaclava.CONST.TILE_SIZE, b.ty * Balaclava.CONST.TILE_SIZE);
-        const tbl = Balaclava.OmegaSystem.EXTRACT_TABLES[biomeId] || [];
+        const biomeId = g.world.getBiomeAtPixel(b.tx * Abyssea.CONST.TILE_SIZE, b.ty * Abyssea.CONST.TILE_SIZE);
+        const tbl = Abyssea.OmegaSystem.EXTRACT_TABLES[biomeId] || [];
         const resCard = this.el('div', { class: 'parchment-box', style: 'padding:10px;font-size:13px;' }, [
           this.el('strong', { style: 'color:#ffe082;display:block;margin-bottom:4px;' }, 'Vetas del Bioma Detectadas:'),
           this.el('div', { style: 'color:#dce8f5;line-height:1.4;' },
             tbl.length ? tbl.map(k => {
               const itemId = typeof k === 'object' ? k.id : k;
-              return (Balaclava.ITEMS[itemId] && Balaclava.ITEMS[itemId].name) || itemId;
+              return (Abyssea.ITEMS[itemId] && Abyssea.ITEMS[itemId].name) || itemId;
             }).join(', ') : 'Minerales estándar')
         ]);
         body.appendChild(resCard);
@@ -11742,7 +12791,7 @@
 
     renderStationCategories(body, stationId) {
       const g = this.game;
-      const allRecs = Balaclava.RECIPES.filter(r => r.station === stationId);
+      const allRecs = Abyssea.RECIPES.filter(r => r.station === stationId);
       if (!allRecs.length) return;
 
       this.stationTabs = this.stationTabs || {};
@@ -11800,7 +12849,7 @@
 
       const filteredRecs = allRecs.filter(r => {
         if (curTab === 'todos') return true;
-        const it = Balaclava.ITEMS[r.out] || {};
+        const it = Abyssea.ITEMS[r.out] || {};
         const outId = r.out || '';
         if (stationId === 'horno' || stationId === 'fundicion') {
           if (curTab === 'lingotes') return outId.startsWith('lingote_') && !outId.includes('aleacion');
@@ -11857,12 +12906,17 @@
       const filterWrap = this.el('div', { class: 'card', style: 'margin-bottom:12px;' });
       filterWrap.appendChild(this.el('strong', { style: 'color:#ffb74d;display:block;margin-bottom:6px;' }, 'Filtro de Recepción (Objetos aceptados):'));
       const activeFilterText = b.filters.length > 0
-        ? b.filters.map(fid => (Balaclava.ITEMS[fid]?.name || fid)).join(', ')
+        ? b.filters.map(fid => (Abyssea.ITEMS[fid]?.name || fid)).join(', ')
         : 'Todos los objetos permitidos (Sin filtro restrictivo)';
       filterWrap.appendChild(this.el('div', { style: 'font-size:14px;color:#eceff1;margin-bottom:8px;' }, `Filtros activos: ${activeFilterText}`));
 
       const filterBtnRow = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;' });
       const commonFilters = [
+        ['cat:minerales', 'Solo Minerales'],
+        ['cat:peces', 'Solo Peces'],
+        ['cat:semillas', 'Solo Semillas'],
+        ['cat:cultivos', 'Solo Cultivos'],
+        ['cat:botin', 'Solo Botín'],
         ['madera', 'Madera'],
         ['piedra', 'Piedra'],
         ['hierro', 'Hierro'],
@@ -11880,7 +12934,7 @@
             else b.filters.push(fId);
             this.renderModal();
           }
-        }, `${isF ? '✓ ' : '+ '}${fLabel}`));
+        }, `${isF ? '[OK] ' : '+ '}${fLabel}`));
       });
       if (b.filters.length > 0) {
         filterBtnRow.appendChild(this.el('button', {
@@ -11911,7 +12965,7 @@
         const grid = this.el('div', { style: 'display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto;' });
         stKeys.forEach(k => {
           const qty = b.storage[k];
-          const it = Balaclava.ITEMS[k] || { name: k, icon: 'items/gem_ruby' };
+          const it = Abyssea.ITEMS[k] || { name: k, icon: 'items/gem_ruby' };
           const withdraw = (amount) => {
             const want = Math.min(qty, amount);
             if (want <= 0) return;
@@ -11935,7 +12989,7 @@
             b.storage[k] -= take;
             if (b.storage[k] <= 0) delete b.storage[k];
             g.addItem(k, take);
-            Balaclava.Audio.play('pickup');
+            Abyssea.Audio.play('pickup');
             this.updateHUD(true);
             this.renderModal();
           };
@@ -11965,15 +13019,45 @@
       }
 
       const invDeposit = this.el('div', { class: 'card', style: 'margin-bottom:12px;' });
-      invDeposit.appendChild(this.el('strong', { style: 'color:#a5d6a7;display:block;margin-bottom:6px;' }, 'Depositar desde tu inventario:'));
-      const invKeys = Object.keys(g.inventory).filter(k => g.inventory[k] > 0 && Balaclava.ITEMS[k]);
+      const depHead = this.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;flex-wrap:wrap;' }, [
+        this.el('strong', { style: 'color:#a5d6a7;' }, 'Depositar desde tu inventario:'),
+        this.el('button', {
+          class: 'btn btn-gold btn-sm',
+          onclick: () => {
+            let moved = 0;
+            for (const [k, curQ] of Object.entries(b.storage || {})) {
+              if (!curQ || curQ <= 0) continue;
+              const have = g.inventory[k] || 0;
+              if (have <= 0) continue;
+              const curTot = Object.values(b.storage).reduce((s, q) => s + (Number(q) || 0), 0);
+              const space = Math.max(0, cap - curTot);
+              const take = Math.min(have, space);
+              if (take > 0) {
+                g.removeItem(k, take);
+                b.storage[k] = (b.storage[k] || 0) + take;
+                moved += take;
+              }
+            }
+            if (moved > 0) {
+              Abyssea.Audio.play('pickup');
+              g.toast(`Apilados ${moved} objetos coincidentes en el cofre logístico.`, 'success');
+              this.updateHUD(true);
+              this.renderModal();
+            } else {
+              g.toast('No hay objetos coincidentes para apilar.', 'info');
+            }
+          }
+        }, 'Guardar iguales (Stack All)')
+      ]);
+      invDeposit.appendChild(depHead);
+      const invKeys = Object.keys(g.inventory).filter(k => g.inventory[k] > 0 && Abyssea.ITEMS[k]);
       if (invKeys.length === 0) {
         invDeposit.appendChild(this.el('div', { style: 'color:#90a4ae;' }, 'Tu inventario está vacío.'));
       } else {
         const depGrid = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;max-height:170px;overflow-y:auto;' });
         invKeys.forEach(k => {
           const count = g.inventory[k];
-          const it = Balaclava.ITEMS[k] || { name: k };
+          const it = Abyssea.ITEMS[k] || { name: k };
           const depBtn = this.el('button', {
             class: 'btn btn-sm btn-stone',
             onclick: () => {
@@ -11986,7 +13070,7 @@
               const depositQty = Math.min(count, Math.min(10, space));
               g.removeItem(k, depositQty);
               b.storage[k] = (b.storage[k] || 0) + depositQty;
-              Balaclava.Audio.play('pickup');
+              Abyssea.Audio.play('pickup');
               this.updateHUD(true);
               this.renderModal();
             }
@@ -12023,7 +13107,7 @@
       };
       const filterState = this._renderStorageFilterBar(body, 'trash_bin', applyTrashFilter);
 
-      const stagedEntries = Object.entries(b.storage).filter(([id, q]) => q > 0 && Balaclava.ITEMS[id]);
+      const stagedEntries = Object.entries(b.storage).filter(([id, q]) => q > 0 && Abyssea.ITEMS[id]);
       const stagedCount = stagedEntries.reduce((sum, [, q]) => sum + q, 0);
 
       const binCard = this.el('div', { class: 'card', style: 'margin-bottom:10px;padding:10px;border:1px solid rgba(239,83,80,0.45);' });
@@ -12041,7 +13125,7 @@
                   }
                 });
               }
-              if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('destroy');
+              if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('destroy');
               g.toast(`Incinerados ${stagedCount} objetos permanentemente.`, 'warn');
               this.updateHUD(true);
               this.renderModal();
@@ -12056,7 +13140,7 @@
           'El basurero está vacío. Haz clic en objetos de tu inventario abajo para enviarlos aquí.'));
       } else {
         stagedEntries.forEach(([id, q]) => {
-          const it = Balaclava.ITEMS[id];
+          const it = Abyssea.ITEMS[id];
           const slot = this.el('div', {
             class: `inv-slot rarity-${it.rarity || 'comun'}`,
             title: `${it.name} (x${q}) — Clic: Recuperar al inventario`,
@@ -12069,7 +13153,7 @@
               b.storage[id] -= take;
               if (b.storage[id] <= 0) delete b.storage[id];
               g.addItem(id, take);
-              if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+              if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
               this.updateHUD(true);
               this.renderModal();
             }
@@ -12090,13 +13174,13 @@
       const invGrid = this.el('div', { class: 'chest-grid', style: 'max-height:200px;overflow-y:auto;' });
       const playerItems = Object.entries(g.inventory)
         .map(([id, q]) => [id, q || 0])
-        .filter(([id, q]) => q > 0 && Balaclava.ITEMS[id]);
+        .filter(([id, q]) => q > 0 && Abyssea.ITEMS[id]);
 
       if (playerItems.length === 0) {
         invGrid.appendChild(this.el('div', { style: 'grid-column:1/-1;color:#90a4ae;font-size:13px;padding:10px;' }, 'No hay objetos en tu inventario.'));
       } else {
         playerItems.forEach(([id, qty]) => {
-          const it = Balaclava.ITEMS[id];
+          const it = Abyssea.ITEMS[id];
           let rem = qty;
           while (rem > 0) {
             const stackQty = Math.min(rem, maxStack);
@@ -12110,7 +13194,7 @@
                 if (move > 0) {
                   g.removeItem(id, move);
                   b.storage[id] = (b.storage[id] || 0) + move;
-                  if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                  if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                   this.updateHUD(true);
                   this.renderModal();
                 }
@@ -12120,7 +13204,7 @@
                 if ((g.inventory[id] || 0) > 0) {
                   g.removeItem(id, 1);
                   b.storage[id] = (b.storage[id] || 0) + 1;
-                  if (Balaclava.Audio && typeof Balaclava.Audio.play === 'function') Balaclava.Audio.play('pickup');
+                  if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
                   this.updateHUD(true);
                   this.renderModal();
                 }
@@ -12144,11 +13228,12 @@
       g.photoMode = !g.photoMode;
       if (g.photoMode) {
         document.body.classList.add('photo-mode-active');
-        g.toast('Modo Foto activado (Pulsa P o F8 para salir)', 'info');
+        g.toast('Modo Foto activado (WASD mover cámara · Rueda zoom · F9/F8/P salir)', 'info');
       } else {
         document.body.classList.remove('photo-mode-active');
         g.toast('Modo Foto desactivado', 'info');
       }
+      if (typeof this.syncPhotoModeToolbar === 'function') this.syncPhotoModeToolbar();
       this.updateHUD(true);
     }
 
@@ -12179,7 +13264,7 @@
       if (q.reqItems) {
         const itemsOk = Object.entries(q.reqItems).every(([id, amt]) => (g.inventory[id] || 0) >= amt);
         checks.push(itemsOk);
-        parts.push(Object.entries(q.reqItems).map(([id, amt]) => `${Balaclava.ITEMS[id] ? Balaclava.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${amt}`).join(' · '));
+        parts.push(Object.entries(q.reqItems).map(([id, amt]) => `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${g.inventory[id] || 0}/${amt}`).join(' · '));
       }
       if (q.reqKillBiome) {
         const cur = (g.stats.killsByBiome && g.stats.killsByBiome[q.reqKillBiome.biome]) || 0;
@@ -12191,7 +13276,7 @@
       if (q.reqDungeon) {
         const ok = g.clearedDungeons.includes(q.reqDungeon);
         checks.push(ok);
-        const dDef = Balaclava.DUNGEON_DEFS && Balaclava.DUNGEON_DEFS[q.reqDungeon];
+        const dDef = Abyssea.DUNGEON_DEFS && Abyssea.DUNGEON_DEFS[q.reqDungeon];
         parts.push(tr('npc.cryptStatus', { name: dDef ? dDef.name : q.reqDungeon, state: ok ? tr('common.done') : tr('hud.dungPending') }));
       }
       if (q.reqCheck) {
@@ -12203,7 +13288,7 @@
       const statusText = parts.join('  |  ');
 
       const rewardExtra = q.reward.items
-        ? ' + ' + Object.entries(q.reward.items).map(([id, amt]) => `${amt}x ${Balaclava.ITEMS[id].name}`).join(', ')
+        ? ' + ' + Object.entries(q.reward.items).map(([id, amt]) => `${amt}x ${Abyssea.ITEMS[id].name}`).join(', ')
         : '';
 
       body.appendChild(this.el('div', { class: 'card npc-mission-card' }, [
@@ -12223,7 +13308,7 @@
             g.addCoins(q.reward.coins);
             g.gainXp(q.reward.xp);
             if (q.reward.items) Object.entries(q.reward.items).forEach(([id, amt]) => g.addItem(id, amt));
-            Balaclava.Audio.play('levelup');
+            Abyssea.Audio.play('levelup');
             g.toast(tr('npc.completedToast', { title: q.title }), 'success');
             this.renderModal();
           }
@@ -12470,15 +13555,15 @@
       let candidates = [];
 
       if (cmd === 'give' && argIdx === 1) {
-        candidates = ['all', 'kit', ...Object.keys(Balaclava.ITEMS || {})];
+        candidates = ['all', 'kit', ...Object.keys(Abyssea.ITEMS || {})];
       } else if (cmd === 'tool') {
         candidates = argIdx === 1
-          ? ['all', ...Object.keys(Balaclava.TOOLS || {})]
-          : (Balaclava.TOOL_TIERS || []);
+          ? ['all', ...Object.keys(Abyssea.TOOLS || {})]
+          : (Abyssea.TOOL_TIERS || []);
       } else if (cmd === 'armor') {
         candidates = argIdx === 1
-          ? ['all', ...Object.keys(Balaclava.ARMORS || {})]
-          : (Balaclava.TOOL_TIERS || []);
+          ? ['all', ...Object.keys(Abyssea.ARMORS || {})]
+          : (Abyssea.TOOL_TIERS || []);
       } else if (cmd === 'money' || cmd === 'coins' || cmd === 'gold' || cmd === 'eco') {
         candidates = argIdx === 1 ? ['give', 'add', 'set', 'take'] : [];
       } else if (cmd === 'xp' || cmd === 'sp') {
@@ -12582,7 +13667,7 @@
 
       if (cmd === 'give') {
         if (!args.length) return fail('Uso: /give <item|all|kit> [cantidad]');
-        const ITEMS = Balaclava.ITEMS || {};
+        const ITEMS = Abyssea.ITEMS || {};
         let qty = 1;
         let queryParts = args;
         if (args.length >= 2 && /^\d+$/.test(args[args.length - 1])) {
@@ -12647,8 +13732,8 @@
 
       if (cmd === 'tool' || cmd === 'tools' || cmd === 'herramienta') {
         if (!args.length) return fail('Uso: /tool <id|all> [tier=celestial]');
-        const TOOLS = Balaclava.TOOLS || {};
-        const TIERS = Balaclava.TOOL_TIERS || [];
+        const TOOLS = Abyssea.TOOLS || {};
+        const TIERS = Abyssea.TOOL_TIERS || [];
         const who = this._normCmdStr(args[0]);
         let tier = 'celestial';
         if (args[1]) {
@@ -12692,8 +13777,8 @@
 
       if (cmd === 'armor' || cmd === 'armadura') {
         if (!args.length) return fail('Uso: /armor <helm|armor|shield|boots|all> [tier=celestial]');
-        const ARMORS = Balaclava.ARMORS || {};
-        const TIERS = Balaclava.TOOL_TIERS || [];
+        const ARMORS = Abyssea.ARMORS || {};
+        const TIERS = Abyssea.TOOL_TIERS || [];
         const aliasMap = {
           helm: 'helm', helmet: 'helm', casco: 'helm',
           armor: 'armor', armadura: 'armor', pecho: 'armor', chest: 'armor',
@@ -12912,13 +13997,24 @@
         if (target === 'plots' || target === 'all') {
           let unlockedCount = 0;
           if (g.world) {
+            if (typeof g.world.unlockAllPlots === 'function') {
+              unlockedCount = g.world.unlockAllPlots();
+            } else {
+              for (let gy = 0; gy < GRID_PLOTS; gy++) {
+                for (let gx = 0; gx < GRID_PLOTS; gx++) {
+                  if (!g.world.plotUnlocked[gy] || !g.world.plotUnlocked[gy][gx]) {
+                    g.world.unlockPlot(gx, gy, false);
+                    unlockedCount++;
+                  }
+                }
+              }
+            }
+            const existingPlots = new Set((g.unlockedPlots || []).map(p => (p[1] << 8) | p[0]));
             for (let gy = 0; gy < GRID_PLOTS; gy++) {
               for (let gx = 0; gx < GRID_PLOTS; gx++) {
-                if (!g.world.plotUnlocked[gy] || !g.world.plotUnlocked[gy][gx]) {
-                  g.world.unlockPlot(gx, gy, false);
-                  unlockedCount++;
-                }
-                if (!g.unlockedPlots.some(p => p[0] === gx && p[1] === gy)) {
+                const k = (gy << 8) | gx;
+                if (!existingPlots.has(k)) {
+                  existingPlots.add(k);
                   g.unlockedPlots.push([gx, gy]);
                 }
               }
@@ -12927,7 +14023,7 @@
           done.push(`islas +${unlockedCount}`);
         }
         if (target === 'skills' || target === 'all') {
-          const allSkills = Object.keys(Balaclava.SKILLS || {});
+          const allSkills = Object.keys(Abyssea.SKILLS || {});
           let added = 0;
           allSkills.forEach(sid => {
             if (!g.unlockedSkills.includes(sid)) {
@@ -12939,7 +14035,7 @@
           done.push(`constelaciones +${added}`);
         }
         if (target === 'spells' || target === 'all') {
-          const allSpells = Object.keys(Balaclava.SPELLS || {});
+          const allSpells = Object.keys(Abyssea.SPELLS || {});
           if (!Array.isArray(g.unlockedSpells)) g.unlockedSpells = [];
           if (!Array.isArray(g.spellSlots)) g.spellSlots = [null, null, null, null];
           let added = 0;
@@ -13006,7 +14102,7 @@
       }
 
       if (cmd === 'boss' || cmd === 'dungeon') {
-        const dList = Balaclava.DUNGEON_TIER_LIST || Object.keys(Balaclava.DUNGEON_DEFS || {});
+        const dList = Abyssea.DUNGEON_TIER_LIST || Object.keys(Abyssea.DUNGEON_DEFS || {});
         const arg = args[0] ? this._normCmdStr(args[0]) : 'final';
         if (arg === 'list') {
           return succeed(`75 Bosses: ${dList.slice(0, 8).join(', ')} ... ${dList.slice(-8).join(', ')} (usa /boss final o /boss <id>).`, 'info');
@@ -13017,31 +14113,31 @@
         } else if (arg === 'next') {
           const cleared = new Set(g.clearedDungeons || []);
           targetId = dList.find(id => !cleared.has(id)) || dList[dList.length - 1];
-        } else if (!Balaclava.DUNGEON_DEFS || !Balaclava.DUNGEON_DEFS[targetId]) {
-          const match = dList.find(id => id.includes(arg) || (Balaclava.DUNGEON_DEFS[id] && this._normCmdStr(Balaclava.DUNGEON_DEFS[id].name).includes(arg)));
+        } else if (!Abyssea.DUNGEON_DEFS || !Abyssea.DUNGEON_DEFS[targetId]) {
+          const match = dList.find(id => id.includes(arg) || (Abyssea.DUNGEON_DEFS[id] && this._normCmdStr(Abyssea.DUNGEON_DEFS[id].name).includes(arg)));
           if (match) targetId = match;
         }
-        if (!Balaclava.DUNGEON_DEFS || !Balaclava.DUNGEON_DEFS[targetId]) {
+        if (!Abyssea.DUNGEON_DEFS || !Abyssea.DUNGEON_DEFS[targetId]) {
           return fail(`Mazmorra/Jefe desconocido "${args[0]}". Usa /boss list.`);
         }
         if (g.activeDungeon && typeof g.exitDungeon === 'function') g.exitDungeon(true);
         g.enterDungeon(targetId, false, { directArena: true, forceNormal: true });
         this.toggleSecretConsole(false);
-        return succeed(`Entrando directo a la arena de ${Balaclava.DUNGEON_DEFS[targetId].boss ? Balaclava.DUNGEON_DEFS[targetId].boss.name : targetId}!`);
+        return succeed(`Entrando directo a la arena de ${Abyssea.DUNGEON_DEFS[targetId].boss ? Abyssea.DUNGEON_DEFS[targetId].boss.name : targetId}!`);
       }
 
       if (cmd === 'spawnboss' || cmd === 'summonboss') {
-        const dList = Balaclava.DUNGEON_TIER_LIST || Object.keys(Balaclava.DUNGEON_DEFS || {});
+        const dList = Abyssea.DUNGEON_TIER_LIST || Object.keys(Abyssea.DUNGEON_DEFS || {});
         const arg = args[0] ? this._normCmdStr(args[0]) : 'eclipse_carmesi';
         let targetId = arg === 'final' ? 'eclipse_carmesi' : arg;
-        if (!Balaclava.DUNGEON_DEFS || !Balaclava.DUNGEON_DEFS[targetId]) {
+        if (!Abyssea.DUNGEON_DEFS || !Abyssea.DUNGEON_DEFS[targetId]) {
           targetId = dList.find(id => id.includes(arg)) || 'eclipse_carmesi';
         }
-        const def = Balaclava.DUNGEON_DEFS[targetId];
+        const def = Abyssea.DUNGEON_DEFS[targetId];
         if (!def) return fail(`Def no encontrada: ${targetId}`);
         const tier = Math.max(0, dList.indexOf(targetId));
-        const stats = (Balaclava.DungeonInstance && Balaclava.DungeonInstance.computeBossStats)
-          ? Balaclava.DungeonInstance.computeBossStats(def, tier, g.player.level || 1)
+        const stats = (Abyssea.DungeonInstance && Abyssea.DungeonInstance.computeBossStats)
+          ? Abyssea.DungeonInstance.computeBossStats(def, tier, g.player.level || 1)
           : { hp: def.boss.hp * 30, maxHp: def.boss.hp * 30, dmg: def.boss.dmg * 10 };
         const bossMob = {
           id: (g.combat ? g.combat.nextId++ : Math.floor(Math.random() * 99999)),
@@ -13106,7 +14202,7 @@
       }
 
       if (cmd === 'vfx') {
-        const keys = Object.keys(Balaclava.VFX_V2 || {}).filter(k => k.startsWith('sp_'));
+        const keys = Object.keys(Abyssea.VFX_V2 || {}).filter(k => k.startsWith('sp_'));
         if (!args.length || this._normCmdStr(args[0]) === 'list') {
           return succeed(`VFX sp_*: ${keys.join(', ')}`, 'info');
         }
@@ -13141,7 +14237,7 @@
         g.player.hp = g.player.maxHp;
         g.player.energy = g.player.maxEnergy;
         ['casco_omega', 'armadura_omega', 'escudo_omega', 'botas_omega', 'hoja_singularidad'].forEach(id => {
-          if (Balaclava.ITEMS && Balaclava.ITEMS[id]) g.addItem(id, 1);
+          if (Abyssea.ITEMS && Abyssea.ITEMS[id]) g.addItem(id, 1);
         });
         if (preset === 'camp') {
           if (g.activeDungeon && typeof g.exitDungeon === 'function') g.exitDungeon(true);
@@ -13166,6 +14262,6 @@
 
   }
 
-  Balaclava.getKeybinds = () => (Balaclava.UI && Balaclava.UI.keybinds) || DEFAULT_KEYBINDS;
-  Balaclava.UI = new UIController();
+  Abyssea.getKeybinds = () => (Abyssea.UI && Abyssea.UI.keybinds) || DEFAULT_KEYBINDS;
+  Abyssea.UI = new UIController();
 })();

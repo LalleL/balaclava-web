@@ -1,8 +1,8 @@
 (function () {
   'use strict';
 
-  const Balaclava = (window.Balaclava = window.Balaclava || {});
-  const { TILE_SIZE } = Balaclava.CONST;
+  const Abyssea = (window.Abyssea = window.Abyssea || {});
+  const { TILE_SIZE } = Abyssea.CONST;
 
   // 10 Multi-room instanced dungeons across all 5 biomes with traps, rune puzzles, chests, and multi-phase bosses.
   const DUNGEON_DEFS = {
@@ -1530,7 +1530,7 @@
     switch (mode) {
       // 1. Rey Limo Ancestral
       case 'slime_acid_mitosis':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.spawnFx('pvfx_acid_splash', b.x, b.y, 0, 0.45, 1.4, 0.95);
         for (let k = 0; k < 10; k++) {
           const a = ang + (k / 10) * Math.PI * 2;
@@ -1544,7 +1544,7 @@
         return true;
 
       case 'slime_toxic_geyser':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_bubble_burst', b.x, b.y, 0, 0.5, 1.2, 0.9);
         for (let k = 0; k < 3; k++) {
           const gx = px + (k - 1) * 44;
@@ -1554,7 +1554,7 @@
         return true;
 
       case 'slime_colossal_bounce':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         b.leapDur = 0.45;
         b.leapProg = 0.001;
         b.leapStartX = b.x;
@@ -1566,17 +1566,17 @@
 
       // 2. Rey Goblin Korak
       case 'warlord_blade_whirl':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.dashTimer = 0.44;
         b._dashHitCd = 0;
         b.dashVx = Math.cos(tAng) * 490;
         b.dashVy = Math.sin(tAng) * 490;
-        game.spawnFx('pa_slash2_gold', b.x, b.y, tAng, 0.38, 1.3, 0.95);
+        game.spawnFx('pa_slash3_gold', b.x, b.y, tAng, 0.38, 1.3, 0.95);
         game.spawnFx('pvfx_sword_combo', b.x, b.y, tAng, 0.42, 1.2, 0.95);
         return true;
 
       case 'goblin_dynamite_barrage':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('pvfx_fire_nova', b.x, b.y, 0, 0.45, 1.1, 0.92);
         for (let k = 0; k < 4; k++) {
           const a = (k / 4) * Math.PI * 2;
@@ -1587,7 +1587,7 @@
         return true;
 
       case 'war_cry_earth_shatter':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.32, 8);
         game.spawnShockwave(b.x, b.y, 140, '#ffb300');
         game.spawnFx('pvfx_power_up_aura', b.x, b.y, 0, 0.5, 1.3, 0.9);
@@ -1599,7 +1599,7 @@
 
       // 3. Faraón Escorpión Khepra
       case 'venom_stinger_triple':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('aw_thrust_stab', b.x, b.y, tAng, 0.35, 1.2, 0.95);
         for (let k = 0; k < 3; k++) {
           setTimeout(() => {
@@ -1611,13 +1611,13 @@
         return true;
 
       case 'quicksand_sinkhole':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_whirlpool', px, py, 0, 0.65, 1.4, 0.92);
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 64, duration: 3.2, timer: 0, dmg: b.dmg * 0.75, color: '#e6c280', vfxKey: 'pvfx_dust_puff' });
         return true;
 
       case 'sand_burrow_eruption':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('pvfx_dust_puff', b.x, b.y, 0, 0.45, 1.3, 0.9);
         b.x = px + (Math.random() - 0.5) * 30;
         b.y = py + (Math.random() - 0.5) * 30;
@@ -1625,27 +1625,27 @@
         game.spawnShockwave(b.x, b.y, 130, '#ffd54f');
         game.spawnFx('aw_earth_rockspike', b.x, b.y, 0, 0.6, 1.4, 0.98);
         game.spawnFx('pvfx_rock_shatter', b.x, b.y, 0, 0.5, 1.2, 0.95);
-        if (Balaclava.Utils.dist(b.x, b.y, px, py) < 110) game.damagePlayer(Math.round(b.dmg * 1.35));
+        if (Abyssea.Utils.dist(b.x, b.y, px, py) < 110) game.damagePlayer(Math.round(b.dmg * 1.35));
         return true;
 
       // 4. Centurión Solar Anub
       case 'solar_lance_beam':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_divine_beam', b.x, b.y, tAng, 0.55, 1.4, 0.98);
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 220, y2: b.y + Math.sin(tAng) * 220, halfW: 24, delay: 0.55, duration: 1.5, timer: 0, dmg: b.dmg * 1.3, color: '#ffd54f', vfxKey: 'pvfx_arcane_beam' });
         return true;
 
       case 'sun_disc_ricochet':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pvfx_star_burst_pickup', b.x, b.y, 0, 0.4, 1.2, 0.92);
         for (let k = 0; k < 3; k++) {
           const a = tAng + (k - 1) * 0.35;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 260, Math.sin(a) * 260, Math.round(b.dmg * 0.88), '#ffd54f', { vfxKey: 'aw_holy_cross', bounces: 2 });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 260, Math.sin(a) * 260, Math.round(b.dmg * 0.88), '#ffd54f', { vfxKey: 'pvfx_holy_smite', bounces: 2 });
         }
         return true;
 
       case 'radiant_judgment_grid':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.28, 7);
         for (let k = 0; k < 5; k++) {
           const rx = px + (k - 2) * 50;
@@ -1656,13 +1656,13 @@
 
       // 5. Archidruida del Vacío
       case 'abyssal_singularity':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_void_implosion', px, py, 0, 0.65, 1.35, 0.95);
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 68, duration: 2.5, timer: 0, dmg: b.dmg * 1.15, color: '#ab47bc', vfxKey: 'pvfx_implosion', status: { kind: 'curse', dur: 2.5 } });
         return true;
 
       case 'void_tendril_grasp':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('aw_shadow_spikes', px, py, 0, 0.55, 1.3, 0.95);
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.22;
@@ -1671,7 +1671,7 @@
         return true;
 
       case 'entropy_skull_spiral':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_curse', b.x, b.y, 0, 0.45, 1.2, 0.92);
         for (let k = 0; k < 12; k++) {
           const a = ang + (k / 12) * Math.PI * 2;
@@ -1681,9 +1681,9 @@
 
       // 6. Soberano Esqueleto Malakor
       case 'death_scythe_reap':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.shake(0.28, 7);
-        game.spawnFx('pvfx_scythe_slash', b.x, b.y, tAng, 0.5, 1.45, 0.98);
+        game.spawnFx('pvfx_shadow_claw', b.x, b.y, tAng, 0.5, 1.45, 0.98);
         game.spawnFx('pa_slash1_purple', b.x, b.y, tAng, 0.42, 1.3, 0.92);
         for (let k = -1; k <= 1; k++) {
           const a = tAng + k * 0.24;
@@ -1692,13 +1692,13 @@
         return true;
 
       case 'bone_cage_prison':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('aw_shadow_spikes', px, py, 0, 0.6, 1.35, 0.95);
         dung.hazardZones.push({ kind: 'meteor', x: px, y: py, radius: 58, delay: 0.95, duration: 2.2, timer: 0, detonated: false, dmg: b.dmg * 1.3, color: '#e1bee7', vfxKey: 'pvfx_blood_splat' });
         return true;
 
       case 'soul_siphon_vortex':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('pvfx_soul_drain', b.x, b.y, 0, 0.6, 1.4, 0.92);
         for (let k = 0; k < 8; k++) {
           const a = (k / 8) * Math.PI * 2;
@@ -1708,7 +1708,7 @@
 
       // 7. Coloso de Escarcha
       case 'glacial_avalanche':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.35, 9);
         game.spawnFx('aw_ice_spikewave', b.x, b.y, tAng, 0.55, 1.4, 0.95);
         for (let k = -1; k <= 1; k++) {
@@ -1718,7 +1718,7 @@
         return true;
 
       case 'permafrost_shatter':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnShockwave(b.x, b.y, 160, '#80deea');
         game.spawnFx('pvfx_frost_nova', b.x, b.y, 0, 0.65, 1.5, 0.98);
         game.spawnFx('aw_ice_chargeshatter', b.x, b.y, 0, 0.6, 1.4, 0.92);
@@ -1726,7 +1726,7 @@
         return true;
 
       case 'ice_shard_gatling':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('aw_ice_castfrost', b.x, b.y, tAng, 0.45, 1.2, 0.92);
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.10;
@@ -1736,7 +1736,7 @@
 
       // 8. Archimago Boreal Vael
       case 'cryo_teleport_frostbite':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_blink_out', b.x, b.y, 0, 0.4, 1.2, 0.95);
         dung.hazardZones.push({ kind: 'meteor', x: b.x, y: b.y, radius: 60, delay: 0.8, duration: 2.2, timer: 0, detonated: false, dmg: b.dmg * 1.2, color: '#4fc3f7', vfxKey: 'pvfx_frost_nova' });
         {
@@ -1748,13 +1748,13 @@
         return true;
 
       case 'absolute_zero_comet':
-        Balaclava.Audio.play('meteor');
+        Abyssea.Audio.play('meteor');
         game.spawnFx('aw_ice_castfrost', b.x, b.y, 0, 0.5, 1.3, 0.95);
         dung.hazardZones.push({ kind: 'meteor', x: px, y: py, radius: 72, delay: 0.95, duration: 3.0, timer: 0, detonated: false, dmg: b.dmg * 1.4, color: '#4fc3f7', vfxKey: 'pvfx_snowball_impact', status: { kind: 'slow', dur: 3.0 } });
         return true;
 
       case 'boreal_needle_supernova':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('aw_ice_chargeshatter', b.x, b.y, 0, 0.6, 1.45, 0.98);
         for (let k = 0; k < 16; k++) {
           const a = (k / 16) * Math.PI * 2;
@@ -1764,7 +1764,7 @@
 
       // 9. Dragón Carmesí Ignis
       case 'dragon_magma_breath':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('pvfx_flamethrower', b.x, b.y, tAng, 0.6, 1.5, 0.98);
         game.spawnFx('pvfx_fire_tornado', b.x, b.y, tAng, 0.5, 1.3, 0.9);
         for (let k = -2; k <= 2; k++) {
@@ -1779,7 +1779,7 @@
         return true;
 
       case 'hellfire_wing_gust':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('soggy_fire_slash', b.x, b.y, tAng, 0.45, 1.4, 0.95);
         game.spawnFx('pvfx_fire_nova', b.x, b.y, 0, 0.45, 1.3, 0.9);
         for (const s of [-0.22, 0.22]) {
@@ -1788,7 +1788,7 @@
         return true;
 
       case 'inferno_meteor_cataclysm':
-        Balaclava.Audio.play('meteor');
+        Abyssea.Audio.play('meteor');
         game.shake(0.35, 9);
         game.spawnFx('pvfx_fire_tornado', b.x, b.y, 0, 0.55, 1.35, 0.95);
         for (let k = 0; k < 5; k++) {
@@ -1800,7 +1800,7 @@
 
       // 10. Señor Ígneo Balak
       case 'calamity_fissure_cross':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.38, 10);
         game.spawnFx('pvfx_lava_burst', b.x, b.y, 0, 0.65, 1.5, 0.98);
         for (const off of [0, Math.PI / 2]) {
@@ -1810,7 +1810,7 @@
         return true;
 
       case 'pyroclastic_eruption':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.35, 9);
         game.spawnShockwave(b.x, b.y, 180, '#ff1744');
         game.spawnFx('aw_fire_chargeburst_max', b.x, b.y, 0, 0.75, 1.6, 1.0);
@@ -1821,7 +1821,7 @@
         return true;
 
       case 'chains_of_damnation':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('pvfx_chain_lightning', b.x, b.y, tAng, 0.55, 1.4, 0.95);
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.18;
@@ -1831,7 +1831,7 @@
 
       // 11. Jefe Zapador Skrag
       case 'buckshot_scatter':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pvfx_hit_spark', b.x, b.y, tAng, 0.35, 1.3, 0.95);
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.12;
@@ -1840,7 +1840,7 @@
         return true;
 
       case 'trapper_minefield':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let k = 0; k < 4; k++) {
           const mx = px + (Math.random() - 0.5) * 90;
           const my = py + (Math.random() - 0.5) * 90;
@@ -1849,7 +1849,7 @@
         return true;
 
       case 'dynamite_lob':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let k = 0; k < 3; k++) {
           const mx = px + (k - 1) * 48;
           const my = py + (Math.random() - 0.5) * 30;
@@ -1859,14 +1859,14 @@
 
       // 12. Capitán Jabalí Grok
       case 'iron_flail_cleave':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pa_slash1_red', b.x, b.y, 0, 0.45, 1.5, 0.95);
         game.spawnShockwave(b.x, b.y, 130, '#ef5350');
         if (d < 125) game.damagePlayer(Math.round(b.dmg * 1.35));
         return true;
 
       case 'berserker_tusk_rush':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.dashTimer = 0.45;
         b._dashHitCd = 0;
         b.dashVx = Math.cos(tAng) * 510;
@@ -1876,7 +1876,7 @@
         return true;
 
       case 'ground_tremor_stomp':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.32, 8);
         game.spawnFx('pvfx_ground_slam', b.x, b.y, 0, 0.55, 1.4, 0.95);
         for (let k = -1; k <= 1; k++) {
@@ -1887,7 +1887,7 @@
 
       // 13. Guardián Silvestre Orin
       case 'nature_wrath_bolt':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_poison_cloud', b.x, b.y, 0, 0.4, 1.2, 0.92);
         for (let k = -1; k <= 1; k++) {
           const a = tAng + k * 0.2;
@@ -1896,12 +1896,12 @@
         return true;
 
       case 'bramble_root_surge':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: px, y2: py, halfW: 24, delay: 0.65, duration: 1.8, timer: 0, dmg: b.dmg * 1.1, color: '#81c784', vfxKey: 'pvfx_poison_cloud', status: { kind: 'poison', dur: 2.2 } });
         return true;
 
       case 'ancient_spore_nova':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_spore_burst', b.x, b.y, 0, 0.6, 1.45, 0.95);
         for (let k = 0; k < 10; k++) {
           const a = (k / 10) * Math.PI * 2;
@@ -1911,7 +1911,7 @@
 
       // 14. Sierpe Esmeralda Sotek
       case 'tail_whip_sandstorm':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pvfx_dust_puff', b.x, b.y, tAng, 0.45, 1.3, 0.92);
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.15;
@@ -1920,7 +1920,7 @@
         return true;
 
       case 'cobra_venom_spray':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.spawnFx('pvfx_acid_splash', b.x, b.y, tAng, 0.45, 1.35, 0.95);
         for (let k = -1; k <= 1; k++) {
           const a = tAng + k * 0.22;
@@ -1929,7 +1929,7 @@
         return true;
 
       case 'constrictor_lunge':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.dashTimer = 0.38;
         b._dashHitCd = 0;
         b.dashVx = Math.cos(tAng) * 460;
@@ -1939,13 +1939,13 @@
 
       // 15. Sumo Escriba Khafre
       case 'anubis_hex_bolt':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('pvfx_curse', b.x, b.y, 0, 0.4, 1.2, 0.92);
         game.spawnEnemyProjectile(b.x, b.y, Math.cos(tAng) * 270, Math.sin(tAng) * 270, Math.round(b.dmg * 1.25), '#ab47bc', { vfxKey: 'pvfx_curse', homing: 0.9, status: { kind: 'curse', dur: 2.8 } });
         return true;
 
       case 'cursed_hieroglyph_seal':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         for (let k = 0; k < 4; k++) {
           const a = (k / 4) * Math.PI * 2;
           const sx = px + Math.cos(a) * 50;
@@ -1955,7 +1955,7 @@
         return true;
 
       case 'papyrus_swarm':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_magic_circle', b.x, b.y, 0, 0.5, 1.3, 0.95);
         for (let k = 0; k < 8; k++) {
           const a = ang + (k / 8) * Math.PI * 2;
@@ -1965,7 +1965,7 @@
 
       // 16. Faraón Radiante Ra-Men
       case 'golden_dawn_barrage':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.spawnFx('pvfx_holy_smite', b.x, b.y, 0, 0.6, 1.4, 0.98);
         for (let k = 0; k < 12; k++) {
           const a = (k / 12) * Math.PI * 2;
@@ -1974,13 +1974,13 @@
         return true;
 
       case 'prism_solar_flare':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_divine_beam', b.x, b.y, tAng, 0.5, 1.4, 0.95);
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 200, y2: b.y + Math.sin(tAng) * 200, halfW: 24, delay: 0.55, duration: 1.6, timer: 0, dmg: b.dmg * 1.25, color: '#ffd54f', vfxKey: 'pvfx_divine_beam' });
         return true;
 
       case 'sun_chariot_charge':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.dashTimer = 0.42;
         b._dashHitCd = 0;
         b.dashVx = Math.cos(tAng) * 490;
@@ -1990,14 +1990,14 @@
 
       // 17. Autómata Alquímico X-09
       case 'steam_vent_purge':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.spawnShockwave(b.x, b.y, 140, '#b0bec5');
         game.spawnFx('pvfx_implosion', b.x, b.y, 0, 0.5, 1.4, 0.95);
         if (d < 135) game.damagePlayer(Math.round(b.dmg * 1.3));
         return true;
 
       case 'volatile_flask_toss':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let k = 0; k < 3; k++) {
           const fx = px + (k - 1) * 45;
           const fy = py + (Math.random() - 0.5) * 40;
@@ -2006,7 +2006,7 @@
         return true;
 
       case 'overclock_laser_sweep':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_arcane_beam', b.x, b.y, tAng, 0.55, 1.45, 0.98);
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.14;
@@ -2016,18 +2016,18 @@
 
       // 18. Emperatriz Arácnea Syla
       case 'venomous_mandible_strike':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('aw_claw_swipe', b.x, b.y, tAng, 0.38, 1.35, 0.98);
         if (d < 120) game.damagePlayer(Math.round(b.dmg * 1.35), { status: { kind: 'poison', dur: 3.5 } });
         return true;
 
       case 'silk_web_ensnare':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 60, duration: 3.5, timer: 0, dmg: b.dmg * 0.6, color: '#e0e0e0', vfxKey: 'pvfx_rune_trap', status: { kind: 'slow', dur: 3.0 } });
         return true;
 
       case 'broodmother_needle_burst':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pvfx_poison_cloud', b.x, b.y, 0, 0.45, 1.3, 0.92);
         for (let k = 0; k < 8; k++) {
           const a = (k / 8) * Math.PI * 2;
@@ -2037,14 +2037,14 @@
 
       // 19. Hidra del Pantano Mog
       case 'furious_swamp_thrash':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.3, 8);
         game.spawnFx('pvfx_water_splash', b.x, b.y, 0, 0.5, 1.4, 0.95);
         if (d < 130) game.damagePlayer(Math.round(b.dmg * 1.35));
         return true;
 
       case 'triple_acid_stream':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.spawnFx('pvfx_acid_splash', b.x, b.y, tAng, 0.45, 1.3, 0.95);
         for (let k = -1; k <= 1; k++) {
           const a = tAng + k * 0.18;
@@ -2053,14 +2053,14 @@
         return true;
 
       case 'swamp_mire_surge':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_tidal_wave', px, py, 0, 0.6, 1.4, 0.95);
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 68, duration: 3.0, timer: 0, dmg: b.dmg * 0.85, color: '#26a69a', vfxKey: 'pvfx_water_geyser', status: { kind: 'poison', dur: 2.5 } });
         return true;
 
       // 20. Gólem de Diamante Boreal
       case 'gem_laser_refraction':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('aw_arcane_impact', b.x, b.y, tAng, 0.5, 1.3, 0.95);
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.16;
@@ -2069,7 +2069,7 @@
         return true;
 
       case 'diamond_shard_shatter':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.32, 8);
         game.spawnShockwave(b.x, b.y, 140, '#4fc3f7');
         game.spawnFx('pvfx_rock_shatter', b.x, b.y, 0, 0.5, 1.4, 0.95);
@@ -2080,7 +2080,7 @@
         return true;
 
       case 'crystal_spire_eruption':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         for (let k = 0; k < 4; k++) {
           const sx = px + (k - 1.5) * 44;
           const sy = py + (Math.random() - 0.5) * 40;
@@ -2090,7 +2090,7 @@
 
       // 21. Comandante Valkir Thrond
       case 'thunder_shield_slam':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.3, 8);
         game.spawnShockwave(b.x, b.y, 140, '#90caf9');
         game.spawnFx('pvfx_thunder_cloud', b.x, b.y, 0, 0.55, 1.4, 0.95);
@@ -2098,13 +2098,13 @@
         return true;
 
       case 'valkyrie_storm_javelin':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.spawnFx('aw_lightning_orb', b.x, b.y, tAng, 0.45, 1.3, 0.95);
         dung.hazardZones.push({ kind: 'pillar', x: px, y: py, radius: 52, delay: 0.7, oneShot: true, timer: 0, dmg: b.dmg * 1.3, color: '#90caf9', vfxKey: 'pvfx_lightning_strike', status: { kind: 'shock', dur: 2.5 } });
         return true;
 
       case 'ride_of_the_valkyrie':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.leapDur = 0.44;
         b.leapProg = 0.001;
         b.leapStartX = b.x;
@@ -2116,7 +2116,7 @@
 
       // 22. Forjador Titánico Hephaest
       case 'bellows_flame_burst':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.spawnFx('pvfx_flamethrower', b.x, b.y, tAng, 0.55, 1.45, 0.95);
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.16;
@@ -2125,7 +2125,7 @@
         return true;
 
       case 'titanic_anvil_strike':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.38, 10);
         game.spawnShockwave(b.x, b.y, 160, '#ff7043');
         game.spawnFx('pvfx_hammer_smash', b.x, b.y, 0, 0.65, 1.5, 0.98);
@@ -2135,7 +2135,7 @@
         return true;
 
       case 'molten_slag_shower':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let k = 0; k < 4; k++) {
           const sx = px + (Math.random() - 0.5) * 100;
           const sy = py + (Math.random() - 0.5) * 100;
@@ -2145,7 +2145,7 @@
 
       // 23. Fénix Magmático Zyr
       case 'solar_feather_barrage':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_fireball_impact', b.x, b.y, 0, 0.45, 1.3, 0.95);
         for (let k = 0; k < 12; k++) {
           const a = (k / 12) * Math.PI * 2;
@@ -2154,7 +2154,7 @@
         return true;
 
       case 'phoenix_dive_bomb':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         b.leapDur = 0.42;
         b.leapProg = 0.001;
         b.leapStartX = b.x;
@@ -2165,7 +2165,7 @@
         return true;
 
       case 'rebirth_flame_nova':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.32, 8);
         game.spawnShockwave(b.x, b.y, 170, '#ffca28');
         game.spawnFx('pvfx_fire_nova', b.x, b.y, 0, 0.65, 1.5, 0.98);
@@ -2177,7 +2177,7 @@
 
       // 24. Emperador Ceniza Kael-Vorn
       case 'cataclysmic_stomp':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.4, 11);
         game.spawnShockwave(b.x, b.y, 180, '#ff1744');
         game.spawnFx('soggy_incinerate', b.x, b.y, 0, 0.7, 1.6, 1.0);
@@ -2186,13 +2186,13 @@
         return true;
 
       case 'ashen_obliteration_ray':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('aw_fire_chargeburst_max', b.x, b.y, tAng, 0.65, 1.6, 1.0);
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 240, y2: b.y + Math.sin(tAng) * 240, halfW: 28, delay: 0.6, duration: 1.8, timer: 0, dmg: b.dmg * 1.4, color: '#ff1744', vfxKey: 'pvfx_fire_pillar', status: { kind: 'burn', dur: 3.0 } });
         return true;
 
       case 'cinder_cyclone':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         for (const s of [-40, 40]) {
           dung.hazardZones.push({ kind: 'pool', x: px + s, y: py, radius: 55, duration: 3.5, timer: 0, dmg: b.dmg * 1.1, color: '#ff1744', vfxKey: 'pvfx_fire_tornado', status: { kind: 'burn', dur: 3.0 } });
         }
@@ -2202,23 +2202,23 @@
 
       // 1. Archidruida del Vacío (bosque_oscuro)
       case 'cosmic_black_hole':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('pvfx_whirlpool', px, py, 0, 0.7, 1.8, 0.95);
         game.spawnShockwave(px, py, 110, '#ce93d8');
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 72, duration: 3.5, timer: 0, dmg: b.dmg * 0.9, color: '#ba68c8', vfxKey: 'pvfx_whirlpool', status: { kind: 'stun', dur: 0.5 } });
         return true;
 
       case 'nether_chain_snare':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_power_up_aura', b.x, b.y, 0, 0.5, 1.3, 0.9);
         for (const [dx, dy] of [[0, 0], [42, 0], [-42, 0], [0, 42], [0, -42]]) {
-          dung.hazardZones.push({ kind: 'pillar', x: px + dx, y: py + dy, radius: 44, delay: 0.65, oneShot: true, timer: 0, dmg: b.dmg * 1.3, color: '#ce93d8', vfxKey: 'pvfx_void_burst' });
+          dung.hazardZones.push({ kind: 'pillar', x: px + dx, y: py + dy, radius: 44, delay: 0.65, oneShot: true, timer: 0, dmg: b.dmg * 1.3, color: '#ce93d8', vfxKey: 'fpe_nebula' });
         }
         return true;
 
       // 2. Soberano Esqueleto Malakor (bosque_necro)
       case 'catacomb_legion_sweep':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pvfx_sword_combo', b.x, b.y, tAng, 0.45, 1.4, 0.95);
         for (let i = -2; i <= 2; i++) {
           const fa = tAng + i * 0.22;
@@ -2227,7 +2227,7 @@
         return true;
 
       case 'grave_rot_miasma':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnShockwave(b.x, b.y, 130, '#9575cd');
         for (let i = 0; i < 3; i++) {
           const a = (i / 3) * Math.PI * 2;
@@ -2239,60 +2239,60 @@
 
       // 3. Coloso de Escarcha (montanas_heladas)
       case 'blizzard_cryo_quake':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.35, 9);
         game.spawnShockwave(b.x, b.y, 160, '#80deea');
-        dung.hazardZones.push({ kind: 'fissure', x: b.x - 140, y: b.y, x2: b.x + 140, y2: b.y, halfW: 24, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.3, color: '#80deea', vfxKey: 'pvfx_ice_burst' });
-        dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y - 140, x2: b.x, y2: b.y + 140, halfW: 24, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.3, color: '#80deea', vfxKey: 'pvfx_ice_burst' });
+        dung.hazardZones.push({ kind: 'fissure', x: b.x - 140, y: b.y, x2: b.x + 140, y2: b.y, halfW: 24, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.3, color: '#80deea', vfxKey: 'fpe_freezing' });
+        dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y - 140, x2: b.x, y2: b.y + 140, halfW: 24, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.3, color: '#80deea', vfxKey: 'fpe_freezing' });
         return true;
 
       case 'frozen_monolith_drop':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let i = 0; i < 3; i++) {
           const ox = px + (i - 1) * 54;
           const oy = py + (Math.random() - 0.5) * 40;
-          dung.hazardZones.push({ kind: 'meteor', x: ox, y: oy, radius: 56, delay: 0.6 + i * 0.16, duration: 2.2, timer: 0, detonated: false, dmg: b.dmg * 1.4, color: '#80deea', vfxKey: 'pvfx_ice_burst' });
+          dung.hazardZones.push({ kind: 'meteor', x: ox, y: oy, radius: 56, delay: 0.6 + i * 0.16, duration: 2.2, timer: 0, detonated: false, dmg: b.dmg * 1.4, color: '#80deea', vfxKey: 'fpe_freezing' });
         }
         return true;
 
       // 4. Archimago Boreal Vael (montanas_glaciar)
       case 'arctic_mirror_delusion':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         b.dashTimer = 0.35;
         b.dashVx = Math.cos(tAng + Math.PI / 2) * 360;
         b.dashVy = Math.sin(tAng + Math.PI / 2) * 360;
         game.spawnFx('pvfx_whirlpool', b.x, b.y, 0, 0.4, 1.2, 0.9);
         for (let i = 0; i < 8; i++) {
           const a = (i / 8) * Math.PI * 2;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 270, Math.sin(a) * 270, Math.round(b.dmg * 0.9), '#4fc3f7', { vfxKey: 'pvfx_ice_needle' });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 270, Math.sin(a) * 270, Math.round(b.dmg * 0.9), '#4fc3f7', { vfxKey: 'pvfx_ice_shard' });
         }
         return true;
 
       case 'glacial_orb_orbit':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         for (let i = 0; i < 3; i++) {
           const a = (i / 3) * Math.PI * 2 + tAng;
           const ox = b.x + Math.cos(a) * 65;
           const oy = b.y + Math.sin(a) * 65;
-          dung.hazardZones.push({ kind: 'pool', x: ox, y: oy, radius: 46, duration: 3.2, timer: 0, dmg: b.dmg * 0.85, color: '#4fc3f7', vfxKey: 'pvfx_ice_burst', status: { kind: 'slow', dur: 2.5 } });
+          dung.hazardZones.push({ kind: 'pool', x: ox, y: oy, radius: 46, duration: 3.2, timer: 0, dmg: b.dmg * 0.85, color: '#4fc3f7', vfxKey: 'fpe_freezing', status: { kind: 'slow', dur: 2.5 } });
         }
         return true;
 
       // 5. Dragón Carmesí Ignis (tierras_volcanicas)
       case 'draconic_roaring_supernova':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.38, 10);
         game.spawnShockwave(b.x, b.y, 180, '#ff5722');
         game.spawnFx('pvfx_fire_nova', b.x, b.y, 0, 0.5, 1.6, 0.95);
         for (let i = 0; i < 10; i++) {
           const a = (i / 10) * Math.PI * 2;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 290, Math.sin(a) * 290, Math.round(b.dmg * 1.1), '#ff5722', { vfxKey: 'pvfx_fire_burst', status: { kind: 'burn', dur: 3.0 } });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 290, Math.sin(a) * 290, Math.round(b.dmg * 1.1), '#ff5722', { vfxKey: 'fpe_brightfire', status: { kind: 'burn', dur: 3.0 } });
         }
         dung.hazardZones.push({ kind: 'pool', x: b.x, y: b.y, radius: 64, duration: 3.5, timer: 0, dmg: b.dmg * 0.9, color: '#ff5722', vfxKey: 'pvfx_fire_pillar', status: { kind: 'burn', dur: 3.0 } });
         return true;
 
       case 'volcanic_earth_rift':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.3, 8);
         dung.hazardZones.push({ kind: 'fissure', x: b.x - 130, y: b.y - 130, x2: b.x + 130, y2: b.y + 130, halfW: 24, delay: 0.6, duration: 2.0, timer: 0, dmg: b.dmg * 1.35, color: '#ff7043', vfxKey: 'pvfx_fire_pillar', status: { kind: 'burn', dur: 3.0 } });
         dung.hazardZones.push({ kind: 'fissure', x: b.x - 130, y: b.y + 130, x2: b.x + 130, y2: b.y - 130, halfW: 24, delay: 0.6, duration: 2.0, timer: 0, dmg: b.dmg * 1.35, color: '#ff7043', vfxKey: 'pvfx_fire_pillar', status: { kind: 'burn', dur: 3.0 } });
@@ -2300,13 +2300,13 @@
 
       // 6. Señor Ígneo Balak (volcan_abismo)
       case 'abyssal_hellfire_vortex':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('pvfx_fire_tornado', px, py, 0, 0.65, 1.5, 0.95);
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 68, duration: 3.6, timer: 0, dmg: b.dmg * 1.0, color: '#ff1744', vfxKey: 'pvfx_fire_tornado', status: { kind: 'burn', dur: 3.5 } });
         return true;
 
       case 'apocalyptic_meteor_storm':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.4, 11);
         for (let i = 0; i < 5; i++) {
           const a = (i / 5) * Math.PI * 2;
@@ -2318,17 +2318,17 @@
 
       // 7. Autómata Alquímico X-09 (bosque_laboratorio)
       case 'tesla_chain_discharge':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.28, 7);
         game.spawnShockwave(b.x, b.y, 140, '#7e57c2');
         for (let i = 0; i < 6; i++) {
           const a = (i / 6) * Math.PI * 2;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 340, Math.sin(a) * 340, Math.round(b.dmg * 1.15), '#7e57c2', { vfxKey: 'pvfx_lightning_burst' });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 340, Math.sin(a) * 340, Math.round(b.dmg * 1.15), '#7e57c2', { vfxKey: 'sp_lightning_burst_violet' });
         }
         return true;
 
       case 'chemical_napalm_carpet':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let i = 1; i <= 4; i++) {
           const nx = b.x + Math.cos(tAng) * (i * 50);
           const ny = b.y + Math.sin(tAng) * (i * 50);
@@ -2338,7 +2338,7 @@
 
       // 8. Emperatriz Arácnea Syla (bosque_arana)
       case 'arachnid_pounce_ambush':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         b.leapDur = 0.38;
         b.leapProg = 0.001;
         b.leapStartX = b.x;
@@ -2349,14 +2349,14 @@
         return true;
 
       case 'toxic_silk_cocoon':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnEnemyProjectile(b.x, b.y, Math.cos(tAng) * 360, Math.sin(tAng) * 360, Math.round(b.dmg * 1.2), '#9ccc65', { vfxKey: 'pvfx_poison_cloud', status: { kind: 'slow', dur: 3.0 } });
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 52, duration: 3.0, timer: 0, dmg: b.dmg * 0.75, color: '#9ccc65', vfxKey: 'pvfx_acid_splash', status: { kind: 'poison', dur: 2.5 } });
         return true;
 
       // 9. Hidra del Pantano Mog (bosque_pantano)
       case 'hydra_regrowth_breath':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('pvfx_acid_splash', b.x, b.y, tAng, 0.4, 1.5, 0.95);
         for (let i = 0; i < 8; i++) {
           const spread = (Math.random() - 0.5) * 0.4;
@@ -2366,7 +2366,7 @@
         return true;
 
       case 'noxious_bog_geysers':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         for (let i = 0; i < 4; i++) {
           const gx = px + (i - 1.5) * 45;
           const gy = py + (Math.random() - 0.5) * 45;
@@ -2376,41 +2376,41 @@
 
       // 10. Gólem de Diamante Boreal (montanas_mina)
       case 'hyper_prism_cannon':
-        Balaclava.Audio.play('magic');
-        game.spawnFx('pvfx_laser_charge', b.x, b.y, tAng, 0.45, 1.5, 0.95);
-        dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 280, y2: b.y + Math.sin(tAng) * 280, halfW: 28, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.5, color: '#4fc3f7', vfxKey: 'pvfx_ice_burst' });
+        Abyssea.Audio.play('magic');
+        game.spawnFx('vfp_charged', b.x, b.y, tAng, 0.45, 1.5, 0.95);
+        dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 280, y2: b.y + Math.sin(tAng) * 280, halfW: 28, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.5, color: '#4fc3f7', vfxKey: 'fpe_freezing' });
         return true;
 
       case 'diamond_core_overload':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.32, 9);
         game.spawnShockwave(b.x, b.y, 170, '#4fc3f7');
         for (let i = 0; i < 12; i++) {
           const a = (i / 12) * Math.PI * 2;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 310, Math.sin(a) * 310, Math.round(b.dmg * 1.05), '#4fc3f7', { vfxKey: 'pvfx_ice_needle' });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 310, Math.sin(a) * 310, Math.round(b.dmg * 1.05), '#4fc3f7', { vfxKey: 'pvfx_ice_shard' });
         }
         return true;
 
       // 11. Comandante Valkir Thrond (montanas_fortaleza)
       case 'valhalla_sky_strike':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.35, 10);
-        dung.hazardZones.push({ kind: 'pillar', x: px, y: py, radius: 60, delay: 0.5, oneShot: true, timer: 0, dmg: b.dmg * 1.5, color: '#90caf9', vfxKey: 'pvfx_lightning_burst' });
+        dung.hazardZones.push({ kind: 'pillar', x: px, y: py, radius: 60, delay: 0.5, oneShot: true, timer: 0, dmg: b.dmg * 1.5, color: '#90caf9', vfxKey: 'sp_lightning_burst_violet' });
         return true;
 
       case 'vanguard_spear_whirlwind':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.dashTimer = 0.48;
         b._dashHitCd = 0;
         b.dashVx = Math.cos(tAng) * 510;
         b.dashVy = Math.sin(tAng) * 510;
-        game.spawnFx('pa_slash2_gold', b.x, b.y, tAng, 0.4, 1.4, 0.95);
+        game.spawnFx('pa_slash3_gold', b.x, b.y, tAng, 0.4, 1.4, 0.95);
         game.spawnShockwave(b.x, b.y, 120, '#90caf9');
         return true;
 
       // 12. Forjador Titánico Hephaest (volcan_fragua)
       case 'forge_master_molten_hammer':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.shake(0.36, 10);
         b.leapDur = 0.42;
         b.leapProg = 0.001;
@@ -2422,55 +2422,55 @@
         return true;
 
       case 'liquid_metal_tsunami':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         game.spawnFx('pvfx_fire_nova', b.x, b.y, tAng, 0.4, 1.5, 0.95);
         for (let i = -3; i <= 3; i++) {
           const fa = tAng + i * 0.18;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(fa) * 280, Math.sin(fa) * 280, Math.round(b.dmg * 1.1), '#ff7043', { vfxKey: 'pvfx_fire_burst', status: { kind: 'burn', dur: 3.0 } });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(fa) * 280, Math.sin(fa) * 280, Math.round(b.dmg * 1.1), '#ff7043', { vfxKey: 'fpe_brightfire', status: { kind: 'burn', dur: 3.0 } });
         }
         return true;
 
       // 13. Fénix Magmático Zyr (volcan_caldera)
       case 'phoenix_conflagration_spiral':
-        Balaclava.Audio.play('magic');
+        Abyssea.Audio.play('magic');
         for (let i = 0; i < 12; i++) {
           const a = (i / 12) * Math.PI * 2 + tAng;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 300, Math.sin(a) * 300, Math.round(b.dmg * 1.05), '#ffca28', { vfxKey: 'pvfx_fire_feather', status: { kind: 'burn', dur: 2.5 } });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 300, Math.sin(a) * 300, Math.round(b.dmg * 1.05), '#ffca28', { vfxKey: 'fpe_flamelash', status: { kind: 'burn', dur: 2.5 } });
         }
         return true;
 
       case 'sunfire_thermal_beam':
-        Balaclava.Audio.play('magic');
-        game.spawnFx('pvfx_fire_chargeburst_max', b.x, b.y, tAng, 0.5, 1.5, 0.95);
+        Abyssea.Audio.play('magic');
+        game.spawnFx('aw_fire_chargeburst_max', b.x, b.y, tAng, 0.5, 1.5, 0.95);
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 260, y2: b.y + Math.sin(tAng) * 260, halfW: 26, delay: 0.55, duration: 1.8, timer: 0, dmg: b.dmg * 1.4, color: '#ffca28', vfxKey: 'pvfx_fire_pillar', status: { kind: 'burn', dur: 3.0 } });
         return true;
 
       // 14. Emperador Ceniza Kael-Vorn (volcan_trono_ceniza)
       case 'ash_emperor_dominion_wave':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.shake(0.38, 11);
         game.spawnShockwave(b.x, b.y, 140, '#ff1744');
         setTimeout(() => { if (b.hp > 0) game.spawnShockwave(b.x, b.y, 200, '#ff1744'); }, 180);
         for (let i = 0; i < 12; i++) {
           const a = (i / 12) * Math.PI * 2;
-          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 320, Math.sin(a) * 320, Math.round(b.dmg * 1.15), '#ff1744', { vfxKey: 'pvfx_fire_burst', status: { kind: 'burn', dur: 3.0 } });
+          game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 320, Math.sin(a) * 320, Math.round(b.dmg * 1.15), '#ff1744', { vfxKey: 'fpe_brightfire', status: { kind: 'burn', dur: 3.0 } });
         }
         return true;
 
       case 'cinder_execution_cleave':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.dashTimer = 0.44;
         b._dashHitCd = 0;
         b.dashVx = Math.cos(tAng) * 520;
         b.dashVy = Math.sin(tAng) * 520;
-        game.spawnFx('pa_slash2_gold', b.x, b.y, tAng, 0.4, 1.5, 0.95);
+        game.spawnFx('pa_slash3_gold', b.x, b.y, tAng, 0.4, 1.5, 0.95);
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 200, y2: b.y + Math.sin(tAng) * 200, halfW: 24, delay: 0.44, duration: 1.8, timer: 0, dmg: b.dmg * 1.3, color: '#ff1744', vfxKey: 'pvfx_fire_pillar', status: { kind: 'burn', dur: 3.0 } });
         return true;
 
       // ── Beta 1.3.0: Arquetipos de Bioma (Zonas III y IV) con Gigapack VFX ──
       // Archipiélago Coral
       case 'coral_tidal_surge':
-        Balaclava.Audio.play('splash');
+        Abyssea.Audio.play('splash');
         game.spawnFx('sp_impact_blue', b.x, b.y, tAng, 0.55, 1.8, 0.95, { blend: 'lighter' });
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.14;
@@ -2479,7 +2479,7 @@
         return true;
 
       case 'coral_whirlpool_vortex':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnShockwave(b.x, b.y, 175, '#4dd0e1');
         game.spawnFx('sp_spell_defense_blue', b.x, b.y, 0, 0.75, 1.9, 0.95, { blend: 'lighter' });
         for (let k = 0; k < 10; k++) {
@@ -2489,7 +2489,7 @@
         return true;
 
       case 'coral_pearl_barrage':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_frost_explosion_cyan', b.x, b.y, tAng, 0.5, 1.5, 0.9, { blend: 'lighter' });
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.22;
@@ -2498,7 +2498,7 @@
         return true;
 
       case 'coral_depth_charge':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('sp_impact_blue', px, py, 0, 0.65, 1.9, 0.95);
         for (let k = 0; k < 3; k++) {
           const oa = ang + (k - 1) * 0.9;
@@ -2508,7 +2508,7 @@
         return true;
 
       case 'coral_leviathan_rush':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_spell_defense_blue', b.x, b.y, tAng, 0.5, 1.6, 0.95);
         b.dashTimer = 0.42;
         b.dashVx = Math.cos(tAng) * 520;
@@ -2518,13 +2518,13 @@
 
       // Cavernas Cristalinas
       case 'cristal_prism_beam':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.spawnFx('sp_lightning_strike_violet', b.x, b.y, tAng, 0.65, 1.9, 1.0, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 340, y2: b.y + Math.sin(tAng) * 340, halfW: 24, delay: 0.55, duration: 1.4, timer: 0, dmg: Math.round(b.dmg * 1.32), color: '#e040fb', vfxKey: 'sp_impact_violet' });
         return true;
 
       case 'cristal_geode_shards':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_scifi_charge', b.x, b.y, 0, 0.55, 1.6, 0.95, { blend: 'lighter' });
         for (let k = 0; k < 12; k++) {
           const a = (k / 12) * Math.PI * 2;
@@ -2533,7 +2533,7 @@
         return true;
 
       case 'cristal_mirror_nova':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.spawnShockwave(b.x, b.y, 190, '#e040fb');
         game.spawnFx('sp_stylized_explosion_violet', b.x, b.y, 0, 0.75, 2.0, 1.0, { blend: 'lighter' });
         for (let k = 0; k < 8; k++) {
@@ -2543,20 +2543,20 @@
         return true;
 
       case 'cristal_resonance_pulse':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('sp_lightning_burst_violet', b.x, b.y, 0, 0.6, 1.85, 0.95, { blend: 'lighter' });
         if (d < 165) game.damagePlayer(Math.round(b.dmg * 1.2), { status: theme.status });
         return true;
 
       case 'cristal_astral_singularity':
-        Balaclava.Audio.play('meteor');
+        Abyssea.Audio.play('meteor');
         game.spawnFx('sp_scifi_warp', px, py, 0, 0.75, 1.9, 1.0, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'meteor', x: px, y: py, radius: 78, delay: 0.8, duration: 0.6, timer: 0, dmg: Math.round(b.dmg * 1.4), color: '#7c4dff', vfxKey: 'sp_stylized_explosion_violet' });
         return true;
 
       // Selva Esmeralda
       case 'selva_venom_thorns':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_spell_poison_green', b.x, b.y, tAng, 0.5, 1.65, 0.95, { blend: 'lighter' });
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.16;
@@ -2565,7 +2565,7 @@
         return true;
 
       case 'selva_canopy_dive':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_spell_haste_green', b.x, b.y, 0, 0.45, 1.7, 0.95, { blend: 'lighter' });
         b.leapStartX = b.x; b.leapStartY = b.y;
         b.targetX = px; b.targetY = py;
@@ -2573,26 +2573,26 @@
         return true;
 
       case 'selva_pollen_cloud':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('sp_spell_poison_green', px, py, 0, 0.75, 2.0, 0.95);
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 74, delay: 0.45, duration: 3.2, timer: 0, dmg: Math.round(b.dmg * 0.72), color: '#66bb6a', vfxKey: 'sp_spell_poison_green', status: { kind: 'poison', dur: 3.0 } });
         return true;
 
       case 'selva_jade_fissure':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('sp_spell_heal_green', b.x, b.y, tAng, 0.65, 1.8, 0.95, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 310, y2: b.y + Math.sin(tAng) * 310, halfW: 25, delay: 0.65, duration: 1.5, timer: 0, dmg: Math.round(b.dmg * 1.28), color: '#00c853', vfxKey: 'sp_spell_poison_green' });
         return true;
 
       case 'selva_root_snare':
-        Balaclava.Audio.play('hit');
+        Abyssea.Audio.play('hit');
         game.spawnFx('sp_spell_haste_green', b.x, b.y, 0, 0.6, 1.85, 0.95);
         if (d < 150) game.damagePlayer(Math.round(b.dmg * 1.15), { status: { kind: 'poison', dur: 2.5 } });
         return true;
 
       // Caldera de Ceniza
       case 'caldera_magma_eruption':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.shake(0.35, 9);
         game.spawnShockwave(b.x, b.y, 175, '#ff5722');
         game.spawnFx('sp_epic_explosion_orange', b.x, b.y, 0, 0.7, 2.1, 1.0, { blend: 'lighter' });
@@ -2603,7 +2603,7 @@
         return true;
 
       case 'caldera_slag_bombard':
-        Balaclava.Audio.play('meteor');
+        Abyssea.Audio.play('meteor');
         for (let k = 0; k < 4; k++) {
           const a = (k / 4) * Math.PI * 2 + ang;
           const distM = k === 0 ? 0 : 88;
@@ -2612,7 +2612,7 @@
         return true;
 
       case 'caldera_smoke_ring':
-        Balaclava.Audio.play('fire');
+        Abyssea.Audio.play('fire');
         game.spawnFx('sp_fire_loop_orange', b.x, b.y, 0, 0.7, 1.9, 0.95, { blend: 'lighter' });
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.2;
@@ -2621,13 +2621,13 @@
         return true;
 
       case 'caldera_molten_cleave':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_spell_attack_red', b.x, b.y, tAng, 0.5, 1.9, 1.0, { blend: 'lighter' });
         b.dashTimer = 0.36; b.dashVx = Math.cos(tAng) * 560; b.dashVy = Math.sin(tAng) * 560; b.dashCharges = 1;
         return true;
 
       case 'caldera_inferno_tempest':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.42, 10);
         game.spawnFx('sp_epic_explosion_orange', b.x, b.y, 0, 0.8, 2.3, 1.0, { blend: 'lighter' });
         for (let off of [0, Math.PI / 2]) {
@@ -2638,13 +2638,13 @@
 
       // Dinastía de la Arena
       case 'dinastia_solar_obelisk':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.spawnFx('sp_scifi_charge', px, py, 0, 0.7, 1.85, 0.95, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'meteor', x: px, y: py, radius: 74, delay: 0.7, duration: 0.6, timer: 0, dmg: Math.round(b.dmg * 1.35), color: '#ffca28', vfxKey: 'sp_epic_explosion_orange' });
         return true;
 
       case 'dinastia_scarab_swarm':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_spell_attack_red', b.x, b.y, tAng, 0.5, 1.7, 0.95);
         for (let k = -4; k <= 4; k++) {
           const a = tAng + k * 0.13;
@@ -2653,7 +2653,7 @@
         return true;
 
       case 'dinastia_sand_vortex':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnShockwave(b.x, b.y, 185, '#ffb300');
         game.spawnFx('sp_epic_explosion_orange', b.x, b.y, 0, 0.65, 1.8, 0.95, { blend: 'lighter' });
         for (let k = 0; k < 14; k++) {
@@ -2663,14 +2663,14 @@
         return true;
 
       case 'dinastia_pharaoh_decree':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.shake(0.35, 9);
         game.spawnFx('sp_scifi_charge', b.x, b.y, tAng, 0.6, 2.0, 1.0, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 360, y2: b.y + Math.sin(tAng) * 360, halfW: 28, delay: 0.6, duration: 1.6, timer: 0, dmg: Math.round(b.dmg * 1.42), color: '#ffca28', vfxKey: 'sp_epic_explosion_orange' });
         return true;
 
       case 'dinastia_sun_disk_barrage':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_epic_explosion_orange', b.x, b.y, tAng, 0.55, 1.75, 0.95, { blend: 'lighter' });
         for (let k = -2; k <= 2; k++) {
           const a = tAng + k * 0.18;
@@ -2680,7 +2680,7 @@
 
       // Glaciar Profundo & Cumbre
       case 'glaciar_absolute_zero':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.4, 10);
         game.spawnShockwave(b.x, b.y, 200, '#00b0ff');
         game.spawnFx('sp_frost_explosion_cyan', b.x, b.y, 0, 0.8, 2.25, 1.0, { blend: 'lighter' });
@@ -2692,7 +2692,7 @@
         return true;
 
       case 'glaciar_blizzard_rings':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_spell_defense_blue', b.x, b.y, 0, 0.65, 1.9, 0.95, { blend: 'lighter' });
         for (let k = 0; k < 14; k++) {
           const a = (k / 14) * Math.PI * 2 + (b.phaseCycle || 0) * 0.3;
@@ -2701,7 +2701,7 @@
         return true;
 
       case 'glaciar_ice_spire_cross':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         for (let off of [0, Math.PI / 4]) {
           const fa = tAng + off;
           dung.hazardZones.push({ kind: 'fissure', x: b.x - Math.cos(fa) * 190, y: b.y - Math.sin(fa) * 190, x2: b.x + Math.cos(fa) * 190, y2: b.y + Math.sin(fa) * 190, halfW: 25, delay: 0.62, duration: 1.5, timer: 0, dmg: Math.round(b.dmg * 1.32), color: '#29b6f6', vfxKey: 'sp_frost_explosion_cyan' });
@@ -2709,7 +2709,7 @@
         return true;
 
       case 'glaciar_polar_shatter':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_impact_blue', b.x, b.y, tAng, 0.55, 1.9, 1.0, { blend: 'lighter' });
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.14;
@@ -2718,14 +2718,14 @@
         return true;
 
       case 'glaciar_permafrost_dash':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_frost_explosion_cyan', b.x, b.y, tAng, 0.5, 1.65, 0.95);
         b.dashTimer = 0.38; b.dashVx = Math.cos(tAng) * 570; b.dashVy = Math.sin(tAng) * 570; b.dashCharges = 1;
         return true;
 
       // Ciénaga Pútrida
       case 'pantano_miasma_nova':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnShockwave(b.x, b.y, 180, '#76ff03');
         game.spawnFx('sp_spell_poison_green', b.x, b.y, 0, 0.75, 2.1, 1.0, { blend: 'lighter' });
         for (let k = 0; k < 12; k++) {
@@ -2735,7 +2735,7 @@
         return true;
 
       case 'pantano_spore_rain':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         for (let k = 0; k < 4; k++) {
           const oa = ang + (k / 4) * Math.PI * 2;
           const distP = k === 0 ? 0 : 95;
@@ -2744,7 +2744,7 @@
         return true;
 
       case 'pantano_sludge_eruption':
-        Balaclava.Audio.play('bomb');
+        Abyssea.Audio.play('bomb');
         game.spawnFx('sp_skull_smoke', b.x, b.y, 0, 0.7, 1.95, 0.95);
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.16;
@@ -2753,20 +2753,20 @@
         return true;
 
       case 'pantano_pumpkin_curse':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('sp_skull_smoke', px, py, 0, 0.75, 1.85, 0.95);
         dung.hazardZones.push({ kind: 'meteor', x: px, y: py, radius: 75, delay: 0.7, duration: 0.55, timer: 0, dmg: Math.round(b.dmg * 1.32), color: '#ff9100', vfxKey: 'sp_epic_explosion_orange' });
         return true;
 
       case 'pantano_hydra_snap':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_spell_haste_green', b.x, b.y, tAng, 0.48, 1.85, 0.95, { blend: 'lighter' });
         b.dashTimer = 0.36; b.dashVx = Math.cos(tAng) * 580; b.dashVy = Math.sin(tAng) * 580; b.dashCharges = 2;
         return true;
 
       // Necrópolis Ósea
       case 'necro_soul_scythe':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_lightning_strike_violet', b.x, b.y, tAng, 0.55, 1.95, 1.0, { blend: 'lighter' });
         for (let k = -3; k <= 3; k++) {
           const a = tAng + k * 0.15;
@@ -2775,7 +2775,7 @@
         return true;
 
       case 'necro_bone_prison':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('sp_skull_smoke', px, py, 0, 0.75, 1.9, 0.95);
         for (let k = 0; k < 4; k++) {
           const a = (k / 4) * Math.PI * 2;
@@ -2784,7 +2784,7 @@
         return true;
 
       case 'necro_phylactery_nova':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.shake(0.38, 10);
         game.spawnShockwave(b.x, b.y, 195, '#b388ff');
         game.spawnFx('sp_spell_absorb_violet', b.x, b.y, 0, 0.75, 2.15, 1.0, { blend: 'lighter' });
@@ -2795,7 +2795,7 @@
         return true;
 
       case 'necro_lich_bolt_fan':
-        Balaclava.Audio.play('cast');
+        Abyssea.Audio.play('cast');
         game.spawnFx('sp_lightning_burst_violet', b.x, b.y, tAng, 0.6, 1.85, 0.95, { blend: 'lighter' });
         for (let k = -4; k <= 4; k++) {
           const a = tAng + k * 0.12;
@@ -2804,14 +2804,14 @@
         return true;
 
       case 'necro_spectral_legion':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.spawnFx('sp_scifi_warp', b.x, b.y, 0, 0.65, 1.9, 0.95, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'fissure', x: b.x, y: b.y, x2: b.x + Math.cos(tAng) * 350, y2: b.y + Math.sin(tAng) * 350, halfW: 26, delay: 0.6, duration: 1.5, timer: 0, dmg: Math.round(b.dmg * 1.38), color: '#b388ff', vfxKey: 'sp_lightning_burst_violet' });
         return true;
 
       // Tierras Malditas
       case 'maldita_blood_ritual':
-        Balaclava.Audio.play('curse');
+        Abyssea.Audio.play('curse');
         game.shake(0.4, 10);
         game.spawnFx('sp_spell_death_red', b.x, b.y, 0, 0.75, 2.2, 1.0, { blend: 'lighter' });
         for (let k = 0; k < 14; k++) {
@@ -2821,19 +2821,19 @@
         return true;
 
       case 'maldita_void_collapse':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         game.spawnFx('sp_stylized_explosion_violet', px, py, 0, 0.75, 2.1, 1.0, { blend: 'lighter' });
         dung.hazardZones.push({ kind: 'meteor', x: px, y: py, radius: 84, delay: 0.72, duration: 0.6, timer: 0, dmg: Math.round(b.dmg * 1.48), color: '#aa00ff', vfxKey: 'sp_stylized_explosion_violet' });
         return true;
 
       case 'maldita_crimson_flail':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_splatter_red', b.x, b.y, tAng, 0.55, 1.9, 1.0);
         b.dashTimer = 0.36; b.dashVx = Math.cos(tAng) * 610; b.dashVy = Math.sin(tAng) * 610; b.dashCharges = 2;
         return true;
 
       case 'maldita_harvest_scythes':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         game.spawnFx('sp_spell_attack_red', b.x, b.y, tAng, 0.55, 2.0, 1.0, { blend: 'lighter' });
         for (let k = -4; k <= 4; k++) {
           const a = tAng + k * 0.14;
@@ -2842,7 +2842,7 @@
         return true;
 
       case 'maldita_abyss_hellfire':
-        Balaclava.Audio.play('meteor');
+        Abyssea.Audio.play('meteor');
         game.shake(0.45, 11);
         for (let off of [0, Math.PI / 3, -Math.PI / 3]) {
           const fa = tAng + off;
@@ -2854,7 +2854,7 @@
       // JEFE FINAL SUPREMO (#75): ESPADACHÍN CARMESÍ ABISAL (Sword.png 14x8)
       // ═══════════════════════════════════════════════════════════════
       case 'abyssal_crimson_stance_slash':
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.animRow = 5; b.animFrames = 7; b.animFps = 16; b.animLock = 0.55; b.animTimer = 0;
         game.shake(0.32, 8);
         game.spawnFx('sp_spell_attack_red', b.x, b.y, tAng, 0.55, 2.2, 1.0, { blend: 'lighter' });
@@ -2870,7 +2870,7 @@
         return true;
 
       case 'abyssal_vortex_whirlwind':
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('thunder');
         b.animRow = 4; b.animFrames = 14; b.animFps = 18; b.animLock = 0.85; b.animTimer = 0;
         game.shake(0.48, 12);
         game.spawnShockwave(b.x, b.y, 230, '#ff1744');
@@ -2883,7 +2883,7 @@
         return true;
 
       case 'abyssal_scarlet_aura_burst':
-        Balaclava.Audio.play('meteor');
+        Abyssea.Audio.play('meteor');
         b.animRow = 3; b.animFrames = 7; b.animFps = 12; b.animLock = 0.70; b.animTimer = 0;
         game.shake(0.45, 11);
         game.spawnFx('sp_epic_explosion_orange', b.x, b.y, 0, 0.75, 2.35, 1.0, { blend: 'lighter' });
@@ -2895,7 +2895,7 @@
         return true;
 
       case 'abyssal_phantom_cross_step': {
-        Balaclava.Audio.play('slash');
+        Abyssea.Audio.play('slash');
         b.animRow = 6; b.animFrames = 2; b.animFps = 14; b.animLock = 0.22; b.animTimer = 0;
         game.spawnFx('sp_scifi_warp', b.x, b.y, 0, 0.45, 1.8, 0.95, { blend: 'lighter' });
         const destX = px + Math.cos(ang) * 96;
@@ -2913,8 +2913,8 @@
       }
 
       case 'abyssal_eclipse_judgement':
-        Balaclava.Audio.play('meteor');
-        Balaclava.Audio.play('thunder');
+        Abyssea.Audio.play('meteor');
+        Abyssea.Audio.play('thunder');
         b.animRow = 4; b.animFrames = 14; b.animFps = 16; b.animLock = 0.90; b.animTimer = 0;
         game.shake(0.65, 14);
         game.spawnShockwave(b.x, b.y, 260, '#ff1744');
@@ -2951,14 +2951,17 @@
       const abHp = ab ? (ab.hp || 1) : 1;
       const abDmg = ab ? (ab.dmg || 1) : 1;
 
-      let bossHpMult = (1.65 + tierProgress * 0.45) * 30 * (isCorrupted ? 24 : 1) * abHp;
-      let bossDmgMult = (1.25 + tierProgress * 0.25) * 10 * (isCorrupted ? 6.8 : 1) * abDmg;
+      // Balanced progressive Boss HP & DMG across all 75 dungeons (b.hp: 520..92000, b.dmg: 22..580)
+      // Avoids double-multiplying b.dmg (x26 one-shots) and keeps Tier 1..75 fights tense, fair, and skill-rewarding
+      const bossLevelScale = 1 + Math.min(1.8, Math.max(0, pLv - (1 + t * 2)) * 0.035);
+      let bossHpMult = (1.35 + tierProgress * 2.85) * (isCorrupted ? 4.5 : 1) * abHp;
+      let bossDmgMult = (1.15 + tierProgress * 0.35) * (isCorrupted ? 1.85 : 1) * Math.min(8, abDmg);
       if (isLate) {
-        bossHpMult *= 5.0;
-        bossDmgMult *= 2.6;
+        bossHpMult *= 1.65;
+        bossDmgMult *= 1.25;
       }
-      const hp = Math.min(9e14, Math.round(b.hp * bossHpMult * levelScale));
-      const dmg = Math.min(9e12, Math.round(b.dmg * bossDmgMult * (1 + (levelScale - 1) * 0.65)));
+      const hp = Math.min(9e14, Math.round(b.hp * bossHpMult * bossLevelScale));
+      const dmg = Math.min(9e12, Math.round(b.dmg * bossDmgMult * (1 + (bossLevelScale - 1) * 0.35)));
       return { hp, maxHp: hp, dmg };
     }
 
@@ -3693,8 +3696,8 @@
         : (this.isCorrupted ? `[CORRUPTO] ${b.name}` : b.name);
       const bossDrops = { ...b.drops };
       if (this.isCorrupted) {
-        bossDrops.esencia_corrupta = (Balaclava.Utils && Balaclava.Utils.randInt) ? Balaclava.Utils.randInt(6, 14) : Math.floor(rng() * 9) + 6;
-        bossDrops.gema_vacio = (Balaclava.Utils && Balaclava.Utils.randInt) ? Balaclava.Utils.randInt(1, 4) : Math.floor(rng() * 4) + 1;
+        bossDrops.esencia_corrupta = (Abyssea.Utils && Abyssea.Utils.randInt) ? Abyssea.Utils.randInt(6, 14) : Math.floor(rng() * 9) + 6;
+        bossDrops.gema_vacio = (Abyssea.Utils && Abyssea.Utils.randInt) ? Abyssea.Utils.randInt(1, 4) : Math.floor(rng() * 4) + 1;
         if (rng() < 0.35) bossDrops.reliquia_vacio = 1;
       }
       if (this.abyssFloor) {
@@ -3760,10 +3763,31 @@
     setupIntentionalPuzzles(rng) {
       const W = this.width;
       const H = this.height;
-      const modes = ['flames_count', 'mural_codex', 'astral_conduit', 'obelisk_notches'];
-      const modeIdx = (this.tier + Math.floor((rng ? rng() : 0.35) * modes.length)) % modes.length;
+      // 8 Mechanically Distinct Vault Puzzle Archetypes across dungeons
+      const modes = [
+        'flames_count',
+        'mural_codex',
+        'prism_rotation',
+        'harmonic_lights_out',
+        'chrono_braziers',
+        'astral_totem_dial',
+        'simon_memory_echo',
+        'arcane_charge_conduit'
+      ];
+      const idHash = String(this.id || 'pradera').split('').reduce((acc, ch, i) => acc + ch.charCodeAt(0) * (i + 3), 0);
+      const modeIdx = (idHash + (this.tier || 1)) % modes.length;
       this.puzzleMode = modes[modeIdx];
+
+      const wingModes = ['pressure_seals', 'timed_twin_relays', 'kinetic_monoliths', 'harmonic_frequency'];
+      this.wingMechanic = wingModes[(idHash + 1) % wingModes.length];
       this._lastRunePadKey = null;
+
+      // Initialize wing runes with wingMechanic properties
+      this.runes.filter(r => r.kind === 'wing').forEach((wr, wIdx) => {
+        wr.wingMechanic = this.wingMechanic;
+        wr.relayTimer = 0;
+        wr.polarity = wIdx === 0 ? 1 : 0; // target is 1 for both
+      });
 
       // 6 permutations of [1, 2, 3] for 3 pads, and permutations for 4 pads
       const perms = [
@@ -3781,7 +3805,6 @@
         [1, 3, 2, 4],
         [2, 1, 4, 3]
       ];
-      // Prefer non-trivial permutations so the player reads the environmental clue rather than blindly walking left-to-right
       const permIdx = Math.floor((rng ? rng() : 0.2) * 5) % 5;
       const seqRunes = this.runes.filter(r => r.kind === 'seq');
       const chosenPerm = seqRunes.length >= 4 ? perms4[permIdx % perms4.length] : perms[permIdx];
@@ -3800,8 +3823,18 @@
         r.crestName = cDef.crestName;
         r.glyph = cDef.glyph;
         r.crestColor = cDef.color;
-        r.clueCount = r.order; // 1, 2, or 3 flames / notches
+        r.clueCount = r.order;
         r.puzzleMode = this.puzzleMode;
+        // Mode-specific initial states
+        r.targetDir = (r.order - 1) % 4; // 0:N, 1:E, 2:S, 3:W
+        r.prismDir = (r.targetDir + 1 + (idx % 2)) % 4;
+        r.burnRemaining = 0;
+        r.totemPhase = (idx + 1) % 3;
+        r.targetPhase = (r.order - 1) % 3;
+        r.chargePct = 0;
+        if (this.puzzleMode === 'harmonic_lights_out') {
+          r.active = (idx % 2 === 1);
+        }
       });
 
       // Sort sequence runes by their true activation order (1 -> 2 -> 3) to build clues & mural
@@ -3866,6 +3899,36 @@
           title: 'CODICE DEL MURAL ANTIGUO',
           shortHint: `Sigue los emblemas del mural norte (${orderSummary})`,
           hintText: `Codice del Mural: El friso grabado en el muro muestra la secuencia sagrada de izquierda a derecha (${orderSummary}).`
+        },
+        prism_rotation: {
+          title: 'PRISMAS OPTICOS ROTATORIOS',
+          shortHint: 'Pisa cada Prisma para rotar su haz laser hacia el receptor dorado',
+          hintText: 'Acertijo de Prismas: Pisa cada pedestal para girar su rayo 90 grados hasta que todos apunten a su nodo receptor dorado.'
+        },
+        harmonic_lights_out: {
+          title: 'PILARES DE RESONANCIA VINCULADA',
+          shortHint: 'Cada pilar alterna su estado y el del pilar vecino. Enciendelos todos',
+          hintText: 'Resonancia Vinculada: Al pisar un pilar se invierte su energia y la del pilar contiguo. Sincroniza todos en verde esmeralda.'
+        },
+        chrono_braziers: {
+          title: 'PIRAS CRONO-ARCANAS CONTRARELOJ',
+          shortHint: 'Enciende todas las piras antes de que se consuma su mecha (14s)',
+          hintText: 'Piras Contrareloj: Cada pira arde durante 14 segundos al pisarla. Usa tu velocidad o Dash para encenderlas todas al mismo tiempo.'
+        },
+        astral_totem_dial: {
+          title: 'TOTEMS DE EQUILIBRIO ASTRAL',
+          shortHint: 'Gira cada totem (SOL / LUNA / ESTRELLA) hasta igualar su glifo objetivo',
+          hintText: 'Equilibrio Astral: Pisa cada totem para rotar su fase (SOL -> LUNA -> ESTRELLA) hasta que coincida con el anillo dorado.'
+        },
+        simon_memory_echo: {
+          title: 'ECO DE MEMORIA RUNICA',
+          shortHint: 'Sigue el haz luminoso que proyecta la Estela hacia el siguiente sello',
+          hintText: `Eco de Memoria: Observa que sello recibe el pulso de luz desde la Estela y pisalo en orden (${orderSummary}).`
+        },
+        arcane_charge_conduit: {
+          title: 'ACUMULADORES DE FLUJO ARCANO',
+          shortHint: 'Permanece sobre cada sello para sobrecargarlo al 100%',
+          hintText: 'Flujo Arcano: Mantente sobre cada acumulador unos instantes para canalizar tu energia hasta el 100%.'
         },
         astral_conduit: {
           title: 'ESTELA DEL CONDUCTO ASTRAL',
@@ -4245,12 +4308,12 @@
       if (!c || c.opened || c._opening) return false;
       c._opening = true;
       c.opened = true;
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
-      Balaclava.Audio.play('chest');
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
+      Abyssea.Audio.play('chest');
       if (game && game.stats) {
         game.stats.chestsOpened = (game.stats.chestsOpened || 0) + 1;
       }
-      const coins = (c.bonus ? 14 : 8) + Balaclava.Utils.randInt(4, 12) + this.tier * 4;
+      const coins = (c.bonus ? 14 : 8) + Abyssea.Utils.randInt(4, 12) + this.tier * 4;
       game.addCoins(coins);
       game.addItem(c.bonus ? 'cristales_magicos' : 'pocion_vida', c.bonus ? 2 : 1);
       game.addItem('llave_mazmorra', 1);
@@ -4366,21 +4429,22 @@
     }
 
     makeMob(type, tx, ty, powerScale = 1.25) {
-      const base = Balaclava.CombatSystem ? Balaclava.CombatSystem.getEnemyDef(type) : { hp: 35, dmg: 8, speed: 65 };
-      const tierMult = (1 + this.tier * 0.18 + Math.pow(this.tier, 1.25) * 0.03) * (this.levelScale || 1);
+      const base = Abyssea.CombatSystem ? Abyssea.CombatSystem.getEnemyDef(type) : { hp: 35, dmg: 8, speed: 65 };
+      const tierMultHp = (1 + this.tier * 0.16 + Math.pow(this.tier, 1.20) * 0.025) * (1 + Math.min(1.5, ((this.levelScale || 1) - 1) * 0.45));
+      const tierMultDmg = (1 + this.tier * 0.12) * (1 + Math.min(0.65, ((this.levelScale || 1) - 1) * 0.22));
       const { hpMult, dmgMult } = this.getDungeonEnemyMultipliers(type, base);
-      const cMultHp = (this.isCorrupted ? 22 : 1) * (this.abyssScale ? this.abyssScale.hp : 1);
-      const cMultDmg = (this.isCorrupted ? 6.5 : 1) * (this.abyssScale ? this.abyssScale.dmg : 1);
+      const cMultHp = (this.isCorrupted ? 4.2 : 1) * (this.abyssScale ? this.abyssScale.hp : 1);
+      const cMultDmg = (this.isCorrupted ? 1.8 : 1) * Math.min(8, this.abyssScale ? this.abyssScale.dmg : 1);
       const abSpd = this.abyssScale ? this.abyssScale.speed : 1;
-      let hp = Math.min(9e14, Math.round((base.hp || 35) * 1.85 * powerScale * tierMult * hpMult * cMultHp));
-      let dmg = Math.min(9e12, Math.round((base.dmg || 8) * 1.35 * (1 + (tierMult - 1) * 0.58) * dmgMult * cMultDmg));
-      let speed = Math.min(220, Math.round((base.speed || 65) * 1.12 * abSpd));
-      let atkCd = 0.65 + Math.random() * 0.35;
+      let hp = Math.min(9e14, Math.round((base.hp || 35) * 1.45 * powerScale * tierMultHp * hpMult * cMultHp));
+      let dmg = Math.min(9e12, Math.round((base.dmg || 8) * 1.15 * tierMultDmg * Math.min(1.6, dmgMult) * cMultDmg));
+      let speed = Math.min(210, Math.round((base.speed || 65) * 1.08 * abSpd));
+      let atkCd = 0.72 + Math.random() * 0.35;
       if (this.isLateBiome) {
-        hp = Math.round(hp * 3.0); // at least x3 HP in late biomes
-        dmg = Math.round(dmg * 3.0); // at least x3 damage in late biomes
-        speed = Math.min(240, Math.round(speed * 1.22));
-        atkCd *= 0.70;
+        hp = Math.round(hp * 1.65);
+        dmg = Math.round(dmg * 1.32);
+        speed = Math.min(225, Math.round(speed * 1.12));
+        atkCd *= 0.85;
       }
       const mName = this.abyssFloor ? `[Abismo P${this.abyssFloor}] ${base.name || type}` : (this.isCorrupted ? `[Corrupto] ${base.name || type}` : (base.name || type));
       return {
@@ -4472,7 +4536,7 @@
       this.miniBossDefeated = true;
       const mc = this.miniBossChestPos || { tx: 25, ty: 26 };
       this.chests.push({ tx: mc.tx, ty: mc.ty, opened: false, bonus: true, chestTheme: this.def.chestTheme || 'gold' });
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       game.addFloatingText(mc.tx * TILE_SIZE, mc.ty * TILE_SIZE - 16, T('dungeon.guardianDefeated'), '#ffd54f');
       game.toast(T('dungeon.southSealBroken'), 'success');
       this.checkBossGateUnlock(game);
@@ -4494,10 +4558,10 @@
         for (const [gx, gy] of gates) {
           if (this.grid[gy]) this.grid[gy][gx] = 1;
         }
-        Balaclava.Audio.play('portal');
+        Abyssea.Audio.play('portal');
         const msg = isLate
           ? '¡Todos los Sellos, Guardianes y Altares han caído! La Gran Puerta del Jefe se abre.'
-          : (Balaclava.I18n ? Balaclava.I18n.t('dungeon.bothSealsOpen') : '¡Los Sellos Norte y Sur ceden! La Gran Puerta del Jefe se abre.');
+          : (Abyssea.I18n ? Abyssea.I18n.t('dungeon.bothSealsOpen') : '¡Los Sellos Norte y Sur ceden! La Gran Puerta del Jefe se abre.');
         game.toast(msg, 'success');
       }
     }
@@ -4511,10 +4575,10 @@
       for (const [gx, gy] of gates) {
         if (this.grid[gy]) this.grid[gy][gx] = 3;
       }
-      if (Balaclava.Audio) Balaclava.Audio.play('bomb');
+      if (Abyssea.Audio) Abyssea.Audio.play('bomb');
       if (game && typeof game.shake === 'function') game.shake(0.24, 5);
       if (game && typeof game.toast === 'function') {
-        const msg = Balaclava.I18n ? Balaclava.I18n.t('dungeon.bossGateLocked') : '¡La Puerta del Jefe se ha sellado! Derrota al guardián para salir.';
+        const msg = Abyssea.I18n ? Abyssea.I18n.t('dungeon.bossGateLocked') : '¡La Puerta del Jefe se ha sellado! Derrota al guardián para salir.';
         game.toast(msg, 'warn');
       }
     }
@@ -4628,12 +4692,12 @@
 
       // Active ground hazard zones (meteors, bombs, pillars, elemental pools, cross fissures)
       if (!Array.isArray(this.hazardZones)) this.hazardZones = [];
-      if (Balaclava.EnemyAttacks && Balaclava.EnemyAttacks.updateHazards) {
-        Balaclava.EnemyAttacks.updateHazards(game, this.hazardZones, (wx, wy) => this.isTileWalkable(Math.floor(wx / TILE_SIZE), Math.floor(wy / TILE_SIZE)), dt);
+      if (Abyssea.EnemyAttacks && Abyssea.EnemyAttacks.updateHazards) {
+        Abyssea.EnemyAttacks.updateHazards(game, this.hazardZones, (wx, wy) => this.isTileWalkable(Math.floor(wx / TILE_SIZE), Math.floor(wy / TILE_SIZE)), dt);
       }
 
       // Point 8: Intentional Puzzle Logic (Wing Seals + Readable Sequence Puzzle with Edge-Triggered Pads)
-      const T = (k, v) => (Balaclava.I18n ? Balaclava.I18n.t(k, v) : k);
+      const T = (k, v) => (Abyssea.I18n ? Abyssea.I18n.t(k, v) : k);
       const getRuneDisplayLabel = (r) => {
         if (r.id === 'alfa') return T('dungeon.wingAlpha');
         if (r.id === 'beta') return T('dungeon.wingBeta');
@@ -4654,7 +4718,7 @@
           if (interactPressed && !this._tabletInteractLock) {
             this._tabletInteractLock = true;
             this.puzzleTablet.read = true;
-            Balaclava.Audio.play('click');
+            Abyssea.Audio.play('click');
             game.toast(this.puzzleTablet.hintText, 'info');
             game.addFloatingText(this.puzzleTablet.tx * TILE_SIZE + 24, this.puzzleTablet.ty * TILE_SIZE - 8, this.puzzleTablet.title || 'ESTELA RUNICA', '#ffd54f');
           } else if (!interactPressed) {
@@ -4670,6 +4734,56 @@
         }
       }
 
+      const unlockVaultNow = () => {
+        if (this.vaultOpen) return;
+        this.vaultOpen = true;
+        this.seqProgress = this.seqTarget || 3;
+        this.runes.filter(x => x.kind === 'seq').forEach(x => { x.active = true; });
+        const vDoors = (this.vaultDoorTiles && this.vaultDoorTiles.length > 0)
+          ? this.vaultDoorTiles
+          : [[26, 3], [26, 4], [26, 5]];
+        for (const [vx, vy] of vDoors) {
+          if (this.grid[vy]) this.grid[vy][vx] = 1;
+        }
+        Abyssea.Audio.play('portal');
+        game.toast(T('dungeon.seqComplete'), 'success');
+        this.checkBossGateUnlock(game);
+      };
+
+      // Continuous per-frame puzzle updates for timed / channeling mechanics
+      if (!this.vaultOpen) {
+        const seqList = this.runes.filter(x => x.kind === 'seq');
+        if (this.puzzleMode === 'chrono_braziers') {
+          for (const sr of seqList) {
+            if (sr.active && sr.burnRemaining > 0) {
+              sr.burnRemaining = Math.max(0, sr.burnRemaining - dt);
+              if (sr.burnRemaining <= 0) {
+                sr.active = false;
+                Abyssea.Audio.play('error');
+                game.addFloatingText(sr.tx * TILE_SIZE + 24, sr.ty * TILE_SIZE, '¡PIRA EXTINGUIDA!', '#ff8a65');
+              }
+            }
+          }
+        } else if (this.puzzleMode === 'arcane_charge_conduit') {
+          for (const sr of seqList) {
+            if (!sr.active && ptx === sr.tx && pty === sr.ty) {
+              sr.chargePct = Math.min(100, (sr.chargePct || 0) + dt * 95);
+              if (Math.random() < 0.35) {
+                game.spawnParticles(sr.tx * TILE_SIZE + 24, sr.ty * TILE_SIZE + 24, '#00e5ff', 2);
+              }
+              if (sr.chargePct >= 100) {
+                sr.active = true;
+                this.seqProgress = seqList.filter(x => x.active).length;
+                Abyssea.Audio.play('chest');
+                game.spawnParticles(sr.tx * TILE_SIZE + 24, sr.ty * TILE_SIZE + 24, '#69f0ae', 16);
+                game.addFloatingText(sr.tx * TILE_SIZE + 24, sr.ty * TILE_SIZE, '¡SOBRECARGA 100%!', '#69f0ae');
+                if (seqList.every(x => x.active)) unlockVaultNow();
+              }
+            }
+          }
+        }
+      }
+
       const steppedRune = this.runes.find(r => ptx === r.tx && pty === r.ty);
       const currentPadKey = steppedRune ? `${steppedRune.id}:${steppedRune.tx},${steppedRune.ty}` : null;
       const isNewPadStep = currentPadKey !== null && currentPadKey !== this._lastRunePadKey;
@@ -4680,7 +4794,7 @@
         const rLbl = getRuneDisplayLabel(r);
         if (r.kind === 'wing' && !r.active) {
           r.active = true;
-          Balaclava.Audio.play('chest');
+          Abyssea.Audio.play('chest');
           game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#80deea', 12);
           game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, T('dungeon.runeLit', { label: rLbl }), '#80deea');
           if (this.runes.filter(x => x.kind === 'wing').every(x => x.active) && !this.wingsOpen) {
@@ -4691,53 +4805,87 @@
             for (const [dx, dy] of wDoors) {
               if (this.grid[dy]) this.grid[dy][dx] = 1;
             }
-            Balaclava.Audio.play('portal');
+            Abyssea.Audio.play('portal');
             game.toast(T('dungeon.wingsOpen'), 'success');
           }
         } else if (r.kind === 'elemental_shrine' && !r.active) {
           r.active = true;
           this.shrineProgress = (this.shrineProgress || 0) + 1;
-          Balaclava.Audio.play('chest');
+          Abyssea.Audio.play('chest');
           game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ff9800', 16);
           game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `¡Altar Elemental [${this.shrineProgress}/${this.shrineTarget}]!`, '#ff9800');
           game.toast(`¡Sello Elemental activado! (${this.shrineProgress}/${this.shrineTarget})`, 'success');
           this.checkBossGateUnlock(game);
-        } else if (r.kind === 'seq' && !this.vaultOpen && !r.active) {
-          const maxSeq = this.seqTarget || 3;
-          if (r.order === this.seqProgress + 1) {
-            r.active = true;
-            this.seqProgress = r.order;
-            Balaclava.Audio.play('chest');
-            game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#69f0ae', 12);
-            game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `${rLbl} [${this.seqProgress}/${maxSeq}]`, '#ffd54f');
-            if (this.seqProgress >= maxSeq) {
-              this.vaultOpen = true;
-              const vDoors = (this.vaultDoorTiles && this.vaultDoorTiles.length > 0)
-                ? this.vaultDoorTiles
-                : [[26, 3], [26, 4], [26, 5]];
-              for (const [vx, vy] of vDoors) {
-                if (this.grid[vy]) this.grid[vy][vx] = 1;
-              }
-              Balaclava.Audio.play('portal');
-              game.toast(T('dungeon.seqComplete'), 'success');
-              this.checkBossGateUnlock(game);
+        } else if (r.kind === 'seq' && !this.vaultOpen) {
+          const seqList = this.runes.filter(x => x.kind === 'seq');
+          const maxSeq = this.seqTarget || seqList.length || 3;
+
+          if (this.puzzleMode === 'prism_rotation') {
+            r.prismDir = ((r.prismDir || 0) + 1) % 4;
+            r.active = (r.prismDir === r.targetDir);
+            this.seqProgress = seqList.filter(x => x.active).length;
+            const dirNames = ['NORTE', 'ESTE', 'SUR', 'OESTE'];
+            Abyssea.Audio.play(r.active ? 'chest' : 'click');
+            game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, r.active ? '#69f0ae' : '#00e5ff', 12);
+            game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `PRISMA: ${dirNames[r.prismDir]}${r.active ? ' [ALINEADO]' : ''}`, r.active ? '#69f0ae' : '#00e5ff');
+            if (seqList.every(x => x.active)) unlockVaultNow();
+          } else if (this.puzzleMode === 'harmonic_lights_out') {
+            const idx = seqList.indexOf(r);
+            r.active = !r.active;
+            if (seqList.length > 1) {
+              const neighbor = seqList[(idx + 1) % seqList.length];
+              neighbor.active = !neighbor.active;
             }
-          } else {
-            // Wrong step in sequence: reset sequence cleanly once per step (never spam every frame)
-            this.seqProgress = 0;
-            this.runes.filter(x => x.kind === 'seq').forEach(x => { x.active = false; });
-            // If the player stepped on the actual first rune (order 1) after a mistake, start sequence from 1 immediately
-            if (r.order === 1) {
+            this.seqProgress = seqList.filter(x => x.active).length;
+            Abyssea.Audio.play('chest');
+            game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ce93d8', 12);
+            game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `RESONANCIA [${this.seqProgress}/${seqList.length}]`, '#ce93d8');
+            if (seqList.every(x => x.active)) unlockVaultNow();
+          } else if (this.puzzleMode === 'chrono_braziers') {
+            r.active = true;
+            r.burnRemaining = 14.0;
+            this.seqProgress = seqList.filter(x => x.active).length;
+            Abyssea.Audio.play('chest');
+            game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ff7043', 14);
+            game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `PIRA ENCENDIDA (14s) [${this.seqProgress}/${seqList.length}]`, '#ffab40');
+            if (seqList.every(x => x.active)) unlockVaultNow();
+          } else if (this.puzzleMode === 'astral_totem_dial') {
+            const phaseNames = ['SOL', 'LUNA', 'ESTRELLA'];
+            r.totemPhase = ((r.totemPhase || 0) + 1) % 3;
+            r.active = (r.totemPhase === r.targetPhase);
+            this.seqProgress = seqList.filter(x => x.active).length;
+            Abyssea.Audio.play(r.active ? 'chest' : 'click');
+            game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, r.active ? '#69f0ae' : '#ffd54f', 12);
+            game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `TOTEM: ${phaseNames[r.totemPhase]}${r.active ? ' [OK]' : ''}`, r.active ? '#69f0ae' : '#ffd54f');
+            if (seqList.every(x => x.active)) unlockVaultNow();
+          } else if (this.puzzleMode === 'arcane_charge_conduit') {
+            if (!r.active) {
+              game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, 'Canalizando energía...', '#00e5ff');
+            }
+          } else if (!r.active) {
+            // Sequence-based puzzles: flames_count, mural_codex, simon_memory_echo, astral_conduit, obelisk_notches
+            if (r.order === this.seqProgress + 1) {
               r.active = true;
-              this.seqProgress = 1;
-              Balaclava.Audio.play('chest');
-              game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ffd54f', 10);
-              game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `REINICIO -> ${rLbl} [1/${maxSeq}]`, '#ffd54f');
+              this.seqProgress = r.order;
+              Abyssea.Audio.play('chest');
+              game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#69f0ae', 12);
+              game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `${rLbl} [${this.seqProgress}/${maxSeq}]`, '#ffd54f');
+              if (this.seqProgress >= maxSeq) unlockVaultNow();
             } else {
-              Balaclava.Audio.play('error');
-              game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ef5350', 10);
-              const clueReminder = this.puzzleTablet ? ` (${this.puzzleTablet.shortHint})` : '';
-              game.toast(T('dungeon.seqWrong') + clueReminder, 'warn');
+              this.seqProgress = 0;
+              seqList.forEach(x => { x.active = false; });
+              if (r.order === 1) {
+                r.active = true;
+                this.seqProgress = 1;
+                Abyssea.Audio.play('chest');
+                game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ffd54f', 10);
+                game.addFloatingText(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE, `REINICIO -> ${rLbl} [1/${maxSeq}]`, '#ffd54f');
+              } else {
+                Abyssea.Audio.play('error');
+                game.spawnParticles(r.tx * TILE_SIZE + 24, r.ty * TILE_SIZE + 24, '#ef5350', 10);
+                const clueReminder = this.puzzleTablet ? ` (${this.puzzleTablet.shortHint})` : '';
+                game.toast(T('dungeon.seqWrong') + clueReminder, 'warn');
+              }
             }
           }
         }
@@ -4793,7 +4941,7 @@
           }
         }
         const spdScale = e.stunTimer > 0 ? 0 : (e.slowTimer > 0 ? 0.45 : 1);
-        const d = Balaclava.Utils.dist(e.x, e.y, game.player.x, game.player.y);
+        const d = Abyssea.Utils.dist(e.x, e.y, game.player.x, game.player.y);
 
         if (!e.state) e.state = 'chase';
         if (e.specialAtkCd === undefined) e.specialAtkCd = 2.0;
@@ -4820,7 +4968,7 @@
           }
         }
 
-        const enemyApi = Balaclava.EnemyAttacks;
+        const enemyApi = Abyssea.EnemyAttacks;
         if (enemyApi && enemyApi.stepMobAI) {
           const aiStep = enemyApi.stepMobAI(game, e, dt, {
             isDungeon: true,
@@ -4854,7 +5002,7 @@
         const bMinX = (this.bossRoomMinX || 34) + 3;
         const bMaxX = Math.max(bMinX + 6, this.width - 5);
         const isBossWalkable = (wx, wy) => Number.isFinite(wx) && Number.isFinite(wy) && Math.floor(wx / TILE_SIZE) >= bMinX - 1 && Math.floor(wy / TILE_SIZE) >= 9 && Math.floor(wy / TILE_SIZE) <= 29 && this.isTileWalkable(Math.floor(wx / TILE_SIZE), Math.floor(wy / TILE_SIZE));
-        const enemyApi = Balaclava.EnemyAttacks;
+        const enemyApi = Abyssea.EnemyAttacks;
         const theme = (enemyApi && enemyApi.getBossTheme)
           ? enemyApi.getBossTheme(this.id)
           : {
@@ -4897,8 +5045,8 @@
             maxTimer: 3.2
           };
           game.toast(T('dungeon.phase2Toast', { boss: b.name }), 'warn');
-          Balaclava.Audio.play('thunder');
-          Balaclava.Audio.play('meteor');
+          Abyssea.Audio.play('thunder');
+          Abyssea.Audio.play('meteor');
           game.shake(0.55, 11);
           game.spawnShockwave(b.x, b.y, 175, bossCol);
           game.spawnFx(theme.phaseVfx || 'pvfx_fire_nova', b.x, b.y - 6, 0, 0.85, 1.5, 1.0, { blend: 'lighter' });
@@ -4929,9 +5077,9 @@
             maxTimer: 3.6
           };
           game.toast(T('dungeon.phase3Toast', { boss: b.name }), 'warn');
-          Balaclava.Audio.play('thunder');
-          Balaclava.Audio.play('meteor');
-          Balaclava.Audio.play('levelup');
+          Abyssea.Audio.play('thunder');
+          Abyssea.Audio.play('meteor');
+          Abyssea.Audio.play('levelup');
           game.shake(0.75, 14);
           game.spawnShockwave(b.x, b.y, 215, bossCol);
           game.spawnFx(theme.phaseVfx || 'pvfx_big_explosion', b.x, b.y - 6, 0, 0.95, 1.7, 1.0, { blend: 'lighter' });
@@ -4949,12 +5097,12 @@
           this.enemies.push(this.makeMob(this.def.enemyTypes[1 % this.def.enemyTypes.length], bMaxX - 1, ay + 5, 1.35));
         }
 
-        const d = Balaclava.Utils.dist(b.x, b.y, game.player.x, game.player.y);
+        const d = Abyssea.Utils.dist(b.x, b.y, game.player.x, game.player.y);
         const ang = Math.atan2(game.player.y - b.y, game.player.x - b.x);
         b.facing = game.player.x >= b.x ? 1 : -1;
         b.animTimer = (b.animTimer || 0) + dt;
         if ((b.animLock || 0) > 0) b.animLock -= dt;
-        const _bMeta = Balaclava.BOSS_SPRITE_PATHS && Balaclava.BOSS_SPRITE_PATHS[this.id];
+        const _bMeta = Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[this.id];
         if (_bMeta && _bMeta.multiRow && (b.animLock || 0) <= 0) {
           if ((b.dashTimer || 0) > 0) {
             if (b.animRow !== 5) { b.animRow = 5; b.animFrames = 7; b.animFps = 16; b.animTimer = 0; }
@@ -4976,7 +5124,7 @@
           const ny = b.y + (b.dashVy || 0) * dt;
           if (isBossWalkable(nx, b.y)) b.x = nx;
           if (isBossWalkable(b.x, ny)) b.y = ny;
-          if (Balaclava.Utils.dist(b.x, b.y, game.player.x, game.player.y) < 58 && b._dashHitCd <= 0) {
+          if (Abyssea.Utils.dist(b.x, b.y, game.player.x, game.player.y) < 58 && b._dashHitCd <= 0) {
             b._dashHitCd = 0.45;
             game.spawnFx(theme.dashVfx || 'pvfx_sword_combo', b.x, b.y - 6, Math.atan2(b.dashVy || 0, b.dashVx || 1), 0.35, 1.15, 0.98, { blend: 'lighter' });
             game.damagePlayer(Math.round(b.dmg * 1.28), { status: theme.status || null });
@@ -5005,12 +5153,12 @@
           if (b.leapProg >= 1) {
             b.leapDur = 0;
             b.leapProg = 0;
-            Balaclava.Audio.play('bomb');
+            Abyssea.Audio.play('bomb');
             game.shake(0.35, 9);
             game.spawnFx(theme.leapVfx || 'pvfx_meteor_strike', b.x, b.y - 6, 0, 0.65, 1.35, 0.98, { blend: 'lighter' });
             game.spawnFx(theme.slamVfx || 'pvfx_ground_slam', b.x, b.y + 4, 0, 0.5, 1.2, 0.92, { blend: 'lighter' });
             game.spawnShockwave(b.x, b.y, 122, bossCol);
-            if (Balaclava.Utils.dist(b.x, b.y, game.player.x, game.player.y) < 115) {
+            if (Abyssea.Utils.dist(b.x, b.y, game.player.x, game.player.y) < 115) {
               game.damagePlayer(Math.round(b.dmg * 1.42), { status: theme.status || null });
             }
             for (let k = 0; k < 8; k++) {
@@ -5031,7 +5179,7 @@
               const r = b.phase === 3 ? 156 : b.phase === 2 ? 136 : 120;
               game.spawnShockwave(b.x, b.y, r, bossCol);
               game.spawnFx(theme.slamVfx || 'pvfx_ground_slam', b.x, b.y, 0, 0.6, b.phase === 3 ? 1.45 : 1.25, 0.98, { blend: 'lighter' });
-              Balaclava.Audio.play('bomb');
+              Abyssea.Audio.play('bomb');
               game.shake(0.30, 8);
               if (d < r) game.damagePlayer(Math.round(b.dmg * (b.phase === 3 ? 1.50 : 1.35)), { isMagic: true, status: theme.status || null });
               this.hazardZones.push({ kind: 'pool', x: b.x, y: b.y, radius: Math.round(r * 0.52), duration: 2.2, timer: 0, dmg: b.dmg, color: bossCol, vfxKey: theme.pillarVfx, status: theme.status || null });
@@ -5042,7 +5190,7 @@
                 }
               }
             } else if (mode === 'aimed_volley') {
-              Balaclava.Audio.play('magic');
+              Abyssea.Audio.play('magic');
               game.spawnFx(theme.castVfx || 'pvfx_magic_circle', b.x, b.y, tAng, 0.4, 1.0, 0.9, { blend: 'lighter' });
               const spd = 255 + b.phase * 18;
               for (let k = -2; k <= 2; k++) {
@@ -5059,7 +5207,7 @@
               b.dashVx = Math.cos(tAng) * dashSpd;
               b.dashVy = Math.sin(tAng) * dashSpd;
               game.spawnFx(theme.dashVfx || 'pvfx_dash_dust', b.x, b.y, tAng, 0.35, 1.0, 0.92, { blend: 'lighter' });
-              Balaclava.Audio.play('slash');
+              Abyssea.Audio.play('slash');
             } else if (mode === 'leap_slam') {
               b.leapDur = 0.46;
               b.leapProg = 0.001;
@@ -5069,7 +5217,7 @@
               b.targetY = b.targetY ?? game.player.y;
               game.spawnFx(theme.castVfx || 'pvfx_dust_puff', b.x, b.y, 0, 0.36, 1.0, 0.9);
             } else if (mode === 'cross_fissure') {
-              Balaclava.Audio.play('magic');
+              Abyssea.Audio.play('magic');
               game.spawnFx(theme.castVfx || 'pvfx_magic_circle', b.x, b.y, 0, 0.45, 1.15, 0.92, { blend: 'lighter' });
               const cx = b.targetX ?? game.player.x;
               const cy = b.targetY ?? game.player.y;
@@ -5099,7 +5247,7 @@
             } else if (mode === 'spiral_barrage') {
               const count = b.phase === 3 ? 14 : 10;
               const offset = ((b.phaseCycle || 0) % 3) * 0.24;
-              Balaclava.Audio.play('magic');
+              Abyssea.Audio.play('magic');
               game.spawnFx(theme.castVfx || 'pvfx_magic_circle', b.x, b.y, 0, 0.42, 1.1, 0.92, { blend: 'lighter' });
               for (let k = 0; k < count; k++) {
                 const a = ang + offset + (k / count) * Math.PI * 2;
@@ -5109,7 +5257,7 @@
                 }
               }
             } else if (mode === 'meteor_rain') {
-              Balaclava.Audio.play('meteor');
+              Abyssea.Audio.play('meteor');
               game.spawnFx(theme.castVfx || 'pvfx_magic_circle', b.x, b.y, 0, 0.5, 1.2, 0.95, { blend: 'lighter' });
               const baseX = b.targetX ?? game.player.x;
               const baseY = b.targetY ?? game.player.y;
@@ -5139,7 +5287,7 @@
                 game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 245, Math.sin(a) * 245, Math.round(b.dmg * 0.88), bossCol, projCfg(false));
               }
             } else if (mode === 'pillar_ring') {
-              Balaclava.Audio.play('thunder');
+              Abyssea.Audio.play('thunder');
               game.spawnFx(theme.castVfx || 'pvfx_magic_circle', b.x, b.y, 0, 0.48, 1.25, 0.96, { blend: 'lighter' });
               const tx = b.targetX ?? game.player.x;
               const ty = b.targetY ?? game.player.y;
@@ -5173,7 +5321,7 @@
               }
             } else if (mode === 'barrage') {
               const count = b.phase === 3 ? 14 : b.phase === 2 ? 11 : 8;
-              Balaclava.Audio.play('magic');
+              Abyssea.Audio.play('magic');
               game.spawnFx(theme.castVfx || 'pvfx_magic_circle', b.x, b.y, 0, 0.4, 1.05, 0.92, { blend: 'lighter' });
               for (let k = 0; k < count; k++) {
                 const a = ang + (k / count) * Math.PI * 2;
@@ -5230,7 +5378,7 @@
     }
   }
 
-  Balaclava.DUNGEON_DEFS = DUNGEON_DEFS;
-  Balaclava.DUNGEON_TIER_LIST = DUNGEON_TIER_LIST;
-  Balaclava.DungeonInstance = DungeonInstance;
+  Abyssea.DUNGEON_DEFS = DUNGEON_DEFS;
+  Abyssea.DUNGEON_TIER_LIST = DUNGEON_TIER_LIST;
+  Abyssea.DungeonInstance = DungeonInstance;
 })();
