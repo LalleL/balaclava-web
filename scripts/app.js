@@ -445,7 +445,7 @@
       tile_5: 'assets/tiles/Tilemap_color5.png',
       tile_flat: 'assets/tiles/Tilemap_Flat.png',
       compass: 'assets/ui/rpg_compass.png',
-      core: 'assets/icons/balaclava_core.png',
+      core: 'assets/icons/abyssea_core.png',
       archipielago_coral: 'assets/sprites_v13/biomes/archipielago_coral.png',
       selva_esmeralda: 'assets/sprites_v13/biomes/selva_esmeralda.png',
       cavernas_cristal: 'assets/sprites_v13/biomes/cavernas_cristal.png',
