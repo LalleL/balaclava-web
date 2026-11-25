@@ -9,10 +9,10 @@
  */
 window.BALACLAVA_SITE_CONFIG = {
   // 1. Enlace principal de descarga directa (GitHub Releases)
-  downloadUrl: 'https://github.com/Lallelsito/Balaclava/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64-setup.exe',
+  downloadUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64-setup.exe',
 
   // 2. Enlace alternativo / mirror opcional (MSI installer)
-  mirrorUrl: 'https://github.com/Lallelsito/Balaclava/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64_en-US.msi',
+  mirrorUrl: 'https://github.com/LalleL/balaclava-web/releases/download/v2.0.0-rc2/Abyssea_2.0.0_x64_en-US.msi',
 
   // 3. Versión actual mostrada en badges, hero y tarjetas de descarga
   version: 'Beta 2.0.0 RC2',
@@ -28,7 +28,7 @@ window.BALACLAVA_SITE_CONFIG = {
 
   // 5. Enlaces oficiales de comunidad y apoyo
   downloadBaseOffset: 15,
-  githubRepo: 'Lallelsito/Balaclava',
+  githubRepo: 'LalleL/balaclava-web',
   webPlayersCounterUrl: 'https://balaclava-counter.000lallel.workers.dev',
   discordUrl: 'https://discord.gg/8wrsjRSMY2',
   kofiUrl: 'https://ko-fi.com/balaclava',
