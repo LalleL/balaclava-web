@@ -1341,11 +1341,25 @@
         const fw = Math.round(img.naturalWidth / 4);
         const fh = img.naturalHeight;
         ctx.save();
+        ctx.imageSmoothingEnabled = false;
         ctx.translate(x, y);
         if (flipX) ctx.scale(-1, 1);
         ctx.drawImage(img, fIdx * fw, 0, fw, fh, -drawW / 2, -drawH / 2, drawW, drawH);
         ctx.restore();
         return true;
+      };
+
+      const drawWorldLabel = (text, x, y, fill = '#ffffff', fontSize = 11) => {
+        ctx.save();
+        ctx.font = `bold ${fontSize}px AbysseaPixel, monospace`;
+        ctx.textAlign = 'center';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = 'rgba(8, 14, 24, 0.88)';
+        ctx.strokeText(text, x, y);
+        ctx.fillStyle = fill;
+        ctx.fillText(text, x, y);
+        ctx.restore();
       };
 
       // 1. Hana Cosmetic Aura (under player feet)
@@ -1405,32 +1419,29 @@
           ctx.fill();
           ctx.restore();
         }
-        drawStrip4(img, px, py, 44, 44, (this.player.x < px));
+        drawStrip4(img, px, py, 48, 48, (this.player.x < px));
       }
 
       if (this.activeDungeon || this.activeAquarium) return;
 
       // 4. Deep Fishing Whirlpools
       for (const wp of this.worldWhirlpools) {
-        drawStrip4(ex.sea_whirlpool_4f, wp.x, wp.y, 68, 68, false);
-        ctx.save();
-        ctx.fillStyle = '#e0ffff';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Pesca Profunda', wp.x, wp.y - 36);
-        ctx.restore();
+        drawStrip4(ex.sea_whirlpool_4f, wp.x, wp.y, 76, 76, false);
+        drawWorldLabel('Pesca Profunda', wp.x, wp.y - 42, '#e0ffff', 10);
       }
 
       // 5. Wandering Ghost Merchant Ship
       if (rt.ghostShip) {
         const gs = rt.ghostShip;
-        drawStrip4(ex.ship_mercader_fantasma_4f, gs.x, gs.y, 116, 116, false);
+        // Subtle ocean reflection shadow beneath hull
         ctx.save();
-        ctx.fillStyle = '#80ffff';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`Barco Fantasma (${Math.ceil(gs.ttl)}s) [E]`, gs.x, gs.y - 54);
+        ctx.fillStyle = 'rgba(6, 26, 44, 0.30)';
+        ctx.beginPath();
+        ctx.ellipse(gs.x, gs.y + 52, 54, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
+        drawStrip4(ex.ship_mercader_fantasma_4f, gs.x, gs.y, 144, 144, false);
+        drawWorldLabel(`Barco Fantasma (${Math.ceil(gs.ttl)}s) [E]`, gs.x, gs.y - 68, '#80ffff', 11);
       }
 
       // 6. Coastal Leviathan Sea Boss & Destructible Tentacles
@@ -1439,23 +1450,20 @@
         for (const t of sb.tentacles) {
           if (t.hp <= 0) continue;
           const tx = sb.x + t.ox, ty = sb.y + t.oy;
-          drawStrip4(ex.kraken_tentacle_4f, tx, ty, 64, 64, t.ox > 0);
-          ctx.fillStyle = 'rgba(0,0,0,0.6)';
-          ctx.fillRect(tx - 22, ty - 38, 44, 5);
+          drawStrip4(ex.kraken_tentacle_4f, tx, ty, 74, 74, t.ox > 0);
+          ctx.fillStyle = 'rgba(0,0,0,0.68)';
+          ctx.fillRect(tx - 24, ty - 42, 48, 6);
           ctx.fillStyle = '#26c6da';
-          ctx.fillRect(tx - 22, ty - 38, 44 * (t.hp / Math.max(1, t.maxHp)), 5);
+          ctx.fillRect(tx - 23, ty - 41, 46 * (t.hp / Math.max(1, t.maxHp)), 4);
         }
-        drawStrip4(ex.boss_leviatan_marino_4f, sb.x, sb.y, 128, 128, false);
+        drawStrip4(ex.boss_leviatan_marino_4f, sb.x, sb.y, 152, 152, false);
         ctx.save();
-        ctx.fillStyle = 'rgba(10,16,28,0.82)';
-        ctx.fillRect(sb.x - 58, sb.y - 74, 116, 10);
+        ctx.fillStyle = 'rgba(10,16,28,0.86)';
+        ctx.fillRect(sb.x - 62, sb.y - 84, 124, 11);
         ctx.fillStyle = '#00e5ff';
-        ctx.fillRect(sb.x - 56, sb.y - 72, 112 * (sb.hp / Math.max(1, sb.maxHp)), 6);
-        ctx.fillStyle = '#ffd54f';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${sb.name} (${sb.hp}/${sb.maxHp})`, sb.x, sb.y - 80);
+        ctx.fillRect(sb.x - 60, sb.y - 82, 120 * (sb.hp / Math.max(1, sb.maxHp)), 7);
         ctx.restore();
+        drawWorldLabel(`${sb.name} (${sb.hp}/${sb.maxHp})`, sb.x, sb.y - 91, '#ffd54f', 11);
       }
 
       // 7. Specialist Villagers idling near built key structures
@@ -1475,15 +1483,13 @@
         if (sh && sh.complete && sh.naturalWidth > 0) {
           const fw = Math.round(sh.naturalWidth / 4);
           const fh = sh.naturalHeight;
+          ctx.imageSmoothingEnabled = false;
           ctx.drawImage(sh, fIdx * fw, 0, fw, fh, vx - 22, vy - 26, 44, 48);
         }
-        if (dist(this.player.x, this.player.y, vx, vy) <= 95) {
-          ctx.fillStyle = '#ffe082';
-          ctx.font = 'bold 11px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(`${spec.name} [E]`, vx, vy - 30);
-        }
         ctx.restore();
+        if (dist(this.player.x, this.player.y, vx, vy) <= 95) {
+          drawWorldLabel(`${spec.name} [E]`, vx, vy - 30, '#ffe082', 10);
+        }
       }
 
       // 8. Structure Relocator Ghost Highlight
@@ -1497,11 +1503,8 @@
         ctx.lineWidth = 3;
         ctx.fillRect(tx * TILE_SIZE, ty * TILE_SIZE, sz * TILE_SIZE, sz * TILE_SIZE);
         ctx.strokeRect(tx * TILE_SIZE, ty * TILE_SIZE, sz * TILE_SIZE, sz * TILE_SIZE);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(rt.relocating ? `Colocar: ${rt.relocating.name}` : 'Clic en estructura para trasladar', (tx + sz * 0.5) * TILE_SIZE, ty * TILE_SIZE - 8);
         ctx.restore();
+        drawWorldLabel(rt.relocating ? `Colocar: ${rt.relocating.name}` : 'Clic en estructura para trasladar', (tx + sz * 0.5) * TILE_SIZE, ty * TILE_SIZE - 8, '#ffffff', 10);
       }
     };
   }
