@@ -4,7 +4,10 @@
 
   const Abyssea = (window.Abyssea = window.Abyssea || {});
 
+  const WEBSITE_URL = 'https://abyssea.online/';
   const DISCORD_INVITE_URL = 'https://discord.gg/8wrsjRSMY2';
+  const RPC_ASSET_BASE = 'https://abyssea.online/assets/rpc';
+  const RPC_COVER_IMAGE = `${RPC_ASSET_BASE}/abyssea_cover.png`;
   const APP_VERSION_LABEL = 'Beta 2.0.0 RC2';
   const SESSION_START_SEC = Math.floor(Date.now() / 1000);
   const MIN_PUSH_INTERVAL_MS = 1200;
@@ -29,11 +32,23 @@
     tierras_malditas: 'Abyssal Cursed Lands'
   };
 
+  const LUNAR_NAMES_EN = {
+    luna_nueva: 'New Moon',
+    cuarto_creciente: 'Waxing Crescent',
+    luna_llena: 'Full Moon',
+    luna_sangre: 'Blood Moon',
+    eclipse_astral: 'Astral Eclipse'
+  };
+
   let initialized = false;
   let lastSignature = '';
   let lastPushMs = 0;
   let pendingTimer = null;
   let pollTimer = null;
+
+  function badgeUrl(key) {
+    return `${RPC_ASSET_BASE}/badge_${key}.png`;
+  }
 
   function getTauriInvoke() {
     try {
@@ -107,8 +122,36 @@
     };
   }
 
+  function getActivePetLabel(game) {
+    try {
+      if (!game || !game.activePet || !Abyssea.PET_DEFS) return null;
+      const def = Abyssea.PET_DEFS[game.activePet];
+      return def ? def.name : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function getLunarInfo(game, isEn) {
+    try {
+      if (!game || typeof game.getLunarPhase !== 'function') return null;
+      const ph = game.getLunarPhase();
+      if (!ph || !ph.id) return null;
+      const label = isEn ? (LUNAR_NAMES_EN[ph.id] || ph.name) : ph.name;
+      const isSpecial = ph.id === 'luna_sangre' || ph.id === 'eclipse_astral';
+      const isNight = Boolean(game.isNight || (typeof game.dayTime === 'number' && game.dayTime >= 0.625));
+      return { id: ph.id, label, isSpecial, isNight };
+    } catch (_) {
+      return null;
+    }
+  }
+
   function buildButtons(lang) {
     return [
+      {
+        label: lang === 'en' ? 'Play Abyssea' : 'Jugar Abyssea',
+        url: WEBSITE_URL
+      },
       {
         label: lang === 'en' ? 'Join Discord' : 'Unirse al Discord',
         url: DISCORD_INVITE_URL
@@ -122,16 +165,18 @@
     const lang = getLang();
     const isEn = lang === 'en';
     const activeModal = ui ? ui.activeModal : null;
+    const modalData = ui ? ui.modalData : null;
+    const largeText = `Abyssea · ${APP_VERSION_LABEL}`;
 
     if (!game || !game.started) {
       return {
-        details: isEn ? 'In the Main Menu' : 'En el menú principal',
-        state: isEn ? `Preparing an expedition · ${APP_VERSION_LABEL}` : `Preparando expedición · ${APP_VERSION_LABEL}`,
+        details: isEn ? `Main Menu · ${APP_VERSION_LABEL}` : `Menú Principal · ${APP_VERSION_LABEL}`,
+        state: isEn ? 'Preparing an expedition' : 'Preparando expedición',
         startTimestamp: SESSION_START_SEC,
-        largeImage: 'abyssea_logo',
-        largeText: `Abyssea · ${APP_VERSION_LABEL}`,
-        smallImage: null,
-        smallText: null,
+        largeImage: RPC_COVER_IMAGE,
+        largeText,
+        smallImage: badgeUrl('explore'),
+        smallText: isEn ? 'Archipelago Ready' : 'Archipiélago listo',
         buttons: buildButtons(lang),
         clear: false
       };
@@ -145,14 +190,31 @@
     if (typeof game.isPlayerDead === 'function' && game.isPlayerDead()) {
       return {
         details: isEn ? 'Fallen in Battle' : 'Caído en combate',
-        state: isEn
-          ? `Respawning at camp · Lv.${lvl}`
-          : `Reapareciendo en campamento · Nv.${lvl}`,
+        state: isEn ? `Respawning · Lv.${lvl}` : `Reapareciendo · Nv.${lvl}`,
         startTimestamp: SESSION_START_SEC,
-        largeImage: 'abyssea_logo',
-        largeText: `Abyssea · ${APP_VERSION_LABEL}`,
-        smallImage: null,
-        smallText: null,
+        largeImage: RPC_COVER_IMAGE,
+        largeText,
+        smallImage: badgeUrl('dungeon'),
+        smallText: isEn ? 'Recovering at camp' : 'Recuperándose en campamento',
+        buttons: buildButtons(lang),
+        clear: false
+      };
+    }
+
+    // Coastal Abyssal Leviathan Sea Boss encounter (RC2)
+    const seaBoss = game.v2Runtime && game.v2Runtime.seaBoss;
+    if (seaBoss && seaBoss.hp > 0 && !game.activeDungeon) {
+      const hpPct = Math.max(1, Math.round((seaBoss.hp / Math.max(1, seaBoss.maxHp || 1)) * 100));
+      return {
+        details: isEn ? 'Boss: Abyssal Leviathan' : 'Jefe: Leviatán Abisal',
+        state: isEn
+          ? `Sea Boss (${hpPct}% HP) · Lv.${lvl}`
+          : `Jefe Marino (${hpPct}% HP) · Nv.${lvl}`,
+        startTimestamp: SESSION_START_SEC,
+        largeImage: RPC_COVER_IMAGE,
+        largeText,
+        smallImage: badgeUrl('leviathan'),
+        smallText: isEn ? 'Abyssal Leviathan' : 'Leviatán Abisal',
         buttons: buildButtons(lang),
         clear: false
       };
@@ -160,8 +222,11 @@
 
     if (game.activeDungeon) {
       const dung = game.activeDungeon;
-      const dungName = (dung.def && dung.def.name) || (isEn ? 'Dungeon' : 'Mazmorra');
-      const dungBiome = (dung.def && dung.def.themeKey) || 'pradera';
+      const isAbyss = Boolean(dung.isAbyss || dung.id === 'abismo_infinito' || (dung.def && dung.def.id === 'abismo_infinito'));
+      const abyssFloor = (game.abyss && game.abyss.current) || dung.floor || 1;
+      const dungName = isAbyss
+        ? (isEn ? `Infinite Abyss F${abyssFloor}` : `Abismo Infinito P${abyssFloor}`)
+        : ((dung.def && dung.def.name) || (isEn ? 'Dungeon' : 'Mazmorra'));
       const boss = dung.boss;
       const TILE_SIZE = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48;
       const playerTx = game.player ? Math.floor(game.player.x / TILE_SIZE) : 0;
@@ -173,30 +238,30 @@
         const hpPct = Math.max(1, Math.round(((boss.hp || 0) / Math.max(1, boss.maxHp || 1)) * 100));
         details = isEn ? `Boss: ${boss.name}` : `Jefe: ${boss.name}`;
         state = isEn
-          ? `${dungName} (${hpPct}% HP) · Lv.${lvl}`
-          : `${dungName} (${hpPct}% HP) · Nv.${lvl}`;
+          ? `${dungName} (${hpPct}%) · Lv.${lvl}`
+          : `${dungName} (${hpPct}%) · Nv.${lvl}`;
       } else if (boss && boss.dead) {
         details = isEn ? `Cleared: ${dungName}` : `Despejada: ${dungName}`;
         state = isEn
           ? `Lv.${lvl} · ${clearedCount} dungeons cleared`
-          : `Nv.${lvl} · ${clearedCount} mazmorras completadas`;
+          : `Nv.${lvl} · ${clearedCount} mazmorras`;
       } else {
         const aliveEnemies = Array.isArray(dung.enemies)
           ? dung.enemies.filter(e => e && !e.dead).length + (boss && !boss.dead ? 1 : 0)
           : 0;
         details = isEn ? `Dungeon: ${dungName}` : `Mazmorra: ${dungName}`;
         state = isEn
-          ? `Lv.${lvl} · ${aliveEnemies} foes remaining`
-          : `Nv.${lvl} · ${aliveEnemies} enemigos restantes`;
+          ? `Lv.${lvl} · ${aliveEnemies} foes left`
+          : `Nv.${lvl} · ${aliveEnemies} enemigos`;
       }
 
       return {
         details,
         state,
         startTimestamp: SESSION_START_SEC,
-        largeImage: 'abyssea_logo',
-        largeText: `Abyssea · ${APP_VERSION_LABEL}`,
-        smallImage: dungBiome,
+        largeImage: RPC_COVER_IMAGE,
+        largeText,
+        smallImage: badgeUrl('dungeon'),
         smallText: dungName,
         buttons: buildButtons(lang),
         clear: false
@@ -204,19 +269,53 @@
     }
 
     const biome = getPlayerBiomeInfo(game, isEn);
+    const petName = getActivePetLabel(game);
+    const lunar = getLunarInfo(game, isEn);
     const totalSkills = (Array.isArray(Abyssea.SKILLS) && Abyssea.SKILLS.length) ? Abyssea.SKILLS.length : TOTAL_SKILLS_FALLBACK;
+    const bType = activeModal === 'building' && modalData ? modalData.type : null;
+
     let details = isEn ? `Exploring: ${biome.name}` : `Explorando: ${biome.name}`;
     let state = isEn
-      ? `Lv.${lvl} · Day ${day} · Islands ${islands.unlocked}/${islands.total}`
-      : `Nv.${lvl} · Día ${day} · Islas ${islands.unlocked}/${islands.total}`;
+      ? `Lv.${lvl} · Day ${day} · ${islands.unlocked}/${islands.total} Islands`
+      : `Nv.${lvl} · Día ${day} · ${islands.unlocked}/${islands.total} Islas`;
+    let smallImage = badgeUrl(lunar && lunar.isSpecial && lunar.isNight ? 'moon' : 'explore');
+    let smallText = lunar && lunar.isSpecial && lunar.isNight
+      ? `${lunar.label} · ${biome.name}`
+      : (petName ? `${biome.name} · ${petName}` : biome.name);
 
     if (game.paused || activeModal === 'pause') {
       details = isEn ? `Paused · ${biome.name}` : `En pausa · ${biome.name}`;
+    } else if (activeModal === 'aquarium' || bType === 'portal_acuario') {
+      details = isEn ? 'Visiting the Aquarium' : 'Visitando el Acuario';
+      state = isEn ? `Lv.${lvl} · Exotic Fish Collection` : `Nv.${lvl} · Colección de peces`;
+      smallImage = badgeUrl('aquarium');
+      smallText = isEn ? 'Abyssea Aquarium' : 'Acuario Abisal';
+    } else if (activeModal === 'ghost_merchant') {
+      details = isEn ? 'Ghost Merchant Ship' : 'Barco Mercader Fantasma';
+      state = isEn ? `Lv.${lvl} · Coastal Trade` : `Nv.${lvl} · Comercio costero`;
+      smallImage = badgeUrl('ghost_ship');
+      smallText = isEn ? 'Ghost Merchant' : 'Mercader Fantasma';
+    } else if (bType === 'mesa_reforja' || activeModal === 'reforge') {
+      details = isEn ? 'Reforging Equipment' : 'Yunque de Reforja';
+      state = isEn ? `Lv.${lvl} · Hunting Singular Tier` : `Nv.${lvl} · Buscando rareza Singular`;
+      smallImage = badgeUrl('reforge');
+      smallText = isEn ? 'Reforging Anvil' : 'Mesa de Reforja';
+    } else if (bType === 'salon_trofeos' || activeModal === 'museum') {
+      const exhibits = Array.isArray(game.trophyExhibits) ? game.trophyExhibits.length : 0;
+      details = isEn ? 'Trophy Hall Museum' : 'Salón de Trofeos';
+      state = isEn ? `Lv.${lvl} · ${exhibits} relics displayed` : `Nv.${lvl} · ${exhibits} reliquias`;
+      smallImage = badgeUrl('museum');
+      smallText = isEn ? 'Trophy Hall' : 'Salón de Trofeos';
+    } else if (activeModal === 'spell_ritual' || activeModal === 'grimorio' || bType === 'mesa_alquimia' || bType === 'laboratorio_alquimia') {
+      details = isEn ? 'Alchemy & Arcane Rituals' : 'Alquimia y Rituales';
+      state = isEn ? `Lv.${lvl} · ${biome.name}` : `Nv.${lvl} · ${biome.name}`;
+      smallImage = badgeUrl('alchemy');
+      smallText = isEn ? 'Arcane Grimoire' : 'Grimorio Arcano';
     } else if (activeModal === 'skills') {
       const skillsCount = Array.isArray(game.unlockedSkills) ? game.unlockedSkills.length : 0;
-      details = isEn ? 'Astral Skill Constellation' : 'Árbol Astral de Habilidades';
+      details = isEn ? 'Astral Constellation' : 'Árbol Astral';
       state = isEn
-        ? `Lv.${lvl} · ${skillsCount}/${totalSkills} stars unlocked`
+        ? `Lv.${lvl} · ${skillsCount}/${totalSkills} stars`
         : `Nv.${lvl} · ${skillsCount}/${totalSkills} estrellas`;
     } else if (activeModal === 'map') {
       details = isEn ? 'Archipelago Atlas' : 'Atlas del Archipiélago';
@@ -224,30 +323,32 @@
         ? `${islands.unlocked}/${islands.total} islands · Lv.${lvl}`
         : `${islands.unlocked}/${islands.total} islas · Nv.${lvl}`;
     } else if (activeModal === 'encyclopedia' || activeModal === 'bestiary' || activeModal === 'compendium') {
-      details = isEn ? 'Consulting the Encyclopedia' : 'Consultando la Enciclopedia';
+      details = isEn ? 'Reading the Bestiary' : 'Consultando el Bestiario';
       state = isEn
-        ? `Lv.${lvl} · ${clearedCount} dungeons cleared`
-        : `Nv.${lvl} · ${clearedCount} mazmorras completadas`;
+        ? `Lv.${lvl} · ${clearedCount} dungeons`
+        : `Nv.${lvl} · ${clearedCount} mazmorras`;
     } else if (activeModal === 'quests') {
-      details = isEn ? 'Reviewing Quests & Chronicle' : 'Revisando misiones e historia';
+      details = isEn ? 'Quests & Island Legacy' : 'Misiones y Legado';
       state = isEn
         ? `Lv.${lvl} · Day ${day} · ${biome.name}`
         : `Nv.${lvl} · Día ${day} · ${biome.name}`;
     } else if (activeModal === 'build' || activeModal === 'crafting') {
       details = isEn ? `Building in ${biome.name}` : `Construyendo en ${biome.name}`;
       state = isEn
-        ? `Lv.${lvl} · Islands ${islands.unlocked}/${islands.total}`
-        : `Nv.${lvl} · Islas ${islands.unlocked}/${islands.total}`;
+        ? `Lv.${lvl} · ${islands.unlocked}/${islands.total} Islands`
+        : `Nv.${lvl} · ${islands.unlocked}/${islands.total} Islas`;
+    } else if (lunar && lunar.isSpecial && lunar.isNight) {
+      details = isEn ? `${lunar.label} · ${biome.name}` : `${lunar.label} · ${biome.name}`;
     }
 
     return {
       details,
       state,
       startTimestamp: SESSION_START_SEC,
-      largeImage: 'abyssea_logo',
-      largeText: `Abyssea · ${APP_VERSION_LABEL}`,
-      smallImage: biome.id,
-      smallText: biome.name,
+      largeImage: RPC_COVER_IMAGE,
+      largeText,
+      smallImage,
+      smallText,
       buttons: buildButtons(lang),
       clear: false
     };
