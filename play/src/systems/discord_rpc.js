@@ -6,8 +6,7 @@
 
   const WEBSITE_URL = 'https://abyssea.online/';
   const DISCORD_INVITE_URL = 'https://discord.gg/8wrsjRSMY2';
-  const RPC_ASSET_BASE = 'https://abyssea.online/assets/rpc';
-  const RPC_COVER_IMAGE = `${RPC_ASSET_BASE}/abyssea_cover.png`;
+  const RPC_LARGE_IMAGE_KEY = 'rpc';
   const APP_VERSION_LABEL = 'Beta 2.0.0 RC2';
   const SESSION_START_SEC = Math.floor(Date.now() / 1000);
   const MIN_PUSH_INTERVAL_MS = 1200;
@@ -45,10 +44,6 @@
   let lastPushMs = 0;
   let pendingTimer = null;
   let pollTimer = null;
-
-  function badgeUrl(key) {
-    return `${RPC_ASSET_BASE}/badge_${key}.png`;
-  }
 
   function getTauriInvoke() {
     try {
@@ -122,16 +117,6 @@
     };
   }
 
-  function getActivePetLabel(game) {
-    try {
-      if (!game || !game.activePet || !Abyssea.PET_DEFS) return null;
-      const def = Abyssea.PET_DEFS[game.activePet];
-      return def ? def.name : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
   function getLunarInfo(game, isEn) {
     try {
       if (!game || typeof game.getLunarPhase !== 'function') return null;
@@ -173,10 +158,10 @@
         details: isEn ? `Main Menu · ${APP_VERSION_LABEL}` : `Menú Principal · ${APP_VERSION_LABEL}`,
         state: isEn ? 'Preparing an expedition' : 'Preparando expedición',
         startTimestamp: SESSION_START_SEC,
-        largeImage: RPC_COVER_IMAGE,
+        largeImage: RPC_LARGE_IMAGE_KEY,
         largeText,
-        smallImage: badgeUrl('explore'),
-        smallText: isEn ? 'Archipelago Ready' : 'Archipiélago listo',
+        smallImage: null,
+        smallText: null,
         buttons: buildButtons(lang),
         clear: false
       };
@@ -192,10 +177,10 @@
         details: isEn ? 'Fallen in Battle' : 'Caído en combate',
         state: isEn ? `Respawning · Lv.${lvl}` : `Reapareciendo · Nv.${lvl}`,
         startTimestamp: SESSION_START_SEC,
-        largeImage: RPC_COVER_IMAGE,
+        largeImage: RPC_LARGE_IMAGE_KEY,
         largeText,
-        smallImage: badgeUrl('dungeon'),
-        smallText: isEn ? 'Recovering at camp' : 'Recuperándose en campamento',
+        smallImage: null,
+        smallText: null,
         buttons: buildButtons(lang),
         clear: false
       };
@@ -211,10 +196,10 @@
           ? `Sea Boss (${hpPct}% HP) · Lv.${lvl}`
           : `Jefe Marino (${hpPct}% HP) · Nv.${lvl}`,
         startTimestamp: SESSION_START_SEC,
-        largeImage: RPC_COVER_IMAGE,
+        largeImage: RPC_LARGE_IMAGE_KEY,
         largeText,
-        smallImage: badgeUrl('leviathan'),
-        smallText: isEn ? 'Abyssal Leviathan' : 'Leviatán Abisal',
+        smallImage: null,
+        smallText: null,
         buttons: buildButtons(lang),
         clear: false
       };
@@ -259,17 +244,16 @@
         details,
         state,
         startTimestamp: SESSION_START_SEC,
-        largeImage: RPC_COVER_IMAGE,
+        largeImage: RPC_LARGE_IMAGE_KEY,
         largeText,
-        smallImage: badgeUrl('dungeon'),
-        smallText: dungName,
+        smallImage: null,
+        smallText: null,
         buttons: buildButtons(lang),
         clear: false
       };
     }
 
     const biome = getPlayerBiomeInfo(game, isEn);
-    const petName = getActivePetLabel(game);
     const lunar = getLunarInfo(game, isEn);
     const totalSkills = (Array.isArray(Abyssea.SKILLS) && Abyssea.SKILLS.length) ? Abyssea.SKILLS.length : TOTAL_SKILLS_FALLBACK;
     const bType = activeModal === 'building' && modalData ? modalData.type : null;
@@ -278,39 +262,25 @@
     let state = isEn
       ? `Lv.${lvl} · Day ${day} · ${islands.unlocked}/${islands.total} Islands`
       : `Nv.${lvl} · Día ${day} · ${islands.unlocked}/${islands.total} Islas`;
-    let smallImage = badgeUrl(lunar && lunar.isSpecial && lunar.isNight ? 'moon' : 'explore');
-    let smallText = lunar && lunar.isSpecial && lunar.isNight
-      ? `${lunar.label} · ${biome.name}`
-      : (petName ? `${biome.name} · ${petName}` : biome.name);
 
     if (game.paused || activeModal === 'pause') {
       details = isEn ? `Paused · ${biome.name}` : `En pausa · ${biome.name}`;
     } else if (activeModal === 'aquarium' || bType === 'portal_acuario') {
       details = isEn ? 'Visiting the Aquarium' : 'Visitando el Acuario';
       state = isEn ? `Lv.${lvl} · Exotic Fish Collection` : `Nv.${lvl} · Colección de peces`;
-      smallImage = badgeUrl('aquarium');
-      smallText = isEn ? 'Abyssea Aquarium' : 'Acuario Abisal';
     } else if (activeModal === 'ghost_merchant') {
       details = isEn ? 'Ghost Merchant Ship' : 'Barco Mercader Fantasma';
       state = isEn ? `Lv.${lvl} · Coastal Trade` : `Nv.${lvl} · Comercio costero`;
-      smallImage = badgeUrl('ghost_ship');
-      smallText = isEn ? 'Ghost Merchant' : 'Mercader Fantasma';
     } else if (bType === 'mesa_reforja' || activeModal === 'reforge') {
       details = isEn ? 'Reforging Equipment' : 'Yunque de Reforja';
       state = isEn ? `Lv.${lvl} · Hunting Singular Tier` : `Nv.${lvl} · Buscando rareza Singular`;
-      smallImage = badgeUrl('reforge');
-      smallText = isEn ? 'Reforging Anvil' : 'Mesa de Reforja';
     } else if (bType === 'salon_trofeos' || activeModal === 'museum') {
       const exhibits = Array.isArray(game.trophyExhibits) ? game.trophyExhibits.length : 0;
       details = isEn ? 'Trophy Hall Museum' : 'Salón de Trofeos';
       state = isEn ? `Lv.${lvl} · ${exhibits} relics displayed` : `Nv.${lvl} · ${exhibits} reliquias`;
-      smallImage = badgeUrl('museum');
-      smallText = isEn ? 'Trophy Hall' : 'Salón de Trofeos';
     } else if (activeModal === 'spell_ritual' || activeModal === 'grimorio' || bType === 'mesa_alquimia' || bType === 'laboratorio_alquimia') {
       details = isEn ? 'Alchemy & Arcane Rituals' : 'Alquimia y Rituales';
       state = isEn ? `Lv.${lvl} · ${biome.name}` : `Nv.${lvl} · ${biome.name}`;
-      smallImage = badgeUrl('alchemy');
-      smallText = isEn ? 'Arcane Grimoire' : 'Grimorio Arcano';
     } else if (activeModal === 'skills') {
       const skillsCount = Array.isArray(game.unlockedSkills) ? game.unlockedSkills.length : 0;
       details = isEn ? 'Astral Constellation' : 'Árbol Astral';
@@ -345,10 +315,10 @@
       details,
       state,
       startTimestamp: SESSION_START_SEC,
-      largeImage: RPC_COVER_IMAGE,
+      largeImage: RPC_LARGE_IMAGE_KEY,
       largeText,
-      smallImage,
-      smallText,
+      smallImage: null,
+      smallText: null,
       buttons: buildButtons(lang),
       clear: false
     };
