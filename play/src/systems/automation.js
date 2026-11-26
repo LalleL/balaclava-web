@@ -271,6 +271,152 @@
           if (def.usesFuel && !game.mods.freeFuel) b.fuel = Math.max(0, b.fuel - 0.5);
         }
       }
+
+      // Active modded-MC Pipe Conduit Network transfer (pulls items from pipe-connected machines into Logistic Chests / Nexo with visible packets!)
+      this._pipeNetTimer = (this._pipeNetTimer || 0) + dt;
+      if (this._pipeNetTimer >= 1.1) {
+        this._pipeNetTimer = 0;
+        this.tickPipeNetworks(game);
+      }
+    }
+
+    // Shortest tile-by-tile BFS path across tuberias_conduit tiles linking sourceB -> targetB
+    findPipePath(game, sourceB, targetB) {
+      if (!sourceB || !targetB || sourceB === targetB) return null;
+      const pipeSet = new Set();
+      for (const b of (game.buildings || [])) {
+        if (b.type === 'tuberias_conduit') pipeSet.add(`${b.tx},${b.ty}`);
+      }
+      if (pipeSet.size === 0) return null;
+
+      const sDef = Abyssea.BUILDINGS[sourceB.type] || { size: 1 };
+      const tDef = Abyssea.BUILDINGS[targetB.type] || { size: 1 };
+      const tSz = tDef.size || 1;
+      const targetAdj = new Set();
+      for (let dy = 0; dy < tSz; dy++) {
+        for (let dx = 0; dx < tSz; dx++) {
+          const tx = targetB.tx + dx, ty = targetB.ty + dy;
+          for (const [ox, oy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+            const k = `${tx + ox},${ty + oy}`;
+            if (pipeSet.has(k)) targetAdj.add(k);
+          }
+        }
+      }
+      if (targetAdj.size === 0) return null;
+
+      const sSz = sDef.size || 1;
+      const q = [];
+      const parent = new Map();
+      for (let dy = 0; dy < sSz; dy++) {
+        for (let dx = 0; dx < sSz; dx++) {
+          const sx = sourceB.tx + dx, sy = sourceB.ty + dy;
+          for (const [ox, oy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+            const nx = sx + ox, ny = sy + oy;
+            const k = `${nx},${ny}`;
+            if (pipeSet.has(k) && !parent.has(k)) {
+              parent.set(k, null);
+              q.push([nx, ny, k]);
+            }
+          }
+        }
+      }
+
+      let foundKey = null;
+      let head = 0;
+      while (head < q.length) {
+        const [cx, cy, ck] = q[head++];
+        if (targetAdj.has(ck)) { foundKey = ck; break; }
+        for (const [ox, oy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+          const nx = cx + ox, ny = cy + oy;
+          const nk = `${nx},${ny}`;
+          if (pipeSet.has(nk) && !parent.has(nk)) {
+            parent.set(nk, ck);
+            q.push([nx, ny, nk]);
+          }
+        }
+      }
+      if (!foundKey) return null;
+
+      const rev = [];
+      let cur = foundKey;
+      while (cur) {
+        const [xStr, yStr] = cur.split(',');
+        rev.push([Number(xStr), Number(yStr)]);
+        cur = parent.get(cur);
+      }
+      rev.reverse();
+      // Prepend source building center & append destination center for seamless flange entry/exit
+      const startPt = [sourceB.tx + (sSz - 1) * 0.5, sourceB.ty + (sSz - 1) * 0.5];
+      const endPt = [targetB.tx + (tSz - 1) * 0.5, targetB.ty + (tSz - 1) * 0.5];
+      return [startPt, ...rev, endPt];
+    }
+
+    tickPipeNetworks(game) {
+      const bldgs = game.buildings || [];
+      let hasPipes = false;
+      for (let i = 0; i < bldgs.length; i++) {
+        if (bldgs[i].type === 'tuberias_conduit') { hasPipes = true; break; }
+      }
+      if (!hasPipes) return;
+
+      const destinations = bldgs.filter(b => b.type === 'cofre_logistico' || b.type === 'nexo_central' || b.type === 'basurero');
+      if (destinations.length === 0) return;
+
+      for (const src of bldgs) {
+        if (!src.storage) continue;
+        const sDef = Abyssea.BUILDINGS[src.type];
+        if (!sDef || sDef.isConduit || sDef.isChest || sDef.isLogisticChest || src.type === 'nexo_central' || src.type === 'basurero') continue;
+
+        const entries = Object.entries(src.storage).filter(([, q]) => q > 0);
+        if (entries.length === 0) continue;
+
+        for (const [itemId, avail] of entries) {
+          let moved = false;
+          for (const dst of destinations) {
+            const path = this.findPipePath(game, src, dst);
+            if (!path) continue;
+
+            if (dst.type === 'cofre_logistico') {
+              if (Array.isArray(dst.filters) && dst.filters.length > 0 && !this.matchesLogisticFilter(dst.filters, itemId)) continue;
+              if (!dst.storage) dst.storage = {};
+              const space = Math.max(0, this.getStorageCapacity(game, dst) - this.getTotalStoredCount(dst));
+              const take = Math.min(avail, space, 2);
+              if (take > 0) {
+                src.storage[itemId] -= take;
+                if (src.storage[itemId] <= 0) delete src.storage[itemId];
+                dst.storage[itemId] = (dst.storage[itemId] || 0) + take;
+                src.isPausedFull = false;
+                if (typeof game.spawnPipePacket === 'function') game.spawnPipePacket(path, itemId);
+                moved = true;
+                break;
+              }
+            } else if (dst.type === 'nexo_central' && game.omega && game.omega.nexusCanAdd) {
+              const plotKey = game.omega.plotKeyOf ? game.omega.plotKeyOf(dst.tx, dst.ty) : null;
+              const take = Math.min(avail, 2);
+              if (plotKey && take > 0 && game.omega.nexusCanAdd(plotKey, { [itemId]: take })) {
+                src.storage[itemId] -= take;
+                if (src.storage[itemId] <= 0) delete src.storage[itemId];
+                game.omega.nexusAdd(plotKey, { [itemId]: take });
+                src.isPausedFull = false;
+                if (typeof game.spawnPipePacket === 'function') game.spawnPipePacket(path, itemId);
+                moved = true;
+                break;
+              }
+            } else if (dst.type === 'basurero') {
+              const take = Math.min(avail, 2);
+              if (take > 0) {
+                src.storage[itemId] -= take;
+                if (src.storage[itemId] <= 0) delete src.storage[itemId];
+                src.isPausedFull = false;
+                if (typeof game.spawnPipePacket === 'function') game.spawnPipePacket(path, itemId);
+                moved = true;
+                break;
+              }
+            }
+          }
+          if (moved) break; // 1 packet per source machine per tick for clean visual rhythm
+        }
+      }
     }
 
     depositToBuilding(game, b, itemId, qty) {
@@ -326,6 +472,10 @@
         const fit = Math.min(remaining, chSpace);
         if (fit > 0) {
           ch.storage[itemId] = (ch.storage[itemId] || 0) + fit;
+          if (sourceB && typeof game.spawnPipePacket === 'function') {
+            const pPath = this.findPipePath(game, sourceB, ch);
+            if (pPath) game.spawnPipePacket(pPath, itemId);
+          }
           remaining -= fit;
           if (remaining <= 0) return true;
         }

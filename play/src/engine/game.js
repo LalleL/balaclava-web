@@ -6526,6 +6526,7 @@
       }
 
       this.automation.update(dt, this);
+      this.updatePipePackets(dt);
       if (this.omega) this.omega.update(dt, this);
       this.economy.update(dt, this);
       this.events.update(dt, this);
@@ -9253,7 +9254,8 @@
       // Ambient deterministic biome vegetation across unlocked grass/land tiles
       this.renderFloraLayer(ctx, vw, vh);
 
-      // Draw walkable floors (e.g., cobblestone roads) underneath entities & crops — frustum-culled
+      // Draw walkable floors (e.g., cobblestone roads & auto-connecting modded-MC pipes) underneath entities & crops — frustum-culled
+      let _pipeGrid = null;
       for (let bi = 0; bi < this.buildings.length; bi++) {
         const b = this.buildings[bi];
         const def = Abyssea.BUILDINGS[b.type];
@@ -9262,10 +9264,19 @@
         const py = b.ty * TILE_SIZE;
         const w = (def.size || 1) * TILE_SIZE;
         if (px + w < visMinPx || px > visMaxPx || py + w < visMinPy || py > visMaxPy) continue;
+        if (def.isConduit || b.type === 'tuberias_conduit') {
+          if (!_pipeGrid) _pipeGrid = this.buildPipeConnectionGrid();
+          this.drawAutoPipeAt(ctx, b.tx, b.ty, _pipeGrid, 1);
+          continue;
+        }
         const floorImg = (Abyssea.Assets.extraImages && Abyssea.Assets.extraImages[def.sprite])
           || Abyssea.Assets.getBuildingImg(def.sprite);
         if (floorImg) ctx.drawImage(floorImg, px, py, w, w);
         else { ctx.fillStyle = '#78909c'; ctx.fillRect(px, py, w, w); }
+      }
+      // Draw live miniature item packets gliding visibly inside glass-and-copper pipes!
+      if (this._pipePackets && this._pipePackets.length > 0) {
+        this.renderPipePackets(ctx, visMinPx, visMaxPx, visMinPy, visMaxPy);
       }
 
       // Draw Crops using Pixel_Gnome_Crops 4-stage artist pixel sprites & extended species — frustum-culled!
@@ -11319,6 +11330,186 @@
       ctx.restore();
     }
 
+    // === MODDED-MINECRAFT AUTO-CONNECTING PIPE SYSTEM (16-state autotile + machine flanges + glass flow + item packets) ===
+    isPipeConnectableMachine(b, def) {
+      if (!b || !def) return false;
+      if (def.isConduit || b.type === 'tuberias_conduit') return false;
+      if (def.walkableFloor || def.isBridge) return false;
+      return Boolean(
+        def.isLogisticChest || def.isChest || def.omega || def.omegaStructure
+        || def.autoCycle || def.autoDrill || def.autoProduce || def.autoConvert
+        || def.autoFish || def.collectRadius || def.autoHarvestRadius
+        || def.station || b.type === 'nexo_central' || b.type === 'basurero'
+        || b.type === 'muelle_pesca' || b.type === 'estanque' || b.type === 'corral'
+        || b.type === 'granja' || b.type === 'cantera_piedra'
+      );
+    }
+
+    buildPipeConnectionGrid() {
+      const grid = new Map();
+      const list = this.buildings || [];
+      for (let i = 0; i < list.length; i++) {
+        const b = list[i];
+        const def = Abyssea.BUILDINGS[b.type];
+        if (!def) continue;
+        if (def.isConduit || b.type === 'tuberias_conduit') {
+          grid.set(`${b.tx},${b.ty}`, { kind: 'pipe', b, def });
+        } else if (this.isPipeConnectableMachine(b, def)) {
+          const sz = def.size || 1;
+          for (let dy = 0; dy < sz; dy++) {
+            for (let dx = 0; dx < sz; dx++) {
+              grid.set(`${b.tx + dx},${b.ty + dy}`, { kind: 'machine', b, def });
+            }
+          }
+        }
+      }
+      return grid;
+    }
+
+    getPipeMasksAt(tx, ty, grid) {
+      // Cardinal bits: N=1, E=2, S=4, W=8
+      let mask = 0;
+      let machineMask = 0;
+      const n = grid.get(`${tx},${ty - 1}`);
+      if (n) { mask |= 1; if (n.kind === 'machine') machineMask |= 1; }
+      const e = grid.get(`${tx + 1},${ty}`);
+      if (e) { mask |= 2; if (e.kind === 'machine') machineMask |= 2; }
+      const s = grid.get(`${tx},${ty + 1}`);
+      if (s) { mask |= 4; if (s.kind === 'machine') machineMask |= 4; }
+      const w = grid.get(`${tx - 1},${ty}`);
+      if (w) { mask |= 8; if (w.kind === 'machine') machineMask |= 8; }
+      return { mask, machineMask };
+    }
+
+    drawAutoPipeAt(ctx, tx, ty, grid, alpha = 1) {
+      const px = tx * TILE_SIZE;
+      const py = ty * TILE_SIZE;
+      const { mask, machineMask } = this.getPipeMasksAt(tx, ty, grid);
+      const ex = Abyssea.Assets && Abyssea.Assets.extraImages;
+      const sheet = ex && ex.pipe_conduit_sheet_20;
+
+      ctx.save();
+      if (alpha < 0.999) ctx.globalAlpha = alpha;
+      ctx.imageSmoothingEnabled = false;
+
+      if (sheet && sheet.complete && sheet.naturalWidth >= 1280) {
+        // Draw exact auto-connected pipe shape (0..15: hub, stub, straight H/V, smooth 90° elbow, T, or 4-way cross!)
+        ctx.drawImage(sheet, mask * 64, 0, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+        // Stamp wide bolted brass servo collar flange on every face plugging into an adjacent machine/chest!
+        if (machineMask) {
+          if (machineMask & 1) ctx.drawImage(sheet, 16 * 64, 0, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+          if (machineMask & 2) ctx.drawImage(sheet, 17 * 64, 0, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+          if (machineMask & 4) ctx.drawImage(sheet, 18 * 64, 0, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+          if (machineMask & 8) ctx.drawImage(sheet, 19 * 64, 0, 64, 64, px, py, TILE_SIZE, TILE_SIZE);
+        }
+      } else {
+        // Minimal crisp fallback before spritesheet finishes booting
+        ctx.fillStyle = '#9e542a';
+        ctx.fillRect(px + 14, py + 14, TILE_SIZE - 28, TILE_SIZE - 28);
+      }
+
+      // Subtle animated turquoise pressurized flow pulse traveling cleanly inside the glass tube!
+      if (alpha >= 0.99 && mask !== 0) {
+        const t = ((this.time || 0) * 1.35 + (tx * 0.23 + ty * 0.19)) % 1;
+        const half = TILE_SIZE * 0.5;
+        let gx = px + half, gy = py + half;
+        if (mask === 10) {
+          gx = px + t * TILE_SIZE;
+          gy = py + half;
+        } else if (mask === 5) {
+          gx = px + half;
+          gy = py + t * TILE_SIZE;
+        } else if (mask === 3 || mask === 6 || mask === 12 || mask === 9) {
+          // Follow exact quarter-circle elbow arc!
+          let pivX = px, pivY = py, a0 = 0, a1 = Math.PI * 0.5;
+          if (mask === 3)  { pivX = px + TILE_SIZE; pivY = py;             a0 = Math.PI;        a1 = Math.PI * 0.5; }
+          if (mask === 6)  { pivX = px + TILE_SIZE; pivY = py + TILE_SIZE; a0 = Math.PI;        a1 = Math.PI * 1.5; }
+          if (mask === 12) { pivX = px;             pivY = py + TILE_SIZE; a0 = -Math.PI * 0.5; a1 = 0; }
+          if (mask === 9)  { pivX = px;             pivY = py;             a0 = 0;              a1 = Math.PI * 0.5; }
+          const ang = a0 + (a1 - a0) * t;
+          gx = pivX + Math.cos(ang) * half;
+          gy = pivY + Math.sin(ang) * half;
+        }
+        const glowA = (mask === 5 || mask === 10 || mask === 3 || mask === 6 || mask === 9 || mask === 12)
+          ? (0.55 * Math.sin(t * Math.PI))
+          : (0.28 + 0.22 * Math.sin((this.time || 0) * 4.5 + tx + ty));
+        if (glowA > 0.05) {
+          ctx.fillStyle = `rgba(216, 252, 255, ${glowA.toFixed(2)})`;
+          ctx.beginPath();
+          ctx.arc(gx, gy, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    spawnPipePacket(tilePath, itemId) {
+      if (!Array.isArray(tilePath) || tilePath.length < 2 || !itemId) return;
+      if (!this._pipePackets) this._pipePackets = [];
+      if (this._pipePackets.length >= 48) this._pipePackets.shift();
+      this._pipePackets.push({
+        path: tilePath,
+        itemId,
+        seg: 0,
+        t: 0,
+        speed: 2.35 // tiles per second smoothly gliding through glass conduit
+      });
+    }
+
+    updatePipePackets(dt) {
+      const list = this._pipePackets;
+      if (!list || list.length === 0) return;
+      for (let i = list.length - 1; i >= 0; i--) {
+        const p = list[i];
+        p.t += dt * p.speed;
+        while (p.t >= 1) {
+          p.t -= 1;
+          p.seg++;
+          if (p.seg >= p.path.length - 1) {
+            list.splice(i, 1);
+            break;
+          }
+        }
+      }
+    }
+
+    renderPipePackets(ctx, visMinPx, visMaxPx, visMinPy, visMaxPy) {
+      const list = this._pipePackets;
+      if (!list || list.length === 0) return;
+      const assets = Abyssea.Assets;
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      for (let i = 0; i < list.length; i++) {
+        const p = list[i];
+        const a = p.path[p.seg];
+        const b = p.path[p.seg + 1];
+        if (!a || !b) continue;
+        const ax = (a[0] + 0.5) * TILE_SIZE, ay = (a[1] + 0.5) * TILE_SIZE;
+        const bx = (b[0] + 0.5) * TILE_SIZE, by = (b[1] + 0.5) * TILE_SIZE;
+        const x = ax + (bx - ax) * p.t;
+        const y = ay + (by - ay) * p.t;
+        if (x < visMinPx - 24 || x > visMaxPx + 24 || y < visMinPy - 24 || y > visMaxPy + 24) continue;
+
+        // Luminous glass transit capsule halo + crisp miniature item sprite!
+        ctx.fillStyle = 'rgba(110, 231, 255, 0.42)';
+        ctx.beginPath();
+        ctx.arc(x, y, 8.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(224, 252, 255, 0.85)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        const ic = assets && typeof assets.getItemIconCanvas === 'function' ? assets.getItemIconCanvas(p.itemId) : null;
+        if (ic) {
+          ctx.drawImage(ic, Math.round(x - 7), Math.round(y - 7), 14, 14);
+        } else {
+          ctx.fillStyle = '#ffe082';
+          ctx.fillRect(Math.round(x - 3), Math.round(y - 3), 6, 6);
+        }
+      }
+      ctx.restore();
+    }
+
     drawBuilding(ctx, b, def) {
       const assets = Abyssea.Assets;
       const px = b.tx * TILE_SIZE;
@@ -12262,8 +12453,12 @@
         if (def) {
           const valid = this.canPlaceBuilding(this.placingBuildingId, tx, ty);
           const w = def.size * TILE_SIZE;
-          ctx.fillStyle = valid ? 'rgba(76, 175, 80, 0.45)' : 'rgba(244, 67, 54, 0.45)';
+          ctx.fillStyle = valid ? 'rgba(76, 175, 80, 0.36)' : 'rgba(244, 67, 54, 0.42)';
           ctx.fillRect(tx * TILE_SIZE, ty * TILE_SIZE, w, w);
+          if (def.isConduit || this.placingBuildingId === 'tuberias_conduit') {
+            const previewGrid = this.buildPipeConnectionGrid();
+            this.drawAutoPipeAt(ctx, tx, ty, previewGrid, valid ? 0.85 : 0.45);
+          }
           ctx.strokeStyle = valid ? '#a5d6a7' : '#ef9a9a';
           ctx.lineWidth = 3;
           ctx.strokeRect(tx * TILE_SIZE, ty * TILE_SIZE, w, w);

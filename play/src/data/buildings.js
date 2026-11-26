@@ -241,7 +241,7 @@
     tuberias_conduit: {
       id: 'tuberias_conduit', name: 'Tubería Logística', category: 'automatizacion', size: 1, placeOn: 'land',
       cost: { lingote_cobre: 3, lingote_hierro: 2 },
-      desc: 'Conducto de transporte automatizado que conecta máquinas adyacentes y canaliza producción hacia cofres logísticos.',
+      desc: 'Conducto inteligente de cobre y cristal que se conecta automáticamente en rectas, curvas de 90°, cruces en T y empalmes con máquinas para transportar objetos hacia cofres logísticos y el Nexo.',
       sprite: 'prop_pipe', visualScale: 1.0, badge: 'gear',
       isConduit: true, walkableFloor: true
     },

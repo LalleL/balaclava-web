@@ -2201,7 +2201,9 @@
     ship_mercader_fantasma_4f: 'assets/sprites_v2/ship_mercader_fantasma_4f.png?v=2.0.0-rc2px',
     sea_whirlpool_4f:          'assets/sprites_v2/sea_whirlpool_4f.png?v=2.0.0-rc2px',
     boss_leviatan_marino_4f:   'assets/sprites_v2/boss_leviatan_marino_4f.png?v=2.0.0-rc2px',
-    kraken_tentacle_4f:        'assets/sprites_v2/kraken_tentacle_4f.png?v=2.0.0-rc2px'
+    kraken_tentacle_4f:        'assets/sprites_v2/kraken_tentacle_4f.png?v=2.0.0-rc2px',
+    pipe_conduit_sheet_20:     'assets/sprites_v2/pipe_conduit_sheet_20.png?v=2.0.0-rc2px2',
+    pipe_conduit_icon:         'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2'
   };
 
   if (ROOT) {
@@ -2556,8 +2558,21 @@
       'bld_torre_rayos','bld_laboratorio','station_library','bld_taller_mecanico','bld_centro_investigacion','station_enchant',
       'bld_mesa_hechiceria','bld_taladro','bld_recolector','Bridge_Tile','prop_pipe','prop_chest','bld_balista'
     ];
-    const V15Q = '.png?v=1.6.8';
+    const V15Q = '.png?v=2.0.0-rc2px2';
     buildingKeys.forEach((k) => { EX[k] = BP + k + V15Q; });
+    EX.prop_pipe = 'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2';
+    EX.pipe_conduit_sheet_20 = 'assets/sprites_v2/pipe_conduit_sheet_20.png?v=2.0.0-rc2px2';
+    EX.pipe_conduit_icon = 'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2';
+    EX.prop_well = 'assets/sprites_extra/stone_well.png?v=2.0.0-rc2px2';
+    EX.station_well_health = 'assets/sprites_extra/station_well_health.png?v=2.0.0-rc2px2';
+    EX.station_well_mana = 'assets/sprites_extra/station_well_mana.png?v=2.0.0-rc2px2';
+    EX.well_health_strip = 'assets/sprites_extra/well_health_strip.png?v=2.0.0-rc2px2';
+    if (Abyssea.ITEM_PNG_MAP) {
+      Abyssea.ITEM_PNG_MAP.tuberias_conduit = 'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2';
+      Abyssea.ITEM_PNG_MAP.bloque_fuente = 'assets/icons_tiers_v14/buildings/bld_fuente_plaza.png?v=2.0.0-rc2px2';
+      Abyssea.ITEM_PNG_MAP.bloque_estatua_caballero = 'assets/icons_tiers_v14/buildings/prop_angel.png?v=2.0.0-rc2px2';
+      Abyssea.ITEM_PNG_MAP.prop_well = 'assets/sprites_extra/stone_well.png?v=2.0.0-rc2px2';
+    }
     EX.ruin_pillar = BP + 'ruin_pillar' + V15Q;
     EX.corral_pen = BP + 'Corral_Pen' + V15Q;
     EX.garden_plot = BP + 'Plot_Garden' + V15Q;

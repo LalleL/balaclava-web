@@ -1313,8 +1313,8 @@
     bloque_fuente: {
       id: 'bloque_fuente', name: 'Fuente de la Plaza', category: 'construccion', rarity: 'epico',
       sellValue: 85, buyValue: 190, source: 'Cantera / Investigación',
-      uses: 'Colócala para embellecer y regenerar Vida y Energía cerca', desc: 'Pozo de piedra con agua cristalina.',
-      placeBuilding: 'fuente_plaza', icon: 'prop_well'
+      uses: 'Colócala para embellecer y regenerar Vida y Energía cerca', desc: 'Fuente monumental de piedra con agua cristalina.',
+      placeBuilding: 'fuente_plaza', icon: 'bloque_fuente'
     },
 
     // =========================================================
