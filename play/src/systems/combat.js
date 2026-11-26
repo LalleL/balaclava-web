@@ -2057,8 +2057,9 @@
       };
 
       const pool = night ? (nightPools[biome] || nightPools.pradera) : (dayPools[biome] || dayPools.pradera);
-      const type = forceType || pick(pool);
-      const def = ENEMY_DEFS[type] || ENEMY_DEFS.slime;
+      const rawType = forceType || pick(pool);
+      const type = ENEMY_DEFS[rawType] ? rawType : 'slime';
+      const def = ENEMY_DEFS[type];
       const tx = plot[0] * PLOT_TILES + randInt(2, PLOT_TILES - 3);
       const ty = plot[1] * PLOT_TILES + randInt(2, PLOT_TILES - 3);
       if (!game.world.isTileWalkable(tx, ty)) return null;
@@ -2158,6 +2159,48 @@
         bodyOffY: def.bodyOffY !== undefined ? def.bodyOffY : 17,
         hitFlash: 0,
         atkCd: earlyZoneMob ? 1.35 : 1.0,
+        patrolTimer: randInt(1, 3),
+        facing: 1
+      };
+      this.enemies.push(mob);
+      return mob;
+    }
+
+    // Targeted enemy spawner at exact world pixel coordinates (used by Biome Raids & Abyssal Night Pulse)
+    spawnEnemy(game, rawType, x, y) {
+      const type = ENEMY_DEFS[rawType] ? rawType : 'slime';
+      const def = ENEMY_DEFS[type];
+      const biome = (game.world && typeof game.world.getBiomeAtPixel === 'function')
+        ? game.world.getBiomeAtPixel(x, y)
+        : (def.biome || 'pradera');
+      const pLv = Math.max(1, (game.player && game.player.level) || 1);
+      const hpScale = 1 + (pLv - 1) * 0.22;
+      const dmgScale = 1 + (pLv - 1) * 0.04;
+      const mob = {
+        id: this.nextId++,
+        type,
+        name: def.name,
+        biome,
+        level: pLv,
+        xpMult: 1 + (pLv - 1) * 0.25,
+        earlyZoneMob: biome === 'pradera',
+        nocturnal: !!def.nocturnal,
+        x, y,
+        vx: 0, vy: 0,
+        animVx: 0, animVy: 0,
+        hp: Math.max(12, Math.round(def.hp * hpScale)),
+        maxHp: Math.max(12, Math.round(def.hp * hpScale)),
+        dmg: Math.max(4, Math.round(def.dmg * dmgScale)),
+        speed: Math.max(38, Math.round(def.speed)),
+        color: def.color || '#66bb6a',
+        sprite: def.sprite || null,
+        ranged: !!def.ranged,
+        radius: Math.max(def.radius || 18, 20),
+        hitW: def.hitW || 44,
+        hitH: def.hitH || 50,
+        bodyOffY: def.bodyOffY !== undefined ? def.bodyOffY : 17,
+        hitFlash: 0,
+        atkCd: 1.0,
         patrolTimer: randInt(1, 3),
         facing: 1
       };

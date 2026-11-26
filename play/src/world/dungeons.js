@@ -4428,7 +4428,8 @@
       };
     }
 
-    makeMob(type, tx, ty, powerScale = 1.25) {
+    makeMob(rawType, tx, ty, powerScale = 1.25) {
+      const type = (Abyssea.ENEMY_DEFS && Abyssea.ENEMY_DEFS[rawType]) ? rawType : 'slime';
       const base = Abyssea.CombatSystem ? Abyssea.CombatSystem.getEnemyDef(type) : { hp: 35, dmg: 8, speed: 65 };
       const tierMultHp = (1 + this.tier * 0.16 + Math.pow(this.tier, 1.20) * 0.025) * (1 + Math.min(1.5, ((this.levelScale || 1) - 1) * 0.45));
       const tierMultDmg = (1 + this.tier * 0.12) * (1 + Math.min(0.65, ((this.levelScale || 1) - 1) * 0.22));

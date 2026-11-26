@@ -2227,14 +2227,76 @@
   assets.chestImages = {};
   assets.dungeonImages = {};
 
-  function loadImg(url) {
+  function loadImg(url, retries = 3) {
     return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => resolve(null);
-      img.src = encodeURI(withRoot(url));
+      const baseSrc = encodeURI(withRoot(url));
+      let attempt = 0;
+      const tryLoad = () => {
+        const img = new Image();
+        img.onload = () => {
+          if (img.naturalWidth > 0) resolve(img);
+          else onFail();
+        };
+        const onFail = () => {
+          attempt++;
+          if (attempt <= retries) {
+            const sep = baseSrc.includes('?') ? '&' : '?';
+            setTimeout(() => {
+              const retryImg = new Image();
+              retryImg.onload = () => (retryImg.naturalWidth > 0 ? resolve(retryImg) : onFail());
+              retryImg.onerror = onFail;
+              retryImg.src = baseSrc + sep + '_r=' + attempt;
+            }, 180 * attempt);
+          } else {
+            resolve(null);
+          }
+        };
+        img.onerror = onFail;
+        img.src = baseSrc;
+      };
+      tryLoad();
     });
   }
+
+  async function runBatched(tasks, concurrency = 24) {
+    let idx = 0;
+    const workers = Array.from({ length: Math.min(concurrency, Math.max(1, tasks.length)) }, async () => {
+      while (idx < tasks.length) {
+        const cur = idx++;
+        try { await tasks[cur](); } catch (_) {}
+      }
+    });
+    await Promise.all(workers);
+  }
+
+  const _pendingEnemyLoads = new Set();
+  assets.ensureEnemyImage = function (enemyType) {
+    if (!enemyType) return null;
+    const existing = assets.enemyImages && assets.enemyImages[enemyType];
+    if (existing && existing.complete && existing.naturalWidth > 0) return existing;
+    const meta = Abyssea.ENEMY_SPRITE_PATHS && Abyssea.ENEMY_SPRITE_PATHS[enemyType];
+    if (!meta || !meta.path || _pendingEnemyLoads.has('e:' + enemyType)) return existing || null;
+    _pendingEnemyLoads.add('e:' + enemyType);
+    loadImg(meta.path, 3).then((img) => {
+      _pendingEnemyLoads.delete('e:' + enemyType);
+      if (img) assets.enemyImages[enemyType] = img;
+    });
+    return null;
+  };
+
+  assets.ensureBossImage = function (bossBiome) {
+    if (!bossBiome) return null;
+    const existing = assets.bossImages && assets.bossImages[bossBiome];
+    if (existing && existing.complete && existing.naturalWidth > 0) return existing;
+    const meta = Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[bossBiome];
+    if (!meta || !meta.path || _pendingEnemyLoads.has('b:' + bossBiome)) return existing || null;
+    _pendingEnemyLoads.add('b:' + bossBiome);
+    loadImg(meta.path, 3).then((img) => {
+      _pendingEnemyLoads.delete('b:' + bossBiome);
+      if (img) assets.bossImages[bossBiome] = img;
+    });
+    return null;
+  };
 
   // Upgrade ground drop / canvas icon resolver to serve crisp loaded PNGs whenever available
   const origGetItemIconCanvas = assets.getItemIconCanvas.bind(assets);
@@ -2261,51 +2323,64 @@
   };
 
   assets.loadExtraAssets = async function () {
-    const jobs = [];
     const uniqueItemUrlCache = {};
+    const loadCached = (url) => {
+      if (!uniqueItemUrlCache[url]) uniqueItemUrlCache[url] = loadImg(url, 3);
+      return uniqueItemUrlCache[url];
+    };
+
+    // Priority Wave 1: Enemies, Bosses, NPCs, Gates, Chests, Dungeon Tiles & World Extra Sprites (batched so HTTP/2 never drops sprites!)
+    const priorityTasks = [];
+    for (const [id, meta] of Object.entries(Abyssea.ENEMY_SPRITE_PATHS)) {
+      if (!meta || !meta.path) continue;
+      priorityTasks.push(() => loadCached(meta.path).then(img => { if (img) assets.enemyImages[id] = img; }));
+    }
+    for (const [id, meta] of Object.entries(Abyssea.BOSS_SPRITE_PATHS)) {
+      if (!meta || !meta.path) continue;
+      priorityTasks.push(() => loadCached(meta.path).then(img => { if (img) assets.bossImages[id] = img; }));
+    }
+    for (const [id, url] of Object.entries(Abyssea.NPC_SHEET_PATHS)) {
+      if (!url) continue;
+      priorityTasks.push(() => loadCached(url).then(img => { if (img) assets.npcSheets[id] = img; }));
+    }
+    for (const [id, url] of Object.entries(Abyssea.DUNGEON_GATE_PATHS)) {
+      if (!url) continue;
+      priorityTasks.push(() => loadCached(url).then(img => { if (img) assets.gateImages[id] = img; }));
+    }
+    for (const [id, url] of Object.entries(Abyssea.CHEST_SPRITE_PATHS)) {
+      if (!url) continue;
+      priorityTasks.push(() => loadCached(url).then(img => { if (img) assets.chestImages[id] = img; }));
+    }
+    for (const [id, url] of Object.entries(Abyssea.DUNGEON_TILE_PATHS)) {
+      if (!url) continue;
+      priorityTasks.push(() => loadCached(url).then(img => { if (img) assets.dungeonImages[id] = img; }));
+    }
+    for (const [id, url] of Object.entries(Abyssea.EXTRA_SPRITE_PATHS)) {
+      if (!url) continue;
+      priorityTasks.push(() => loadCached(url).then(img => { if (img) assets.extraImages[id] = img; }));
+    }
+
+    // Priority Wave 2: Item Icons & VFX (batched cleanly)
+    const secondaryTasks = [];
     for (const [id, url] of Object.entries(Abyssea.ITEM_PNG_MAP)) {
       if (!url) continue;
-      if (!uniqueItemUrlCache[url]) {
-        uniqueItemUrlCache[url] = loadImg(url);
-      }
-      jobs.push(uniqueItemUrlCache[url].then(img => { if (img) assets.itemImages[id] = img; }));
+      secondaryTasks.push(() => loadCached(url).then(img => { if (img) assets.itemImages[id] = img; }));
     }
     if (Abyssea.ITEMS) {
       for (const it of Object.values(Abyssea.ITEMS)) {
         if (!it || !it.id || !it.icon || assets.itemImages[it.id]) continue;
         const url = Abyssea.ITEM_PNG_MAP[it.icon];
         if (!url) continue;
-        if (!uniqueItemUrlCache[url]) uniqueItemUrlCache[url] = loadImg(url);
-        jobs.push(uniqueItemUrlCache[url].then(img => { if (img && !assets.itemImages[it.id]) assets.itemImages[it.id] = img; }));
+        secondaryTasks.push(() => loadCached(url).then(img => { if (img && !assets.itemImages[it.id]) assets.itemImages[it.id] = img; }));
       }
-    }
-    for (const [id, meta] of Object.entries(Abyssea.ENEMY_SPRITE_PATHS)) {
-      jobs.push(loadImg(meta.path).then(img => { if (img) assets.enemyImages[id] = img; }));
-    }
-    for (const [id, meta] of Object.entries(Abyssea.BOSS_SPRITE_PATHS)) {
-      jobs.push(loadImg(meta.path).then(img => { if (img) assets.bossImages[id] = img; }));
-    }
-    for (const [id, url] of Object.entries(Abyssea.NPC_SHEET_PATHS)) {
-      jobs.push(loadImg(url).then(img => { if (img) assets.npcSheets[id] = img; }));
-    }
-    for (const [id, url] of Object.entries(Abyssea.DUNGEON_GATE_PATHS)) {
-      jobs.push(loadImg(url).then(img => { if (img) assets.gateImages[id] = img; }));
-    }
-    for (const [id, url] of Object.entries(Abyssea.CHEST_SPRITE_PATHS)) {
-      jobs.push(loadImg(url).then(img => { if (img) assets.chestImages[id] = img; }));
-    }
-    for (const [id, url] of Object.entries(Abyssea.DUNGEON_TILE_PATHS)) {
-      jobs.push(loadImg(url).then(img => { if (img) assets.dungeonImages[id] = img; }));
-    }
-    for (const [id, url] of Object.entries(Abyssea.EXTRA_SPRITE_PATHS)) {
-      jobs.push(loadImg(url).then(img => { if (img) assets.extraImages[id] = img; }));
     }
     if (Abyssea.VFX_V2) {
       for (const [id, meta] of Object.entries(Abyssea.VFX_V2)) {
         if (!meta || !meta.path) continue;
-        jobs.push(loadImg(meta.path).then(img => { if (img) assets.extraImages[id] = img; }));
+        secondaryTasks.push(() => loadCached(meta.path).then(img => { if (img) assets.extraImages[id] = img; }));
       }
     }
+
     assets.preloadedIcons = assets.preloadedIcons || [];
     assets.preloadedUrls = assets.preloadedUrls || {};
     const preloadPool = [
@@ -2338,23 +2413,25 @@
       'assets/ui/ms_slider_fill.png',
       'assets/ui/ms_slider_thumb.png'
     ];
+    const preloadTasks = [];
     for (const rawUrl of preloadPool) {
       if (!rawUrl || typeof rawUrl !== 'string') continue;
-      if (!uniqueItemUrlCache[rawUrl]) {
-        uniqueItemUrlCache[rawUrl] = loadImg(rawUrl);
-      }
-      jobs.push(uniqueItemUrlCache[rawUrl].then(img => {
+      preloadTasks.push(() => loadCached(rawUrl).then(img => {
         if (img) {
           assets.preloadedIcons.push(img);
-          assets.preloadedUrls[encodeURI(rawUrl)] = img;
           assets.preloadedUrls[encodeURI(withRoot(rawUrl))] = img;
+          assets.preloadedUrls[encodeURI(rawUrl)] = img;
         }
       }));
     }
-    assets._extraTotal = Math.max(1, jobs.length);
+    const allTotal = Math.max(1, priorityTasks.length + secondaryTasks.length + preloadTasks.length);
+    assets._extraTotal = allTotal;
     assets._extraLoaded = 0;
-    const tracked = jobs.map(p => p.finally(() => { assets._extraLoaded++; }));
-    await Promise.all(tracked);
+    const wrapTrack = (list) => list.map((fn) => async () => { try { await fn(); } finally { assets._extraLoaded++; } });
+    // Wave 1 (enemies, bosses, NPCs, world sprites) runs first so combat entities are ALWAYS ready!
+    await runBatched(wrapTrack(priorityTasks), 28);
+    await runBatched(wrapTrack(secondaryTasks), 28);
+    await runBatched(wrapTrack(preloadTasks), 24);
   };
 
 

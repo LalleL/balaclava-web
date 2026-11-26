@@ -12100,7 +12100,8 @@
       if (e.isBoss) {
         const bossBiome = (e.type || '').replace(/^boss_/, '');
         const bMeta = Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[bossBiome];
-        const bImg = assets.bossImages && assets.bossImages[bossBiome];
+        const bImg = (assets.bossImages && assets.bossImages[bossBiome])
+          || (typeof assets.ensureBossImage === 'function' ? assets.ensureBossImage(bossBiome) : null);
         if (bMeta && bImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(bImg) : true)) {
           let sx, sy, sw, sh;
           if (bMeta.multiRow) {
@@ -12136,7 +12137,10 @@
       } else {
         // Render biome Mini-Bosses using their own crisp 128x128 6-frame HD sprite at 1.38x champion scale + golden aura
         const meta = !spriteDrawn && Abyssea.ENEMY_SPRITE_PATHS && Abyssea.ENEMY_SPRITE_PATHS[e.type];
-        const eImg = !spriteDrawn && assets.enemyImages && assets.enemyImages[e.type];
+        const eImg = !spriteDrawn && (
+          (assets.enemyImages && assets.enemyImages[e.type])
+          || (typeof assets.ensureEnemyImage === 'function' ? assets.ensureEnemyImage(e.type) : null)
+        );
         if (meta && eImg && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(eImg) : eImg.complete && eImg.naturalWidth > 0)) {
           const sizeMult = e.isMiniBoss ? 1.38 : 1.0;
           const ePad = isFlying ? 0 : (footPads[e.type] || 0);
@@ -12203,11 +12207,65 @@
           if (e.hitFlash > 0) this.drawFlashSprite(ctx, img, fr * 192, 0, 192, 192, -46, -68, 92, 92);
           else ctx.drawImage(img, fr * 192, 0, 192, 192, -46, -68, 92, 92);
           ctx.restore();
+          spriteDrawn = true;
         } else {
-          const r = e.isBoss ? 24 : 14;
-          ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : (e.color || '#ef5350');
-          ctx.beginPath(); ctx.arc(0, -r + 2, r, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = '#1a1118'; ctx.lineWidth = 3; ctx.stroke();
+          // NEVER draw an ugly flat untextured circle! First borrow a real loaded pixel-art sprite matching the enemy's palette/role
+          const cHex = String(e.color || '').toLowerCase();
+          const tStr = String(e.type || '').toLowerCase();
+          const fbKey = /golem/.test(tStr) ? 'golem'
+            : /skel|bone|reaper|necro/.test(tStr) ? 'skeleton'
+            : /goblin|orc|raider/.test(tStr) ? 'goblin'
+            : /bat|wisp|eye|skull/.test(tStr) ? 'wisp_green'
+            : /blue|ice|frost|glaciar|4fc3|80de/.test(tStr + cHex) ? 'slime_blue'
+            : /red|fire|lava|magma|ef53|ff52|ff70/.test(tStr + cHex) ? 'slime_red'
+            : /void|dark|purple|abismo|ce93|b388|aa00/.test(tStr + cHex) ? 'void_jelly'
+            : /toxic|pantano|76ff|aeea/.test(tStr + cHex) ? 'slime_toxic'
+            : 'slime';
+          const fbImg = assets.enemyImages && (assets.enemyImages[fbKey] || assets.enemyImages.slime || assets.enemyImages.slime_toxic);
+          const fbMeta = Abyssea.ENEMY_SPRITE_PATHS && (Abyssea.ENEMY_SPRITE_PATHS[fbKey] || Abyssea.ENEMY_SPRITE_PATHS.slime);
+          if (fbImg && fbMeta && (Abyssea.Utils.isImgReady ? Abyssea.Utils.isImgReady(fbImg) : fbImg.complete && fbImg.naturalWidth > 0)) {
+            const maxFr = Math.max(1, Math.min(fbMeta.frames || 6, Math.floor(fbImg.width / fbMeta.fw)));
+            const fr = Math.abs(Math.floor(this.time * 7 + idSeed)) % maxFr;
+            const mult = e.isBoss ? 1.85 : (e.isMiniBoss ? 1.35 : 1.0);
+            const dw = Math.round(fbMeta.fw * (fbMeta.scale || 0.34) * mult);
+            const dh = Math.round(fbMeta.fh * (fbMeta.scale || 0.34) * mult);
+            const drawY = -dh + Math.round(dh * 0.28) + 1;
+            barY = groundAnchorY + drawY - 7;
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            if (e.facing < 0) ctx.scale(-1, 1);
+            if (e.hitFlash > 0) this.drawFlashSprite(ctx, fbImg, fr * fbMeta.fw, 0, fbMeta.fw, fbMeta.fh, -dw / 2, drawY, dw, dh);
+            else ctx.drawImage(fbImg, fr * fbMeta.fw, 0, fbMeta.fw, fbMeta.fh, -dw / 2, drawY, dw, dh);
+            ctx.restore();
+          } else {
+            // Ultra-rare early-boot shaded pixel-art slime silhouette (glossy body, specular sheen & expressive eyes — never a blank circle)
+            const r = e.isBoss ? 22 : 14;
+            const col = e.hitFlash > 0 ? '#ffffff' : (e.color || '#66bb6a');
+            ctx.save();
+            ctx.fillStyle = '#18121f';
+            ctx.beginPath();
+            ctx.ellipse(0, -r * 0.65, r + 2.5, r * 0.88 + 2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            const gBody = ctx.createRadialGradient(-r * 0.35, -r * 1.05, r * 0.15, 0, -r * 0.6, r * 1.15);
+            gBody.addColorStop(0, '#e8ffd6');
+            gBody.addColorStop(0.38, col);
+            gBody.addColorStop(1, '#1b4a26');
+            ctx.fillStyle = gBody;
+            ctx.beginPath();
+            ctx.ellipse(0, -r * 0.65, r, r * 0.86, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Glossy pixel specular & expressive eyes
+            ctx.fillStyle = 'rgba(255,255,255,0.78)';
+            ctx.fillRect(-r * 0.48, -r * 1.15, Math.max(3, r * 0.28), Math.max(2, r * 0.18));
+            ctx.fillStyle = '#16111c';
+            const eyeX = (e.facing >= 0 ? 1 : -1) * (r * 0.16);
+            ctx.fillRect(eyeX - r * 0.32, -r * 0.72, 3, 4);
+            ctx.fillRect(eyeX + r * 0.16, -r * 0.72, 3, 4);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(eyeX - r * 0.32, -r * 0.72, 1.5, 1.5);
+            ctx.fillRect(eyeX + r * 0.16, -r * 0.72, 1.5, 1.5);
+            ctx.restore();
+          }
         }
       }
       ctx.restore();
