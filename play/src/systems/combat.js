@@ -49,7 +49,7 @@
     },
     goblin_tnt: {
       id: 'goblin_tnt', name: 'Goblin Dinamitero', hp: 96, dmg: 28, speed: 70, rarity: 'epico',
-      biome: 'tierras_volcanicas', coins: [8, 16], xp: 60, sprite: 'goblin_tnt', ranged: true,
+      biome: 'tierras_volcanicas', coins: [8, 16], xp: 60, sprite: 'goblin_tnt',
       drops: [{ id: 'polvora', chance: 0.65 }, { id: 'cuero', chance: 0.5 }, { id: 'cuerno_demonio', chance: 0.25 }]
     },
     magma: {
@@ -1246,8 +1246,9 @@
 
   function executeMeleeStrike(game, enemy, angle, dmgMult = 1) {
     const prof = getMobProfile(enemy);
-    const hitX = enemy.x + Math.cos(angle) * Math.min(28, dist(enemy.x, enemy.y, game.player.x, game.player.y) * 0.65);
-    const hitY = enemy.y + Math.sin(angle) * Math.min(28, dist(enemy.x, enemy.y, game.player.x, game.player.y) * 0.65);
+    const hitDist = Math.min(28, dist(enemy.x, enemy.y, game.player.x, game.player.y) * 0.65);
+    const hitX = enemy.x + Math.cos(angle) * hitDist;
+    const hitY = enemy.y + Math.sin(angle) * hitDist;
     spawnStrikeVfx(game, prof.meleeVfx || 'aw_claw_swipe', hitX, hitY - 4, angle, enemy.isMiniBoss ? 1.25 : 1.05);
     if (prof.hitVfx) {
       spawnStrikeVfx(game, prof.hitVfx, game.player.x, game.player.y - 6, angle, enemy.isMiniBoss ? 1.05 : 0.85, { dur: 0.42 });
@@ -1260,9 +1261,11 @@
     }
     if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'hit');
     const dmg = Math.max(1, Math.round((enemy.dmg || 8) * dmgMult));
+    const prevHp = game.player ? game.player.hp : 0;
     game.damagePlayer(dmg, { status: prof.status || null });
-    if (prof.lifesteal && enemy.hp > 0 && enemy.maxHp) {
-      enemy.hp = Math.min(enemy.maxHp, enemy.hp + Math.max(3, Math.round(dmg * prof.lifesteal)));
+    const actualDealt = game.player ? Math.max(0, prevHp - game.player.hp) : 0;
+    if (prof.lifesteal && actualDealt > 0 && enemy.hp > 0 && enemy.maxHp) {
+      enemy.hp = Math.min(enemy.maxHp, enemy.hp + Math.max(3, Math.round(actualDealt * prof.lifesteal)));
     }
   }
 
@@ -1303,7 +1306,7 @@
     }
   }
 
-  function updateHazards(game, hazards, canWalkPx, dt) {
+  function updateHazards(game, hazards, _unusedWalkFn, dt) {
     if (!Array.isArray(hazards) || hazards.length === 0) return;
     const pPx = game.player.x;
     const pPy = game.player.y;
@@ -1333,7 +1336,7 @@
             const t = clamp(((pPx - z.x) * dx + (pPy - z.y) * dy) / lenSq, 0, 1);
             const projX = z.x + t * dx;
             const projY = z.y + t * dy;
-            if (Math.hypot(pPx - projX, pPy - projY) <= (z.halfW || 18) + 12) {
+            if (Math.hypot(pPx - projX, pPy - projY) <= (z.halfW || 18) && (!game.activeDungeon || game.activeDungeon.hasLineOfSight(projX, projY, pPx, pPy))) {
               game.damagePlayer(Math.round(z.dmg || 16), { isMagic: true, status: z.status || null });
             }
           }
@@ -1492,13 +1495,15 @@
   }
 
   function stepMobAI(game, e, dt, ctx = {}) {
+    if (e.stunTimer > 0) {
+      return { moveVx: 0, moveVy: 0, handledMove: false };
+    }
     const px = game.player.x;
     const py = game.player.y;
     const prof = getMobProfile(e);
     const d = dist(e.x, e.y, px, py);
     const canWalkPx = ctx.canWalkPx || null;
     const hazards = ctx.hazards || null;
-    const enemies = ctx.enemies || [];
     const hasLos = (!ctx.isDungeon || !ctx.hasLos) ? true : ctx.hasLos(e.x, e.y, px, py);
     const aggroDist = ctx.isDungeon ? (hasLos ? 9999 : 250) : (e.earlyZoneMob ? 235 : 310);
 
@@ -1671,7 +1676,9 @@
             spawnStrikeVfx(game, prof.specialVfx || prof.meleeVfx || 'aw_slash_heavy', cx, cy, dAng, 1.18);
             if (game.spawnShockwave) game.spawnShockwave(cx, cy, 46, prof.trailColor || '#ffb74d');
             if (game.spawnParticles) game.spawnParticles(cx, cy, prof.trailColor || '#ffb74d', 10);
-            if (d < 64) {
+            const pAng = Math.atan2(py - e.y, px - e.x);
+            const angDiff = Math.abs(Math.atan2(Math.sin(pAng - dAng), Math.cos(pAng - dAng)));
+            if (d < 64 && (d < 22 || angDiff <= 1.15)) {
               executeMeleeStrike(game, e, dAng, 1.25);
             } else if (Abyssea.Audio) {
               Abyssea.Audio.play(prof.audio || 'slash');
@@ -1742,8 +1749,8 @@
         if (game.spawnShockwave) game.spawnShockwave(e.x, e.y, 58, '#a1887f');
         if (game.spawnParticles) game.spawnParticles(e.x, e.y, '#bcaaa4', 14);
         if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'bomb');
-        if (d < 58 && e.atkCd <= 0) {
-          e.atkCd = 1.0;
+        if (d < 58 && hasLos) {
+          e.atkCd = Math.max(e.atkCd || 0, 1.0);
           executeMeleeStrike(game, e, bAng, 1.3);
         }
       }
@@ -1758,9 +1765,9 @@
         spawnStrikeVfx(game, 'pvfx_dash_dust', e.x, e.y + 4, dashAng, 0.68, { dur: 0.28, alpha: 0.78 });
         if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.trailColor || e.color || '#ffab91', 3);
       }
-      if (d < (e.isMiniBoss ? 46 : 38) && e.atkCd <= 0 && !e.dashHit) {
+      if (d < (e.isMiniBoss ? 46 : 38) && hasLos && !e.dashHit) {
         e.dashHit = true;
-        e.atkCd = 1.05;
+        e.atkCd = Math.max(e.atkCd || 0, 1.05);
         const hitAng = Math.atan2(py - e.y, px - e.x);
         executeMeleeStrike(game, e, hitAng, e.isMiniBoss ? 1.4 : 1.28);
         if (prof.specialVfx) spawnStrikeVfx(game, prof.specialVfx, e.x, e.y, Math.atan2(moveVy, moveVx), 1.08);
@@ -1774,9 +1781,13 @@
       e.leapProg = Math.min(1, (e.leapProg || 0) + dt / (e.leapDur || 0.6));
       const nx = (e.leapStartX || e.x) + ((e.leapTargetX || e.x) - (e.leapStartX || e.x)) * e.leapProg;
       const ny = (e.leapStartY || e.y) + ((e.leapTargetY || e.y) - (e.leapStartY || e.y)) * e.leapProg;
-      if (!canWalkPx || canWalkPx(nx, ny)) {
+      const canMoveLeap = (!canWalkPx || canWalkPx(nx, ny)) && (!ctx.isDungeon || !ctx.hasLos || ctx.hasLos(e.x, e.y, nx, ny));
+      if (canMoveLeap) {
         e.x = nx;
         e.y = ny;
+      } else {
+        // Stop leap immediately at solid wall/water edge so mobs never phase across obstacles
+        e.leapProg = 1;
       }
       moveVx = 0;
       moveVy = 0;
@@ -1790,8 +1801,9 @@
         spawnStrikeVfx(game, 'pvfx_shockwave_ring', e.x, e.y + 4, 0, e.isMiniBoss ? 1.15 : 0.9, { dur: 0.42 });
         if (game.spawnParticles) game.spawnParticles(e.x, e.y, prof.trailColor || e.color || '#a5d6a7', e.isMiniBoss ? 18 : 12);
         if (Abyssea.Audio) Abyssea.Audio.play(prof.audio || 'hit');
-        if (dist(e.x, e.y, px, py) < landR + 4 && e.atkCd <= 0) {
-          e.atkCd = 1.05;
+        const landLos = !ctx.isDungeon || !ctx.hasLos || ctx.hasLos(e.x, e.y, px, py);
+        if (dist(e.x, e.y, px, py) < landR + 4 && landLos) {
+          e.atkCd = Math.max(e.atkCd || 0, 1.05);
           executeMeleeStrike(game, e, Math.atan2(py - e.y, px - e.x), e.isMiniBoss ? 1.35 : 1.24);
         }
         if (e.isMiniBoss) {
@@ -1882,9 +1894,9 @@
             e.atkCd = 2.5;
             fireMobVolley(game, e, ang, { count: 1, dmgMult: 0.75 });
           }
-          const idx = enemies.indexOf(e);
-          const seedVal = typeof e.id === 'number' ? e.id : (Number(e.seed) || (Math.max(0, idx) * 3));
-          const flank = Math.sin(Math.max(0, idx) * 1.8 + seedVal) * 0.36;
+          const idx = typeof ctx.enemyIdx === 'number' ? ctx.enemyIdx : (typeof e.id === 'number' ? e.id : 0);
+          const seedVal = typeof e.id === 'number' ? e.id : (Number(e.seed) || (idx * 3));
+          const flank = Math.sin(idx * 1.8 + seedVal) * 0.36;
           const finalAng = ang + flank;
           const spd = e.speed * (d < 110 ? 1.15 : 1.05);
           moveVx = Math.cos(finalAng) * spd;
@@ -2075,56 +2087,55 @@
       });
       if (nearSafeFire && !forceType) return null;
 
-      // Scale enemy strength & danger level nonlinearly with biome tier, distance AND player level
       const center = Abyssea.CONST.CENTER_PLOT !== undefined ? Abyssea.CONST.CENTER_PLOT : 9;
       const plotDist = Math.hypot(plot[0] - center, plot[1] - center);
-      const pLv = Math.max(1, (game.player && game.player.level) || 1);
-      const biomeTierMap = {
-        pradera: 0, desierto: 1, montanas_heladas: 2, bosque_oscuro: 3, tierras_volcanicas: 4,
-        archipielago_coral: 5, cavernas_cristal: 6, selva_esmeralda: 7, caldera_ceniza: 8,
-        dinastia_arena: 9, glaciar_profundo: 10, cienaga_putrida: 11, necropolis_osea: 12, tierras_malditas: 13
-      };
-      const biomeTier = biomeTierMap[biome] || 0;
+      const mob = this._buildScaledMob(game, type, def, biome, x, y, plotDist, night, true);
+      this.enemies.push(mob);
+      return mob;
+    }
 
-      const ranges = (Abyssea.CONST && Abyssea.CONST.BIOME_LEVEL_RANGES) || {
-        pradera: [1, 15], desierto: [16, 45], montanas_heladas: [46, 95], bosque_oscuro: [65, 115], tierras_volcanicas: [85, 145],
-        archipielago_coral: [110, 185], cavernas_cristal: [150, 235], selva_esmeralda: [195, 290], caldera_ceniza: [240, 350],
-        dinastia_arena: [290, 410], glaciar_profundo: [340, 465], cienaga_putrida: [380, 510], necropolis_osea: [425, 555], tierras_malditas: [470, 600]
-      };
+    _buildScaledMob(game, type, def, biome, x, y, plotDist = 0, night = false, applyNightCurve = false) {
+      const pLv = Math.max(1, (game.player && game.player.level) || 1);
+      const biomeOrder = (Abyssea.CONST && Abyssea.CONST.BIOME_ORDER) || [
+        'pradera', 'desierto', 'montanas_heladas', 'bosque_oscuro', 'tierras_volcanicas',
+        'archipielago_coral', 'cavernas_cristal', 'selva_esmeralda', 'caldera_ceniza',
+        'dinastia_arena', 'glaciar_profundo', 'cienaga_putrida', 'necropolis_osea', 'tierras_malditas'
+      ];
+      const biomeTier = Math.max(0, biomeOrder.indexOf(biome));
+      const ranges = (Abyssea.CONST && Abyssea.CONST.BIOME_LEVEL_RANGES) || {};
       const [minLv, maxLv] = ranges[biome] || [1, 15];
       const maxCap = (Abyssea.CONST && Abyssea.CONST.MAX_ENEMY_LEVEL) || 600;
       const pProg = clamp(((pLv - 1) / 45) + (plotDist / 10) * 0.4, 0, 1);
       const dangerLv = clamp(Math.round(minLv + pProg * (maxLv - minLv)), minLv, Math.min(maxCap, maxLv));
       const effLv = Math.max(0, dangerLv - 1);
-      // Balanced progressive scaling across all 14 biomes:
-      // HP scales with sword DPS curve (3 -> 1,328+); DMG scales smoothly against player armor (16 -> 686 DEF, 122 -> 3,055 HP)
+
       let hpScale = 1 + effLv * 0.24 + Math.pow(effLv, 1.22) * 0.04;
       let dmgScale = 1 + effLv * 0.032 + biomeTier * 1.15;
       let spdScale = 1 + Math.min(0.55, effLv * 0.008 + biomeTier * 0.022);
       const xpScale = 1 + effLv * 0.28 + Math.pow(effLv, 1.2) * 0.05;
 
-      // Progressive Zone II-IV toughness multiplier without double-multiplying damage into instant one-shots
       if (biomeTier >= 2) {
         const biomeHpMult = biomeTier === 2 ? 2.2 : biomeTier === 3 ? 2.8 : biomeTier === 4 ? 3.4 : (3.6 + Math.min(2.4, (biomeTier - 4) * 0.28));
         const biomeDmgMult = biomeTier === 2 ? 1.18 : biomeTier === 3 ? 1.24 : biomeTier === 4 ? 1.30 : (1.35 + Math.min(0.45, (biomeTier - 4) * 0.05));
         hpScale *= biomeHpMult;
         dmgScale *= biomeDmgMult;
-        spdScale *= 1.08;
+        if (applyNightCurve) spdScale *= 1.08;
       }
 
-      // Keep early biomes (pradera / desierto) gentler at night and starter days approachable
       const earlyZoneMob = biomeTier <= 1;
-      if (night && biomeTier === 0) {
-        hpScale *= 0.62;
-        dmgScale *= 0.62;
-        spdScale *= 0.84;
-      } else if (night && biomeTier === 1) {
-        hpScale *= 0.76;
-        dmgScale *= 0.75;
-        spdScale *= 0.90;
-      } else if (!night && biomeTier === 0) {
-        hpScale *= 0.85;
-        dmgScale *= 0.78;
+      if (applyNightCurve) {
+        if (night && biomeTier === 0) {
+          hpScale *= 0.62;
+          dmgScale *= 0.62;
+          spdScale *= 0.84;
+        } else if (night && biomeTier === 1) {
+          hpScale *= 0.76;
+          dmgScale *= 0.75;
+          spdScale *= 0.90;
+        } else if (!night && biomeTier === 0) {
+          hpScale *= 0.85;
+          dmgScale *= 0.78;
+        }
       }
 
       if (game.omega && typeof game.omega.creatureMult === 'function') {
@@ -2133,7 +2144,12 @@
         dmgScale *= asc.dmg;
       }
 
-      const mob = {
+      const tierBaseHpFloor = biomeTier >= 9 ? (120 + (biomeTier - 9) * 18) : (biomeTier >= 5 ? (72 + (biomeTier - 5) * 10) : 0);
+      const tierBaseDmgFloor = biomeTier >= 9 ? (26 + (biomeTier - 9) * 3) : (biomeTier >= 5 ? (17 + (biomeTier - 5) * 2) : 0);
+      const effBaseHp = Math.max(def.hp || 20, tierBaseHpFloor);
+      const effBaseDmg = Math.max(def.dmg || 6, tierBaseDmgFloor);
+
+      return {
         id: this.nextId++,
         type,
         name: def.name,
@@ -2141,15 +2157,14 @@
         level: dangerLv,
         xpMult: xpScale,
         earlyZoneMob,
-        // All enemies spawned during night burn away at sunrise so main islands stay calm by day
-        nocturnal: !!def.nocturnal || night,
+        nocturnal: !!def.nocturnal || (applyNightCurve && night),
         x, y,
         vx: 0, vy: 0,
         animVx: 0, animVy: 0,
-        hp: Math.max(8, Math.round(def.hp * hpScale)),
-        maxHp: Math.max(8, Math.round(def.hp * hpScale)),
-        dmg: Math.max(3, Math.round(def.dmg * dmgScale)),
-        speed: Math.max(34, Math.round(def.speed * spdScale)),
+        hp: Math.max(applyNightCurve ? 8 : 12, Math.round(effBaseHp * hpScale)),
+        maxHp: Math.max(applyNightCurve ? 8 : 12, Math.round(effBaseHp * hpScale)),
+        dmg: Math.max(applyNightCurve ? 3 : 4, Math.round(effBaseDmg * dmgScale)),
+        speed: Math.max(applyNightCurve ? 34 : 38, Math.round(def.speed * spdScale)),
         color: def.color || '#ef5350',
         sprite: def.sprite || null,
         ranged: !!def.ranged,
@@ -2158,12 +2173,10 @@
         hitH: def.hitH || 50,
         bodyOffY: def.bodyOffY !== undefined ? def.bodyOffY : 17,
         hitFlash: 0,
-        atkCd: earlyZoneMob ? 1.35 : 1.0,
+        atkCd: applyNightCurve && earlyZoneMob ? 1.35 : 1.0,
         patrolTimer: randInt(1, 3),
         facing: 1
       };
-      this.enemies.push(mob);
-      return mob;
     }
 
     // Targeted enemy spawner at exact world pixel coordinates (used by Biome Raids & Abyssal Night Pulse)
@@ -2173,39 +2186,30 @@
       const biome = (game.world && typeof game.world.getBiomeAtPixel === 'function')
         ? game.world.getBiomeAtPixel(x, y)
         : (def.biome || 'pradera');
-      const pLv = Math.max(1, (game.player && game.player.level) || 1);
-      const hpScale = 1 + (pLv - 1) * 0.22;
-      const dmgScale = 1 + (pLv - 1) * 0.04;
-      const mob = {
-        id: this.nextId++,
-        type,
-        name: def.name,
-        biome,
-        level: pLv,
-        xpMult: 1 + (pLv - 1) * 0.25,
-        earlyZoneMob: biome === 'pradera',
-        nocturnal: !!def.nocturnal,
-        x, y,
-        vx: 0, vy: 0,
-        animVx: 0, animVy: 0,
-        hp: Math.max(12, Math.round(def.hp * hpScale)),
-        maxHp: Math.max(12, Math.round(def.hp * hpScale)),
-        dmg: Math.max(4, Math.round(def.dmg * dmgScale)),
-        speed: Math.max(38, Math.round(def.speed)),
-        color: def.color || '#66bb6a',
-        sprite: def.sprite || null,
-        ranged: !!def.ranged,
-        radius: Math.max(def.radius || 18, 20),
-        hitW: def.hitW || 44,
-        hitH: def.hitH || 50,
-        bodyOffY: def.bodyOffY !== undefined ? def.bodyOffY : 17,
-        hitFlash: 0,
-        atkCd: 1.0,
-        patrolTimer: randInt(1, 3),
-        facing: 1
-      };
+      const mob = this._buildScaledMob(game, type, def, biome, x, y, 0, false, false);
       this.enemies.push(mob);
       return mob;
+    }
+
+    isPosWalkable(game, pxCheck, pyCheck, pad = 9) {
+      if (!Number.isFinite(pxCheck) || !Number.isFinite(pyCheck)) return false;
+      if (game.activeDungeon) {
+        return typeof game.activeDungeon.canWalkPx === 'function'
+          ? game.activeDungeon.canWalkPx(pxCheck, pyCheck, pad)
+          : game.activeDungeon.isTileWalkable(Math.floor(pxCheck / TILE_SIZE), Math.floor(pyCheck / TILE_SIZE));
+      }
+      const w = game.world;
+      const tx0 = Math.floor((pxCheck - pad) / TILE_SIZE);
+      const tx1 = Math.floor((pxCheck + pad) / TILE_SIZE);
+      const ty0 = Math.floor((pyCheck - pad) / TILE_SIZE);
+      const ty1 = Math.floor((pyCheck + pad) / TILE_SIZE);
+      if (!(w.isTileWalkable(tx0, ty0) && w.isTileWalkable(tx1, ty0) && w.isTileWalkable(tx0, ty1) && w.isTileWalkable(tx1, ty1))) {
+        return false;
+      }
+      if (typeof game.hitsSolidBuildingAt === 'function' && game.hitsSolidBuildingAt(pxCheck, pyCheck, pad)) {
+        return false;
+      }
+      return true;
     }
 
     update(dt, game) {
@@ -2220,6 +2224,8 @@
           if (this.enemies[i].nocturnal && this.enemies[i].type !== 'golden_slime') {
             this.enemies[i].sunBurn = (this.enemies[i].sunBurn || 0) + dt;
             if (this.enemies[i].sunBurn > 2.2) {
+              this.enemies[i]._dead = true;
+              this.enemies[i].hp = 0;
               game.spawnParticles(this.enemies[i].x, this.enemies[i].y, '#9575cd', 6);
               this.enemies.splice(i, 1);
             }
@@ -2233,20 +2239,7 @@
         this.spawnWorldEnemy(game);
       }
 
-      const px = game.player.x;
-      const py = game.player.y;
-
-      const pad = 9;
-      const isPosWalkable = (pxCheck, pyCheck) => {
-        if (!Number.isFinite(pxCheck) || !Number.isFinite(pyCheck)) return false;
-        const w = game.world;
-        const tx0 = Math.floor((pxCheck - pad) / TILE_SIZE);
-        const tx1 = Math.floor((pxCheck + pad) / TILE_SIZE);
-        const ty0 = Math.floor((pyCheck - pad) / TILE_SIZE);
-        const ty1 = Math.floor((pyCheck + pad) / TILE_SIZE);
-        return w.isTileWalkable(tx0, ty0) && w.isTileWalkable(tx1, ty0) &&
-               w.isTileWalkable(tx0, ty1) && w.isTileWalkable(tx1, ty1);
-      };
+      const isPosWalkable = (pxCheck, pyCheck) => this.isPosWalkable(game, pxCheck, pyCheck, 9);
 
       for (let i = this.enemies.length - 1; i >= 0; i--) {
         const e = this.enemies[i];
@@ -2259,7 +2252,7 @@
           e._poisonTick = (e._poisonTick || 0) + dt;
           if (e._poisonTick >= 0.7) {
             e._poisonTick -= 0.7;
-            this.damageEnemy(game, e, Math.max(3, Math.round((e.maxHp || 40) * 0.032)), 0, false, false);
+            this.damageEnemy(game, e, Math.max(3, Math.round((e.maxHp || 40) * 0.032)), null, false, false);
             if (e._dead || e.hp <= 0) continue;
           }
         }
@@ -2268,7 +2261,7 @@
           e._burnTick = (e._burnTick || 0) + dt;
           if (e._burnTick >= 0.75) {
             e._burnTick -= 0.75;
-            this.damageEnemy(game, e, Math.max(4, Math.round((e.maxHp || 40) * 0.035)), 0, false, false);
+            this.damageEnemy(game, e, Math.max(4, Math.round((e.maxHp || 40) * 0.035)), null, false, false);
             if (e._dead || e.hp <= 0) continue;
           }
         }
@@ -2286,7 +2279,7 @@
 
         const aiStep = stepMobAI(game, e, dt, {
           isDungeon: false,
-          enemies: this.enemies,
+          enemyIdx: i,
           hazards: this.worldHazards,
           canWalkPx: isPosWalkable
         });
@@ -2302,29 +2295,31 @@
       }
     }
 
-    damageEnemy(game, enemy, rawDmg, knockAng = 0, isCrit = false, allowProc = true) {
+    damageEnemy(game, enemy, rawDmg, knockAng = 0, isCrit = false, allowProc = true, opts = null) {
       if (!enemy || enemy._dead || enemy.hp <= 0) return false;
       if (game && typeof game.isPlayerDead === 'function' && game.isPlayerDead()) return false;
+      const isNonPlayer = Boolean(opts && opts.nonPlayer);
+      const ignoreLos = Boolean(opts && (opts.ignoreLos || opts.isProjectile));
       if (game && game.activeDungeon) {
         const dung = game.activeDungeon;
         if (enemy.isBoss && !dung.bossLocked) {
-          if (allowProc && (game.time - (game._lastBossLockWarn || -99)) >= 1.5) {
+          if (allowProc && !isNonPlayer && (game.time - (game._lastBossLockWarn || -99)) >= 1.5) {
             game._lastBossLockWarn = game.time;
             game.addFloatingText(enemy.x, enemy.y - 36, '¡Entra a la sala del Jefe!', '#ffd54f');
           }
           if (allowProc) game.spawnParticles(enemy.x, enemy.y, '#90a4ae', 4);
           return false;
         }
-        if (allowProc && typeof dung.hasLineOfSight === 'function' && !dung.hasLineOfSight(game.player.x, game.player.y, enemy.x, enemy.y)) {
+        if (allowProc && !ignoreLos && typeof dung.hasLineOfSight === 'function' && !dung.hasLineOfSight(game.player.x, game.player.y, enemy.x, enemy.y)) {
           return false;
         }
       }
       let dmg = rawDmg;
-      // RC2: Guaranteed Crit x2.2 from Perfect Dodge!
-      if (allowProc && game && game.player && game.player.guaranteedCritNext) {
+      // RC2: Guaranteed Crit x2.2 from Perfect Dodge (only for direct player hits, no double-crit stacking)
+      if (allowProc && !isNonPlayer && game && game.player && game.player.guaranteedCritNext) {
         game.player.guaranteedCritNext = false;
+        dmg = isCrit ? Math.round(dmg * 1.22) : Math.round(dmg * 2.2);
         isCrit = true;
-        dmg = Math.round(dmg * 2.2);
       }
       // RC2: Bestiary Mastery Damage Bonus (+5% / +10% / +15% at 25 / 100 / 250 kills)
       if (game && typeof game.getBestiaryMastery === 'function' && enemy.type) {
@@ -2334,25 +2329,22 @@
       if ((enemy.isBoss || enemy.isMiniBoss) && (game.mods.bossDmg || game.mods.bossDmgBonus)) {
         dmg = Math.round(dmg * (1 + (game.mods.bossDmg || 0) + (game.mods.bossDmgBonus || 0)));
       }
-      if ((game.mods.burnDmg || 0) > 0) {
+      if (allowProc && (game.mods.burnDmg || 0) > 0) {
         dmg += Math.round(game.mods.burnDmg);
         enemy.burnTimer = Math.max(enemy.burnTimer || 0, 2.5);
       }
-      if ((game.mods.frostSlowChance || 0) > 0 && Math.random() < Math.min(0.6, game.mods.frostSlowChance)) {
+      if (allowProc && (game.mods.frostSlowChance || 0) > 0 && Math.random() < Math.min(0.6, game.mods.frostSlowChance)) {
         enemy.slowTimer = Math.max(enemy.slowTimer || 0, 2.6);
       }
-      const activeSlot = game.hotbar && game.hotbar[game.activeSlot];
+      const activeSlot = (allowProc && !isNonPlayer && game.hotbar) ? game.hotbar[game.activeSlot] : null;
       const activeToolId = activeSlot && activeSlot.kind === 'tool' ? activeSlot.id : null;
       const activeItemDef = activeSlot && activeSlot.kind === 'item' ? Abyssea.ITEMS[activeSlot.id] : null;
       const tb = activeToolId && typeof game.getToolEnchantBonuses === 'function' ? game.getToolEnchantBonuses(activeToolId) : null;
-      if (tb && tb.fireDmg > 0) {
-        dmg = Math.round(dmg * (1 + tb.fireDmg));
-      }
       const weaponLightChance = activeItemDef
         ? (activeItemDef.id === 'espada_tormenta' ? 0.55 : activeItemDef.id === 'espada_relampago' ? 0.35 : 0)
         : 0;
       const lightChance = (tb && tb.lightningChance ? tb.lightningChance : 0) + weaponLightChance;
-      if (allowProc && lightChance > 0 && Math.random() < Math.min(0.75, lightChance)) {
+      if (allowProc && !isNonPlayer && lightChance > 0 && Math.random() < Math.min(0.75, lightChance)) {
         const extraLight = Math.max(8, Math.round(dmg * (0.45 + (tb && tb.procDmgMult ? tb.procDmgMult * 0.45 : 0))));
         dmg += extraLight;
         game.spawnFx('pvfx_lightning_strike', enemy.x, enemy.y + 4, 0, 0.42, 0.92, 0.98, { blend: 'lighter' });
@@ -2360,19 +2352,19 @@
         Abyssea.Audio.play('thunder');
         game.addFloatingText(enemy.x, enemy.y - 40, Abyssea.I18n ? Abyssea.I18n.t('combat.lightningProc', { dmg: extraLight }) : `¡Rayo +${extraLight}!`, '#80d8ff');
       }
-      if (allowProc && tb && tb.procChance > 0 && Math.random() < Math.min(0.65, tb.procChance)) {
+      if (allowProc && !isNonPlayer && tb && tb.procChance > 0 && Math.random() < Math.min(0.65, tb.procChance)) {
         const extraDmg = Math.max(2, Math.round(dmg * (tb.procDmgMult || 0.25)));
         dmg += extraDmg;
-        game.spawnFx('pvfx_arcane_burst', enemy.x, enemy.y, knockAng, 0.32, 0.95, 0.92, { blend: 'lighter' });
+        game.spawnFx('pvfx_arcane_burst', enemy.x, enemy.y, knockAng || 0, 0.32, 0.95, 0.92, { blend: 'lighter' });
         game.addFloatingText(enemy.x, enemy.y - 36, Abyssea.I18n ? Abyssea.I18n.t('combat.furyProc', { dmg: extraDmg }) : `¡Furia +${extraDmg}!`, '#4fc3f7');
       }
       enemy.hp -= dmg;
       enemy.hitFlash = 0.16;
       if (isCrit && game.spawnFx) {
-        game.spawnFx('aw_hit_critical', enemy.x, enemy.y - 6, knockAng, 0.28, 0.85, 0.98, { blend: 'lighter' });
+        game.spawnFx('aw_hit_critical', enemy.x, enemy.y - 6, knockAng || 0, 0.28, 0.85, 0.98, { blend: 'lighter' });
         game.spawnFx('px_crit_star', enemy.x, enemy.y - 18, 0, 0.34, 0.95, 0.95, { blend: 'lighter' });
         // RC2: Glacial Armor Set Synergy — Crits freeze nearby enemies in an AoE nova!
-        if (allowProc && game.mods && game.mods.synergyGlacial) {
+        if (allowProc && !isNonPlayer && game.mods && game.mods.synergyGlacial) {
           game.spawnShockwave(enemy.x, enemy.y, 110, '#4fc3f7');
           const nearFoes = game.activeDungeon
             ? [...(game.activeDungeon.enemies || []), ...(game.activeDungeon.boss ? [game.activeDungeon.boss] : [])]
@@ -2384,19 +2376,18 @@
           }
         }
       } else if (allowProc && game.spawnFx) {
-        game.spawnFx('aw_hit_spark_medium', enemy.x, enemy.y - 4, knockAng, 0.20, 0.72, 0.88);
+        game.spawnFx('aw_hit_spark_medium', enemy.x, enemy.y - 4, knockAng || 0, 0.20, 0.72, 0.88);
       }
-      if (tb && tb.lifeSteal > 0 && allowProc) {
+      if (allowProc && !isNonPlayer && tb && tb.lifeSteal > 0) {
         game.healPlayer(Math.min(18, tb.lifeSteal), 0);
       }
-      const kb = enemy.isBoss ? 4 : 14;
-      const kdx = Math.cos(knockAng) * kb;
-      const kdy = Math.sin(knockAng) * kb;
-      const canStep = (tx, ty) => game.activeDungeon
-        ? game.activeDungeon.isTileWalkable(tx, ty)
-        : game.world.isTileWalkable(tx, ty);
-      if (canStep(Math.floor((enemy.x + kdx) / TILE_SIZE), Math.floor(enemy.y / TILE_SIZE))) enemy.x += kdx;
-      if (canStep(Math.floor(enemy.x / TILE_SIZE), Math.floor((enemy.y + kdy) / TILE_SIZE))) enemy.y += kdy;
+      if (allowProc && knockAng !== null && knockAng !== undefined && !(opts && opts.noKnockback)) {
+        const kb = enemy.isBoss ? 4 : 14;
+        const kdx = Math.cos(knockAng) * kb;
+        const kdy = Math.sin(knockAng) * kb;
+        if (this.isPosWalkable(game, enemy.x + kdx, enemy.y, 9)) enemy.x += kdx;
+        if (this.isPosWalkable(game, enemy.x, enemy.y + kdy, 9)) enemy.y += kdy;
+      }
 
       Abyssea.Audio.play(isCrit ? 'crit' : 'hit');
       game.addFloatingText(enemy.x, enemy.y - 22, isCrit && Abyssea.I18n ? Abyssea.I18n.t('combat.critFloat', { dmg }) : (isCrit ? '¡CRIT! ' : '') + '-' + dmg, isCrit ? '#ffd54f' : '#ff8a65');
@@ -2420,8 +2411,8 @@
       const kb = 12;
       const nx = animal.x + Math.cos(knockAng) * kb;
       const ny = animal.y + Math.sin(knockAng) * kb;
-      if (game.world.isTileWalkable(Math.floor(nx / TILE_SIZE), Math.floor(animal.y / TILE_SIZE))) animal.x = nx;
-      if (game.world.isTileWalkable(Math.floor(animal.x / TILE_SIZE), Math.floor(ny / TILE_SIZE))) animal.y = ny;
+      if (this.isPosWalkable(game, nx, animal.y, 9)) animal.x = nx;
+      if (this.isPosWalkable(game, animal.x, ny, 9)) animal.y = ny;
 
       Abyssea.Audio.play('hit');
       game.addFloatingText(animal.x, animal.y - 22, isCrit && Abyssea.I18n ? Abyssea.I18n.t('combat.critFloat', { dmg }) : (isCrit ? '¡CRIT! ' : '') + '-' + dmg, isCrit ? '#ffd54f' : '#ffb74d');
@@ -2442,6 +2433,7 @@
           game.spawnDrop(animal.x + randInt(-10, 10), animal.y + randInt(-10, 10), dr.id, q);
         }
       }
+      return true;
     }
 
     onEnemyKilled(game, enemy) {
@@ -2470,11 +2462,21 @@
           }
         }
       }
-      // RC2: Bestiary Mastery extra drop bonus
-      if (typeof game.getBestiaryMastery === 'function' && enemy.type && enemy.drops) {
+      // Arcane Essence surge daily event bonus drop
+      if (game.events && game.events.activeEvent && game.events.activeEvent.id === 'esencia_arcana' && Math.random() < 0.35) {
+        game.spawnDrop(enemy.x + randInt(-8, 8), enemy.y + randInt(-8, 8), 'esencia_oscura', 1);
+      }
+      // RC2: Bestiary Mastery extra drop bonus (works on both boss dict drops & regular ENEMY_DEFS array drops)
+      if (typeof game.getBestiaryMastery === 'function' && enemy.type) {
         const bm = game.getBestiaryMastery(enemy.type);
         if (bm && bm.dropBonus > 0 && Math.random() < bm.dropBonus) {
-          const dropKeys = Object.keys(enemy.drops);
+          let dropKeys = [];
+          if (Array.isArray(enemy.drops)) dropKeys = enemy.drops.map(d => d.id);
+          else if (enemy.drops && typeof enemy.drops === 'object') dropKeys = Object.keys(enemy.drops);
+          else if (ENEMY_DEFS[enemy.type] && Array.isArray(ENEMY_DEFS[enemy.type].drops)) {
+            dropKeys = ENEMY_DEFS[enemy.type].drops.map(d => d.id);
+          }
+          dropKeys = dropKeys.filter(id => Abyssea.ITEMS && Abyssea.ITEMS[id]);
           if (dropKeys.length > 0) game.spawnDrop(enemy.x, enemy.y, pick(dropKeys), 1);
         }
       }
@@ -2505,6 +2507,7 @@
       }
 
       if (enemy.isBoss && game.activeDungeon) {
+        game.stats.bossesKilled = (game.stats.bossesKilled || 0) + 1;
         const dung = game.activeDungeon;
         if (dung.id === 'eclipse_carmesi' || (Abyssea.BOSS_SPRITE_PATHS && Abyssea.BOSS_SPRITE_PATHS[dung.id] && Abyssea.BOSS_SPRITE_PATHS[dung.id].multiRow)) {
           dung.deadBossGhost = {
@@ -2556,10 +2559,10 @@
           }
           if (game.omega && typeof game.omega.recordBossKill === 'function') game.omega.recordBossKill(dung.id);
         }
-        game.addCoins(enemy.coins);
-        game.gainXp(enemy.xp);
-        for (const [id, qty] of Object.entries(enemy.drops)) {
-          game.addItem(id, qty);
+        game.addCoins(enemy.coins || 0);
+        game.gainXp(enemy.xp || 0);
+        for (const [id, qty] of Object.entries(enemy.drops || {})) {
+          if (qty > 0 && Abyssea.ITEMS && Abyssea.ITEMS[id]) game.addItem(id, qty);
         }
         if (!dung.abyssFloor && dung.def.bossRelicId && typeof game.unlockPermanentRelic === 'function') {
           game.unlockPermanentRelic(dung.def.bossRelicId);
@@ -2605,7 +2608,7 @@
 
       const def = ENEMY_DEFS[enemy.type];
       if (!def) return;
-      const coinAmt = randInt(def.coins[0], def.coins[1]);
+      const coinAmt = typeof enemy.coins === 'number' ? enemy.coins : randInt(def.coins[0], def.coins[1]);
       const nightBonus = enemy.nocturnal ? 1.2 : 1.0;
       const distXp = enemy.xpMult || 1.0;
       game.spawnDrop(enemy.x, enemy.y, '_coin', Math.max(1, Math.round(coinAmt * 0.40 * nightBonus)));

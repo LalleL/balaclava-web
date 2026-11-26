@@ -630,7 +630,7 @@
       floorColor: '#1f2d3d', wallColor: '#54738e', accentColor: '#80deea',
       carpetKey: 'carpetBlue', torchKey: 'torch_blue', brazierKey: 'brazier_blue', bannerKey: 'banner_blue', statueKey: 'statue_knight',
       bossRelicId: 'sello_cumbre_helada',
-      boss: { name: 'Valkiria de Escarcha Skadi', hp: 5600, dmg: 96, speed: 112, color: '#80deea', drops: { fragmentos_antiguos: 3, lingote_titanio: 4, zafiro: 3, llave_zafiro: 1 }, coins: 310, xp: 1480 },
+      boss: { name: 'Valkiria de Escarcha Skadi', hp: 3600, dmg: 75, speed: 112, color: '#80deea', drops: { fragmentos_antiguos: 3, lingote_titanio: 4, zafiro: 3, llave_zafiro: 1 }, coins: 310, xp: 1480 },
       enemyTypes: ['wolf', 'golem', 'slime_blue', 'ghastly_eye', 'enemy_glaciar_whelp']
     },
 
@@ -735,7 +735,7 @@
       floorColor: '#132b19', wallColor: '#2c6137', accentColor: '#66bb6a',
       carpetKey: 'carpetGreen', torchKey: 'torch_green', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_sphinx',
       bossRelicId: 'talisman_raices_antiguas',
-      boss: { name: 'Ent Guardián Sylvanus', hp: 15200, dmg: 198, speed: 108, color: '#66bb6a', drops: { madera_ferrea: 16, lingote_selvano: 4, jade_ancestral: 2, fragmentos_antiguos: 6, llave_dorada: 1 }, coins: 860, xp: 5050 },
+      boss: { name: 'Ent Guardián Sylvanus', hp: 15900, dmg: 205, speed: 108, color: '#66bb6a', drops: { madera_ferrea: 16, lingote_selvano: 4, jade_ancestral: 2, fragmentos_antiguos: 6, llave_dorada: 1 }, coins: 860, xp: 5050 },
       enemyTypes: ['enemy_selva_plant', 'enemy_selva_spider', 'mushroom_mob', 'cobra']
     },
     selva_piramide: {
@@ -782,7 +782,7 @@
       floorColor: '#291512', wallColor: '#692a1e', accentColor: '#ff7043',
       carpetKey: 'carpetRed', torchKey: 'torch_orange', brazierKey: 'brazier_orange', bannerKey: 'banner_red', statueKey: 'statue_dragon',
       bossRelicId: 'brasa_fumarola_oscura',
-      boss: { name: 'Espectro de Hollín Ignis', hp: 19400, dmg: 232, speed: 122, color: '#ff7043', drops: { escoria_caldera: 16, lingote_escoria: 4, polvo_carmesi: 3, fragmentos_antiguos: 7, llave_rubi: 1 }, coins: 1100, xp: 6450 },
+      boss: { name: 'Espectro de Hollín Ignis', hp: 20200, dmg: 240, speed: 122, color: '#ff7043', drops: { escoria_caldera: 16, lingote_escoria: 4, polvo_carmesi: 3, fragmentos_antiguos: 7, llave_rubi: 1 }, coins: 1100, xp: 6450 },
       enemyTypes: ['enemy_ember_bat', 'enemy_fire_slime', 'flaming_skull', 'beetle_fire']
     },
     caldera_crater: {
@@ -829,7 +829,7 @@
       floorColor: '#362b1a', wallColor: '#8c6e3d', accentColor: '#ffd54f',
       carpetKey: 'carpetSandstone', torchKey: 'torch_orange', brazierKey: 'brazier_orange', bannerKey: 'pyr_banner_red', statueKey: 'statue_sphinx',
       bossRelicId: 'ankh_dinastia_dorada',
-      boss: { name: 'Sumo Escriba Imhotep', hp: 25000, dmg: 278, speed: 122, color: '#ffd54f', drops: { pirita_solar: 18, lingote_pirita: 4, agata_roja: 2, fragmentos_antiguos: 8, llave_dorada: 1 }, coins: 1380, xp: 8200 },
+      boss: { name: 'Sumo Escriba Imhotep', hp: 26000, dmg: 286, speed: 122, color: '#ffd54f', drops: { pirita_solar: 18, lingote_pirita: 4, agata_roja: 2, fragmentos_antiguos: 8, llave_dorada: 1 }, coins: 1380, xp: 8200 },
       enemyTypes: ['sand_ghoul', 'cobra', 'skeleton_archer', 'royal_scarab']
     },
     dinastia_escarabajo: {
@@ -885,7 +885,7 @@
       floorColor: '#132436', wallColor: '#305c85', accentColor: '#81d4fa',
       carpetKey: 'carpetBlue', torchKey: 'torch_blue', brazierKey: 'brazier_blue', bannerKey: 'banner_blue', statueKey: 'statue_knight',
       bossRelicId: 'esquirla_grieta_azul',
-      boss: { name: 'Acechador Polar Fenrir', hp: 32400, dmg: 340, speed: 136, color: '#81d4fa', drops: { hielo_eterno: 6, bismuto_astral: 3, lingote_boreal: 5, fragmentos_antiguos: 9, llave_zafiro: 1 }, coins: 1740, xp: 10500 },
+      boss: { name: 'Acechador Polar Fenrir', hp: 33600, dmg: 350, speed: 136, color: '#81d4fa', drops: { hielo_eterno: 6, bismuto_astral: 3, lingote_boreal: 5, fragmentos_antiguos: 9, llave_zafiro: 1 }, coins: 1740, xp: 10500 },
       enemyTypes: ['enemy_glaciar_whelp', 'shadow_wolf', 'frost_jelly', 'wolf']
     },
     glaciar_vestigios: {
@@ -941,7 +941,7 @@
       floorColor: '#182414', wallColor: '#3e542e', accentColor: '#9ccc65',
       carpetKey: 'carpetGreen', torchKey: 'torch_green', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_gargoyle',
       bossRelicId: 'fetiche_manglar_negro',
-      boss: { name: 'Chamán Putrefacto Vex', hp: 34800, dmg: 356, speed: 128, color: '#9ccc65', drops: { resina_toxica: 14, flor_pantano: 8, polvo_veneno: 4, fragmentos_antiguos: 9, llave_dorada: 1 }, coins: 1850, xp: 11200 },
+      boss: { name: 'Chamán Putrefacto Vex', hp: 41000, dmg: 404, speed: 128, color: '#9ccc65', drops: { resina_toxica: 14, flor_pantano: 8, polvo_veneno: 4, fragmentos_antiguos: 9, llave_dorada: 1 }, coins: 1850, xp: 11200 },
       enemyTypes: ['enemy_pantano_slime', 'enemy_pantano_shroom', 'slime_toxic', 'toxic_hound']
     },
     pantano_esporas: {
@@ -950,7 +950,7 @@
       floorColor: '#1b2914', wallColor: '#445e2b', accentColor: '#aeea00',
       carpetKey: 'carpetGreen', torchKey: 'torch_green', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_gargoyle',
       bossRelicId: 'hongo_bioluminiscente',
-      boss: { name: 'Soberano Fúngico Mycelion', hp: 36400, dmg: 368, speed: 124, color: '#aeea00', drops: { resina_toxica: 15, flor_pantano: 9, polvo_veneno: 5, fragmentos_antiguos: 10, pocion_veneno_res: 2 }, coins: 1930, xp: 11700 },
+      boss: { name: 'Soberano Fúngico Mycelion', hp: 41800, dmg: 410, speed: 124, color: '#aeea00', drops: { resina_toxica: 15, flor_pantano: 9, polvo_veneno: 5, fragmentos_antiguos: 10, pocion_veneno_res: 2 }, coins: 1930, xp: 11700 },
       enemyTypes: ['enemy_pantano_shroom', 'mushroom_purple', 'mushroom_mob', 'plague_bat']
     },
     pantano_cieno: {
@@ -959,7 +959,7 @@
       floorColor: '#162612', wallColor: '#3b5727', accentColor: '#76ff03',
       carpetKey: 'carpetGreen', torchKey: 'torch_green', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_goddess',
       bossRelicId: 'matraz_cieno_alquimico',
-      boss: { name: 'Amalgama Viscosa Oozath', hp: 38000, dmg: 380, speed: 122, color: '#76ff03', drops: { resina_toxica: 16, polvo_veneno: 6, fragmentos_antiguos: 10, llave_jefe: 1 }, coins: 2020, xp: 12200 },
+      boss: { name: 'Amalgama Viscosa Oozath', hp: 42600, dmg: 416, speed: 122, color: '#76ff03', drops: { resina_toxica: 16, polvo_veneno: 6, fragmentos_antiguos: 10, llave_jefe: 1 }, coins: 2020, xp: 12200 },
       enemyTypes: ['enemy_pantano_slime', 'slime_toxic', 'enemy_selva_spider', 'toxic_hound']
     },
     pantano_calabaza: {
@@ -968,7 +968,7 @@
       floorColor: '#1f2412', wallColor: '#544a22', accentColor: '#ff9100',
       carpetKey: 'carpetGreen', torchKey: 'torch_orange', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_gargoyle',
       bossRelicId: 'linterna_cosecha_maldita',
-      boss: { name: 'Segador Calabaza Samhain', hp: 39600, dmg: 392, speed: 136, color: '#ff9100', drops: { flor_pantano: 10, polvo_veneno: 6, fragmentos_antiguos: 11, pocion_veneno_res: 2, llave_jefe: 1 }, coins: 2100, xp: 12800 },
+      boss: { name: 'Segador Calabaza Samhain', hp: 43400, dmg: 422, speed: 136, color: '#ff9100', drops: { flor_pantano: 10, polvo_veneno: 6, fragmentos_antiguos: 11, pocion_veneno_res: 2, llave_jefe: 1 }, coins: 2100, xp: 12800 },
       enemyTypes: ['enemy_pantano_shroom', 'enemy_dark_bat', 'ghost_spectral', 'plague_bat']
     },
     pantano_bastion: {
@@ -977,7 +977,7 @@
       floorColor: '#132410', wallColor: '#355422', accentColor: '#64dd17',
       carpetKey: 'carpetGreen', torchKey: 'torch_green', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_dragon',
       bossRelicId: 'totem_hidra_cienaga',
-      boss: { name: 'Hidra Venenosa Lernae', hp: 41200, dmg: 404, speed: 132, color: '#64dd17', drops: { resina_toxica: 18, polvo_veneno: 8, fragmentos_antiguos: 11, llave_jefe: 1 }, coins: 2190, xp: 13400 },
+      boss: { name: 'Hidra Venenosa Lernae', hp: 44200, dmg: 428, speed: 132, color: '#64dd17', drops: { resina_toxica: 18, polvo_veneno: 8, fragmentos_antiguos: 11, llave_jefe: 1 }, coins: 2190, xp: 13400 },
       enemyTypes: ['enemy_pantano_slime', 'enemy_selva_plant', 'enemy_pantano_shroom', 'cobra']
     },
     pantano_madre: {
@@ -986,7 +986,7 @@
       floorColor: '#101f0d', wallColor: '#2e4d1e', accentColor: '#aed581',
       carpetKey: 'carpetGreen', torchKey: 'torch_green', brazierKey: 'brazier_green', bannerKey: 'banner_green', statueKey: 'statue_dragon',
       bossRelicId: 'ovulo_madre_putrida',
-      boss: { name: 'Madre Pútrida Morbida', hp: 43000, dmg: 416, speed: 130, color: '#aed581', drops: { resina_toxica: 20, polvo_veneno: 10, fragmentos_antiguos: 12, llave_maestra_mazmorra: 1, materia_comprimida: 1 }, coins: 2280, xp: 14000 },
+      boss: { name: 'Madre Pútrida Morbida', hp: 45000, dmg: 434, speed: 130, color: '#aed581', drops: { resina_toxica: 20, polvo_veneno: 10, fragmentos_antiguos: 12, llave_maestra_mazmorra: 1, materia_comprimida: 1 }, coins: 2280, xp: 14000 },
       enemyTypes: ['enemy_pantano_slime', 'enemy_pantano_shroom', 'enemy_selva_spider', 'slime_toxic']
     },
 
@@ -997,7 +997,7 @@
       floorColor: '#1f1c24', wallColor: '#544e5e', accentColor: '#e0e0e0',
       carpetKey: 'carpetPurple', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'banner_purple', statueKey: 'statue_gargoyle',
       bossRelicId: 'osario_marfil_maldito',
-      boss: { name: 'Centurión Óseo Moros', hp: 41000, dmg: 398, speed: 132, color: '#e0e0e0', drops: { hueso_fosil: 16, lingote_hueso: 5, marmol_oscuro: 8, fragmentos_antiguos: 11, llave_esqueleto: 1 }, coins: 2180, xp: 13300 },
+      boss: { name: 'Centurión Óseo Moros', hp: 45800, dmg: 438, speed: 132, color: '#e0e0e0', drops: { hueso_fosil: 16, lingote_hueso: 5, marmol_oscuro: 8, fragmentos_antiguos: 11, llave_esqueleto: 1 }, coins: 2180, xp: 13300 },
       enemyTypes: ['enemy_necro_skull', 'skeleton', 'skeleton_archer', 'grave_revenant']
     },
     necro_cripta: {
@@ -1006,7 +1006,7 @@
       floorColor: '#1c1921', wallColor: '#4c4657', accentColor: '#b0bec5',
       carpetKey: 'carpetPurple', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'banner_purple', statueKey: 'statue_knight',
       bossRelicId: 'sello_cripta_silenciosa',
-      boss: { name: 'Caballero Muerto Thanatos', hp: 42800, dmg: 410, speed: 136, color: '#b0bec5', drops: { hueso_fosil: 18, lingote_hueso: 6, marmol_oscuro: 10, fragmentos_antiguos: 11, llave_jefe: 1 }, coins: 2260, xp: 13900 },
+      boss: { name: 'Caballero Muerto Thanatos', hp: 46800, dmg: 444, speed: 136, color: '#b0bec5', drops: { hueso_fosil: 18, lingote_hueso: 6, marmol_oscuro: 10, fragmentos_antiguos: 11, llave_jefe: 1 }, coins: 2260, xp: 13900 },
       enemyTypes: ['enemy_necro_skull', 'dark_lancer', 'skeleton_mage', 'enemy_dark_bat']
     },
     necro_catacumba: {
@@ -1015,7 +1015,7 @@
       floorColor: '#1a1721', wallColor: '#484154', accentColor: '#80cbc4',
       carpetKey: 'carpetPurple', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'banner_purple', statueKey: 'statue_gargoyle',
       bossRelicId: 'farol_almas_errantes',
-      boss: { name: 'Banshee Suprema Ereshkigal', hp: 44600, dmg: 422, speed: 142, color: '#80cbc4', drops: { lingote_hueso: 6, marmol_oscuro: 12, fragmentos_antiguos: 12, llave_esqueleto: 1 }, coins: 2340, xp: 14500 },
+      boss: { name: 'Banshee Suprema Ereshkigal', hp: 47800, dmg: 450, speed: 142, color: '#80cbc4', drops: { lingote_hueso: 6, marmol_oscuro: 12, fragmentos_antiguos: 12, llave_esqueleto: 1 }, coins: 2340, xp: 14500 },
       enemyTypes: ['enemy_necro_skull', 'ghost_spectral', 'grave_revenant', 'wisp']
     },
     necro_foso: {
@@ -1024,7 +1024,7 @@
       floorColor: '#18141f', wallColor: '#4a3d59', accentColor: '#cfd8dc',
       carpetKey: 'carpetPurple', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'banner_purple', statueKey: 'statue_dragon',
       bossRelicId: 'costilla_dragon_oseo',
-      boss: { name: 'Dracoliche Ancestral Sindragos', hp: 46500, dmg: 435, speed: 138, color: '#cfd8dc', drops: { hueso_fosil: 20, lingote_hueso: 7, marmol_oscuro: 12, fragmentos_antiguos: 12, llave_jefe: 1 }, coins: 2420, xp: 15100 },
+      boss: { name: 'Dracoliche Ancestral Sindragos', hp: 48800, dmg: 456, speed: 138, color: '#cfd8dc', drops: { hueso_fosil: 20, lingote_hueso: 7, marmol_oscuro: 12, fragmentos_antiguos: 12, llave_jefe: 1 }, coins: 2420, xp: 15100 },
       enemyTypes: ['enemy_necro_skull', 'enemy_glaciar_whelp', 'skel_mage_dark', 'dark_lancer']
     },
     necro_torre: {
@@ -1033,7 +1033,7 @@
       floorColor: '#17121f', wallColor: '#4d3766', accentColor: '#b388ff',
       carpetKey: 'carpetPurple', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'banner_purple', statueKey: 'statue_goddess',
       bossRelicId: 'filacteria_archiliche',
-      boss: { name: 'Archiliche Nagash', hp: 48400, dmg: 448, speed: 140, color: '#b388ff', drops: { lingote_hueso: 8, plata_maldita: 6, fragmentos_antiguos: 13, elixir_eclipse: 2, llave_jefe: 1 }, coins: 2520, xp: 15800 },
+      boss: { name: 'Archiliche Nagash', hp: 49800, dmg: 462, speed: 140, color: '#b388ff', drops: { lingote_hueso: 8, plata_maldita: 6, fragmentos_antiguos: 13, elixir_eclipse: 2, llave_jefe: 1 }, coins: 2520, xp: 15800 },
       enemyTypes: ['enemy_necro_skull', 'enemy_abismo_wisp', 'skel_mage_dark', 'ghost']
     },
     necro_trono: {
@@ -1042,7 +1042,7 @@
       floorColor: '#120e1a', wallColor: '#52346e', accentColor: '#ffd180',
       carpetKey: 'carpetPurple', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'banner_purple', statueKey: 'statue_knight',
       bossRelicId: 'corona_soverano_huesos',
-      boss: { name: 'Soberano de los Huesos Kel-Thuz', hp: 50500, dmg: 462, speed: 144, color: '#ffd180', drops: { lingote_hueso: 10, plata_maldita: 8, fragmentos_antiguos: 14, llave_maestra_mazmorra: 1, materia_comprimida: 2 }, coins: 2650, xp: 16600 },
+      boss: { name: 'Soberano de los Huesos Kel-Thuz', hp: 51000, dmg: 468, speed: 144, color: '#ffd180', drops: { lingote_hueso: 10, plata_maldita: 8, fragmentos_antiguos: 14, llave_maestra_mazmorra: 1, materia_comprimida: 2 }, coins: 2650, xp: 16600 },
       enemyTypes: ['enemy_necro_skull', 'dark_lancer', 'enemy_abismo_wisp', 'skeleton_mage']
     },
 
@@ -1053,7 +1053,7 @@
       floorColor: '#240b11', wallColor: '#73162a', accentColor: '#e53935',
       carpetKey: 'carpetRed', torchKey: 'torch_orange', brazierKey: 'brazier_orange', bannerKey: 'pyr_banner_red', statueKey: 'statue_dragon',
       bossRelicId: 'caliz_sangre_maldita',
-      boss: { name: 'Conde Carmesí Drakul', hp: 49500, dmg: 455, speed: 146, color: '#e53935', drops: { plata_maldita: 12, lingote_maldito: 5, cristal_carmesi: 3, fragmentos_antiguos: 13, llave_rubi: 1 }, coins: 2600, xp: 16200 },
+      boss: { name: 'Conde Carmesí Drakul', hp: 51600, dmg: 472, speed: 146, color: '#e53935', drops: { plata_maldita: 12, lingote_maldito: 5, cristal_carmesi: 3, fragmentos_antiguos: 13, llave_rubi: 1 }, coins: 2600, xp: 16200 },
       enemyTypes: ['enemy_biter_red', 'enemy_dark_bat', 'vampire_bat', 'crimson_jelly']
     },
     maldita_carne: {
@@ -1062,7 +1062,7 @@
       floorColor: '#260b14', wallColor: '#7a1733', accentColor: '#d81b60',
       carpetKey: 'carpetRed', torchKey: 'torch_purple', brazierKey: 'brazier_purple', bannerKey: 'pyr_banner_red', statueKey: 'statue_gargoyle',
       bossRelicId: 'corazon_abominacion_carnica',
-      boss: { name: 'Carnicero Abisal Goremaw', hp: 51800, dmg: 470, speed: 132, color: '#d81b60', drops: { plata_maldita: 14, lingote_maldito: 6, cristal_carmesi: 4, fragmentos_antiguos: 14, llave_jefe: 1 }, coins: 2720, xp: 17000 },
+      boss: { name: 'Carnicero Abisal Goremaw', hp: 52800, dmg: 478, speed: 132, color: '#d81b60', drops: { plata_maldita: 14, lingote_maldito: 6, cristal_carmesi: 4, fragmentos_antiguos: 14, llave_jefe: 1 }, coins: 2720, xp: 17000 },
       enemyTypes: ['enemy_biter_red', 'enemy_abismo_goblin', 'enemy_bomb_black', 'dark_lancer']
     },
     maldita_forja: {
@@ -1601,12 +1601,21 @@
       case 'venom_stinger_triple':
         Abyssea.Audio.play('slash');
         game.spawnFx('aw_thrust_stab', b.x, b.y, tAng, 0.35, 1.2, 0.95);
+        if (!Array.isArray(dung._delayedCalls)) dung._delayedCalls = [];
         for (let k = 0; k < 3; k++) {
-          setTimeout(() => {
-            if (b.hp > 0) {
-              game.spawnEnemyProjectile(b.x, b.y, Math.cos(tAng) * 390, Math.sin(tAng) * 390, Math.round(b.dmg * 0.95), '#76ff03', { vfxKey: 'pvfx_poison_dart', status: { kind: 'poison', dur: 3.5 } });
-            }
-          }, k * 120);
+          const delaySec = k * 0.12;
+          if (delaySec <= 0) {
+            if (b.hp > 0) game.spawnEnemyProjectile(b.x, b.y, Math.cos(tAng) * 390, Math.sin(tAng) * 390, Math.round(b.dmg * 0.95), '#76ff03', { vfxKey: 'pvfx_poison_dart', status: { kind: 'poison', dur: 3.5 } });
+          } else {
+            dung._delayedCalls.push({
+              timer: delaySec,
+              fn: () => {
+                if (b.hp > 0 && game.activeDungeon === dung) {
+                  game.spawnEnemyProjectile(b.x, b.y, Math.cos(tAng) * 390, Math.sin(tAng) * 390, Math.round(b.dmg * 0.95), '#76ff03', { vfxKey: 'pvfx_poison_dart', status: { kind: 'poison', dur: 3.5 } });
+                }
+              }
+            });
+          }
         }
         return true;
 
@@ -1616,17 +1625,29 @@
         dung.hazardZones.push({ kind: 'pool', x: px, y: py, radius: 64, duration: 3.2, timer: 0, dmg: b.dmg * 0.75, color: '#e6c280', vfxKey: 'pvfx_dust_puff' });
         return true;
 
-      case 'sand_burrow_eruption':
+      case 'sand_burrow_eruption': {
         Abyssea.Audio.play('bomb');
         game.spawnFx('pvfx_dust_puff', b.x, b.y, 0, 0.45, 1.3, 0.9);
-        b.x = px + (Math.random() - 0.5) * 30;
-        b.y = py + (Math.random() - 0.5) * 30;
+        let landX = px + (Math.random() - 0.5) * 30;
+        let landY = py + (Math.random() - 0.5) * 30;
+        if (isBossWalkable(landX, landY)) {
+          b.x = landX; b.y = landY;
+        } else if (isBossWalkable(px, py)) {
+          b.x = px; b.y = py;
+        } else {
+          for (let tries = 0; tries < 8; tries++) {
+            const a = (tries / 8) * Math.PI * 2;
+            const cx = px + Math.cos(a) * 44, cy = py + Math.sin(a) * 44;
+            if (isBossWalkable(cx, cy)) { b.x = cx; b.y = cy; break; }
+          }
+        }
         game.shake(0.35, 9);
         game.spawnShockwave(b.x, b.y, 130, '#ffd54f');
         game.spawnFx('aw_earth_rockspike', b.x, b.y, 0, 0.6, 1.4, 0.98);
         game.spawnFx('pvfx_rock_shatter', b.x, b.y, 0, 0.5, 1.2, 0.95);
         if (Abyssea.Utils.dist(b.x, b.y, px, py) < 110) game.damagePlayer(Math.round(b.dmg * 1.35));
         return true;
+      }
 
       // 4. Centurión Solar Anub
       case 'solar_lance_beam':
@@ -2450,7 +2471,11 @@
         Abyssea.Audio.play('curse');
         game.shake(0.38, 11);
         game.spawnShockwave(b.x, b.y, 140, '#ff1744');
-        setTimeout(() => { if (b.hp > 0) game.spawnShockwave(b.x, b.y, 200, '#ff1744'); }, 180);
+        if (!Array.isArray(dung._delayedCalls)) dung._delayedCalls = [];
+        dung._delayedCalls.push({
+          timer: 0.18,
+          fn: () => { if (b.hp > 0 && game.activeDungeon === dung) game.spawnShockwave(b.x, b.y, 200, '#ff1744'); }
+        });
         for (let i = 0; i < 12; i++) {
           const a = (i / 12) * Math.PI * 2;
           game.spawnEnemyProjectile(b.x, b.y, Math.cos(a) * 320, Math.sin(a) * 320, Math.round(b.dmg * 1.15), '#ff1744', { vfxKey: 'fpe_brightfire', status: { kind: 'burn', dur: 3.0 } });
@@ -3052,7 +3077,6 @@
 
       let portal = { tx: 2, ty: 19 };
       let spawnTile = { tx: 4, ty: 19 };
-      let wingRects = [];
       let trapCandidates = [];
       let pillarCandidates = [];
       let torchCandidates = [];
@@ -3703,14 +3727,17 @@
       if (this.abyssFloor) {
         bossDrops.materia_comprimida = Math.max(1, Math.floor(1 + this.abyssFloor / 10));
       }
+      const baseMobLv = Math.max(2, this.tier * 2 + 2, Math.floor(this.playerLevel * 0.85)) + (this.abyssFloor ? this.abyssFloor * 2 : 0);
+      const bossLevel = baseMobLv + (this.isCorrupted ? 12 : 5);
       this.boss = {
         id: 'boss_' + this.id,
         seed: 7 + this.tier * 3,
         name: bossName,
+        level: bossLevel,
         isBoss: true,
         type: 'boss_' + this.id,
-        x: bossSpawn.tx * TILE_SIZE,
-        y: bossSpawn.ty * TILE_SIZE,
+        x: (bossSpawn.tx + 0.5) * TILE_SIZE,
+        y: (bossSpawn.ty + 0.5) * TILE_SIZE,
         hp: bossStats.hp,
         maxHp: bossStats.maxHp,
         dmg: bossStats.dmg,
@@ -3831,6 +3858,9 @@
         r.burnRemaining = 0;
         r.totemPhase = (idx + 1) % 3;
         r.targetPhase = (r.order - 1) % 3;
+        if (this.puzzleMode === 'astral_totem_dial' && r.totemPhase === r.targetPhase) {
+          r.totemPhase = (r.totemPhase + 1) % 3;
+        }
         r.chargePct = 0;
         if (this.puzzleMode === 'harmonic_lights_out') {
           r.active = (idx % 2 === 1);
@@ -4491,7 +4521,7 @@
       m.hitW = 54;
       m.hitH = 60;
       m.bodyOffY = 22;
-      m.level = this.tier * 2 + 4;
+      m.level = Math.max((m.level || 2) + 2, this.tier * 2 + 4);
       m.xpMult = 3.0;
       m.telegraph = 0;
       m.telegraphMode = null;
@@ -4504,6 +4534,7 @@
     makeMiniBoss2(type, tx, ty) {
       const m = this.makeMiniBoss(type, tx, ty);
       m.isMiniBoss2 = true;
+      m.level = (m.level || 4) + 1;
       m.name = `Segundo Centinela Ancestral: ${m.name.replace('Guardián ', '')}`;
       m.hp = Math.round(m.hp * 1.15);
       m.maxHp = m.hp;
@@ -4648,6 +4679,16 @@
     }
 
     update(dt, game) {
+      if (Array.isArray(this._delayedCalls) && this._delayedCalls.length > 0) {
+        for (let di = this._delayedCalls.length - 1; di >= 0; di--) {
+          const dc = this._delayedCalls[di];
+          dc.timer -= dt;
+          if (dc.timer <= 0) {
+            this._delayedCalls.splice(di, 1);
+            try { dc.fn(); } catch (_) {}
+          }
+        }
+      }
       if (this.deadBossGhost) {
         this.deadBossGhost.timer += dt;
         if (this.deadBossGhost.timer >= this.deadBossGhost.dur) this.deadBossGhost = null;
@@ -4661,9 +4702,11 @@
       const ptx = Math.floor(game.player.x / TILE_SIZE);
       const pty = Math.floor(game.player.y / TILE_SIZE);
 
-      // Trap damage (scaled x3 in late biomes 3, 4, 5)
+      // Trap damage (scaled fairly in late biomes without unfair one-shots)
       if (this.trapsActive && this.grid[pty] && this.grid[pty][ptx] === 2) {
-        game.damagePlayer(this.def.boss.dmg * 0.45 * (this.isLateBiome ? 3.0 : 1.0));
+        const rawSpike = Math.round(this.def.boss.dmg * 0.45 * (this.isLateBiome ? 1.85 : 1.0));
+        const maxSpike = Math.max(18, Math.round((game.player.maxHp || 100) * 0.24));
+        game.damagePlayer(Math.min(rawSpike, maxSpike));
       }
 
       // Boss gate status proximity check
@@ -4906,7 +4949,42 @@
         if (this.boss) this.boss.animTimer = (this.boss.animTimer || 0) + dt;
         return;
       }
-      const canWalkPx = (wx, wy) => Number.isFinite(wx) && Number.isFinite(wy) && this.isTileWalkable(Math.floor(wx / TILE_SIZE), Math.floor(wy / TILE_SIZE));
+      const hitsSolidDungeonObj = (wx, wy, padR) => {
+        if (Array.isArray(this.pillars)) {
+          for (let pi = 0; pi < this.pillars.length; pi++) {
+            const pl = this.pillars[pi];
+            if (Math.abs(wx - (pl.tx + 0.5) * TILE_SIZE) < 14 + padR && Math.abs(wy - (pl.ty + 0.5) * TILE_SIZE) < 12 + padR) return true;
+          }
+        }
+        if (Array.isArray(this.props)) {
+          for (let pi = 0; pi < this.props.length; pi++) {
+            const pr = this.props[pi];
+            if (!pr || pr.kind === 'banner') continue;
+            const rx = pr.kind === 'sarcophagus' || pr.kind === 'altarRitual' ? 18 : 13;
+            const ry = pr.kind === 'sarcophagus' || pr.kind === 'altarRitual' ? 14 : 11;
+            if (Math.abs(wx - (pr.tx + 0.5) * TILE_SIZE) < rx + padR && Math.abs(wy - (pr.ty + 0.5) * TILE_SIZE) < ry + padR) return true;
+          }
+        }
+        if (Array.isArray(this.chests)) {
+          for (let ci = 0; ci < this.chests.length; ci++) {
+            const ch = this.chests[ci];
+            if (Math.abs(wx - (ch.tx + 0.5) * TILE_SIZE) < 16 + padR && Math.abs(wy - (ch.ty + 0.5) * TILE_SIZE) < 12 + padR) return true;
+          }
+        }
+        if (this.puzzleTablet && Math.abs(wx - (this.puzzleTablet.tx + 0.5) * TILE_SIZE) < 15 + padR && Math.abs(wy - (this.puzzleTablet.ty + 0.5) * TILE_SIZE) < 12 + padR) {
+          return true;
+        }
+        return false;
+      };
+      const canWalkPx = (wx, wy) => {
+        if (!Number.isFinite(wx) || !Number.isFinite(wy)) return false;
+        const r = 11;
+        if (!this.isTileWalkable(Math.floor((wx - r) / TILE_SIZE), Math.floor((wy - r) / TILE_SIZE))) return false;
+        if (!this.isTileWalkable(Math.floor((wx + r) / TILE_SIZE), Math.floor((wy - r) / TILE_SIZE))) return false;
+        if (!this.isTileWalkable(Math.floor((wx - r) / TILE_SIZE), Math.floor((wy + r) / TILE_SIZE))) return false;
+        if (!this.isTileWalkable(Math.floor((wx + r) / TILE_SIZE), Math.floor((wy + r) / TILE_SIZE))) return false;
+        return !hitsSolidDungeonObj(wx, wy, 9);
+      };
       for (let i = this.enemies.length - 1; i >= 0; i--) {
         const e = this.enemies[i];
         if (e.hitFlash > 0) e.hitFlash -= dt;
@@ -5000,9 +5078,19 @@
       }
       if (this.boss && this.boss.hp > 0 && (this.bossLocked || (ptx >= bossMinTileX + 1 && pty >= 9 && pty <= 29))) {
         const b = this.boss;
+        const prevBx = b.x;
+        const prevBy = b.y;
         const bMinX = (this.bossRoomMinX || 34) + 3;
         const bMaxX = Math.max(bMinX + 6, this.width - 5);
-        const isBossWalkable = (wx, wy) => Number.isFinite(wx) && Number.isFinite(wy) && Math.floor(wx / TILE_SIZE) >= bMinX - 1 && Math.floor(wy / TILE_SIZE) >= 9 && Math.floor(wy / TILE_SIZE) <= 29 && this.isTileWalkable(Math.floor(wx / TILE_SIZE), Math.floor(wy / TILE_SIZE));
+        const isBossWalkable = (wx, wy) => {
+          if (!Number.isFinite(wx) || !Number.isFinite(wy)) return false;
+          const r = 20;
+          const tx0 = Math.floor((wx - r) / TILE_SIZE), tx1 = Math.floor((wx + r) / TILE_SIZE);
+          const ty0 = Math.floor((wy - r) / TILE_SIZE), ty1 = Math.floor((wy + r) / TILE_SIZE);
+          if (tx0 < bMinX - 1 || ty0 < 9 || ty1 > 29) return false;
+          if (!this.isTileWalkable(tx0, ty0) || !this.isTileWalkable(tx1, ty0) || !this.isTileWalkable(tx0, ty1) || !this.isTileWalkable(tx1, ty1)) return false;
+          return !hitsSolidDungeonObj(wx, wy, 14);
+        };
         const enemyApi = Abyssea.EnemyAttacks;
         const theme = (enemyApi && enemyApi.getBossTheme)
           ? enemyApi.getBossTheme(this.id)
@@ -5145,10 +5233,13 @@
           }
         } else if ((b.leapDur || 0) > 0) {
           const prevP = b.leapProg || 0;
-          b.leapProg = Math.min(1, prevP + dt / b.leapDur);
-          const frac = (b.leapProg - prevP) / Math.max(0.01, 1 - prevP);
-          const nx = b.x + ((b.targetX ?? game.player.x) - (b.leapStartX ?? b.x)) * frac;
-          const ny = b.y + ((b.targetY ?? game.player.y) - (b.leapStartY ?? b.y)) * frac;
+          b.leapProg = Math.min(1, prevP + dt / Math.max(0.05, b.leapDur));
+          const sx = b.leapStartX !== null && b.leapStartX !== undefined ? b.leapStartX : b.x;
+          const sy = b.leapStartY !== null && b.leapStartY !== undefined ? b.leapStartY : b.y;
+          const txL = b.targetX !== null && b.targetX !== undefined ? b.targetX : game.player.x;
+          const tyL = b.targetY !== null && b.targetY !== undefined ? b.targetY : game.player.y;
+          const nx = sx + (txL - sx) * b.leapProg;
+          const ny = sy + (tyL - sy) * b.leapProg;
           if (isBossWalkable(nx, b.y)) b.x = nx;
           if (isBossWalkable(b.x, ny)) b.y = ny;
           if (b.leapProg >= 1) {
@@ -5375,6 +5466,20 @@
             if (this.isLateBiome) b.telegraph = Math.max(0.40, b.telegraph * 0.82);
           }
         }
+        // Sync real boss locomotion velocity & animation state so drawEnemy plays full walk/run/dash cycles
+        const invDt = dt > 0.0001 ? (1 / dt) : 60;
+        b.animVx = (b.x - prevBx) * invDt;
+        b.animVy = (b.y - prevBy) * invDt;
+        const moveSpd = Math.hypot(b.animVx, b.animVy);
+        if ((b.dashTimer || 0) > 0) b.state = 'dash';
+        else if ((b.leapDur || 0) > 0) b.state = 'leap';
+        else if ((b.telegraph || 0) > 0) b.state = 'windup';
+        else if (moveSpd > 5) b.state = 'walk';
+        else b.state = 'idle';
+      } else if (this.boss && this.boss.hp > 0) {
+        this.boss.animVx = 0;
+        this.boss.animVy = 0;
+        this.boss.state = 'idle';
       }
     }
   }

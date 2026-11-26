@@ -571,12 +571,13 @@
       const skRng = seededRand((this.worldSeed || 901) + 777);
       const purpleFree = [];
       const purpleFallback = [];
+      const gatePlotKeys = new Set(Object.values(this.dungeonGatePlots || {}).map(p => `${p[0]},${p[1]}`));
       for (let gy = 0; gy < GRID_PLOTS; gy++) {
         for (let gx = 0; gx < GRID_PLOTS; gx++) {
           if (this.plotBiomes[gy]?.[gx] !== 'bosque_oscuro') continue;
           const k = `${gx},${gy}`;
           if (!usedKeys.has(k)) purpleFree.push([gx, gy]);
-          else if (!this.dungeonGatePlots[k] && !this.altarPlots[k] && !this.easterEggPlots[k] && this.secretChestPlots[k] === undefined) purpleFallback.push([gx, gy]);
+          else if (!gatePlotKeys.has(k) && !this.altarPlots[k] && !this.easterEggPlots[k] && this.secretChestPlots[k] === undefined) purpleFallback.push([gx, gy]);
         }
       }
       const skPool = purpleFree.length > 0 ? purpleFree : purpleFallback;
@@ -987,7 +988,7 @@
     ensureStructureCenteringAndLandPads(onlyPlot = null, skipLavaPrune = false) {
       if (!Array.isArray(this.nodes)) return;
       this._ensureNodeIndex();
-      const targetNodes = this._landmarkNodes.filter(n => n && (n.kind === 'dungeon_gate' || n.kind === 'altar_shrine' || n.kind === 'easter_egg' || n.kind === 'secret_chest'));
+      const targetNodes = this._landmarkNodes.filter(n => n && (n.kind === 'dungeon_gate' || n.kind === 'altar_shrine' || n.kind === 'easter_egg' || n.kind === 'secret_chest' || n.kind === 'skeleton_king_shrine'));
       const movedOrCleaned = [];
 
       for (const n of targetNodes) {
@@ -1418,29 +1419,9 @@
       return this.plotUnlocked[gy][gx];
     }
 
-    buildHexLayout() {
-      this.plotToHex = null;
-      this.hexToPlot = null;
-      this.hexBiomeRings = null;
-      this.hexMaxRing = 0;
-      return null;
-    }
-
-    getPlotHex(gx, gy) {
-      return null;
-    }
-
     getPlotRing(gx, gy) {
       const C = CENTER_PLOT || 9;
       return Math.max(Math.abs(gx - C), Math.abs(gy - C));
-    }
-
-    getHexNeighborsOfPlot(gx, gy) {
-      return [];
-    }
-
-    getHexDistance(gx1, gy1, gx2, gy2) {
-      return Math.abs(gx1 - gx2) + Math.abs(gy1 - gy2);
     }
 
     isTileUnlocked(tx, ty) {
@@ -1663,9 +1644,6 @@
         }
       }
 
-      // Ensure any landmark on this plot is firmly centered with solid land and zero clipping nodes
-      this.ensureStructureCenteringAndLandPads([gx, gy], deferFinalize);
-
       // Check if this plot hosts the Giant Skeleton King Sanctum & 3 Bone Totems (bosque_oscuro)
       if (this.skeletonKingPlot && this.skeletonKingPlot[0] === gx && this.skeletonKingPlot[1] === gy && !isStarter) {
         for (let ly = 2; ly <= 9; ly++) {
@@ -1697,6 +1675,9 @@
           });
         }
       }
+
+      // Ensure any landmark on this plot (including skeleton_king_shrine) is firmly centered with solid land and zero clipping nodes
+      this.ensureStructureCenteringAndLandPads([gx, gy], deferFinalize);
 
       // Rarer random surface Chests (~14% on unlocked outer islands, never guaranteed!)
       if (!isStarter && Math.random() < 0.14) {
@@ -2361,7 +2342,7 @@
           s.targetVx = s.vx; s.targetVy = s.vy;
           const fx = s.x + s.vx * dt;
           const fy = s.y + s.vy * dt;
-          if (this.isTileWalkable(Math.floor(fx / TILE_SIZE), Math.floor(fy / TILE_SIZE))) {
+          if (this.isTileWalkable(Math.floor(fx / TILE_SIZE), Math.floor(fy / TILE_SIZE)) && (!hasSolidCheck || !gRef.isSolidWorldObstacle(fx, fy, s.x, s.y, 10, 6))) {
             s.x = fx; s.y = fy;
           }
         }
@@ -2369,15 +2350,16 @@
     }
 
     getTileFlora(tx, ty, biome) {
-      if (!this._floraCache || this._floraSeed !== this.seed) {
+      const wSeed = this.worldSeed || 1337;
+      if (!this._floraCache || this._floraSeed !== wSeed) {
         this._floraCache = new Map();
-        this._floraSeed = this.seed;
+        this._floraSeed = wSeed;
       }
-      const key = `${tx},${ty},${biome}`;
+      const key = (tx & 0xfff) | ((ty & 0xfff) << 12);
       const cached = this._floraCache.get(key);
-      if (cached !== undefined) return cached;
+      if (cached !== undefined && cached.b === biome) return cached.v;
 
-      const s = this.seed || 1337;
+      const s = wSeed;
       let h = (tx * 374761393 + ty * 668265263 + s * 1442695041) | 0;
       h = Math.imul(h ^ (h >>> 13), 1274126177) >>> 0;
       const roll = h % 100;
@@ -2409,7 +2391,7 @@
         } else if (roll < 18) {
           const uKeys = ['undead_bones', 'undead_dead_arm', 'undead_grave'];
           const uKey = uKeys[h2 % uKeys.length];
-          const uSize = uKey === 'undead_grave' ? (38 + (h2 % 5)) : (uKey === 'undead_bones' ? (30 + (h2 % 5)) : (28 + (h2 % 4)));
+          const uSize = uKey === 'undead_grave' ? (24 + (h2 % 5)) : (uKey === 'undead_bones' ? (24 + (h2 % 5)) : (22 + (h2 % 4)));
           res = { kind: 'sprite', key: uKey, size: uSize, ox, oy, sway: false };
         } else if (roll < 25) {
           res = { kind: 'blade', color: '#2e6f56', highlight: '#65b891', ox, oy, sway: true };
@@ -2456,7 +2438,7 @@
         if (roll < 13) {
           const uKeys = ['undead_bones', 'undead_dead_arm', 'undead_grave'];
           const uKey = uKeys[h2 % uKeys.length];
-          const uSize = uKey === 'undead_grave' ? (38 + (h2 % 6)) : (uKey === 'undead_bones' ? (30 + (h2 % 5)) : (28 + (h2 % 4)));
+          const uSize = uKey === 'undead_grave' ? (24 + (h2 % 5)) : (uKey === 'undead_bones' ? (24 + (h2 % 5)) : (22 + (h2 % 4)));
           res = { kind: 'sprite', key: uKey, size: uSize, ox, oy, sway: false };
         } else if (roll < 23) {
           res = { kind: 'sprite', key: biome === 'tierras_malditas' ? 'deco_shroom_r' : 'deco_shroom_p', size: 23 + (h2 % 5), ox, oy, glow: true };
@@ -2464,7 +2446,7 @@
       }
 
       if (this._floraCache.size > 4000) this._floraCache.clear();
-      this._floraCache.set(key, res);
+      this._floraCache.set(key, { b: biome, v: res });
       return res;
     }
   }

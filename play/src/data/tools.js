@@ -25,9 +25,9 @@
     titanio:    { id: 'titanio',    name: 'De Titanio',        color: '#b0bec5', mult: 10.4, speed: 2.30, rareBonus: 0.63, rarity: 'epico' },
     adamantita: { id: 'adamantita', name: 'De Adamantita',     color: '#66bb6a', mult: 12.2, speed: 2.48, rareBonus: 0.72, rarity: 'legendario' },
     oricalco:   { id: 'oricalco',   name: 'De Oricalco',       color: '#ff7043', mult: 14.4, speed: 2.68, rareBonus: 0.80, rarity: 'legendario' },
-    coral:      { id: 'coral',      name: 'Coralina',          color: '#4deeea', mult: 16.0, speed: 2.78, rareBonus: 0.84, rarity: 'epico' },
-    boreal:     { id: 'boreal',     name: 'De Cristal Boreal', color: '#80deea', mult: 17.6, speed: 2.88, rareBonus: 0.88, rarity: 'epico' },
-    selvano:    { id: 'selvano',    name: 'Selvana de Jade',   color: '#69f0ae', mult: 19.3, speed: 2.98, rareBonus: 0.92, rarity: 'epico' },
+    coral:      { id: 'coral',      name: 'Coralina',          color: '#4deeea', mult: 16.0, speed: 2.78, rareBonus: 0.84, rarity: 'legendario' },
+    boreal:     { id: 'boreal',     name: 'De Cristal Boreal', color: '#80deea', mult: 17.6, speed: 2.88, rareBonus: 0.88, rarity: 'legendario' },
+    selvano:    { id: 'selvano',    name: 'Selvana de Jade',   color: '#69f0ae', mult: 19.3, speed: 2.98, rareBonus: 0.92, rarity: 'legendario' },
     escoria:    { id: 'escoria',    name: 'De Escoria Ígnea',  color: '#ff6d00', mult: 21.1, speed: 3.08, rareBonus: 0.96, rarity: 'legendario' },
     pirita:     { id: 'pirita',     name: 'De Pirita Solar',   color: '#ffd54f', mult: 23.0, speed: 3.18, rareBonus: 1.00, rarity: 'legendario' },
     glaciar:    { id: 'glaciar',    name: 'Glacial Eterna',    color: '#4fc3f7', mult: 25.0, speed: 3.28, rareBonus: 1.05, rarity: 'legendario' },
@@ -337,7 +337,7 @@
 
     const miningNodes = new Set([
       'rock', 'coal_vein', 'copper_vein', 'tin_vein', 'iron_vein', 'gold_vein', 'silver_vein', 'platinum_vein',
-      'sulfur_vein', 'jade_vein', 'amethyst_vein', 'bloodstone_vein', 'crystal_node', 'emerald_vein', 'ruby_node',
+      'sulfur_vein', 'jade_vein', 'amethyst_vein', 'bloodstone_vein', 'crystal_node', 'crystal_cluster', 'emerald_vein', 'ruby_node',
       'sapphire_node', 'diamond_vein', 'mithril_vein', 'volcanic_rock', 'ice_crystal', 'meteor', 'ruin_pillar',
       'malachite_vein', 'amber_vein', 'star_sand_vein', 'azurite_vein', 'abyssal_crystal_vein', 'titanium_vein',
       'adamantite_vein', 'orichalcum_vein', 'oricalco_vein', 'obsidian_vein', 'magma_core_vein',
@@ -346,8 +346,8 @@
       'hielo_eterno_node', 'bismuto_astral_node', 'resina_toxica_node', 'hueso_fosil_node',
       'plata_maldita_node', 'cristal_carmesi_node', 'marmol_oscuro_node'
     ]);
-    const woodNodes = new Set(['tree', 'giant_tree', 'cactus']);
-    const forageNodes = new Set(['bush', 'herb_patch', 'mushroom_node', 'wild_crop_patch']);
+    const woodNodes = new Set(['tree', 'giant_tree', 'cactus', 'madera_ferrea_node']);
+    const forageNodes = new Set(['bush', 'herb_patch', 'mushroom_node', 'wild_crop_patch', 'flor_pantano_node']);
 
     if (targetKind === 'enemy' || targetKind === 'boss') {
       const weights = {
@@ -370,12 +370,13 @@
       if (toolId === 'pico') {
         if (tierIdx < reqIdx) {
           const reqTier = TIER_ORDER[reqIdx];
-          const reqName = (TIER_META[reqTier] && TIER_META[reqTier].name) || reqTier;
+          const reqName = (Abyssea.I18n && Abyssea.I18n.getTierName ? Abyssea.I18n.getTierName(reqTier) : null) || (TIER_META[reqTier] && TIER_META[reqTier].name) || reqTier;
+          const lowHint = T('tool.pickTooLow', { tier: reqName, n: reqIdx + 1 });
           return {
             mult: 0.0,
             capDmg: 0,
             blocked: true,
-            hint: `¡Pico insuficiente! Requiere Pico ${reqName} (Tier ${reqIdx + 1}) o superior.`
+            hint: (lowHint && lowHint !== 'tool.pickTooLow') ? lowHint : `¡Pico insuficiente! Requiere Pico ${reqName} (Tier ${reqIdx + 1}) o superior.`
           };
         }
         const pickTierMult = tierIdx === 0 ? 0.68 : tierIdx === 1 ? 0.98 : 1.32;
@@ -390,7 +391,8 @@
       if (targetKind === 'rock' || targetKind === 'coal_vein') {
         return { mult: 0.14, capDmg: 2, blocked: false, hint: T('tool.usePickFaster') };
       }
-      return { mult: 0.0, capDmg: 0, blocked: true, hint: 'Se requiere un pico adecuado para extraer este mineral.' };
+      const needPickHint = T('tool.needPickForOre');
+      return { mult: 0.0, capDmg: 0, blocked: true, hint: (needPickHint && needPickHint !== 'tool.needPickForOre') ? needPickHint : 'Se requiere un pico adecuado para extraer este mineral.' };
     }
 
     if (woodNodes.has(targetKind)) {

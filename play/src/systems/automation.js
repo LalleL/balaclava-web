@@ -67,21 +67,22 @@
           if (b.turretCd <= 0 && !game.activeDungeon) {
             const bx = (b.tx + def.size * 0.5) * TILE_SIZE;
             const by = (b.ty + def.size * 0.5) * TILE_SIZE;
-            const target = game.combat.enemies.find(e => Abyssea.Utils.dist(bx, by, e.x, e.y) <= def.turretRange);
+            const target = game.combat.enemies.find(e => e && !e._dead && e.hp > 0 && Abyssea.Utils.dist(bx, by, e.x, e.y) <= def.turretRange);
             if (target) {
               const baseCd = def.turretCooldown || def.turretRate || 1.6;
               b.turretCd = baseCd / (1 + (b.level - 1) * 0.25);
               const ang = Math.atan2(target.y - by, target.x - bx);
               const dmg = Math.round((def.turretDmg || 28) * (1 + (b.level - 1) * 0.45));
               if (def.isLightningTurret) {
-                game.spawnFx('fx_thunder_strike', target.x, target.y - 18, 0, 0.34, 1.35, 0.92);
-                game.combat.damageEnemy(game, target, dmg, ang, false);
-                const near = game.combat.enemies.filter(e => e !== target && Abyssea.Utils.dist(target.x, target.y, e.x, e.y) <= 120).slice(0, 2);
+                game.spawnFx('pvfx_lightning_strike', target.x, target.y - 18, 0, 0.34, 1.35, 0.92, { blend: 'lighter' });
+                game.combat.damageEnemy(game, target, dmg, ang, false, true, { nonPlayer: true });
+                const near = game.combat.enemies.filter(e => e && !e._dead && e.hp > 0 && e !== target && Abyssea.Utils.dist(target.x, target.y, e.x, e.y) <= 120).slice(0, 2);
                 for (const se of near) {
-                  game.combat.damageEnemy(game, se, Math.round(dmg * 0.6), ang, false);
+                  const sAng = Math.atan2(se.y - target.y, se.x - target.x);
+                  game.combat.damageEnemy(game, se, Math.round(dmg * 0.6), sAng, false, true, { nonPlayer: true });
                 }
               } else {
-                game.spawnPlayerProjectile(bx, by, Math.cos(ang) * 340, Math.sin(ang) * 340, dmg, '#ce93d8');
+                game.spawnPlayerProjectile(bx, by, Math.cos(ang) * 340, Math.sin(ang) * 340, dmg, '#ce93d8', false, { nonPlayer: true });
               }
             }
           }
@@ -147,18 +148,24 @@
         if (b.timer < def.autoCycle) continue;
         b.timer = 0;
 
-        // Check queued manual smelting/crafting task first
+        const cap = this.getStorageCapacity(game, b);
+        const stored = this.getTotalStoredCount(b);
+
+        // Check queued manual smelting/crafting task first — pause instead of destroying output when full
         if (b.queue && b.queue.length > 0) {
           const job = b.queue[0];
-          this.depositToBuilding(game, b, job.out, job.qty);
+          const jobQty = Math.max(1, job.qty || 1);
+          if (stored + jobQty > cap && !this.canRouteOverflow(game, b, job.out, (stored + jobQty) - cap)) {
+            b.isPausedFull = true;
+            continue;
+          }
+          b.isPausedFull = false;
+          this.depositToBuilding(game, b, job.out, jobQty);
           job.left--;
           if (job.left <= 0) b.queue.shift();
           if (def.usesFuel && !game.mods.freeFuel) b.fuel = Math.max(0, b.fuel - 0.5);
           continue;
         }
-
-        const cap = this.getStorageCapacity(game, b);
-        const stored = this.getTotalStoredCount(b);
 
         // Passive Coins (Banco, Casa de comercio, Tesoreria)
         if (def.autoCoins && b.coinsStored < cap) {
@@ -183,7 +190,9 @@
 
         // Auto Drill extracts biome-specific minerals across all 14 biomes
         if (def.autoDrill) {
-          const biome = game.world.getBiomeAtPixel(b.tx * TILE_SIZE + 24, b.ty * TILE_SIZE + 24);
+          const bCenterX = (b.tx + (def.size || 1) * 0.5) * TILE_SIZE;
+          const bCenterY = (b.ty + (def.size || 1) * 0.5) * TILE_SIZE;
+          const biome = game.world.getBiomeAtPixel(bCenterX, bCenterY);
           const tables = {
             pradera: ['piedra', 'carbon', 'cobre', 'hierro', 'malaquita_pradera'],
             desierto: ['arena', 'cobre', 'oro', 'cristales', 'ambar_desierto'],
@@ -191,7 +200,7 @@
             montanas_heladas: ['hierro', 'oro', 'cristales', 'esmeraldas', 'azurita_glacial'],
             tierras_volcanicas: ['material_volcanico', 'carbon', 'oro', 'diamantes', 'esencia_magma'],
             archipielago_coral: ['piedra', 'coral_roca', 'perla', 'plata', 'platino'],
-            cavernas_cristal: ['cristales', 'cuarzo_boreal', 'zafiro', 'titanio', 'celestita'],
+            cavernas_cristal: ['cristales', 'cuarzo_boreal', 'zafiro', 'titanio', 'celestita_cristal'],
             selva_esmeralda: ['piedra', 'madera_ferrea', 'jade', 'esmeraldas', 'mitrilo_bruto'],
             caldera_ceniza: ['carbon', 'escoria_caldera', 'obsidiana_bruta', 'rubi', 'oricalco'],
             dinastia_arena: ['arena_estelar', 'pirita_solar', 'oro', 'agata_roja', 'adamantita'],
@@ -210,7 +219,9 @@
 
         // Auto Fish (Estanque & Muelle Pesquero) — all 14 biomes + Breeding + Bait Traps (RC2)
         if (def.autoFish || b.type === 'muelle_pesca') {
-          const biome = game.world.getBiomeAtPixel(b.tx * TILE_SIZE + 24, b.ty * TILE_SIZE + 24);
+          const bCenterX = (b.tx + (def.size || 1) * 0.5) * TILE_SIZE;
+          const bCenterY = (b.ty + (def.size || 1) * 0.5) * TILE_SIZE;
+          const biome = game.world.getBiomeAtPixel(bCenterX, bCenterY);
           // K1. Fish Pond Breeding: reproduces selected caught species passively!
           if (b.type === 'estanque' && b.breedFish && Abyssea.ITEMS[b.breedFish]) {
             const breedBonus = (b.level >= 3 && Math.random() < 0.35) ? 2 : 1;
@@ -230,34 +241,39 @@
               this.depositToBuilding(game, b, (caught && caught.id) || 'pez_dorado', b.level >= 3 ? 2 : 1);
               continue;
             }
-            if (!def.autoFish) continue;
+            // Without bait, fall through to def.autoProduce (passive coastal catches)
           }
-          const fishByBiome = {
-            desierto: ['pez_comun', 'pez_dorado', 'pez_payaso', 'cangrejo_dorado'],
-            dinastia_arena: ['pez_dorado_solar', 'cangrejo_dorado', 'carpa_dorada'],
-            bosque_oscuro: ['pez_comun', 'pez_abismal', 'bagre', 'anguila_sombras'],
-            necropolis_osea: ['pez_abismal', 'anguila_sombras', 'medusa'],
-            tierras_malditas: ['pez_abismal', 'anguila_sombras', 'celacanto_ancestral'],
-            montanas_heladas: ['pez_comun', 'pez_helado', 'trucha_arcoiris', 'esturion_glacial'],
-            glaciar_profundo: ['pez_helado', 'esturion_glacial', 'tiburon_cristal'],
-            cavernas_cristal: ['pez_helado', 'medusa', 'tiburon_cristal'],
-            tierras_volcanicas: ['pez_dorado', 'pez_lava', 'pez_fenix_magma'],
-            caldera_ceniza: ['pez_lava', 'pez_fenix_magma', 'pez_globo'],
-            archipielago_coral: ['pez_angel', 'pez_payaso', 'pulpo', 'perla'],
-            selva_esmeralda: ['bagre', 'carpa_dorada', 'anguila'],
-            cienaga_putrida: ['bagre', 'anguila', 'pez_globo']
-          };
-          const fishPool = fishByBiome[biome] || ['pez_comun', 'lubina', 'anchoa', 'pez_dorado'];
-          this.depositToBuilding(game, b, pick(fishPool), 1);
-          continue;
+          if (def.autoFish) {
+            const fishByBiome = {
+              desierto: ['pez_comun', 'pez_dorado', 'pez_payaso', 'cangrejo_dorado'],
+              dinastia_arena: ['pez_dorado_solar', 'cangrejo_dorado', 'carpa_dorada'],
+              bosque_oscuro: ['pez_comun', 'pez_abismal', 'bagre', 'anguila_sombras'],
+              necropolis_osea: ['pez_abismal', 'anguila_sombras', 'medusa'],
+              tierras_malditas: ['pez_abismal', 'anguila_sombras', 'celacanto_ancestral'],
+              montanas_heladas: ['pez_comun', 'pez_helado', 'trucha_arcoiris', 'esturion_glacial'],
+              glaciar_profundo: ['pez_helado', 'esturion_glacial', 'tiburon_cristal'],
+              cavernas_cristal: ['pez_helado', 'medusa', 'tiburon_cristal'],
+              tierras_volcanicas: ['pez_dorado', 'pez_lava', 'pez_fenix_magma'],
+              caldera_ceniza: ['pez_lava', 'pez_fenix_magma', 'pez_globo'],
+              archipielago_coral: ['pez_angel', 'pez_payaso', 'pulpo', 'perla'],
+              selva_esmeralda: ['bagre', 'carpa_dorada', 'anguila'],
+              cienaga_putrida: ['bagre', 'anguila', 'pez_globo']
+            };
+            const fishPool = fishByBiome[biome] || ['pez_comun', 'lubina', 'anchoa', 'pez_dorado'];
+            this.depositToBuilding(game, b, pick(fishPool), 1);
+            continue;
+          }
         }
 
         // Auto Convert from player's inventory if toggled & available (Molino, Telar, Horno)
-        if (def.autoConvert && b.autoPull !== false) {
-          const canPull = Object.entries(def.autoConvert.in).every(([id, q]) => (game.inventory[id] || 0) >= q);
+        const autoConv = def.autoConvert || def.autoRecipe;
+        if (autoConv && b.autoPull !== false) {
+          const outTotal = Object.values(autoConv.out).reduce((sum, q) => sum + q, 0);
+          const hasRoom = (stored + outTotal <= cap);
+          const canPull = hasRoom && Object.entries(autoConv.in).every(([id, q]) => (game.inventory[id] || 0) >= q);
           if (canPull) {
-            Object.entries(def.autoConvert.in).forEach(([id, q]) => game.removeItem(id, q));
-            Object.entries(def.autoConvert.out).forEach(([id, q]) => this.depositToBuilding(game, b, id, q));
+            Object.entries(autoConv.in).forEach(([id, q]) => game.removeItem(id, q));
+            Object.entries(autoConv.out).forEach(([id, q]) => this.depositToBuilding(game, b, id, q));
             if (def.usesFuel && !game.mods.freeFuel) b.fuel = Math.max(0, b.fuel - 0.5);
             continue;
           }
@@ -281,11 +297,20 @@
     }
 
     // Shortest tile-by-tile BFS path across tuberias_conduit tiles linking sourceB -> targetB
-    findPipePath(game, sourceB, targetB) {
+    findPipePath(game, sourceB, targetB, prebuiltPipeSet = null) {
       if (!sourceB || !targetB || sourceB === targetB) return null;
-      const pipeSet = new Set();
-      for (const b of (game.buildings || [])) {
-        if (b.type === 'tuberias_conduit') pipeSet.add(`${b.tx},${b.ty}`);
+      let pipeSet = prebuiltPipeSet;
+      if (!pipeSet) {
+        if (typeof game.buildPipeConnectionGrid === 'function') {
+          const grid = game.buildPipeConnectionGrid();
+          pipeSet = grid && grid.pipes ? grid.pipes : null;
+        }
+        if (!pipeSet) {
+          pipeSet = new Set();
+          for (const b of (game.buildings || [])) {
+            if (b.type === 'tuberias_conduit') pipeSet.add(`${b.tx},${b.ty}`);
+          }
+        }
       }
       if (pipeSet.size === 0) return null;
 
@@ -353,14 +378,36 @@
 
     tickPipeNetworks(game) {
       const bldgs = game.buildings || [];
-      let hasPipes = false;
-      for (let i = 0; i < bldgs.length; i++) {
-        if (bldgs[i].type === 'tuberias_conduit') { hasPipes = true; break; }
+      const pipeGrid = typeof game.buildPipeConnectionGrid === 'function' ? game.buildPipeConnectionGrid() : null;
+      let pipeSet = pipeGrid && pipeGrid.pipes ? pipeGrid.pipes : null;
+      if (!pipeSet) {
+        pipeSet = new Set();
+        for (let i = 0; i < bldgs.length; i++) {
+          if (bldgs[i].type === 'tuberias_conduit') pipeSet.add(`${bldgs[i].tx},${bldgs[i].ty}`);
+        }
       }
-      if (!hasPipes) return;
+      if (pipeSet.size === 0) return;
 
-      const destinations = bldgs.filter(b => b.type === 'cofre_logistico' || b.type === 'nexo_central' || b.type === 'basurero');
+      // Priority order: filtered logistic chests -> unfiltered logistic chests -> Nexo Central -> Basurero (last resort!)
+      const dstPriority = (b) => {
+        if (b.type === 'cofre_logistico') return (Array.isArray(b.filters) && b.filters.length > 0) ? 0 : 1;
+        if (b.type === 'nexo_central') return 2;
+        if (b.type === 'basurero') return 3;
+        return 9;
+      };
+      const destinations = bldgs
+        .filter(b => b.type === 'cofre_logistico' || b.type === 'nexo_central' || b.type === 'basurero')
+        .sort((a, b) => dstPriority(a) - dstPriority(b));
       if (destinations.length === 0) return;
+
+      const pathMemo = new Map();
+      const getCachedPath = (src, dst) => {
+        const key = `${src.tx},${src.ty}>${dst.tx},${dst.ty}`;
+        if (pathMemo.has(key)) return pathMemo.get(key);
+        const p = this.findPipePath(game, src, dst, pipeSet);
+        pathMemo.set(key, p);
+        return p;
+      };
 
       for (const src of bldgs) {
         if (!src.storage) continue;
@@ -373,11 +420,13 @@
         for (const [itemId, avail] of entries) {
           let moved = false;
           for (const dst of destinations) {
-            const path = this.findPipePath(game, src, dst);
+            if (dst.type === 'cofre_logistico' && Array.isArray(dst.filters) && dst.filters.length > 0 && !this.matchesLogisticFilter(dst.filters, itemId)) {
+              continue;
+            }
+            const path = getCachedPath(src, dst);
             if (!path) continue;
 
             if (dst.type === 'cofre_logistico') {
-              if (Array.isArray(dst.filters) && dst.filters.length > 0 && !this.matchesLogisticFilter(dst.filters, itemId)) continue;
               if (!dst.storage) dst.storage = {};
               const space = Math.max(0, this.getStorageCapacity(game, dst) - this.getTotalStoredCount(dst));
               const take = Math.min(avail, space, 2);
@@ -419,6 +468,26 @@
       }
     }
 
+    canRouteOverflow(game, sourceB, itemId, qty) {
+      const chests = (game.buildings || []).filter(x => x.type === 'cofre_logistico');
+      if (chests.length === 0) return false;
+      let totalFree = 0;
+      const sDef = sourceB ? Abyssea.BUILDINGS[sourceB.type] : null;
+      const sx = sourceB ? (sourceB.tx + ((sDef && sDef.size) || 1) * 0.5) * TILE_SIZE : 0;
+      const sy = sourceB ? (sourceB.ty + ((sDef && sDef.size) || 1) * 0.5) * TILE_SIZE : 0;
+      for (const ch of chests) {
+        if (Array.isArray(ch.filters) && ch.filters.length > 0 && !this.matchesLogisticFilter(ch.filters, itemId)) continue;
+        if (sourceB) {
+          const cx = (ch.tx + 0.5) * TILE_SIZE;
+          const cy = (ch.ty + 0.5) * TILE_SIZE;
+          if (Abyssea.Utils.dist(sx, sy, cx, cy) > 8 * TILE_SIZE && !this.findPipePath(game, sourceB, ch)) continue;
+        }
+        totalFree += Math.max(0, this.getStorageCapacity(game, ch) - this.getTotalStoredCount(ch));
+        if (totalFree >= qty) return true;
+      }
+      return false;
+    }
+
     depositToBuilding(game, b, itemId, qty) {
       if (!b.storage) b.storage = {};
       const cap = this.getStorageCapacity(game, b);
@@ -450,7 +519,7 @@
         const cat = String(f).slice(4);
         if (cat === 'minerales' && (it.category === 'minerales' || it.category === 'gemas' || /^(lingote_|placa_|fragmento_|polvo_|piedra|carbon|cobre|hierro|plata|oro|platino|titanio|adamantita|oricalco|mitrilo|coral_roca|cuarzo_|escoria_|pirita_|hielo_|hueso_|marmol_)/.test(itemId))) return true;
         if (cat === 'peces' && ((Abyssea.AQUARIUM_FISH_PASSIVES && Abyssea.AQUARIUM_FISH_PASSIVES[itemId]) || /^(pez_|anchoa|lubina|bagre|trucha|carpa_|anguila|medusa|pulpo|camaron|cangrejo_|mantarraya_|tiburon_|celacanto_|koi_|leviatan_|raya_|esturion_)/.test(itemId))) return true;
-        if (cat === 'semillas' && (it.plantCrop || itemId.startsWith('semilla_'))) return true;
+        if (cat === 'semillas' && (it.plantCrop || itemId === 'semillas' || itemId.startsWith('semillas_') || itemId.startsWith('semilla_'))) return true;
         if (cat === 'cultivos' && (it.category === 'alimentos' || it.category === 'comida' || it.category === 'ingredientes')) return true;
         if (cat === 'botin' && (it.category === 'monstruo' || it.category === 'especiales')) return true;
       }
@@ -460,11 +529,23 @@
     routeOverflowToLogistics(game, sourceB, itemId, qty) {
       const chests = (game.buildings || []).filter(x => x.type === 'cofre_logistico');
       if (chests.length === 0) return false;
+      const sDef = sourceB ? Abyssea.BUILDINGS[sourceB.type] : null;
+      const sx = sourceB ? (sourceB.tx + ((sDef && sDef.size) || 1) * 0.5) * TILE_SIZE : 0;
+      const sy = sourceB ? (sourceB.ty + ((sDef && sDef.size) || 1) * 0.5) * TILE_SIZE : 0;
       let remaining = qty;
       for (const ch of chests) {
         if (!ch.storage) ch.storage = {};
         if (Array.isArray(ch.filters) && ch.filters.length > 0 && !this.matchesLogisticFilter(ch.filters, itemId)) {
           continue;
+        }
+        let pPath = null;
+        if (sourceB) {
+          pPath = this.findPipePath(game, sourceB, ch);
+          const cx = (ch.tx + 0.5) * TILE_SIZE;
+          const cy = (ch.ty + 0.5) * TILE_SIZE;
+          if (!pPath && Abyssea.Utils.dist(sx, sy, cx, cy) > 8 * TILE_SIZE) {
+            continue; // Require pipe connection or local proximity — no cross-map wireless teleporting
+          }
         }
         const chCap = this.getStorageCapacity(game, ch);
         const chCur = this.getTotalStoredCount(ch);
@@ -472,9 +553,8 @@
         const fit = Math.min(remaining, chSpace);
         if (fit > 0) {
           ch.storage[itemId] = (ch.storage[itemId] || 0) + fit;
-          if (sourceB && typeof game.spawnPipePacket === 'function') {
-            const pPath = this.findPipePath(game, sourceB, ch);
-            if (pPath) game.spawnPipePacket(pPath, itemId);
+          if (pPath && typeof game.spawnPipePacket === 'function') {
+            game.spawnPipePacket(pPath, itemId);
           }
           remaining -= fit;
           if (remaining <= 0) return true;
@@ -483,21 +563,22 @@
       return remaining < qty;
     }
 
-    routeCollectorItem(game, collector, itemId, qty) {
+    routeCollectorItem(game, collector, itemId, qty, sourceB = null) {
       if (!itemId || qty <= 0) return true;
       let remaining = qty;
-      const cx = (collector.tx + 0.5) * TILE_SIZE;
-      const cy = (collector.ty + 0.5) * TILE_SIZE;
-      const radius = (Abyssea.BUILDINGS[collector.type] && Abyssea.BUILDINGS[collector.type].collectRadius) || 6;
+      const colDef = Abyssea.BUILDINGS[collector.type];
+      const cx = (collector.tx + ((colDef && colDef.size) || 1) * 0.5) * TILE_SIZE;
+      const cy = (collector.ty + ((colDef && colDef.size) || 1) * 0.5) * TILE_SIZE;
+      const radius = (colDef && colDef.collectRadius) || 6;
       const maxDist = radius * TILE_SIZE;
 
-      // 1. Try feeding nearby machines that need this item (fuels, ores)
+      // 1. Try feeding nearby machines that strictly consume this fuel (never route back into sourceB!)
       for (const b of (game.buildings || [])) {
-        if (b === collector) continue;
+        if (b === collector || b === sourceB) continue;
         const bDef = Abyssea.BUILDINGS[b.type];
         if (!bDef) continue;
-        const bx = (b.tx + 0.5) * TILE_SIZE;
-        const by = (b.ty + 0.5) * TILE_SIZE;
+        const bx = (b.tx + (bDef.size || 1) * 0.5) * TILE_SIZE;
+        const by = (b.ty + (bDef.size || 1) * 0.5) * TILE_SIZE;
         if (Abyssea.Utils.dist(cx, cy, bx, by) > maxDist) continue;
 
         // Fuel consumer that needs fuel (Horno, Forja, etc.)
@@ -521,18 +602,6 @@
           const cur = b.storage[itemId] || 0;
           if (cur < 20) {
             const take = Math.min(remaining, 20 - cur);
-            b.storage[itemId] = cur + take;
-            remaining -= take;
-            if (remaining <= 0) return true;
-          }
-        }
-
-        // Smelting/processing machine accepting raw minerals
-        if (bDef.station === 'horno' || bDef.station === 'fundicion' || bDef.station === 'forja') {
-          b.storage = b.storage || {};
-          const cur = b.storage[itemId] || 0;
-          if (cur < 30) {
-            const take = Math.min(remaining, 30 - cur);
             b.storage[itemId] = cur + take;
             remaining -= take;
             if (remaining <= 0) return true;
@@ -573,6 +642,10 @@
       if (b.isChest || (bDef && bDef.isChest) || b.type === 'cofre_logistico') {
         return false;
       }
+      // Never drain fuel out of Omega generators
+      if (Abyssea.OmegaSystem && Abyssea.OmegaSystem.GENERATORS && Abyssea.OmegaSystem.GENERATORS[b.type]) {
+        return false;
+      }
       let collectedAny = false;
       b.isPausedFull = false;
       if (b.coinsStored > 0) {
@@ -583,9 +656,11 @@
       if (b.storage) {
         for (const [id, qty] of Object.entries(b.storage)) {
           if (qty > 0) {
-            this.routeCollectorItem(game, collector || b, id, qty);
-            b.storage[id] = 0;
+            delete b.storage[id];
+            this.routeCollectorItem(game, collector || b, id, qty, b);
             collectedAny = true;
+          } else {
+            delete b.storage[id];
           }
         }
       }
@@ -596,8 +671,9 @@
     }
 
     runCollector(game, collector, radius) {
-      const cx = (collector.tx + 0.5) * TILE_SIZE;
-      const cy = (collector.ty + 0.5) * TILE_SIZE;
+      const colDef = Abyssea.BUILDINGS[collector.type];
+      const cx = (collector.tx + ((colDef && colDef.size) || 1) * 0.5) * TILE_SIZE;
+      const cy = (collector.ty + ((colDef && colDef.size) || 1) * 0.5) * TILE_SIZE;
       const maxDist = radius * TILE_SIZE;
 
       // Pull dropped world loot directly to machines/Nexo/inventory
@@ -607,19 +683,20 @@
           if (d.itemId === '_coin') {
             game.addCoins(d.qty);
           } else {
-            this.routeCollectorItem(game, collector, d.itemId, d.qty);
+            this.routeCollectorItem(game, collector, d.itemId, d.qty, null);
           }
           game.drops.splice(i, 1);
         }
       }
 
-      // Empty nearby machines automatically (never drain player storage chests)
+      // Empty nearby machines automatically (never drain chests or generator fuel buffers)
       for (const b of game.buildings) {
         if (b === collector) continue;
         const bDef = Abyssea.BUILDINGS[b.type];
         if (b.isChest || (bDef && bDef.isChest) || b.type === 'cofre_logistico') continue;
-        const bx = (b.tx + 0.5) * TILE_SIZE;
-        const by = (b.ty + 0.5) * TILE_SIZE;
+        if (Abyssea.OmegaSystem && Abyssea.OmegaSystem.GENERATORS && Abyssea.OmegaSystem.GENERATORS[b.type]) continue;
+        const bx = (b.tx + ((bDef && bDef.size) || 1) * 0.5) * TILE_SIZE;
+        const by = (b.ty + ((bDef && bDef.size) || 1) * 0.5) * TILE_SIZE;
         if (Abyssea.Utils.dist(cx, cy, bx, by) <= maxDist) {
           this.collectFromBuilding(game, b, collector);
         }
@@ -627,13 +704,24 @@
     }
 
     runPlantation(game, plantBuilding, radius) {
+      const pDef = Abyssea.BUILDINGS[plantBuilding.type];
+      const pCx = plantBuilding.tx + ((pDef && pDef.size) || 1) * 0.5;
+      const pCy = plantBuilding.ty + ((pDef && pDef.size) || 1) * 0.5;
+      const randInt = Abyssea.Utils.randInt;
       for (let i = game.world.crops.length - 1; i >= 0; i--) {
         const c = game.world.crops[i];
-        if (c.stage >= 3 && Math.abs(c.tx - plantBuilding.tx) <= radius && Math.abs(c.ty - plantBuilding.ty) <= radius) {
+        if (c.stage >= 3 && Math.abs((c.tx + 0.5) - pCx) <= radius && Math.abs((c.ty + 0.5) - pCy) <= radius) {
           const def = Abyssea.CROPS[c.cropId];
           if (def) {
             game.world.crops.splice(i, 1);
-            game.addItem(def.yieldId, def.minQty);
+            let qty = randInt(def.minQty, def.maxQty) + (game.mods.extraDrop || 0) + (game.mods.harvestBonus || 0) + (c.yieldBonus || 0);
+            if ((c.qualityBonus || 0) > 0 && Math.random() < c.qualityBonus) qty += 1;
+            if (!this.depositToBuilding(game, plantBuilding, def.yieldId, qty)) {
+              game.addItem(def.yieldId, qty);
+            }
+            if (Math.random() < 0.8 + (c.qualityBonus || 0) * 0.25) {
+              game.addItem(def.seedId, def.seedDrop || 1);
+            }
             game.stats.cropsHarvested++;
             // Auto-replant if player has seeds!
             if ((game.inventory[def.seedId] || 0) > 0) {

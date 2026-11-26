@@ -8,8 +8,8 @@
   <link rel="preload" as="image" href="assets/ui/abyssea_logo.png?v=2.0.0-rc2" />
   <link rel="preload" as="font" type="font/woff2" href="assets/fonts/boldpixels_web/boldpixels.woff2" crossorigin />
   <link rel="preload" as="font" type="font/ttf" href="assets/fonts/monogram/monogram/ttf/monogram-extended-italic.ttf" crossorigin />
-  <link rel="stylesheet" href="styles/main.css?v=2.0.0-rc2" />
-  <script src="../site-config.js?v=2.0.0-rc2"></script>
+  <link rel="stylesheet" href="styles/main.css?v=2.0.0-rc2px6" />
+  <script src="../site-config.js?v=2.0.0-rc2px6"></script>
   <script>
     if (window.BALACLAVA_SITE_CONFIG && window.BALACLAVA_SITE_CONFIG.maintenanceMode) {
       window.location.replace('../');
@@ -128,12 +128,12 @@
           <div class="tut-head">
             <div class="tut-title-wrap">
               <span class="tut-badge">TUTORIAL</span>
-              <strong id="tut-title" class="tut-title">Bienvenida</strong>
+              <strong id="tut-title" class="tut-title" data-i18n="tut.welcome">Welcome</strong>
             </div>
             <div class="tut-actions">
               <span id="tut-step-counter" class="tut-counter">1/6</span>
-              <button id="btn-tut-minimize" class="btn-tut-icon" title="Minimizar">_</button>
-              <button id="btn-tut-skip" class="btn-tut-icon" title="Omitir tutorial">✕</button>
+              <button id="btn-tut-minimize" class="btn-tut-icon" data-i18n-title="tut.minimize" title="Minimize">_</button>
+              <button id="btn-tut-skip" class="btn-tut-icon" data-i18n-title="tut.skip" title="Skip tutorial">✕</button>
             </div>
           </div>
           <div id="tut-body" class="tut-body">
@@ -148,7 +148,7 @@
         <div id="objective-banner" class="hud-slate-card">
           <div class="obj-head">
             <strong data-i18n="hud.currentObjective">Current Objective</strong>
-            <button id="btn-objective-toggle" class="btn-obj-icon" title="Ocultar / Mostrar misión" aria-label="Toggle Misión">-</button>
+            <button id="btn-objective-toggle" class="btn-obj-icon" data-i18n-title="hud.toggleObjective" title="Hide / Show mission" aria-label="Toggle Mission">-</button>
           </div>
           <div id="objective-body">
             <div id="objective-text">Gather stone, wood, and build your Crafting Table.</div>
@@ -159,7 +159,7 @@
         <div id="dungeon-hud" class="hud-slate-card dungeon-hud-card hidden">
           <div class="obj-head">
             <strong data-i18n="hud.dungeonObjective">Dungeon Objective</strong>
-            <button id="btn-dungeon-obj-toggle" class="btn-obj-icon" title="Ocultar / Mostrar objetivo" aria-label="Toggle Objetivo Mazmorra">-</button>
+            <button id="btn-dungeon-obj-toggle" class="btn-obj-icon" data-i18n-title="hud.toggleDungeonObj" title="Hide / Show objective" aria-label="Toggle Dungeon Objective">-</button>
           </div>
           <div id="dungeon-hud-body">
             <div id="dungeon-hud-name" class="dungeon-hud-name"></div>
@@ -273,7 +273,7 @@
   <div id="bottom-hud" class="hidden">
     <div id="warning-banner" class="warning-banner hidden" role="status"></div>
     <div id="build-banner" class="hud-slate-card hidden">
-      <span>Placing: <strong id="build-banner-name"></strong></span>
+      <span><span data-i18n="hud.placingLabel">Placing:</span> <strong id="build-banner-name"></strong></span>
       <button id="btn-cancel-build" class="btn btn-danger btn-sm" data-i18n="hud.cancelBuild">Cancel</button>
     </div>
     <button id="btn-exit-dungeon" class="btn btn-danger btn-sm hidden" data-i18n="hud.exitDungeon">Exit Dungeon</button>
@@ -310,9 +310,9 @@
     <canvas id="death-pixel-canvas" class="death-pixel-canvas" width="640" height="360"></canvas>
     <div class="death-stage">
       <div class="death-header">
-        <img class="pixel-img death-title-icon" src="assets/packs/FantasyDungeonAdventure_v1.0/FantasyDungeonAdventure/07_Items/Monster_Drops/skull.png" width="24" height="24" alt="" />
+        <img class="pixel-img death-title-icon" src="assets/icons_tiers_v14/items/craneo_maldito.png?v=2.0.3" width="28" height="28" alt="" />
         <h2 id="death-title" class="death-title" data-i18n="death.bannerTitle">YOU FELL IN BATTLE</h2>
-        <img class="pixel-img death-title-icon" src="assets/packs/FantasyDungeonAdventure_v1.0/FantasyDungeonAdventure/07_Items/Monster_Drops/skull.png" width="24" height="24" alt="" />
+        <img class="pixel-img death-title-icon" src="assets/icons_tiers_v14/items/craneo_maldito.png?v=2.0.3" width="28" height="28" alt="" />
       </div>
       <p class="death-sub" data-i18n="death.keepSub">You keep your gear, relics, minerals, and unlocked islands</p>
       <div id="death-stats-pill" class="death-stats-row">Level 1 · Day 1 · Kills: 0 · Islands: 1</div>
@@ -373,39 +373,38 @@
     </div>
   </div>
 
-  <script defer src="src/core/utils.js?v=2.0.0-rc2"></script>
-  <script defer src="src/core/i18n_data_en.js?v=2.0.0-rc2"></script>
-  <script defer src="src/core/i18n.js?v=2.0.0-rc2"></script>
-  <script defer src="src/core/audio.js?v=2.0.0-rc2"></script>
-  <script defer src="src/data/items.js?v=2.0.0-rc2px2"></script>
-  <script defer src="src/data/tools.js?v=2.0.0-rc2"></script>
-  <script defer src="src/data/buildings.js?v=2.0.0-rc2px2"></script>
-  <script defer src="src/data/recipes.js?v=2.0.0-rc2"></script>
-  <script defer src="src/data/enchants.js?v=2.0.0-rc2"></script>
-  <script defer src="src/data/skills.js?v=2.0.0-rc2"></script>
-  <script defer src="src/data/quests.js?v=2.0.0-rc2"></script>
-  <script defer src="src/data/vfx_manifest.js?v=2.0.0-rc2"></script>
-  <script defer src="src/core/assets.js?v=2.0.0-rc2"></script>
-  <script defer src="src/core/sprites_atlas.js?v=2.0.0-rc2px3"></script>
-  <script defer src="src/world/hex_grid.js?v=2.0.0-rc2"></script>
-  <script defer src="src/world/world.js?v=2.0.0-rc2"></script>
-  <script defer src="src/world/dungeons.js?v=2.0.0-rc2px3"></script>
-  <script defer src="src/systems/farming.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/omega.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/automation.js?v=2.0.0-rc2px2"></script>
-  <script defer src="src/systems/combat.js?v=2.0.0-rc2px3"></script>
-  <script defer src="src/systems/economy.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/events.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/tutorial.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/save.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/discord_rpc.js?v=2.0.0-rc2px5"></script>
-  <script defer src="src/systems/media_overlay.js?v=2.0.0-rc2"></script>
-  <script defer src="src/engine/game.js?v=2.0.0-rc2px3"></script>
-  <script defer src="src/ui/ui.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/v14_features.js?v=2.0.0-rc2"></script>
-  <script defer src="src/systems/v2_features.js?v=2.0.0-rc2px"></script>
-  <script defer src="src/main.js?v=2.0.0-rc2"></script>
-  <script defer src="../site-config.js?v=2.0.0-rc2"></script>
+  <script defer src="src/core/utils.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/core/i18n_data_en.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/core/i18n.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/core/audio.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/items.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/tools.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/buildings.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/recipes.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/enchants.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/skills.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/quests.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/data/vfx_manifest.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/core/assets.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/core/sprites_atlas.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/world/world.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/world/dungeons.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/farming.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/omega.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/automation.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/combat.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/economy.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/events.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/tutorial.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/save.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/discord_rpc.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/media_overlay.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/engine/game.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/ui/ui.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/v14_features.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/systems/v2_features.js?v=2.0.0-rc2px6"></script>
+  <script defer src="src/main.js?v=2.0.0-rc2px6"></script>
+  <script defer src="../site-config.js?v=2.0.0-rc2px6"></script>
   <script defer>
     window.addEventListener('DOMContentLoaded', () => {
       try {

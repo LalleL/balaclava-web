@@ -88,14 +88,12 @@
     if (ITEMS[id]) return;
     ITEMS[id] = Object.assign({ id, category: 'materiales', rarity: 'epico', sellValue: 10, buyValue: 0, source: 'Industria Omega', uses: 'Industria Omega', desc: '', icon: 'tablet_stone' }, o, { id });
   }
-  const iconOf = (id, fb) => (ITEMS[id] && ITEMS[id].icon) || fb || 'tablet_stone';
-
   Object.entries(ORE_FAMILIES).forEach(([fam, f]) => {
     const rawName = (ITEMS[f.raw] && ITEMS[f.raw].name) || fam;
     regItem('fragmento_' + fam, { name: `Fragmentos de ${rawName}`, rarity: 'poco_comun', sellValue: 3, icon: 'fragmento_' + fam, desc: 'Mineral triturado en la Trituradora.', source: 'Trituradora', uses: 'Se purifica en la Lavadora Arcana' });
     regItem('polvo_' + fam, { name: `Polvo Puro de ${rawName}`, rarity: 'raro', sellValue: 6, icon: 'polvo_' + fam, desc: 'Polvo purificado listo para fundir.', source: 'Lavadora Arcana', uses: 'Se funde en la Fundidora Omega' });
   });
-  regItem('singularidad', { name: 'Singularidad', rarity: 'legendario', sellValue: 2500, icon: 'singularidad', category: 'especiales', desc: 'Materia colapsada: 10.000 recursos comprimidos en un punto.', source: 'Prensa de Singularidades', uses: 'Equipamiento Omega, reactores, sobrecarga, ascensión' });
+  regItem('singularidad', { name: 'Singularidad', rarity: 'legendario', sellValue: 2500, icon: 'singularidad', category: 'especiales', desc: 'Materia colapsada: 25.000 recursos comprimidos en un punto.', source: 'Prensa de Singularidades', uses: 'Equipamiento Omega, reactores, sobrecarga, ascensión' });
   regItem('lingote_omega', { name: 'Lingote Omega', rarity: 'legendario', sellValue: 900, icon: 'lingote_omega', desc: 'Aleación definitiva forjada con singularidad y los biomas avanzados.', source: 'Fundidora Omega', uses: 'Equipamiento Tier 23 Omega, sobrecarga infinita' });
   regItem('materia_comprimida', { name: 'Materia Comprimida', rarity: 'legendario', sellValue: 600, icon: 'materia_comprimida', category: 'especiales', desc: 'Residuo exótico de islas ascendidas, Condensadores de Materia y del Abismo Infinito.', source: 'Abismo Infinito / Islas ascendidas / Condensador de Materia', uses: 'Sobrecarga, ascensión, mejoras definitivas' });
 
@@ -209,7 +207,7 @@
     Object.assign(BUILDINGS.faro_sobrecarga_isla, { machineSpeedBonus: 0.40, lightRadius: 260 });
   }
   defBuilding('camara_simulacion', 'Cámara de Simulación de Jefes', 2, 'bld_omega_camara', { lingote_titanio: 12, cristales_magicos: 15, lingote_acero: 10, engrane: 12 }, 'Reproduce combates ya superados para obtener materiales pasivamente.', { kind: 'chamber', power: 150 }, 'sim_camara');
-  defBuilding('prensa_singularidades', 'Prensa de Singularidades', 2, 'bld_omega_prensa', { lingote_adamantita: 10, lingote_titanio: 12, engrane: 16, cristales_magicos: 10 }, 'Comprime 10.000 recursos válidos en 1 Singularidad.', { kind: 'press', power: 200 }, 'comp_prensa');
+  defBuilding('prensa_singularidades', 'Prensa de Singularidades', 2, 'bld_omega_prensa', { lingote_adamantita: 10, lingote_titanio: 12, engrane: 16, cristales_magicos: 10 }, 'Comprime 25.000 recursos válidos en 1 Singularidad.', { kind: 'press', power: 200 }, 'comp_prensa');
   defBuilding('condensador_materia', 'Condensador de Materia Pura', 2, 'bld_omega_condensador', { lingote_adamantita: 14, lingote_celestial: 6, cristales_magicos: 16, engrane: 14 }, 'Convierte energía pura (500 energía/s, sin consumir materiales) directamente en Polvo Estelar, Cristales Mágicos y Materia Comprimida.', { kind: 'condenser', power: 500, cycleSec: 20 }, 'comp_condensador');
   defBuilding('altar_sobrecarga', 'Altar de Sobrecarga Infinita', 2, 'bld_omega_altar', { lingote_omega: 2, singularidad: 1, lingote_celestial: 10 }, 'Mejora sin límite armas, herramientas, armaduras y reliquias con coste exponencial.', { kind: 'altar' }, 'sobre_altar');
 
@@ -291,7 +289,6 @@
       this._sig = null;
       this._nets = new Map();
       this.report = null;
-      this.lastError = '';
     }
 
   // ==================== research & modifiers ====================
@@ -509,16 +506,25 @@
       if (sig !== this._sig) { this.buildNetworks(game); this._sig = sig; }
       return this._nets;
     }
-    pathOf(net, id) { const out = []; let cur = net.parent.get(id); while (cur != null) { out.push(cur); cur = net.parent.get(cur); } return out; }
+    pathOf(net, id) {
+      const out = [];
+      const seen = new Set([id]);
+      let cur = net.parent.get(id);
+      while (cur != null && !seen.has(cur)) {
+        seen.add(cur);
+        out.push(cur);
+        cur = net.parent.get(cur);
+      }
+      return out;
+    }
 
-    genOutput(entry, plotKey) {
+    genOutput(entry) {
       if (!entry || !entry.b) return 0;
       const g = GENERATORS[entry.b.type];
       if (!g) return 0;
       const rate = g.out * GEN_LEVEL_MULT[lvlIdx(entry.b)] * (1 + this.getMod('genOutput'));
       const o = entry.b.omega;
       if (o && o.state === 'activa') return o.rate || rate;
-      if (plotKey && g.fuels && g.fuels.some(f => this.nexusCount(plotKey, f.id) >= 1)) return rate;
       return rate;
     }
 
@@ -534,15 +540,21 @@
     update(dt, game) {
       this.acc += dt;
       let n = 0;
-      while (this.acc >= CFG.tickSec && n < CFG.maxStepsPerFrame) { this.step(game, CFG.tickSec); this.acc -= CFG.tickSec; n++; }
+      while (this.acc >= CFG.tickSec && n < CFG.maxStepsPerFrame) { this.step(game, CFG.tickSec, false); this.acc -= CFG.tickSec; n++; }
       if (this.acc > 8) this.acc = 0;
     }
-    step(game, dt) {
+    step(game, dt, isOffline = false) {
       const nets = this.networks(game);
-      for (const net of nets.values()) if (net.nexus) this.stepNet(game, net, dt);
+      let beaconChanged = false;
+      for (const net of nets.values()) {
+        if (net.nexus && this.stepNet(game, net, dt, isOffline)) beaconChanged = true;
+      }
+      if (beaconChanged && !isOffline && typeof game.recomputeModifiers === 'function') {
+        game.recomputeModifiers();
+      }
     }
 
-    stepNet(game, net, dt) {
+    stepNet(game, net, dt, isOffline = false) {
       const plot = net.plot;
       const nx = this.nexusData(plot);
       let batteryBonus = 0;
@@ -562,8 +574,8 @@
 
       // Generators: burn fuel only if somebody needs power or the buffer isn't full.
       const wantPower = nx.stat.lastCons > 0 || nx.energy < bufCap * 0.95;
-      // Auto-collect ground drops on the island into the Nexo Central
-      if (Array.isArray(game.drops) && game.drops.length > 0 && net.nexus) {
+      // Auto-collect ground drops on the island into the Nexo Central (live only; clamp step to avoid oscillation overshoot)
+      if (!isOffline && Array.isArray(game.drops) && game.drops.length > 0 && net.nexus) {
         const ntx = (net.nexus.tx + 1) * 48;
         const nty = (net.nexus.ty + 1) * 48;
         for (let i = game.drops.length - 1; i >= 0; i--) {
@@ -573,17 +585,20 @@
           if (dropPlot === plot) {
             const dDist = Math.hypot(ntx - d.x, nty - d.y);
             if (dDist < 360) {
-              const ang = Math.atan2(nty - d.y, ntx - d.x);
-              d.x += Math.cos(ang) * 260 * dt;
-              d.y += Math.sin(ang) * 260 * dt;
-            }
-            if (dDist < 36 && this.nexusCanAdd(plot, { [d.itemId]: d.qty })) {
-              this.nexusAdd(plot, { [d.itemId]: d.qty });
-              if (typeof game.spawnFx === 'function') {
-                game.spawnFx('pvfx_star_burst_pickup', d.x, d.y - 6, 0, 0.36, 0.85, 0.85, { blend: 'lighter' });
+              const stepMove = Math.min(dDist, 260 * dt);
+              if (dDist > 0.001) {
+                d.x += ((ntx - d.x) / dDist) * stepMove;
+                d.y += ((nty - d.y) / dDist) * stepMove;
               }
-              if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
-              game.drops.splice(i, 1);
+              const remDist = dDist - stepMove;
+              if (remDist < 36 && this.nexusCanAdd(plot, { [d.itemId]: d.qty })) {
+                this.nexusAdd(plot, { [d.itemId]: d.qty });
+                if (typeof game.spawnFx === 'function') {
+                  game.spawnFx('pvfx_star_burst_pickup', d.x, d.y - 6, 0, 0.36, 0.85, 0.85, { blend: 'lighter' });
+                }
+                if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('pickup');
+                game.drops.splice(i, 1);
+              }
             }
           }
         }
@@ -610,8 +625,8 @@
                 e.b.storage[fuel.id] -= 1;
                 if (e.b.storage[fuel.id] <= 0) delete e.b.storage[fuel.id];
                 o.burn = fuel.t;
-              } else {
-                // 3. Fallback: if player is on this island plot, take from player inventory
+              } else if (!isOffline && game.player) {
+                // 3. Fallback (live only — never silently drain player backpack during offline simulation)
                 const pPlot = plotKeyOf(Math.floor(game.player.x / 48), Math.floor(game.player.y / 48));
                 if (pPlot === plot) {
                   fuel = g.fuels.find(f => game.inventory && (game.inventory[f.id] || 0) >= 1);
@@ -651,32 +666,49 @@
       const pylonRem = new Map();
       for (const p of net.pylons) pylonRem.set(p.b.id, CFG.pylonCapacity[lvlIdx(p.b)] * dt);
 
+      let beaconChanged = false;
       for (const e of net.consumers) {
         const o = e.b.omega; const kind = e.def.omega.kind;
         if (kind === 'battery') continue;
+        const wasActive = !!e.b.omegaActive;
         const prep = this.prepare(game, net, e, speed);
-        if (!prep.wants) { e.b.omegaActive = false; this.setState(e.b, prep.state, prep.reason); continue; }
+        if (!prep.wants) {
+          e.b.omegaActive = false;
+          if (kind === 'beacon' && wasActive) beaconChanged = true;
+          this.setState(e.b, prep.state, prep.reason);
+          continue;
+        }
         const need = prep.power * eff * dt;
         let f = need > 0 ? Math.min(1, available / need) : 1;
         const path = this.pathOf(net, e.b.id);
         for (const pid of path) if (pylonRem.has(pid)) f = Math.min(f, need > 0 ? pylonRem.get(pid) / need : 1);
         f = cap(f, 0, 1);
-        if (f <= 0.001) { e.b.omegaActive = false; deficit += need; this.setState(e.b, 'sin_energia', 'Energía insuficiente en la red.'); continue; }
+        if (f <= 0.001) {
+          e.b.omegaActive = false;
+          if (kind === 'beacon' && wasActive) beaconChanged = true;
+          deficit += need;
+          this.setState(e.b, 'sin_energia', 'Energía insuficiente en la red.');
+          continue;
+        }
         available -= need * f; consumed += need * f;
         for (const pid of path) if (pylonRem.has(pid)) pylonRem.set(pid, pylonRem.get(pid) - need * f);
         if (f < 0.999) deficit += need * (1 - f);
         e.b.omegaActive = true;
+        if (kind === 'beacon' && !wasActive) beaconChanged = true;
         this.advance(game, net, e, dt * f * speed, f);
       }
       nx.energy = cap(available, 0, bufCap);
       nx.bufCap = bufCap;
       nx.stat.lastProd = produced / dt; nx.stat.lastCons = consumed / dt; nx.stat.lastDeficit = deficit / dt;
+      return beaconChanged;
     }
 
     biomeOf(game, b) {
       try {
         const T = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48;
-        return game.world.getBiomeAtPixel((b.tx + 0.5) * T, (b.ty + 0.5) * T);
+        const def = BUILDINGS[b.type];
+        const sz = (def && def.size) || 1;
+        return game.world.getBiomeAtPixel((b.tx + sz * 0.5) * T, (b.ty + sz * 0.5) * T);
       } catch (e) { return 'pradera'; }
     }
 
@@ -907,7 +939,7 @@
     }
     advanceChamber(game, net, e, work) {
       const o = e.b.omega; let budget = work, guard = 0;
-      const cyc = CFG.simCycleSec * (Abyssea.DUNGEON_DEFS[o.crystal.did] ? 1 : 1);
+      const cyc = CFG.simCycleSec;
       o.progress = o.progress || 0;
       this.setState(e.b, 'activa', 'Simulando combate');
       while (guard++ < 200) {
@@ -972,7 +1004,6 @@
         let left = cost;
         for (const id of Object.keys(o.deposit)) { const t = Math.min(left, o.deposit[id]); o.deposit[id] -= t; left -= t; if (o.deposit[id] <= 0) delete o.deposit[id]; }
         o.done = true;
-        if (budget <= 1e-9) { if (!o.done) break; }
       }
       const have = sumVals(o.deposit);
       this.setState(e.b, 'activa', `Comprimiendo ${Math.floor(have)}/${cost}`);
@@ -994,7 +1025,9 @@
       if (!it || !it.equipSlot) return null;
       const slot = it.equipSlot;
       const cat = (slot === 'relic' || slot === 'ring' || slot === 'amulet') ? 'hp' : 'defense';
-      return { key, name: it.name, cat, tierIdx: 14 };
+      const rarTierMap = { comun: 4, poco_comun: 7, raro: 10, epico: 14, legendario: 18, mitico: 22 };
+      const tierIdx = rarTierMap[it.rarity] != null ? rarTierMap[it.rarity] : 14;
+      return { key, name: it.name, cat, tierIdx };
     }
     overloadLevel(key) { return this.state.overload[key] || 0; }
     overloadPct(cat, L) {
@@ -1119,7 +1152,6 @@
     }
     enterAbyss(game) {
       if (!this.abyssUnlocked(game)) return { ok: false, reason: `Completa ${CFG.abyssUnlockDungeons} mazmorras (${(game.clearedDungeons || []).length}).` };
-      if (!this.hasResearch('abismo_inv') && false) return { ok: false };
       if (game.activeDungeon) return { ok: false, reason: 'Ya estás en una mazmorra.' };
       const floor = this.state.abyss.current;
       game.enterDungeon(this.abyssDungeonFor(floor), false, { abyssFloor: floor });
@@ -1155,7 +1187,7 @@
     }
     ascendIsland(game, plot) {
       if (!this.hasResearch('asc_islas')) return { ok: false, reason: 'Requiere la investigación «Ascensión de Islas».' };
-      if ((game.clearedDungeons || []).length < CFG.ascensionUnlockDungeons) return { ok: false, reason: 'Requiere 24 mazmorras completadas.' };
+      if ((game.clearedDungeons || []).length < CFG.ascensionUnlockDungeons) return { ok: false, reason: `Requiere ${CFG.ascensionUnlockDungeons} mazmorras completadas.` };
       const info = this.ascensionInfo(game, plot);
       if (info.maxed) return { ok: false, reason: 'Rango máximo alcanzado.' };
       const p = this.pay(game, plot, info.next.cost);
@@ -1204,7 +1236,7 @@
       const steps = Math.min(600, Math.max(1, Math.ceil(elapsed)));
       const dt = elapsed / steps;
       this._sig = null;
-      for (let i = 0; i < steps; i++) this.step(game, dt);
+      for (let i = 0; i < steps; i++) this.step(game, dt, true);
       const gained = {};
       for (const [k, v] of Object.entries(this.state.produced)) { const d = v - (before[k] || 0); if (d > 0) gained[k] = d; }
       this.report = { elapsed, gained };

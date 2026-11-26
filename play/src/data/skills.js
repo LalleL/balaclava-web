@@ -385,7 +385,7 @@
       ['Arquitectura Sin Límites', 'village_grass_turf', { buildDiscount: 0.20, craftSpeed: 0.25 }, '-20% coste constructivo y +25% rapidez al terraformar.'],
       ['Engranajes Estelares', 'gear', { machineSpeed: 0.45, freeFuel: true }, '+45% eficiencia en taladros y máquinas automáticas.'],
       ['Crisol de Oricalco', 'adamantite_bar', { craftXp: 0.38, doubleCraft: 0.25 }, '+38% experiencia artesanal y +25% doble resultado.'],
-      ['Forja Rúnica Suprema', 'station_enchant', { enchantSlotBonus: 0, craftSpeed: 0.40, xpBonus: 0.18 }, '+40% rapidez de forja y +18% experiencia global.'],
+      ['Forja Rúnica Suprema', 'station_enchant', { craftSpeed: 0.40, xpBonus: 0.18 }, '+40% rapidez de forja y +18% experiencia global.'],
       ['Herrero Cósmico de Albion', 'prism_imperial', { machineSpeed: 0.70, doubleCraft: 0.35, craftSpeed: 0.50 }, 'Pináculo Albion: +70% máquinas, +50% velocidad y +35% doble craft.'],
       ['Inscriptor de Hechizos', 'scroll_blue_sealed', { spellPower: 0.20, craftXp: 0.30, spellCdRed: 0.12 }, '+20% poder mágico, +30% exp de forja y -12% enfriamiento.'],
       ['Maestro del Yunque Rúnico', 'ancient_idol', { craftXp: 0.35, doubleCraft: 0.20 }, 'Forja de Runas: +35% experiencia al forjar y +20% doble crafteo.'],
@@ -471,26 +471,26 @@
 
   const SKILL_UNLOCKS = {
     rec_1: ['aserradero', 'telar'],
-    rec_2: ['forja'],
-    rec_3: ['molino', 'plantacion'],
+    rec_2: ['forja', 'cantera_piedra', 'aspersor'],
+    rec_3: ['molino', 'plantacion', 'colmena'],
     rec_4: ['corral'],
-    rec_5: ['granja'],
+    rec_5: ['granja', 'invernadero'],
     eco_2: ['casa_comercio', 'cofre_hierro'],
     eco_3: ['banco', 'cofre_dorado'],
     eco_4: ['tesoreria'],
     eco_5: ['monumento'],
-    com_1: ['cocina'],
+    com_1: ['cocina', 'ahumador'],
     com_2: ['torre_magica', 'mesa_hechiceria'],
-    com_3: ['alquimia'],
+    com_3: ['alquimia', 'balista'],
     com_4: ['altar', 'torre_rayos'],
     com_5: ['mazmorra_santuario'],
-    pro_1: ['biblioteca'],
+    pro_1: ['biblioteca', 'estanteria_arcana'],
     pro_2: ['taller_mecanico'],
     pro_3: ['fundicion', 'yunque_runico'],
     pro_4: ['taladro'],
     pro_5: ['centro_investigacion'],
-    exp_1: ['estanque'],
-    exp_2: ['laboratorio'],
+    exp_1: ['estanque', 'muelle_pesca'],
+    exp_2: ['laboratorio', 'faro_costero'],
     exp_3: ['recolector', 'observatorio_astral'],
     exp_4: ['portal']
   };
@@ -720,42 +720,6 @@
       baseDamage: 0,
       color: '#81c784',
       desc: 'Atrae abundantes animales pacíficos (ovejas, vacas, cerdos, conejos y patos) hacia tus islas.'
-    },
-    invocacion_minerales: {
-      id: 'invocacion_minerales',
-      name: 'Invocación Mineral',
-      icon: 'spell_lluvia_minerales',
-      element: 'tierra',
-      tier: 2,
-      cost: 35,
-      cooldown: 70.0,
-      baseDamage: 0,
-      color: '#ffd54f',
-      desc: 'Hace brotar multitud de vetas minerales y gemas por todas tus islas desbloqueadas (al estilo Forager).'
-    },
-    invocacion_monstruos: {
-      id: 'invocacion_monstruos',
-      name: 'Invocación Hostil',
-      icon: 'spell_llamado_horda',
-      element: 'sombra',
-      tier: 2,
-      cost: 32,
-      cooldown: 70.0,
-      baseDamage: 0,
-      color: '#ef5350',
-      desc: 'Invoca una horda de enemigos y monstruos oscuros por tus islas para recolectar botín de combate.'
-    },
-    invocacion_fauna: {
-      id: 'invocacion_fauna',
-      name: 'Invocación de Fauna',
-      icon: 'spell_llamado_fauna',
-      element: 'naturaleza',
-      tier: 2,
-      cost: 28,
-      cooldown: 70.0,
-      baseDamage: 0,
-      color: '#81c784',
-      desc: 'Invoca multitud de criaturas y mobs pacíficos en tus parcelas para esquilar y criar.'
     }
   };
 

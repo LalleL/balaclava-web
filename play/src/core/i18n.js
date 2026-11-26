@@ -283,6 +283,7 @@
       'inv.activeTool': 'Active tool on hotbar',
       'inv.slotHelm': 'Helm',
       'inv.slotArmor': 'Armor',
+      'inv.slotLegs': 'Greaves',
       'inv.slotShield': 'Shield',
       'inv.slotBoots': 'Boots',
       'inv.slotRing': 'Ring',
@@ -344,7 +345,6 @@
       'quests.tabStory': 'Story',
       'quests.tabNpcs': 'Villagers',
       'quests.tabContracts': 'Contracts',
-      'quests.tabDaily': 'Daily',
       'quests.chapter': 'Chapter',
       'quests.complete': 'Completed!',
       'quests.turnIn': 'Deliver & Claim',
@@ -354,14 +354,6 @@
 
       // Encyclopedia & Achievements
       'enc.title': 'Encyclopedia & Lore',
-      'enc.tabItems': 'Items',
-      'enc.tabEnemies': 'Bestiary',
-      'enc.tabBuildings': 'Buildings',
-      'enc.tabRelics': 'Relics',
-      'enc.tabEnchants': 'Enchantments',
-      'enc.tabAltars': 'Altars',
-      'enc.tabAchievements': 'Achievements',
-      'enc.tabLore': 'Chronicles',
       'enc.discovered': 'Discovered',
       'enc.undiscovered': '??? (Undiscovered)',
 
@@ -375,8 +367,13 @@
       'bldg.vaultCoins': 'Vault Coins: {coins}',
       'bldg.collectVault': 'Collect Vault',
       'bldg.upgradeBtn': 'Upgrade Structure',
-      'bldg.demolishBtn': 'Demolish',
       'bldg.interactOpen': 'Structure · Press [E] to open',
+      'tut.welcome': 'Welcome',
+      'tut.minimize': 'Minimize',
+      'tut.skip': 'Skip tutorial',
+      'hud.toggleObjective': 'Hide / Show mission',
+      'hud.toggleDungeonObj': 'Hide / Show objective',
+      'hud.placingLabel': 'Placing:',
       'bldg.storageFull': 'Output Buffer',
       'bldg.collectItems': 'Collect All',
       'enchant.title': 'Runic Enchanting Table',
@@ -625,6 +622,12 @@
       'toast.respawnedCamp': 'You awakened safely at the central camp.',
       'toast.stuckRescued': 'You were moved to solid ground.',
       'toast.dungeonRescued': 'You were pulled safely back to the surface.',
+      'toast.noArrows': 'You have no arrows! Craft some in your inventory or Forge.',
+      'toast.bowReloading': 'Reloading bow...',
+      'toast.bowReady': 'Bow ready!',
+      'toast.hotbarFull': 'Hotbar is full (9/9).',
+      'toast.invFull': 'Inventory is full.',
+      'toast.itemToInv': '{name} stored in inventory.',
       'toast.totemAlreadyLit': 'This Bone Totem already burns with spectral fire.',
       'toast.totemsAwakenKing': 'The 3 Bone Totems have awakened the Giant Skeleton King!',
       'toast.totemLitCount': 'Bone Totem ignited ({cur}/{max}).',
@@ -745,7 +748,7 @@
       'hud.enchantedSuffix': ' · Enchanted',
       'hud.spellEmptyTip': 'Magic Slot {key} empty — Click to open Grimoire',
       'hud.spellTip': '{name} [{key}] · Cost: {cost} EN · {desc}',
-      'hud.openGrimoireTip': 'Open Spell Grimoire (12 Spells)',
+      'hud.openGrimoireTip': 'Open Spell Grimoire (15 Spells)',
       'hud.menuToggleTip': 'Open or close Menu',
       'hud.menuStats': 'Stats',
       'hud.menuConfigPause': 'Settings / Pause',
@@ -768,7 +771,7 @@
 
       'modal.clear': 'Clear',
       'modal.titleSkillsCount': 'Astral Skill Tree ({n} Stars)',
-      'modal.titleGrimorio': 'Arcane Spell Grimoire (12)',
+      'modal.titleGrimorio': 'Arcane Spell Grimoire (15)',
       'modal.titleMap': 'World Cartographic Atlas',
       'modal.titleQuests': 'Quests & Story',
       'modal.titleAchievements': 'Achievements Board',
@@ -1420,6 +1423,7 @@
       'inv.activeTool': 'Herramienta activa en barra rápida',
       'inv.slotHelm': 'Casco',
       'inv.slotArmor': 'Armadura',
+      'inv.slotLegs': 'Pantalones',
       'inv.slotShield': 'Escudo',
       'inv.slotBoots': 'Botas',
       'inv.slotRing': 'Anillo',
@@ -1477,7 +1481,6 @@
       'quests.tabStory': 'Historia',
       'quests.tabNpcs': 'Aldeanos',
       'quests.tabContracts': 'Contratos',
-      'quests.tabDaily': 'Diarios',
       'quests.chapter': 'Capítulo',
       'quests.complete': '¡Completada!',
       'quests.turnIn': 'Entregar y Reclamar',
@@ -1486,14 +1489,6 @@
       'quests.nextPlotHint': 'Explora y compra las parcelas restantes en el Mapa (M) para dominar el archipiélago.',
 
       'enc.title': 'Enciclopedia y Crónicas',
-      'enc.tabItems': 'Objetos',
-      'enc.tabEnemies': 'Bestiario',
-      'enc.tabBuildings': 'Estructuras',
-      'enc.tabRelics': 'Reliquias',
-      'enc.tabEnchants': 'Encantamientos',
-      'enc.tabAltars': 'Altares',
-      'enc.tabAchievements': 'Logros',
-      'enc.tabLore': 'Crónicas',
       'enc.discovered': 'Descubierto',
       'enc.undiscovered': '??? (Sin descubrir)',
 
@@ -1506,8 +1501,13 @@
       'bldg.vaultCoins': 'Monedas en bóveda: {coins}',
       'bldg.collectVault': 'Recoger Bóveda',
       'bldg.upgradeBtn': 'Mejorar Estructura',
-      'bldg.demolishBtn': 'Demoler',
       'bldg.interactOpen': 'Estructura · Pulsa [E] para abrir',
+      'tut.welcome': 'Bienvenida',
+      'tut.minimize': 'Minimizar',
+      'tut.skip': 'Omitir tutorial',
+      'hud.toggleObjective': 'Ocultar / Mostrar misión',
+      'hud.toggleDungeonObj': 'Ocultar / Mostrar objetivo',
+      'hud.placingLabel': 'Colocando:',
       'bldg.storageFull': 'Producción Almacenada',
       'bldg.collectItems': 'Recoger Todo',
       'enchant.title': 'Mesa de Encantamientos Rúnicos',
@@ -1753,6 +1753,12 @@
       'toast.respawnedCamp': 'Has despertado sano en el campamento central.',
       'toast.stuckRescued': 'Te hemos movido a suelo firme.',
       'toast.dungeonRescued': 'Fuiste devuelto sano y salvo a la superficie.',
+      'toast.noArrows': '¡No tienes flechas! Fabrícalas en Artesanía o en la Forja.',
+      'toast.bowReloading': 'Recargando arco...',
+      'toast.bowReady': '¡Arco listo!',
+      'toast.hotbarFull': 'Barra rápida llena (9/9).',
+      'toast.invFull': 'Inventario lleno.',
+      'toast.itemToInv': '{name} guardado en el inventario.',
       'toast.totemAlreadyLit': 'Este Tótem Óseo ya arde con fuego espectral.',
       'toast.totemsAwakenKing': '¡Los 3 Tótems Óseos han despertado al Rey Esqueleto Gigante!',
       'toast.totemLitCount': 'Tótem Óseo encendido ({cur}/{max}).',
@@ -1873,7 +1879,7 @@
       'hud.enchantedSuffix': ' · Encantado',
       'hud.spellEmptyTip': 'Ranura Mágica {key} vacía — Haz clic para abrir el Grimorio',
       'hud.spellTip': '{name} [{key}] · Coste: {cost} EN · {desc}',
-      'hud.openGrimoireTip': 'Abrir Grimorio de Hechizos (12 Hechizos)',
+      'hud.openGrimoireTip': 'Abrir Grimorio de Hechizos (15 Hechizos)',
       'hud.menuToggleTip': 'Abrir o cerrar Menú',
       'hud.menuStats': 'Estadísticas',
       'hud.menuConfigPause': 'Configuración / Pausa',
@@ -1896,7 +1902,7 @@
 
       'modal.clear': 'Limpiar',
       'modal.titleSkillsCount': 'Árbol Astral de Habilidades ({n} Estrellas)',
-      'modal.titleGrimorio': 'Grimorio de Hechizos Arcanos (12)',
+      'modal.titleGrimorio': 'Grimorio de Hechizos Arcanos (15)',
       'modal.titleMap': 'Atlas Cartográfico Mundial',
       'modal.titleQuests': 'Misiones e Historia',
       'modal.titleAchievements': 'Tablón de Logros',
@@ -2489,6 +2495,23 @@
         obsidian_vein: 'Veta de Obsidiana',
         magma_core_vein: 'Núcleo de Magma',
         adamantite_vein: 'Veta de Adamantita',
+        coral_abisal_vein: 'Arrecife de Coral Abisal',
+        perla_turquesa_vein: 'Ostra de Perla Turquesa',
+        cuarzo_boreal_vein: 'Veta de Cuarzo Boreal',
+        celestita_vein: 'Cúmulo de Celestita',
+        jade_ancestral_vein: 'Veta de Jade Ancestral',
+        madera_ferrea_node: 'Árbol de Madera Férrea',
+        escoria_caldera_vein: 'Veta de Escoria de Caldera',
+        pirita_solar_vein: 'Veta de Pirita Solar',
+        agata_roja_vein: 'Veta de Ágata Roja',
+        hielo_eterno_vein: 'Cristal de Hielo Eterno',
+        bismuto_astral_vein: 'Cúmulo de Bismuto Astral',
+        resina_toxica_node: 'Nódulo de Resina Tóxica',
+        flor_pantano_node: 'Flor del Pantano',
+        hueso_fosil_vein: 'Depósito de Hueso Fósil',
+        marmol_oscuro_vein: 'Bloque de Mármol Oscuro',
+        plata_maldita_vein: 'Veta de Plata Maldita',
+        cristal_carmesi_vein: 'Cristal Carmesí',
         dig_spot: 'Zona de Excavación',
         meteor: 'Meteorito Estelar'
       };
@@ -2704,7 +2727,11 @@
     const titleEls = root.querySelectorAll('[data-i18n-title]');
     for (const el of titleEls) {
       const k = el.getAttribute('data-i18n-title');
-      if (k) el.setAttribute('title', t(k));
+      if (k) {
+        const val = t(k);
+        el.setAttribute('data-tip-text', val);
+        if (el.hasAttribute('title')) el.removeAttribute('title');
+      }
     }
   }
 
@@ -2774,6 +2801,7 @@
       laboratorio: 'Laboratory',
       investigacion: 'Research Center',
       mesa_hechiceria: 'Sorcery Table',
+      mesa_encantamientos: 'Enchanting Table',
       yunque_runico: 'Runic Anvil'
     } : {
       mano: 'A Mano / Artesanía',
@@ -2791,6 +2819,7 @@
       laboratorio: 'Laboratorio',
       investigacion: 'Centro de Investigación',
       mesa_hechiceria: 'Mesa de Hechicería',
+      mesa_encantamientos: 'Mesa de Encantamientos',
       yunque_runico: 'Yunque Rúnico'
     };
     return map[stationId] || stationId;

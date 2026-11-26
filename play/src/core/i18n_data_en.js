@@ -68,7 +68,8 @@
       poco_comun: { name: 'Uncommon' },
       raro: { name: 'Rare' },
       epico: { name: 'Epic' },
-      legendario: { name: 'Legendary' }
+      legendario: { name: 'Legendary' },
+      mitico: { name: 'Mythic' }
     },
 
     tools: {
@@ -351,12 +352,12 @@
     spells: {
       misil_arcano: { name: 'Arcane Missile', desc: 'Fires 2 fast arcane bolts toward the cursor that lightly home in on enemies.' },
       bola_fuego: { name: 'Fireball', desc: 'Hurls a fiery sphere that explodes on impact, burning all nearby enemies.' },
-      nova_hielo: { name: 'Frost Nova', desc: 'Glacial wave around the hero that damages and slows enemies by 55% for 3.5s.' },
+      nova_hielo: { name: 'Frost Nova', desc: 'Glacial wave around the hero that damages and slows enemies by 50% for 3.5s.' },
       cadena_rayos: { name: 'Chain Lightning', desc: 'Instant lightning bolt bouncing across up to 4 nearby enemies for electric damage.' },
       curacion_sagrada: { name: 'Sacred Heal', desc: 'Channels holy light to instantly restore health (+48 HP scaling with Spell Power).' },
       escudo_divino: { name: 'Arcane Aegis', desc: 'Creates a protective barrier absorbing up to 55 damage for 8 seconds.' },
       paso_etereo: { name: 'Ethereal Step', desc: 'Instant teleport toward the cursor, unleashing a damaging arcane wave on arrival.' },
-      furia_arcana: { name: 'Overcharged Fury', desc: 'Runic overcharge for 7s: +30% total damage, +30% Spell Power, and +25% speed.' },
+      furia_arcana: { name: 'Overcharged Fury', desc: 'Runic overcharge for 7s: +30% total damage, +30% Spell Power, and +22% speed.' },
       espinas_tierra: { name: 'Telluric Spikes', desc: 'Erupts stone spikes at the cursor that pierce and briefly root enemies.' },
       daga_veneno: { name: 'Venom Fan', desc: 'Throws 3 ethereal daggers in a fan that poison and deal damage over time.' },
       drenaje_mana: { name: 'Vital Siphon', desc: 'Drains essence from nearby foes, healing you and restoring energy per target.' },

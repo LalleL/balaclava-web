@@ -18,16 +18,20 @@
         const dx = game.player.x - state.startPos.x;
         const dy = game.player.y - state.startPos.y;
         const dist = Math.hypot(dx, dy);
-        state.movedDist = (state.movedDist || 0) + (dist > 2 ? dist * 0.1 : 0);
+        // Accumulate smooth per-frame distance without dropping micro-steps at 120Hz/144Hz
+        if (dist > 0.05 && dist < 120) {
+          state.movedDist = (state.movedDist || 0) + dist;
+        }
         state.startPos = { x: game.player.x, y: game.player.y };
         if (game.player.dashTimer > 0) state.didDash = true;
-        const movedDone = state.movedDist >= 120;
+        const movedDone = (state.movedDist || 0) >= 260;
         return movedDone && state.didDash;
       },
       getProgress: (game, state) => {
         const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
-        const moved = Math.min(100, Math.floor(((state.movedDist || 0) / 120) * 100));
-        const dash = state.didDash ? (isEn ? '✓ Dash ready' : '✓ Esquive listo') : (isEn ? 'Press Space' : 'Pulsa Espacio');
+        const moved = Math.min(100, Math.floor(((state.movedDist || 0) / 260) * 100));
+        const dashKey = (Abyssea.UI && typeof Abyssea.UI.getKeyLabel === 'function' && Abyssea.UI.getKeyLabel('dash')) || (isEn ? 'Space' : 'Espacio');
+        const dash = state.didDash ? (isEn ? '✓ Dash ready' : '✓ Esquive listo') : (isEn ? `Press [${dashKey}]` : `Pulsa [${dashKey}]`);
         return isEn ? `Movement: ${moved}% · ${dash}` : `Movimiento: ${moved}% · ${dash}`;
       }
     },
@@ -67,8 +71,9 @@
       },
       getProgress: (game, state) => {
         const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
-        if (isEn) return state.openedInv ? 'Inventory checked! ✓' : 'Open your inventory with [Q]';
-        return state.openedInv ? '¡Inventario revisado! ✓' : 'Abre tu inventario con [Q]';
+        const invKey = (Abyssea.UI && typeof Abyssea.UI.getKeyLabel === 'function' && Abyssea.UI.getKeyLabel('inventory')) || 'Q';
+        if (isEn) return state.openedInv ? 'Inventory checked! ✓' : `Open your inventory with [${invKey}]`;
+        return state.openedInv ? '¡Inventario revisado! ✓' : `Abre tu inventario con [${invKey}]`;
       }
     },
     {
@@ -112,7 +117,7 @@
         if (isCraftModalOpen) state.openedCraft = true;
 
         const hasCraftedOrUpgraded =
-          (game.stats && ((game.stats.craftedTotal || 0) > 0 || (game.stats.itemsCrafted || 0) > 0)) ||
+          (game.stats && (game.stats.craftedTotal || 0) > 0) ||
           (game.toolTiers && (
             (game.toolTiers.pico && game.toolTiers.pico !== 'basica') ||
             (game.toolTiers.hacha && game.toolTiers.hacha !== 'basica') ||
@@ -125,12 +130,10 @@
           )) ||
           (game.inventory && Boolean(
             game.inventory.botas_cuero ||
-            game.inventory.arm_cuero ||
-            game.inventory.antorcha ||
-            game.inventory.espada_madera ||
-            game.inventory.pico_cobre ||
-            game.inventory.hacha_cobre ||
+            game.inventory.coraza_cuero ||
+            game.inventory.casco_cuero ||
             game.inventory.escudo_madera ||
+            game.inventory.tablon ||
             game.inventory.lingote_cobre ||
             game.inventory.lingote_hierro
           )) ||
@@ -248,9 +251,10 @@
       getProgress: (game, state) => {
         const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
         const count = Array.isArray(game.unlockedSkills) ? game.unlockedSkills.length : 0;
+        const skillKey = (Abyssea.UI && typeof Abyssea.UI.getKeyLabel === 'function' && Abyssea.UI.getKeyLabel('skills')) || 'G';
         if (count > 0) return isEn ? `Skills learned: ${count} ✓` : `Habilidades aprendidas: ${count} ✓`;
         if (state.openedSkills) return isEn ? 'Hold a star to learn a skill' : 'Mantén pulsada una estrella para aprenderla';
-        return isEn ? 'Open the Skill Tree [G]' : 'Abre el Árbol de Habilidades [G]';
+        return isEn ? `Open the Skill Tree [${skillKey}]` : `Abre el Árbol de Habilidades [${skillKey}]`;
       }
     }
   ];
@@ -260,8 +264,8 @@
       this.step = 0;
       this.done = false;
       this.skipped = false;
+      this.rewardClaimed = false;
       this.stepState = {};
-      this._justCompletedTimer = 0;
       this.minimized = false;
     }
 
@@ -296,7 +300,6 @@
         .replace('{invKey}', fmt(getLbl('inventory', 'Q')))
         .replace('{buildKey}', fmt(getLbl('build', 'R')))
         .replace('{interactKey}', fmt(getLbl('interact', 'E')))
-        .replace('{craftKey}', fmt(getLbl('crafting', 'C')))
         .replace('{questKey}', fmt(getLbl('quests', 'X')))
         .replace('{encKey}', fmt(getLbl('encyclopedia', 'L')))
         .replace('{mapKey}', fmt(getLbl('map', 'M')))
@@ -406,14 +409,19 @@
       this.done = true;
       this.step = TUTORIAL_STEPS.length;
       if (game) {
-        game.addCoins(60);
-        game.gainXp(120);
-        if (game.toast) {
-          const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
-          const msg = isEn
-            ? 'TUTORIAL COMPLETED! +60 Coins and +120 XP. The archipelago is yours!'
-            : '¡TUTORIAL COMPLETADO! +60 Monedas y +120 XP. ¡El archipiélago es tuyo!';
-          game.toast(msg, 'success');
+        const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
+        if (!this.rewardClaimed) {
+          this.rewardClaimed = true;
+          game.addCoins(60);
+          game.gainXp(120);
+          if (game.toast) {
+            const msg = isEn
+              ? 'TUTORIAL COMPLETED! +60 Coins and +120 XP. The archipelago is yours!'
+              : '¡TUTORIAL COMPLETADO! +60 Monedas y +120 XP. ¡El archipiélago es tuyo!';
+            game.toast(msg, 'success');
+          }
+        } else if (game.toast) {
+          game.toast(isEn ? 'Tutorial reviewed!' : '¡Tutorial repasado!', 'info');
         }
         if (game.saveSys) {
           game.saveSys.save(game, game.currentSlot || 1, true);

@@ -342,7 +342,9 @@
           seaBossCd: 195,
           whirlpoolCd: 18,
           fireTrails: [],
+          _fireTrailCd: 0,
           villagerContractDay: {},
+          weeklyResetWeek: 0,
           photoCamOff: { x: 0, y: 0 },
           relocating: null,
           relocatorActive: false,
@@ -642,9 +644,11 @@
         return true;
       }
 
-      // Step 2: Drop onto target unlocked tile
+      // Step 2: Drop onto target unlocked tile (check terrain, buildings, nodes, crops, player, and Nexo limits)
       const item = rt.relocating;
       const sz = item.size || 1;
+      const ptx = this.player ? Math.floor(this.player.x / TILE_SIZE) : -999;
+      const pty = this.player ? Math.floor(this.player.y / TILE_SIZE) : -999;
       for (let dy = 0; dy < sz; dy++) {
         for (let dx = 0; dx < sz; dx++) {
           const cx = tx + dx, cy = ty + dy;
@@ -658,20 +662,61 @@
             this.toast('Terreno no válido para esta estructura.', 'warn');
             return true;
           }
+          if (cx === ptx && cy === pty && item.placeOn !== 'water') {
+            this.toast('No puedes colocar una estructura encima del personaje.', 'warn');
+            return true;
+          }
           const occ = this.getBuildingAtTile(cx, cy);
           if (occ && occ !== item.ref) {
             this.toast('Esa casilla está ocupada por otro edificio.', 'warn');
+            return true;
+          }
+          const nodeOcc = this.world.getNodeAtTile && this.world.getNodeAtTile(cx, cy);
+          if (nodeOcc && nodeOcc !== item.ref) {
+            this.toast('Hay un recurso o monumento en esa casilla.', 'warn');
+            return true;
+          }
+          if (Array.isArray(this.world.crops) && this.world.crops.some(c => c.tx === cx && c.ty === cy)) {
+            this.toast('Hay un cultivo plantado en esa casilla.', 'warn');
             return true;
           }
         }
       }
 
       if (item.kind === 'building') {
-        item.ref.tx = tx;
-        item.ref.ty = ty;
+        const bRef = item.ref;
+        if (bRef.type === 'nexo_central' && this.omega && typeof this.omega.plotKeyOf === 'function') {
+          const oldPlot = this.omega.plotKeyOf(bRef.tx, bRef.ty);
+          const newPlot = this.omega.plotKeyOf(tx, ty);
+          if (oldPlot !== newPlot) {
+            const clash = (this.buildings || []).some(other => other !== bRef && other.type === 'nexo_central' && this.omega.plotKeyOf(other.tx, other.ty) === newPlot);
+            if (clash) {
+              this.toast('Esa isla ya tiene un Nexo Central.', 'warn');
+              return true;
+            }
+            if (this.omega.state && this.omega.state.nexus && this.omega.state.nexus[oldPlot]) {
+              const oldData = this.omega.state.nexus[oldPlot];
+              const destData = this.omega.state.nexus[newPlot];
+              if (destData) {
+                for (const [iid, q] of Object.entries(oldData.items || {})) {
+                  if (q > 0) destData.items[iid] = (destData.items[iid] || 0) + q;
+                }
+                destData.energy = (destData.energy || 0) + (oldData.energy || 0);
+              } else {
+                this.omega.state.nexus[newPlot] = oldData;
+              }
+              delete this.omega.state.nexus[oldPlot];
+            }
+          }
+        }
+        bRef.tx = tx;
+        bRef.ty = ty;
+        this._pipeGridCache = null;
         if (this.omega) this.omega._sig = null;
       } else {
         const node = item.ref;
+        const oldGx = Math.floor((node.tx || 0) / PLOT_TILES);
+        const oldGy = Math.floor((node.ty || 0) / PLOT_TILES);
         node.tx = tx;
         node.ty = ty;
         node.x = (tx + 0.5) * TILE_SIZE;
@@ -682,7 +727,9 @@
           this.world.dungeonGatePlots[node.dungeonId] = [gx, gy];
         }
         if (node.kind === 'altar_shrine' && this.world.altarPlots && node.altarId) {
-          this.world.altarPlots[node.altarId] = [gx, gy];
+          const oldKey = `${oldGx},${oldGy}`;
+          if (this.world.altarPlots[oldKey] === node.altarId) delete this.world.altarPlots[oldKey];
+          this.world.altarPlots[`${gx},${gy}`] = node.altarId;
         }
         this.world._nodeIndexLen = -1;
       }
@@ -797,9 +844,20 @@
       const total = 6;
       const spawned = [];
       for (let i = 0; i < total; i++) {
-        const ang = (i / total) * Math.PI * 2;
-        const ex = px + Math.cos(ang) * 90;
-        const ey = py + Math.sin(ang) * 90;
+        let ex = px, ey = py, foundSpot = false;
+        for (let attempt = 0; attempt < 18; attempt++) {
+          const ang = (i / total) * Math.PI * 2 + attempt * 0.45;
+          const rad = 54 + (attempt % 4) * 32;
+          const cx = px + Math.cos(ang) * rad;
+          const cy = py + Math.sin(ang) * rad;
+          if (this.combat && typeof this.combat.isPosWalkable === 'function' ? this.combat.isPosWalkable(this, cx, cy, 10) : this.world.isTileWalkable(Math.floor(cx / TILE_SIZE), Math.floor(cy / TILE_SIZE))) {
+            ex = cx;
+            ey = cy;
+            foundSpot = true;
+            break;
+          }
+        }
+        if (!foundSpot) continue;
         const mob = this.combat && typeof this.combat.spawnEnemy === 'function'
           ? this.combat.spawnEnemy(this, enemyType, ex, ey)
           : null;
@@ -946,12 +1004,7 @@
       }
 
       const pressed = (idx) => Boolean(gp.buttons[idx] && gp.buttons[idx].pressed);
-      const justPressed = (idx) => {
-        const cur = pressed(idx);
-        const prev = !!rt.gpPrevButtons[idx];
-        rt.gpPrevButtons[idx] = cur;
-        return cur && !prev;
-      };
+      const justPressed = (idx) => Boolean(pressed(idx) && !rt.gpPrevButtons[idx]);
 
       // Continuous attack/use with A (0) or RT (7)
       if (!Abyssea.UI || !Abyssea.UI.hasOpenModal()) {
@@ -969,10 +1022,12 @@
           this.activeSlot = (this.activeSlot + 1) % 9;
           this.uiDirty = true;
         }
-        if (justPressed(12) && this.castSpellSlot) this.castSpellSlot(0); // D-Up
-        if (justPressed(15) && this.castSpellSlot) this.castSpellSlot(1); // D-Right
-        if (justPressed(13) && this.castSpellSlot) this.castSpellSlot(2); // D-Down
-        if (justPressed(14) && this.castSpellSlot) this.castSpellSlot(3); // D-Left
+        if (typeof this.castSpell === 'function') {
+          if (justPressed(12)) this.castSpell(0, this.mouse.wx, this.mouse.wy); // D-Up
+          if (justPressed(15)) this.castSpell(1, this.mouse.wx, this.mouse.wy); // D-Right
+          if (justPressed(13)) this.castSpell(2, this.mouse.wx, this.mouse.wy); // D-Down
+          if (justPressed(14)) this.castSpell(3, this.mouse.wx, this.mouse.wy); // D-Left
+        }
       } else if (justPressed(1) && Abyssea.UI) {
         Abyssea.UI.closeModal();
       }
@@ -984,12 +1039,23 @@
         if (Abyssea.UI.activeModal === 'map') Abyssea.UI.closeModal();
         else Abyssea.UI.openModal('map');
       }
+      // Snapshot ALL buttons at end of frame so modal open/close never leaks stale presses
+      for (let bi = 0; bi < gp.buttons.length && bi < 20; bi++) {
+        rt.gpPrevButtons[bi] = pressed(bi);
+      }
     };
 
     // --- MAIN V2 UPDATE TICK (called from GameEngine.update) ---
     proto.updateV2Systems = function (dt) {
       const rt = this.ensureV2State();
       this.pollGamepad(dt);
+
+      // Weekly Guild Challenges reset every 7 in-game days
+      const curWeek = Math.floor((Math.max(1, Math.floor(this.dayCount || 1)) - 1) / 7);
+      if (curWeek > (rt.weeklyResetWeek || 0)) {
+        rt.weeklyResetWeek = curWeek;
+        this.claimedWeeklyChallenges = [];
+      }
 
       // Update Perfect Dodge timer
       if (this.player && (this.player.perfectDodgeWindow || 0) > 0) {
@@ -1010,8 +1076,8 @@
         rt.photoCamOff.y = 0;
       }
 
-      // Soft contextual onboarding hints when building key v1.4/v2.0 stations
-      if (!this.activeDungeon && (this.buildings || []).length > 0) {
+      // Soft contextual onboarding hints when building key v1.4/v2.0 stations (skip scan once all 5 shown)
+      if (!this.activeDungeon && (this.buildings || []).length > 0 && !(this.seenV2Hints.reforja && this.seenV2Hints.acuario && this.seenV2Hints.alquimia && this.seenV2Hints.trofeos && this.seenV2Hints.baliza)) {
         for (const b of this.buildings) {
           if (b.type === 'mesa_reforja') this.maybeShowV2Hint('reforja', 'Construiste el Yunque de Reforja: pulsa [E] para mejorar rarezas (hasta Singular 0.1%) o activar Preservación de Rareza.');
           if (b.type === 'portal_acuario') this.maybeShowV2Hint('acuario', 'Construiste el Portal al Acuario: exhibe peces capturados para ganar pasivas permanentes y desbloquear mascotas marinas.');
@@ -1069,6 +1135,8 @@
             let best = null, bestD = pDef.attackRange || 340;
             for (const e of foes) {
               if (!e || e._dead || e.hp <= 0) continue;
+              if (e.isBoss && this.activeDungeon && !this.activeDungeon.bossLocked) continue;
+              if (this.activeDungeon && typeof this.activeDungeon.hasLineOfSight === 'function' && !this.activeDungeon.hasLineOfSight(rt.petPos.x, rt.petPos.y, e.x, e.y)) continue;
               const dd = dist(rt.petPos.x, rt.petPos.y, e.x, e.y);
               if (dd < bestD) { bestD = dd; best = e; }
             }
@@ -1079,6 +1147,7 @@
               this.spawnPlayerProjectile(rt.petPos.x, rt.petPos.y, Math.cos(ang) * 410, Math.sin(ang) * 410, petDmg, pDef.projColor, false, {
                 life: 1.15,
                 homing: true,
+                nonPlayer: true,
                 burnDmg: pDef.attackEffect === 'burn' ? 8 : 0,
                 slowDur: pDef.attackEffect === 'slow' ? 2.5 : 0
               });
@@ -1088,11 +1157,11 @@
         }
       }
 
-      // Volcanic Armor Set Dash Fire Trails
-      if (this.player && this.player.dashTimer > 0 && this.mods && this.mods.synergyVolcanic) {
-        if (Math.random() < 0.65) {
-          rt.fireTrails.push({ x: this.player.x, y: this.player.y + 8, ttl: 2.2, tick: 0 });
-        }
+      // Volcanic Armor Set Dash Fire Trails (dt-throttled so 60Hz & 144Hz spawn identically)
+      rt._fireTrailCd = Math.max(0, (rt._fireTrailCd || 0) - dt);
+      if (this.player && this.player.dashTimer > 0 && this.mods && this.mods.synergyVolcanic && rt._fireTrailCd <= 0) {
+        rt._fireTrailCd = 0.065;
+        rt.fireTrails.push({ x: this.player.x, y: this.player.y + 8, ttl: 2.2, tick: 0 });
       }
       for (let i = rt.fireTrails.length - 1; i >= 0; i--) {
         const ft = rt.fireTrails[i];
@@ -1105,7 +1174,7 @@
             : (this.combat ? this.combat.enemies : []);
           for (const e of foes) {
             if (e && !e._dead && dist(ft.x, ft.y, e.x, e.y) <= 44) {
-              this.combat.damageEnemy(this, e, Math.max(10, Math.round(18 + (this.player.level || 1) * 1.6)), 0, false, false);
+              this.combat.damageEnemy(this, e, Math.max(10, Math.round(18 + (this.player.level || 1) * 1.6)), null, false, false, { nonPlayer: true, noKnockback: true });
               e.burnTimer = Math.max(e.burnTimer || 0, 2.5);
             }
           }
@@ -1113,21 +1182,24 @@
         if (ft.ttl <= 0) rt.fireTrails.splice(i, 1);
       }
 
-      // Dungeon Volcanic Floor Affix Hazard Tick
+      // Dungeon Volcanic Floor Affix Hazard Tick (uses standard telegraphed meteor schema)
       if (this.activeDungeon && Array.isArray(this.activeDungeon.affixes) && this.activeDungeon.affixes.includes('suelo_volcanico')) {
         this.activeDungeon._volcanicAffixTimer = (this.activeDungeon._volcanicAffixTimer || 5.0) - dt;
         if (this.activeDungeon._volcanicAffixTimer <= 0) {
           this.activeDungeon._volcanicAffixTimer = 5.2;
           if (!Array.isArray(this.activeDungeon.hazardZones)) this.activeDungeon.hazardZones = [];
           this.activeDungeon.hazardZones.push({
+            kind: 'meteor',
             x: this.player.x,
             y: this.player.y,
-            radius: 42,
-            warn: 1.15,
-            active: 0.45,
+            timer: 0,
+            delay: 1.15,
+            oneShot: true,
+            radius: 44,
             dmg: Math.max(14, Math.round(18 + this.activeDungeon.tier * 2.5)),
             color: '#ff5722',
-            kind: 'magma_ring'
+            vfxKey: 'pvfx_meteor_strike',
+            status: { kind: 'burn', dur: 1.8, tickDmg: 3 }
           });
         }
       }
@@ -1199,16 +1271,30 @@
           sb.atkCd = 2.5;
           const ang = Math.atan2(this.player.y - sb.y, this.player.x - sb.x);
           for (const spread of [-0.22, 0, 0.22]) {
-            this.enemyProjectiles.push({
-              x: sb.x, y: sb.y,
-              vx: Math.cos(ang + spread) * 235,
-              vy: Math.sin(ang + spread) * 235,
-              dmg: sb.dmg,
-              life: 2.2,
-              radius: 10,
-              color: '#00e5ff',
-              sprite: 'proj_ice'
-            });
+            if (typeof this.spawnEnemyProjectile === 'function') {
+              this.spawnEnemyProjectile(sb.x, sb.y, Math.cos(ang + spread) * 235, Math.sin(ang + spread) * 235, sb.dmg, '#00e5ff', {
+                vfxKey: 'px_ice_shard',
+                impactVfx: 'fpe_magickahit',
+                trailColor: '#00e5ff'
+              });
+            }
+          }
+        }
+        // Living tentacles periodically launch tidal whips toward the hero
+        for (const t of (sb.tentacles || [])) {
+          if (t.hp <= 0) continue;
+          t.atkCd = (t.atkCd || 2.5) - dt;
+          if (t.atkCd <= 0 && dPlayer <= 380) {
+            t.atkCd = 2.8 + Math.random() * 0.9;
+            const tx = sb.x + t.ox, ty = sb.y + t.oy;
+            const tAng = Math.atan2(this.player.y - ty, this.player.x - tx);
+            if (typeof this.spawnEnemyProjectile === 'function') {
+              this.spawnEnemyProjectile(tx, ty, Math.cos(tAng) * 210, Math.sin(tAng) * 210, Math.max(8, Math.round(sb.dmg * 0.65)), '#26c6da', {
+                vfxKey: 'px_energy_bolt',
+                impactVfx: 'fpe_magickahit',
+                trailColor: '#26c6da'
+              });
+            }
           }
         }
         if (sb.hp <= 0) {
@@ -1242,29 +1328,44 @@
       const lunar = this.getLunarPhase();
       if (phase === 'noche' && (lunar.id === 'luna_sangre' || lunar.id === 'eclipse_astral')) {
         if (!rt.abyssPulseBoss && rt._lastPulseDay !== this.dayCount && (this.unlockedPlots || []).length >= 2) {
-          rt._lastPulseDay = this.dayCount;
           const plot = pick(this.unlockedPlots);
-          const bx = (plot[0] * PLOT_TILES + 6) * TILE_SIZE;
-          const by = (plot[1] * PLOT_TILES + 6) * TILE_SIZE;
-          const mb = this.combat && typeof this.combat.spawnEnemy === 'function'
-            ? this.combat.spawnEnemy(this, 'shadow_wolf', bx, by)
-            : null;
-          if (mb) {
-            mb.isMiniBoss = true;
-            mb._isAbyssPulse = true;
-            mb.name = 'Heraldo del Pulso Abisal';
-            mb.hp = Math.round(mb.hp * 2.6);
-            mb.maxHp = mb.hp;
-            mb.coins = (mb.coins || 25) * 4;
-            rt.abyssPulseBoss = mb;
-            this.toast(`¡PULSO DEL ABISMO! Un Mini-Jefe Errante ha aparecido en (${plot[0]},${plot[1]}). Visible en el Mapa (M).`, 'warn');
+          let bx = (plot[0] * PLOT_TILES + 6) * TILE_SIZE;
+          let by = (plot[1] * PLOT_TILES + 6) * TILE_SIZE;
+          let foundSpot = false;
+          for (let attempt = 0; attempt < 20; attempt++) {
+            const tx = plot[0] * PLOT_TILES + randInt(2, PLOT_TILES - 3);
+            const ty = plot[1] * PLOT_TILES + randInt(2, PLOT_TILES - 3);
+            const cx = (tx + 0.5) * TILE_SIZE;
+            const cy = (ty + 0.5) * TILE_SIZE;
+            if (this.combat && typeof this.combat.isPosWalkable === 'function' ? this.combat.isPosWalkable(this, cx, cy, 10) : this.world.isTileWalkable(tx, ty)) {
+              bx = cx; by = cy; foundSpot = true; break;
+            }
+          }
+          if (foundSpot) {
+            rt._lastPulseDay = this.dayCount;
+            const mb = this.combat && typeof this.combat.spawnEnemy === 'function'
+              ? this.combat.spawnEnemy(this, 'shadow_wolf', bx, by)
+              : null;
+            if (mb) {
+              mb.isMiniBoss = true;
+              mb._isAbyssPulse = true;
+              mb.name = 'Heraldo del Pulso Abisal';
+              mb.hp = Math.round(mb.hp * 2.6);
+              mb.maxHp = mb.hp;
+              mb.coins = (mb.coins || 25) * 4;
+              rt.abyssPulseBoss = mb;
+              this.toast(`¡PULSO DEL ABISMO! Un Mini-Jefe Errante ha aparecido en (${plot[0]},${plot[1]}). Visible en el Mapa (M).`, 'warn');
+            }
           }
         }
       }
       if (rt.abyssPulseBoss && (rt.abyssPulseBoss._dead || rt.abyssPulseBoss.hp <= 0)) {
-        this.addItem('esencia_lunar', 3);
-        this.addItem('ficha_gremio', 1);
-        this.toast('¡Heraldo del Pulso Abisal vencido! +3 Esencias Lunares y +1 Ficha de Gremio.', 'success');
+        // Award bonus loot only if defeated in combat (not burned away at sunrise)
+        if (!rt.abyssPulseBoss.sunBurn || rt.abyssPulseBoss.sunBurn <= 2.2) {
+          this.addItem('esencia_lunar', 3);
+          this.addItem('ficha_gremio', 1);
+          this.toast('¡Heraldo del Pulso Abisal vencido! +3 Esencias Lunares y +1 Ficha de Gremio.', 'success');
+        }
         rt.abyssPulseBoss = null;
       }
     };
@@ -1293,7 +1394,7 @@
       // Direct hit on Leviathan head (takes 50% dmg while tentacles live, 100% when cleared)
       if (dist(wx, wy, sb.x, sb.y) <= radius + 34) {
         const aliveT = sb.tentacles.filter(t => t.hp > 0).length;
-        const finalDmg = aliveT > 0 ? Math.max(1, Math.round(dmg * 0.55)) : dmg;
+        const finalDmg = aliveT > 0 ? Math.max(1, Math.round(dmg * 0.50)) : dmg;
         sb.hp = Math.max(0, sb.hp - finalDmg);
         this.addFloatingText(sb.x, sb.y - 36, `-${finalDmg}`, '#ffd54f');
         this.spawnParticles(sb.x, sb.y, '#00e5ff', 10);
@@ -1301,6 +1402,23 @@
         return true;
       }
       return false;
+    };
+
+    proto._getSpecialistVillagerPos = function (b) {
+      const bDef = Abyssea.BUILDINGS[b.type] || { size: 1 };
+      const sz = bDef.size || 1;
+      const candidates = [
+        [b.tx + sz, b.ty + Math.floor(sz * 0.5)],
+        [b.tx - 1, b.ty + Math.floor(sz * 0.5)],
+        [b.tx + Math.floor(sz * 0.5), b.ty + sz],
+        [b.tx + Math.floor(sz * 0.5), b.ty - 1]
+      ];
+      for (const [cx, cy] of candidates) {
+        if (this.world && this.world.isTileWalkable(cx, cy) && !this.getBuildingAtTile(cx, cy)) {
+          return { x: (cx + 0.5) * TILE_SIZE, y: (cy + 0.5) * TILE_SIZE };
+        }
+      }
+      return { x: (b.tx + sz) * TILE_SIZE + 12, y: (b.ty + sz * 0.5) * TILE_SIZE + 8 };
     };
 
     // --- INTERACT CHECK FOR V2 ENTITIES (Ghost Ship & Specialist Villagers) ---
@@ -1319,10 +1437,8 @@
       for (const spec of SPECIALIST_VILLAGERS) {
         const b = (this.buildings || []).find(x => x.type === spec.building);
         if (!b) continue;
-        const bDef = Abyssea.BUILDINGS[b.type] || { size: 1 };
-        const vx = (b.tx + bDef.size) * TILE_SIZE + 14;
-        const vy = (b.ty + bDef.size * 0.5) * TILE_SIZE + 8;
-        if (dist(px, py, vx, vy) <= 68) {
+        const pos = this._getSpecialistVillagerPos(b);
+        if (dist(px, py, pos.x, pos.y) <= 68) {
           if (Abyssea.UI) Abyssea.UI.openModal('specialist_villager', spec);
           return true;
         }
@@ -1334,7 +1450,7 @@
     proto.renderV2WorldEntities = function (ctx) {
       const rt = this.ensureV2State();
       const ex = (Abyssea.Assets && Abyssea.Assets.extraImages) || {};
-      const fIdx = Math.floor(this.time * 5.5) % 4;
+      const fIdx = Math.floor(this.time * 3.2) % 4;
 
       const drawStrip4 = (img, x, y, drawW, drawH, flipX = false) => {
         if (!img || !img.complete || img.naturalWidth <= 0) return false;
@@ -1419,7 +1535,7 @@
           ctx.fill();
           ctx.restore();
         }
-        drawStrip4(img, px, py, 48, 48, (this.player.x < px));
+        drawStrip4(img, px, py, 30, 30, (this.player.x < px));
       }
 
       if (this.activeDungeon || this.activeAquarium) return;
@@ -1466,14 +1582,21 @@
         drawWorldLabel(`${sb.name} (${sb.hp}/${sb.maxHp})`, sb.x, sb.y - 91, '#ffd54f', 11);
       }
 
-      // 7. Specialist Villagers idling near built key structures
+      // 7. Specialist Villagers idling near built key structures (single-pass lookup per buildings change)
       const npcSheets = (Abyssea.Assets && Abyssea.Assets.npcSheets) || {};
-      for (const spec of SPECIALIST_VILLAGERS) {
-        const b = (this.buildings || []).find(x => x.type === spec.building);
-        if (!b) continue;
-        const bDef = Abyssea.BUILDINGS[b.type] || { size: 1 };
-        const vx = (b.tx + bDef.size) * TILE_SIZE + 14;
-        const vy = (b.ty + bDef.size * 0.5) * TILE_SIZE + 8;
+      const bList = this.buildings || [];
+      if (!rt._specCache || rt._specCacheLen !== bList.length) {
+        rt._specCacheLen = bList.length;
+        rt._specCache = [];
+        for (const spec of SPECIALIST_VILLAGERS) {
+          const b = bList.find(x => x.type === spec.building);
+          if (b) rt._specCache.push({ spec, b });
+        }
+      }
+      for (const entry of rt._specCache) {
+        const { spec, b } = entry;
+        const pos = this._getSpecialistVillagerPos(b);
+        const vx = pos.x, vy = pos.y;
         const sh = npcSheets[spec.sheet];
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.34)';
@@ -1513,8 +1636,12 @@
   // 3. ATTACH UI MODALS & ENHANCEMENTS TO UIManager.prototype
   // ============================================================================
   function attachUIManagerV2() {
-    const UIManager = Abyssea.UIManager;
-    if (!UIManager || UIManager.prototype._v2UiAttached) return;
+    const UIManager = Abyssea.UIManager || Abyssea.UIController || (Abyssea.UI && Object.getPrototypeOf(Abyssea.UI) && Object.getPrototypeOf(Abyssea.UI).constructor);
+    if (!UIManager || !UIManager.prototype) {
+      if (typeof setTimeout === 'function') setTimeout(attachUIManagerV2, 50);
+      return;
+    }
+    if (UIManager.prototype._v2UiAttached) return;
     UIManager.prototype._v2UiAttached = true;
 
     const UI = UIManager.prototype;
@@ -1601,8 +1728,11 @@
           class: isHere ? 'btn btn-stone btn-sm' : 'btn btn-primary btn-sm',
           disabled: isHere ? 'disabled' : null,
           onclick: () => {
-            g.player.x = (bk.tx + 0.5) * TILE_SIZE;
-            g.player.y = (bk.ty + 1.1) * TILE_SIZE;
+            const rawX = (bk.tx + 0.5) * TILE_SIZE;
+            const rawY = (bk.ty + 1.2) * TILE_SIZE;
+            const safe = typeof g.findSafeOverworldSpawn === 'function' ? g.findSafeOverworldSpawn(rawX, rawY) : { x: rawX, y: rawY };
+            g.player.x = safe.x;
+            g.player.y = safe.y;
             g.camera.x = g.player.x;
             g.camera.y = g.player.y;
             if (Abyssea.Audio) Abyssea.Audio.play('portal');

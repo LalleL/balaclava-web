@@ -27,19 +27,15 @@
     hit: 'assets/audio/sfx/hit.wav',
     hurt: 'assets/audio/sfx/hurt.wav',
     laser: 'assets/audio/sfx/laser.wav',
-    levelup: 'assets/audio/sfx/levelup.wav',
     map: 'assets/audio/sfx/map.wav',
     mine: 'assets/audio/sfx/mine.wav',
     page: 'assets/audio/sfx/page.wav',
     pickup: 'assets/audio/sfx/pickup.wav',
     portal: 'assets/audio/sfx/portal.wav',
     slash: 'assets/audio/sfx/slash.wav',
-    step1: 'assets/audio/sfx/step1.wav',
-    step2: 'assets/audio/sfx/step2.wav',
     thunder: 'assets/audio/sfx/thunder.wav',
     trap: 'assets/audio/sfx/trap.ogg',
     ui: 'assets/audio/sfx/ui.wav',
-    unlock_skill: 'assets/audio/sfx/unlock_skill.wav',
     xp: 'assets/audio/sfx/xp.wav'
   };
 
@@ -123,7 +119,6 @@
       this.buffers = {};
       this.loadingStarted = false;
       this._musicTrack = null;
-      this._musicMoodLoaded = null;
       this._targetUrl = null;
       this._musicFade = 0;
       this._pendingStart = false;
@@ -207,6 +202,11 @@
     bindUnlockListeners() {
       if (this._unlockBound || typeof document === 'undefined') return;
       this._unlockBound = true;
+      const cleanup = () => {
+        document.removeEventListener('pointerdown', unlock, true);
+        document.removeEventListener('keydown', unlock, true);
+        document.removeEventListener('click', unlock, true);
+      };
       const unlock = () => {
         if (!this.initialized) {
           this.init();
@@ -215,6 +215,11 @@
             this.ctx.resume().catch(() => {});
           }
           this._resumePendingMusic();
+        }
+        const ctxReady = !this.ctx || this.ctx.state === 'running';
+        const musicReady = !this._pendingAutoplayFade && (!this._musicTrack || !this._musicTrack.paused || this.getEffectiveMusicVolume() <= 0);
+        if (this.initialized && ctxReady && musicReady) {
+          cleanup();
         }
       };
       document.addEventListener('pointerdown', unlock, { capture: true, passive: true });
@@ -367,7 +372,6 @@
       this._pendingAutoplayFade = null;
       const prev = this._musicTrack;
       this._musicTrack = null;
-      this._musicMoodLoaded = null;
       this._targetUrl = null;
       this._musicFade = 0;
       if (prev) this._fadeOutTrack(prev, fadeOutMs);
@@ -421,16 +425,17 @@
           this._cancelFadeInLoop();
         }
       };
-      this._fadeInTimer = setInterval(tick, 45);
-      const stepRaf = () => {
-        this._fadeInRaf = null;
-        tick();
-        if (this._fadeInTimer !== null && typeof requestAnimationFrame === 'function') {
-          this._fadeInRaf = requestAnimationFrame(stepRaf);
-        }
-      };
       if (typeof requestAnimationFrame === 'function') {
+        const stepRaf = () => {
+          this._fadeInRaf = null;
+          tick();
+          if (this._musicTrack === track && seq === this._trackSeq && this._musicFade < 1) {
+            this._fadeInRaf = requestAnimationFrame(stepRaf);
+          }
+        };
         this._fadeInRaf = requestAnimationFrame(stepRaf);
+      } else {
+        this._fadeInTimer = setInterval(tick, 45);
       }
     }
 
@@ -616,7 +621,6 @@
         el.loop = true;
         el.volume = 0;
         this._musicTrack = el;
-        this._musicMoodLoaded = targetUrl;
         this._targetUrl = targetUrl;
         this._musicFade = 0;
 
@@ -662,9 +666,7 @@
       const force = opts ? !!opts.force : !!forceOrOpts;
       const prevMood = this.mood;
 
-      if (normalizedMood === 'title') {
-        this._previewThemeInTitle = false;
-      } else if (prevMood === 'title') {
+      if (normalizedMood === 'title' || prevMood === 'title') {
         this._previewThemeInTitle = false;
       }
 
@@ -837,10 +839,7 @@
 
     play(name) {
       if (this.muted || this.sfxMuted || this.getEffectiveSfxVolume() <= 0) return;
-      if (!this.ctx) {
-        if (name === 'ui_hover') return;
-        return;
-      }
+      if (!this.ctx) return;
       if (this.ctx.state === 'suspended') {
         this.ctx.resume().catch(() => {});
         if (name === 'ui_hover' && this.ctx.state === 'suspended') return;
@@ -879,6 +878,14 @@
 
       if (name === 'bow') {
         if (this._playBuffer('slash', 0.65, 0.06)) return;
+      } else if (name === 'magic') {
+        if (this._playBuffer('cast', 0.78, 0.08)) return;
+      } else if (name === 'bomb' || name === 'meteor') {
+        if (this._playBuffer('explosion', name === 'meteor' ? 1.05 : 0.92, 0.05)) return;
+      } else if (name === 'click' || name === 'npc') {
+        if (this._playBuffer('ui', name === 'npc' ? 0.62 : 0.52, 0.05)) return;
+      } else if (name === 'destroy') {
+        if (this._playBuffer('mine', 0.82, 0.08)) return;
       } else if (name === 'unlock_plot') {
         // Celestial discovery chime (Zelda/Forager discovery: C5, E5, G5, C6, E6 shimmer)
         this.tone(523.25, 523.25, 0.32, 'sine', 0.26, 0);
@@ -949,23 +956,49 @@
         case 'xp':
           this.tone(660, 880, 0.09, 'sine', 0.18);
           break;
-        case 'levelup':
-          this.tone(523.25, 523.25, 0.1, 'triangle', 0.3, 0);
-          this.tone(659.25, 659.25, 0.1, 'triangle', 0.1);
-          this.tone(783.99, 783.99, 0.12, 'triangle', 0.3, 0.2);
-          this.tone(1046.5, 1046.5, 0.28, 'triangle', 0.34, 0.32);
-          break;
         case 'thunder':
           this.noise(0.35, 0.42);
           this.tone(160, 42, 0.36, 'sawtooth', 0.36);
           break;
-        case 'unlock_skill':
-          this.tone(587, 880, 0.12, 'sine', 0.24);
-          this.tone(880, 1174, 0.18, 'triangle', 0.22, 0.08);
-          break;
         case 'eat':
         case 'drink':
           this.tone(420, 620, 0.09, 'sine', 0.2);
+          break;
+        case 'heal':
+          this.tone(523.25, 659.25, 0.14, 'sine', 0.22, 0);
+          this.tone(783.99, 1046.5, 0.22, 'triangle', 0.20, 0.06);
+          break;
+        case 'magic':
+          this.tone(480, 920, 0.14, 'sine', 0.22);
+          this.tone(720, 1280, 0.12, 'triangle', 0.14, 0.04);
+          break;
+        case 'curse':
+          this.tone(240, 110, 0.22, 'sawtooth', 0.24);
+          this.tone(185, 88, 0.26, 'triangle', 0.18, 0.05);
+          break;
+        case 'fire':
+          this.noise(0.18, 0.26);
+          this.tone(310, 130, 0.16, 'sawtooth', 0.20);
+          break;
+        case 'splash':
+          this.noise(0.16, 0.22);
+          this.tone(360, 190, 0.12, 'sine', 0.18);
+          break;
+        case 'bomb':
+        case 'meteor':
+          this.noise(0.38, 0.42);
+          this.tone(135, 38, 0.32, 'sawtooth', 0.34);
+          break;
+        case 'destroy':
+          this.noise(0.14, 0.26);
+          this.tone(210, 85, 0.14, 'square', 0.24);
+          break;
+        case 'click':
+          this.tone(820, 1040, 0.035, 'sine', 0.11);
+          break;
+        case 'npc':
+          this.tone(420, 560, 0.07, 'triangle', 0.16);
+          this.tone(560, 680, 0.09, 'sine', 0.14, 0.045);
           break;
         case 'equip':
           this.tone(360, 540, 0.08, 'triangle', 0.2);

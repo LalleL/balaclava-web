@@ -235,7 +235,7 @@
     { id: 'r_amuleto', out: 'amuleto_imantado', qty: 1, station: 'laboratorio', in: { cristales_magicos: 4, lingote_acero: 3, engrane: 2 }, xp: 70 },
     { id: 'r_cristal_mag', out: 'cristales_magicos', qty: 2, station: 'laboratorio', in: { cristales: 3, hongo_luminoso: 3, esencia_oscura: 1 }, xp: 34 },
     { id: 'r_polvo_estelar', out: 'polvo_estelar', qty: 1, station: 'investigacion', in: { cristales_magicos: 3, amatista: 1, esencia_oscura: 2 }, xp: 65 },
-    { id: 'r_perg_furia', out: 'pergamino_furia', qty: 1, station: 'investigacion', in: { tela: 2, tinta_arcana: 0, rubi: 1, cera_abeja: 2 }, xp: 48 },
+    { id: 'r_perg_furia', out: 'pergamino_furia', qty: 1, station: 'investigacion', in: { tela: 2, rubi: 1, cera_abeja: 2 }, xp: 48 },
     { id: 'r_perg_escudo', out: 'pergamino_escudo', qty: 1, station: 'investigacion', in: { tela: 2, zafiro: 1, cera_abeja: 2 }, xp: 48 },
     { id: 'r_nucleo', out: 'nucleo_abyssea', qty: 1, station: 'investigacion', in: { fragmentos_antiguos: 5, diamantes: 5, esmeraldas: 5, lingotes_especiales: 5, esencia_oscura: 5 }, xp: 500 },
 
@@ -496,7 +496,7 @@
     { id: 'r_cetro_traslado', out: 'cetro_traslado', qty: 1, station: 'taller', in: { viga_madera: 4, madera_refinada: 4, lingote_oro: 3, cristales_magicos: 2, engrane: 3 }, xp: 95 },
     { id: 'r_catalizador_reforja', out: 'catalizador_reforja', qty: 1, station: 'yunque_runico', in: { cristales_magicos: 3, esencia_lunar: 2, polvo_estelar: 2, corazon_golem: 1 }, xp: 145 },
     { id: 'r_catalizador_reforja_llave', out: 'catalizador_reforja', qty: 1, station: 'yunque_runico', in: { llave_maestra_mazmorra: 1, diamantes: 2, aleacion_ignea: 2 }, xp: 155 },
-    { id: 'r_catalizador_golem', out: 'catalizador_reforja', qty: 1, station: 'mesa_encantamientos', in: { nucleo_golem_puro: 1, cuarzo_lunar: 2, esencia_oscura: 2 }, xp: 140 },
+    { id: 'r_catalizador_golem', out: 'catalizador_reforja', qty: 1, station: 'mesa_hechiceria', in: { nucleo_golem_puro: 1, cuarzo_lunar: 2, esencia_oscura: 2 }, xp: 140 },
     { id: 'r_banquete_trigo_dorado', out: 'banquete_real', qty: 2, station: 'cocina', in: { trigo_dorado: 2, miel: 2, queso: 2 }, xp: 90 },
     { id: 'r_elixir_veneno_escorpion', out: 'pocion_veneno_res', qty: 2, station: 'alquimia', in: { aguijon_escorpion: 3, saco_veneno: 2, vidrio: 2 }, xp: 70 },
     { id: 'r_pocion_nocturna_alas', out: 'pocion_nocturna', qty: 2, station: 'alquimia', in: { ala_murcielago: 3, resina_antigua: 2, vidrio: 2 }, xp: 58 },
@@ -505,12 +505,12 @@
     { id: 'r_llave_jefe_forja', out: 'llave_jefe', qty: 1, station: 'forja', in: { llave_esqueleto: 2, lingote_oro: 2, marmol_oscuro: 2 }, xp: 72 },
     { id: 'r_cofre_huevo_dragon', out: 'elixir_supremo', qty: 3, station: 'alquimia', in: { huevo_dragon: 1, aleacion_ignea: 2, miel: 3 }, xp: 165 },
     { id: 'r_reliquia_vacio_catalizador', out: 'catalizador_reforja', qty: 2, station: 'mesa_hechiceria', in: { reliquia_vacio: 1, polvo_estelar: 2 }, xp: 185 },
-    { id: 'r_pet_limo_dorado', out: 'pet_limo_dorado', qty: 1, station: 'artesania', in: { gel: 10, lingote_oro: 3, miel: 2, diente_goblin: 3 }, xp: 80 },
+    { id: 'r_pet_limo_dorado', out: 'pet_limo_dorado', qty: 1, station: 'mesa_artesania', in: { gel_azul: 10, lingote_oro: 3, miel: 2, diente_goblin: 3 }, xp: 80 },
     { id: 'r_pet_cangrejo_coral', out: 'pet_cangrejo_coral', qty: 1, station: 'alquimia', in: { concha_marina: 5, caracola_antigua: 2, perla: 2, cangrejo_dorado: 1 }, xp: 105 },
     { id: 'r_pet_buho_astral', out: 'pet_buho_astral', qty: 1, station: 'mesa_hechiceria', in: { pluma_oscura: 5, ala_murcielago: 4, esencia_lunar: 2, cuarzo_lunar: 2 }, xp: 125 },
     { id: 'r_pet_espiritu_igneo', out: 'pet_espiritu_igneo', qty: 1, station: 'yunque_runico', in: { esencia_magma: 3, aleacion_ignea: 3, cuerno_demonio: 2, rubi: 2 }, xp: 150 },
     { id: 'r_pet_pez_linterna', out: 'pet_pez_linterna', qty: 1, station: 'alquimia', in: { perla_leviatan: 1, coral_brillante: 4, pez_abismal: 2, esencia_lunar: 2 }, xp: 165 },
-    { id: 'r_acunar_trofeo_goblin', out: '_coin', qty: 280, station: 'forja', in: { diente_goblin: 6, resina_antigua: 3 }, xp: 40 }
+    { id: 'r_acunar_trofeo_goblin', out: '_coin', qty: 280, coinIcon: true, station: 'forja', in: { diente_goblin: 6, resina_antigua: 3 }, xp: 40 }
   ];
 
   // Assign rarity-scaled build / craft / cook durations uniformly (applied to all items)
@@ -519,32 +519,8 @@
     poco_comun: 2.8,
     raro: 4.5,
     epico: 6.5,
-    legendario: 9.0
-  };
-  const TIER_CRAFT_TIME = {
-    basica: 1.2,
-    mejorada: 1.8,
-    cobre: 2.4,
-    hierro: 3.1,
-    plata: 3.9,
-    oro: 4.8,
-    platino: 5.8,
-    acero: 6.8,
-    cristal: 7.8,
-    mitrilo: 8.9,
-    titanio: 10.0,
-    adamantita: 11.2,
-    oricalco: 12.4,
-    coral: 13.5,
-    boreal: 14.5,
-    selvano: 15.6,
-    escoria: 16.8,
-    pirita: 18.0,
-    glaciar: 19.2,
-    maldito: 20.5,
-    legendaria: 22.0,
-    celestial: 24.0,
-    omega: 28.0
+    legendario: 9.0,
+    mitico: 12.0
   };
 
   // Clean zero keys and populate craftTime / isCook uniformly
@@ -555,9 +531,6 @@
     if (!Number.isFinite(r.craftTime)) {
       if (r.toolUnlock) {
         r.craftTime = 2.0;
-      } else if (r.toolUpgrade) {
-        const tier = r.toolUpgrade.split(':').pop();
-        r.craftTime = TIER_CRAFT_TIME[tier] || 4.0;
       } else if (r.out === '_coin') {
         r.craftTime = r.in && (r.in.lingote_platino || r.in.lingote_oro) ? 4.2 : 2.5;
       } else {
@@ -570,7 +543,7 @@
   });
 
   // Sort strictly beginner -> endgame within each station
-  const RARITY_RANK = { comun: 0, poco_comun: 1, raro: 2, epico: 3, legendario: 4 };
+  const RARITY_RANK = { comun: 0, poco_comun: 1, raro: 2, epico: 3, legendario: 4, mitico: 5 };
   const recipeProgScore = (r) => {
     if (r.toolUnlock) return 10 + (r.xp || 0);
     if (r.out === '_coin') return 3500 + (r.xp || 0);

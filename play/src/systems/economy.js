@@ -64,7 +64,8 @@
         const it = Abyssea.ITEMS[id];
         if (!it) return;
         const mult = multMin + Math.random() * (multMax - multMin);
-        let price = Math.max(3, Math.round(it.buyValue * mult));
+        const baseBuy = Number(it.buyValue) || (Number(it.sellValue) ? Number(it.sellValue) * 2.2 : 12);
+        let price = Math.max(3, Math.round(baseBuy * mult));
         if (maxCap) price = Math.min(maxCap, price);
         buyList.push({
           itemId: id,
@@ -88,7 +89,8 @@
         if (!id) continue;
         const it = Abyssea.ITEMS[id];
         const bonusMult = 1.15 + Math.random() * 0.25;
-        const unitPrice = Math.max(2, Math.round(it.sellValue * bonusMult));
+        const baseSell = Number(it.sellValue) || Number(it.sellPrice) || 5;
+        const unitPrice = Math.max(2, Math.round(baseSell * bonusMult));
         sellList.push({
           itemId: id,
           price: unitPrice,
@@ -136,8 +138,15 @@
 
     getSellMultiplier(game, itemId = null) {
       let mult = 1.0 + (game.mods.sellBonus || 0);
-      const treasuries = game.buildings.filter(b => b.type === 'tesoreria').length;
-      mult += treasuries * 0.15;
+      const treasuries = (game.buildings || []).filter(b => b.type === 'tesoreria').length;
+      mult += Math.min(0.90, treasuries * 0.15);
+      // Puesto de Feria Urbana (sellAura: +6% comercio, capped at +30%)
+      const marketStalls = (game.buildings || []).filter(b => b.type === 'puesto_mercado');
+      if (marketStalls.length > 0) {
+        const stallDef = Abyssea.BUILDINGS && Abyssea.BUILDINGS.puesto_mercado;
+        const perStall = (stallDef && stallDef.sellAura) || 0.06;
+        mult += Math.min(0.30, marketStalls.length * perStall);
+      }
       // RC2: Daily Dynamic Market Demand surge!
       if (itemId && game && typeof game.getDailyMarketDemand === 'function') {
         const dem = game.getDailyMarketDemand();
@@ -146,12 +155,27 @@
           mult *= (dem.mult || 1.45);
         }
       }
-      return mult;
+      return Math.min(3.0, mult);
     }
 
-    getBuyPrice(game, basePrice) {
-      const disc = game.mods.marketDiscount || 0;
-      return Math.max(1, Math.round(basePrice * (1 - disc)));
+    getBuyPrice(game, basePrice, itemId = null) {
+      let disc = game.mods.marketDiscount || 0;
+      const marketStalls = (game.buildings || []).filter(b => b.type === 'puesto_mercado').length;
+      if (marketStalls > 0) {
+        const stallDef = Abyssea.BUILDINGS && Abyssea.BUILDINGS.puesto_mercado;
+        const perStall = (stallDef && stallDef.sellAura) || 0.06;
+        disc += Math.min(0.24, marketStalls * perStall);
+      }
+      disc = Math.min(0.55, Math.max(0, disc));
+      let finalPrice = Math.max(1, Math.round(basePrice * (1 - disc)));
+      // Prevent buy->sell infinite gold arbitrage floor
+      if (itemId && Abyssea.ITEMS && Abyssea.ITEMS[itemId]) {
+        const it = Abyssea.ITEMS[itemId];
+        const baseSell = Number(it.sellValue) || Number(it.sellPrice) || 5;
+        const effectiveSell = Math.round(baseSell * this.getSellMultiplier(game, itemId));
+        finalPrice = Math.max(finalPrice, Math.ceil(effectiveSell * 1.15) + 1);
+      }
+      return finalPrice;
     }
 
     sellItem(game, itemId, qty = 1) {
@@ -175,7 +199,7 @@
       const offer = this.marketStock[idx];
       if (!offer || offer.stock <= 0) return false;
       const count = Math.min(qty, offer.stock);
-      const unitCost = this.getBuyPrice(game, offer.price);
+      const unitCost = this.getBuyPrice(game, offer.price, offer.itemId);
       const total = unitCost * count;
       if (game.coins < total) {
         game.toast(`Necesitas ${total} monedas.`, 'warn');
@@ -199,7 +223,29 @@
       return Math.max(10, Math.round(base * progMult * (1 - disc)));
     }
 
+    _ensureBiomeCache(game) {
+      const uLen = Array.isArray(game && game.unlockedPlots) ? game.unlockedPlots.length : 0;
+      const dLen = Array.isArray(game && game.clearedDungeons) ? game.clearedDungeons.length : 0;
+      const seed = (game && game.world && game.world.worldSeed) || 0;
+      const key = `${seed}|${uLen}|${dLen}`;
+      if (this._biomeCacheKey !== key) {
+        this._biomeCacheKey = key;
+        this._biomeOrderCache = null;
+        this._biomeProgCache = new Map();
+        this._biomeLockByBiomeCache = new Map();
+      }
+    }
+
+    invalidateBiomeCache() {
+      this._biomeCacheKey = null;
+      this._biomeOrderCache = null;
+      if (this._biomeProgCache) this._biomeProgCache.clear();
+      if (this._biomeLockByBiomeCache) this._biomeLockByBiomeCache.clear();
+    }
+
     getBiomeProgressionOrder(game) {
+      this._ensureBiomeCache(game);
+      if (this._biomeOrderCache) return this._biomeOrderCache;
       const canonical = (Abyssea.CONST && Abyssea.CONST.BIOME_ORDER)
         ? [...Abyssea.CONST.BIOME_ORDER]
         : ['pradera', 'desierto', 'montanas_heladas', 'bosque_oscuro', 'tierras_volcanicas'];
@@ -219,29 +265,8 @@
         const ib = canonical.indexOf(b);
         return (ia >= 0 ? ia : 999) - (ib >= 0 ? ib : 999);
       });
+      this._biomeOrderCache = present;
       return present;
-    }
-
-    getZoneProgress(game) {
-      const zones = (Abyssea.CONST && Abyssea.CONST.BIOME_ZONES) || [];
-      return zones.map(z => {
-        const biomeProgs = z.biomes.map(bId => this.getBiomeUnlockProgress(game, bId));
-        const unlocked = biomeProgs.reduce((s, p) => s + p.unlocked, 0);
-        const total = biomeProgs.reduce((s, p) => s + p.total, 0);
-        const dungeonsDone = biomeProgs.reduce((s, p) => s + p.dungeonsDone, 0);
-        const dungeonsTotal = biomeProgs.reduce((s, p) => s + p.dungeonsTotal, 0);
-        const complete = biomeProgs.every(p => p.complete);
-        return {
-          zone: z.zone,
-          name: z.name,
-          biomes: biomeProgs,
-          unlocked,
-          total,
-          dungeonsDone,
-          dungeonsTotal,
-          complete
-        };
-      });
     }
 
     getBiomeDungeons(game, biomeId) {
@@ -282,6 +307,8 @@
     }
 
     getBiomeUnlockProgress(game, biomeId) {
+      this._ensureBiomeCache(game);
+      if (this._biomeProgCache.has(biomeId)) return this._biomeProgCache.get(biomeId);
       const biomesObj = (Abyssea.CONST && Abyssea.CONST.BIOMES) || {};
       const biomeName = (biomesObj[biomeId] && biomesObj[biomeId].name) || biomeId;
       const dungProg = this.getBiomeDungeonProgress(game, biomeId);
@@ -312,7 +339,7 @@
       }
       const islandsComplete = total === 0 || unlocked >= total;
       const dungeonsComplete = dungProg.complete;
-      return {
+      const res = {
         biomeId,
         biomeName,
         unlocked,
@@ -323,6 +350,8 @@
         dungeonsComplete,
         complete: islandsComplete && dungeonsComplete
       };
+      this._biomeProgCache.set(biomeId, res);
+      return res;
     }
 
     getBiomeLockStatus(game, gx, gy) {
@@ -343,6 +372,10 @@
           missingIslands: false, missingDungeons: false
         };
       }
+      this._ensureBiomeCache(game);
+      if (this._biomeLockByBiomeCache.has(targetBiome)) {
+        return this._biomeLockByBiomeCache.get(targetBiome);
+      }
       const order = this.getBiomeProgressionOrder(game);
       const targetIdx = order.indexOf(targetBiome);
       const targetProg = this.getBiomeUnlockProgress(game, targetBiome);
@@ -351,7 +384,7 @@
           const prevBiome = order[i];
           const prog = this.getBiomeUnlockProgress(game, prevBiome);
           if (!prog.complete) {
-            return {
+            const lockedRes = {
               lockedByBiome: true,
               targetBiomeId: targetBiome,
               blockingBiomeId: prevBiome,
@@ -365,10 +398,12 @@
               missingIslands: !prog.islandsComplete,
               missingDungeons: !prog.dungeonsComplete
             };
+            this._biomeLockByBiomeCache.set(targetBiome, lockedRes);
+            return lockedRes;
           }
         }
       }
-      return {
+      const openRes = {
         lockedByBiome: false,
         targetBiomeId: targetBiome,
         blockingBiomeId: null,
@@ -382,6 +417,8 @@
         missingIslands: !targetProg.islandsComplete,
         missingDungeons: !targetProg.dungeonsComplete
       };
+      this._biomeLockByBiomeCache.set(targetBiome, openRes);
+      return openRes;
     }
 
     isPlotAdjacentlyReachable(game, gx, gy) {
@@ -409,15 +446,6 @@
         }
       }
       return true;
-    }
-
-    canBuyPlot(game, gx, gy) {
-      if (!game || !game.world || game.world.isPlotUnlocked(gx, gy)) return false;
-      const biomeLock = this.getBiomeLockStatus(game, gx, gy);
-      if (biomeLock.lockedByBiome) return false;
-      if (!this.isPlotAdjacentlyReachable(game, gx, gy)) return false;
-      const price = this.getPlotPrice(game, gx, gy);
-      return (game.coins || 0) >= price;
     }
 
     buyPlot(game, gx, gy) {
@@ -456,6 +484,7 @@
       game.coins -= price;
       game.world.unlockPlot(gx, gy, false);
       game.unlockedPlots.push([gx, gy]);
+      this.invalidateBiomeCache();
       if (!Array.isArray(game.plotUnlockAnims)) game.plotUnlockAnims = [];
       game.plotUnlockAnims.push({ gx, gy, t: 0, dur: 0.48 });
       const plotPx = (Abyssea.CONST.PLOT_TILES || 12) * (Abyssea.CONST.TILE_SIZE || 48);
@@ -466,7 +495,7 @@
       game.gainXp(25);
       Abyssea.Audio.play('levelup');
       const curBiomeId = game.world.plotBiomes[gy][gx];
-      const biomeName = Abyssea.CONST.BIOMES[curBiomeId].name;
+      const biomeName = (Abyssea.CONST.BIOMES[curBiomeId] && Abyssea.CONST.BIOMES[curBiomeId].name) || curBiomeId;
       const afterProg = this.getBiomeUnlockProgress(game, curBiomeId);
       const order = this.getBiomeProgressionOrder(game);
       const nextBiomeId = order[order.indexOf(curBiomeId) + 1];

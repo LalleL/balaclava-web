@@ -13,27 +13,12 @@
     if (typeof Image === 'undefined') return;
     const root = window.ABYSSEA_ROOT_BASE || '';
     const map = {
-      blastFurnace: root + 'assets/sprites_extra/station_blast_furnace.png',
-      furnace:      root + 'assets/sprites_extra/station_furnace.png',
-      runicAnvil:   root + 'assets/sprites_extra/bld_yunque_runico.png',
-      ironAnvil:    root + 'assets/sprites_extra/station_anvil.png',
-      manaWell:     root + 'assets/sprites_extra/station_well_mana.png',
-      alchemyTable: root + 'assets/sprites_extra/station_alchemy.png',
-      enchantTable: root + 'assets/sprites_extra/bld_mesa_encantamientos.png',
-      sorceryTable: root + 'assets/sprites_extra/bld_mesa_hechiceria.png',
+      alchemyTable: root + 'assets/icons_tiers_v14/buildings/station_alchemy.png',
+      sorceryTable: root + 'assets/icons_tiers_v14/buildings/bld_mesa_hechiceria.png',
+      brazier:      root + 'assets/icons_tiers_v14/buildings/fire_brazier.png',
+      bookshelf:    root + 'assets/icons_tiers_v14/buildings/prop_bookshelf.png',
       runeCircle:   root + 'assets/sprites_extra/rune_circle.png',
-      runePillar:   root + 'assets/sprites_extra/rune_pillar.png',
-      brazier:      root + 'assets/sprites_extra/fire_brazier.png',
-      barrel:       root + 'assets/sprites_extra/barrel_wood.png',
-      bookshelf:    root + 'assets/sprites_extra/bookshelf.png',
-      cobbleTile:   root + 'assets/sprites_extra/cobble_tile.png',
-      stoneBlock:   root + 'assets/sprites_extra/stone_block.png',
-      royalCarpet:  root + 'assets/sprites_extra/royal_carpet.png',
-      altarArcane:  root + 'assets/sprites_extra/altar_arcane.png',
-      fxLevelRing:  root + 'assets/sprites_extra/fx_level_ring.png',
-      fxThunder:    root + 'assets/sprites_extra/fx_thunder_strike.png',
-      fxMagma:      root + 'assets/sprites_extra/fx_vfx_magma.png',
-      fxExplosion:  root + 'assets/sprites_extra/fx_vfx_explosion.png'
+      runePillar:   root + 'assets/sprites_extra/rune_pillar.png'
     };
     for (const [k, src] of Object.entries(map)) {
       const img = new Image();
@@ -208,7 +193,7 @@
   Abyssea.TIER_REFORGE_MATERIAL = TIER_REFORGE_MATERIAL;
 
   function rollGearRarityId(qualityBonus = 0) {
-    const mult = 1 + Math.max(0, Math.min(0.65, qualityBonus));
+    const mult = 1 + Math.max(0, Math.min(1.5, qualityBonus));
     const r = Math.random();
     const pSingular = 0.001 * mult;
     const pMitico = pSingular + 0.010 * mult;
@@ -737,11 +722,7 @@
       cadena_rayos:      { coins: 220, items: { oro: 3, cristales_magicos: 2 } },
       escudo_divino:     { coins: 240, items: { lingote_hierro: 4, cristales: 4 } },
       paso_etereo:       { coins: 260, items: { cristales_magicos: 2, pluma_oscura: 2 } },
-      daga_veneno:       { coins: 200, items: { hongo_luminoso: 5, cristales: 3 } },
-      meteorito:         { coins: 380, items: { rubi: 2, cristales_magicos: 4 } },
-      vortice_vacio:     { coins: 450, items: { amatista: 2, cristales_magicos: 4 } },
-      juicio_solar:      { coins: 520, items: { lingote_oro: 4, topacio: 2, cristales_magicos: 4 } },
-      tormenta_glacial:  { coins: 480, items: { zafiro: 2, cristales_magicos: 4 } }
+      daga_veneno:       { coins: 200, items: { hongo_luminoso: 5, cristales: 3 } }
     };
     if (RECIPES_BY_SPELL[spellId]) return RECIPES_BY_SPELL[spellId];
     return {
@@ -1049,9 +1030,31 @@
       this.player.x = Math.max(minX, Math.min(maxX, this.player.x));
       this.player.y = Math.max(minY, Math.min(maxY, this.player.y));
 
+      // Solid collision against the 12 fish tanks and center console so the hero never clips inside them
+      const pushOut = (ox, oy, minDist) => {
+        const dx = this.player.x - ox;
+        const dy = this.player.y - oy;
+        const d = Math.hypot(dx, dy);
+        if (d > 0.001 && d < minDist) {
+          this.player.x = ox + (dx / d) * minDist;
+          this.player.y = oy + (dy / d) * minDist;
+        } else if (d <= 0.001) {
+          this.player.y = oy + minDist;
+        }
+      };
+      if (Array.isArray(aq.tanks)) {
+        for (const tk of aq.tanks) {
+          pushOut((tk.tx + 0.5) * TILE_SIZE, (tk.ty + 0.5) * TILE_SIZE, 34);
+        }
+      }
+      if (aq.consolePos) {
+        pushOut((aq.consolePos.tx + 0.5) * TILE_SIZE, (aq.consolePos.ty + 0.5) * TILE_SIZE, 30);
+      }
+
       const ptx = this.player.x / TILE_SIZE;
       const pty = this.player.y / TILE_SIZE;
-      const interact = !!(this.keys && (this.keys.KeyE || this.keys.KeyF));
+      const customInteract = Abyssea.UI && Abyssea.UI.keybinds && Abyssea.UI.keybinds.interact;
+      const interact = !!(this.keys && (this.keys.KeyE || this.keys.KeyF || (customInteract && this.keys[customInteract])));
       if (interact && !this._aqInteractLock) {
         this._aqInteractLock = true;
         if (Math.hypot(ptx - (aq.exitPortalPos.tx + 0.5), pty - (aq.exitPortalPos.ty + 0.5)) <= 1.8) {
@@ -1354,11 +1357,26 @@
         passiveRow.appendChild(this.el('span', { style: 'color:#90a4ae;font-size:12px;' },
           'Exhibe peces en las 12 peceras de cristal para activar bendiciones pasivas permanentes en toda la isla.'));
       } else {
+        const FLAT_AQUARIUM_KEYS = new Set(['maxHp', 'maxEnergy', 'def', 'regen', 'energyRegen', 'lightRadius', 'burnDmg', 'extraDrop', 'harvestBonus', 'killHeal']);
+        const STAT_LABELS = {
+          maxHp: 'Vida Máx.', maxEnergy: 'Energía Máx.', def: 'Defensa', defPct: 'Mitigación',
+          regen: 'Regen. Vida/s', energyRegen: 'Regen. Energía/s', lightRadius: 'Radio Luz',
+          moveSpeed: 'Vel. Mov.', dmgBonus: 'Daño', spellPower: 'Poder Mágico',
+          critChance: 'Crítico', dodgeChance: 'Esquiva', luckBonus: 'Suerte',
+          doubleDropChance: 'Botín Doble', mineSpeed: 'Minería', chopSpeed: 'Tala',
+          gatherPower: 'Recolección', craftSpeed: 'Crafteo', sellBonus: 'Venta',
+          coinDropBonus: 'Monedas', bossDmgBonus: 'Daño Jefes', spellCdRed: 'Red. Enfriamiento',
+          burnDmg: 'Daño Fuego', frostSlowChance: 'Ralent. Hielo', thorns: 'Espinas',
+          lifeSteal: 'Robo Vida', xpBonus: 'Experiencia', fishWindow: 'Ventana Pesca'
+        };
         for (const [k, v] of entries) {
-          const pct = Math.round(v * 100);
+          const lbl = STAT_LABELS[k] || k;
+          const valStr = FLAT_AQUARIUM_KEYS.has(k)
+            ? `+${Number.isInteger(v) ? v : Number(v.toFixed(1))}`
+            : `+${Math.round(v * 100)}%`;
           passiveRow.appendChild(this.el('span', {
             style: 'background:rgba(0,229,255,0.14);border:1px solid #00e5ff;color:#e0f7fa;padding:3px 9px;border-radius:4px;font-size:12px;'
-          }, `${k}: +${pct}%`));
+          }, `${lbl}: ${valStr}`));
         }
       }
 
@@ -1397,7 +1415,7 @@
         }, [
           this.el('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;' }, [
             this.el('span', { style: 'font-size:11px;color:#80deea;font-weight:bold;' }, `PECERA #${i + 1}`),
-            this.el('span', { style: `font-size:10px;color:${borderCol};` }, fPass ? `[${fPass.rarity.toUpperCase()}]` : 'Vacía')
+            this.el('span', { style: `font-size:10px;color:${borderCol};` }, fItem ? `[${(fItem.rarity || 'raro').toUpperCase()}]` : 'Vacía')
           ])
         ]);
 
@@ -1602,6 +1620,9 @@
           }
           g.addItem(potion.id, 1);
           g.masteredPotions[potion.id] = (g.masteredPotions[potion.id] || 0) + 1;
+          st.step = 0;
+          st.mortarClicks = 0;
+          st.distilledScore = 0;
           Abyssea.Audio.play('craft');
           g.toast(`¡Has elaborado ${potion.name} x1!`, 'success');
           body.innerHTML = '';
@@ -1710,7 +1731,10 @@
               }
             }
           } else if (st.step === 2) {
-            const [minH, maxH] = idealHeat;
+            if (mx < 220 || mx > 680 || my < 80 || my > 410) return;
+            const stabPad = st.solventId === 'agua_purificada' ? 8 : 0;
+            const minH = Math.max(0, idealHeat[0] - stabPad);
+            const maxH = Math.min(100, idealHeat[1] + stabPad);
             const cur = Math.round(st.heatCursor);
             let score = 75;
             if (cur >= minH && cur <= maxH) {
@@ -1720,6 +1744,7 @@
               Abyssea.Audio.play('craft');
             }
             if (st.solventId === meta.base) score += 25;
+            if (st.solventId === 'savia_luminosa' || st.solventId === 'icor_volcanico') score += 15;
             st.distilledScore = score;
             st.step = 3;
             for (let k = 0; k < 35; k++) {
@@ -1733,10 +1758,23 @@
               });
             }
           } else if (st.step === 3) {
+            if (mx < 220 || mx > 760 || my < 80 || my > 410) return;
+            // Re-validate ingredients at distillation time to prevent any quick-distill dupe
+            const stillHasAll = Object.entries(meta.ingredients).every(([ingId, reqCnt]) => (g.inventory[ingId] || 0) >= reqCnt);
+            if (!stillHasAll) {
+              g.toast('Te faltan reactivos para completar la destilación.', 'warn');
+              Abyssea.Audio.play('error');
+              st.step = 0;
+              st.mortarClicks = 0;
+              return;
+            }
             for (const [ingId, reqCnt] of Object.entries(meta.ingredients)) {
               g.removeItem(ingId, reqCnt);
             }
-            const yieldCount = st.distilledScore >= 135 ? 2 : 1;
+            let yieldCount = st.distilledScore >= 135 ? 2 : 1;
+            if (st.solventId === 'eter_astral' && yieldCount < 2 && Math.random() < 0.25) {
+              yieldCount = 2;
+            }
             g.addItem(potion.id, yieldCount);
             g.masteredPotions[potion.id] = (g.masteredPotions[potion.id] || 0) + 1;
             Abyssea.Audio.play('levelup');
@@ -1744,6 +1782,7 @@
             g.toast(`¡Alquimia completada! Recibiste ${potion.name} x${yieldCount}`, 'success');
             st.step = 0;
             st.mortarClicks = 0;
+            st.distilledScore = 0;
             body.innerHTML = '';
             this.renderAlchemyLab(body);
           }
@@ -1958,13 +1997,26 @@
         cancelAnimationFrame(this._v14ActiveLoop);
         this._v14ActiveLoop = null;
       }
+      if (this._v14ModalCleanup) {
+        this._v14ModalCleanup();
+        this._v14ModalCleanup = null;
+      }
       const st = this._ritualState;
       if (!st) return;
       const spMap = Abyssea.SPELLS || {};
       const spell = Array.isArray(spMap) ? spMap.find(s => s.id === st.spellId) : spMap[st.spellId];
       if (!spell) return;
       const curMastery = g.getSpellLevel ? g.getSpellLevel(spell.id) : 1;
-      const recipe = getSpellRitualRecipe(spell.id);
+      let recipe = getSpellRitualRecipe(spell.id);
+      if (st.isAscension) {
+        if (typeof g.getSpellUpgradeCost === 'function') {
+          const uc = g.getSpellUpgradeCost(spell.id);
+          if (uc) recipe = { coins: uc.coins || 0, items: uc.items || {} };
+        } else {
+          const nextLvl = curMastery + 1;
+          recipe = { coins: nextLvl * 140, items: { cristales_magicos: nextLvl, polvo_estelar: Math.max(1, nextLvl - 1) } };
+        }
+      }
       const reqCoins = recipe.coins || 0;
 
       const ingRow = this.el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;' }, [
@@ -2099,8 +2151,12 @@
         });
       }
 
+      const onWindowMouseUp = () => { isHoldingCenter = false; };
       if (typeof window !== 'undefined' && window.addEventListener) {
-        window.addEventListener('mouseup', () => { isHoldingCenter = false; });
+        window.addEventListener('mouseup', onWindowMouseUp);
+        this._v14ModalCleanup = () => {
+          window.removeEventListener('mouseup', onWindowMouseUp);
+        };
       }
 
       let lastT = performance.now();
@@ -2199,7 +2255,9 @@
         ctx.textAlign = 'center';
         ctx.fillText(
           st.completed
-            ? `RITUAL CONSUMADO: ${spell.name.toUpperCase()} DESBLOQUEADO`
+            ? (st.isAscension
+              ? `RITUAL CONSUMADO: ${spell.name.toUpperCase()} ASCENDIDO A NV.${curMastery + 1}`
+              : `RITUAL CONSUMADO: ${spell.name.toUpperCase()} DESBLOQUEADO`)
             : (allLit ? `PILARES ENCENDIDOS — HAZ CLIC EN EL ALTAR CENTRAL (${Math.round(st.channelProgress)}%)` : `FASE 1: HAZ CLIC EN LOS 5 PILARES RÚNICOS PARA ENCENDERLOS (${st.activatedNodes.filter(Boolean).length}/5)`),
           440, 34
         );
@@ -2381,10 +2439,6 @@
     UI.renderReforgeTab = function (body) {
       const g = this.game;
       g.ensureV14State();
-      if (this._v14ReforgePreviewLoop) {
-        cancelAnimationFrame(this._v14ReforgePreviewLoop);
-        this._v14ReforgePreviewLoop = null;
-      }
 
       const probRow = this.el('div', { style: 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;' });
       for (const r of Object.values(GEAR_RARITIES)) {
@@ -2435,7 +2489,7 @@
         );
         if (!isWeapon) continue;
         const r = g.getGearRarity('weapon', itemId);
-        const cost = g.getGearReforgeCost ? g.getGearReforgeCost('weapon', itemId) : g.getReforgeCost('weapon', itemId);
+        const cost = g.getReforgeCost('weapon', itemId);
         const matKey = Object.keys(cost.items)[0];
         const matQty = cost.items[matKey];
         entries.push({
@@ -2524,14 +2578,19 @@
                 g.coins -= e.gold;
                 g.removeItem('catalizador_reforja', 1);
                 g.stats.reforgedTotal = (g.stats.reforgedTotal || 0) + 1;
-                const rDef = g.rollAndAssignGearRarity(e.kind, e.id, 1.35, false);
-                if (rDef && ['comun', 'no_comun', 'raro'].includes(rDef.id)) {
-                  const promoted = Math.random() < 0.04 ? 'singular' : Math.random() < 0.20 ? 'mitico' : Math.random() < 0.50 ? 'legendario' : 'epico';
-                  if (e.kind === 'tool') g.toolRarities[e.id] = promoted;
-                  else g.weaponRarities[e.id] = promoted;
-                  g.recomputeModifiers();
+                // Catalyst grants +50% Mythic/Singular odds & guarantees Epic+ rarity (no inflated 4% Singular rate)
+                let rolledId = rollGearRarityId(0.50);
+                if (['comun', 'no_comun', 'raro'].includes(rolledId)) {
+                  const pr = Math.random();
+                  rolledId = pr < 0.0015 ? 'singular' : pr < 0.0165 ? 'mitico' : pr < 0.22 ? 'legendario' : 'epico';
                 }
+                if (e.kind === 'tool') g.toolRarities[e.id] = rolledId;
+                else g.weaponRarities[e.id] = rolledId;
+                g.recomputeModifiers();
                 const finalR = g.getGearRarity(e.kind, e.id);
+                if (g.addFloatingText && g.player && finalR) {
+                  g.addFloatingText(g.player.x, g.player.y - 36, `[${finalR.name.toUpperCase()}]`, finalR.color);
+                }
                 Abyssea.Audio.play('levelup');
                 g.toast(`¡Reforja Catalizada en ${e.name}! Rareza garantizada: ${finalR.name} — ${finalR.desc}`, 'success');
                 this.renderModal();

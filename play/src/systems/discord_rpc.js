@@ -207,15 +207,16 @@
 
     if (game.activeDungeon) {
       const dung = game.activeDungeon;
-      const isAbyss = Boolean(dung.isAbyss || dung.id === 'abismo_infinito' || (dung.def && dung.def.id === 'abismo_infinito'));
-      const abyssFloor = (game.abyss && game.abyss.current) || dung.floor || 1;
+      const isAbyss = Boolean(dung.abyssFloor || dung.isAbyss || dung.id === 'abismo_infinito' || (dung.def && dung.def.id === 'abismo_infinito'));
+      const abyssFloor = dung.abyssFloor || (game.omega && game.omega.state && game.omega.state.abyss && game.omega.state.abyss.current) || 1;
       const dungName = isAbyss
         ? (isEn ? `Infinite Abyss F${abyssFloor}` : `Abismo Infinito P${abyssFloor}`)
         : ((dung.def && dung.def.name) || (isEn ? 'Dungeon' : 'Mazmorra'));
       const boss = dung.boss;
       const TILE_SIZE = (Abyssea.CONST && Abyssea.CONST.TILE_SIZE) || 48;
       const playerTx = game.player ? Math.floor(game.player.x / TILE_SIZE) : 0;
-      const inBossRoom = Boolean(boss && !boss.dead && playerTx >= ((dung.bossRoomMinX || 34) - 2));
+      const bossAlive = Boolean(boss && !boss._dead && (boss.hp || 0) > 0);
+      const inBossRoom = Boolean(bossAlive && (dung.bossLocked || playerTx >= ((dung.bossRoomMinX || 34) - 2)));
 
       let details;
       let state;
@@ -225,14 +226,14 @@
         state = isEn
           ? `${dungName} (${hpPct}%) · Lv.${lvl}`
           : `${dungName} (${hpPct}%) · Nv.${lvl}`;
-      } else if (boss && boss.dead) {
+      } else if (dung.completed || (boss && boss._dead)) {
         details = isEn ? `Cleared: ${dungName}` : `Despejada: ${dungName}`;
         state = isEn
           ? `Lv.${lvl} · ${clearedCount} dungeons cleared`
           : `Nv.${lvl} · ${clearedCount} mazmorras`;
       } else {
         const aliveEnemies = Array.isArray(dung.enemies)
-          ? dung.enemies.filter(e => e && !e.dead).length + (boss && !boss.dead ? 1 : 0)
+          ? dung.enemies.filter(e => e && !e._dead && (e.hp || 0) > 0).length + (bossAlive ? 1 : 0)
           : 0;
         details = isEn ? `Dungeon: ${dungName}` : `Mazmorra: ${dungName}`;
         state = isEn
@@ -255,7 +256,9 @@
 
     const biome = getPlayerBiomeInfo(game, isEn);
     const lunar = getLunarInfo(game, isEn);
-    const totalSkills = (Array.isArray(Abyssea.SKILLS) && Abyssea.SKILLS.length) ? Abyssea.SKILLS.length : TOTAL_SKILLS_FALLBACK;
+    const totalSkills = (Abyssea.SKILLS && typeof Abyssea.SKILLS === 'object')
+      ? (Array.isArray(Abyssea.SKILLS) ? Abyssea.SKILLS.length : Object.keys(Abyssea.SKILLS).length) || TOTAL_SKILLS_FALLBACK
+      : TOTAL_SKILLS_FALLBACK;
     const bType = activeModal === 'building' && modalData ? modalData.type : null;
 
     let details = isEn ? `Exploring: ${biome.name}` : `Explorando: ${biome.name}`;
@@ -278,7 +281,7 @@
       const exhibits = Array.isArray(game.trophyExhibits) ? game.trophyExhibits.length : 0;
       details = isEn ? 'Trophy Hall Museum' : 'Salón de Trofeos';
       state = isEn ? `Lv.${lvl} · ${exhibits} relics displayed` : `Nv.${lvl} · ${exhibits} reliquias`;
-    } else if (activeModal === 'spell_ritual' || activeModal === 'grimorio' || bType === 'mesa_alquimia' || bType === 'laboratorio_alquimia') {
+    } else if (activeModal === 'spell_ritual' || activeModal === 'grimorio' || bType === 'alquimia' || bType === 'laboratorio') {
       details = isEn ? 'Alchemy & Arcane Rituals' : 'Alquimia y Rituales';
       state = isEn ? `Lv.${lvl} · ${biome.name}` : `Nv.${lvl} · ${biome.name}`;
     } else if (activeModal === 'skills') {
@@ -338,7 +341,7 @@
       if (!pendingTimer) {
         pendingTimer = setTimeout(() => {
           pendingTimer = null;
-          flushUpdate(true);
+          flushUpdate(false);
         }, MIN_PUSH_INTERVAL_MS - elapsed);
       }
       return;
@@ -352,6 +355,7 @@
   }
 
   function initDiscord() {
+    if (!getTauriInvoke()) return;
     if (initialized) {
       flushUpdate(true);
       return;

@@ -34,8 +34,7 @@
     anvil: 'assets/icons/anvil.png',
     spellbook: 'assets/icons/spellbook.png',
     xpOrb: 'assets/icons/xp_orb.png',
-    manaOrb: 'assets/icons/mana_orb.png',
-    skullDeath: FDA_BASE + '07_Items/Monster_Drops/skull.png',
+    skullDeath: 'assets/icons_tiers_v14/items/craneo_maldito.png?v=2.0.3',
     barFrame: 'assets/ui/rpg_bar_frame.png',
     barOrnate: 'assets/ui/rpg_bar_ornate.png',
     barFillHp: FDA_BASE + '08_UI/Bars/fill_health_60x6.png',
@@ -165,7 +164,17 @@
     crit: 'assets/icons_extra/buff_crit.png',
     arcane: 'assets/icons_extra/scroll_purple.png',
     hunter: 'assets/icons_extra/buff_crit.png',
-    furia_arcana: 'assets/icons_extra/buff_attack.png'
+    furia_arcana: 'assets/icons_extra/buff_attack.png',
+    titan_skin: 'assets/sprites_v2/alc_piel_adamantita.png?v=2.0.3',
+    miner_sight: 'assets/sprites_v2/alc_clarividencia_minera.png?v=2.0.3',
+    chrono_haste: 'assets/sprites_v2/alc_crono_velocidad.png?v=2.0.3',
+    vampiric_thirst: 'assets/sprites_v2/alc_vampirismo_sanguino.png?v=2.0.3',
+    storm_overload: 'assets/sprites_v2/alc_tormenta_electrica.png?v=2.0.3',
+    golden_fortune: 'assets/sprites_v2/alc_fortuna_dorada.png?v=2.0.3',
+    phantom_step: 'assets/sprites_v2/alc_paso_fantasmal.png?v=2.0.3',
+    colossus_might: 'assets/sprites_v2/alc_coloso_titan.png?v=2.0.3',
+    radiant_harvest: 'assets/sprites_v2/alc_cosecha_radiante.png?v=2.0.3',
+    omega_transcendence: 'assets/sprites_v2/alc_singularidad_omega.png?v=2.0.3'
   };
 
   // Every item icon key mapped to a real crisp PNG file.
@@ -206,13 +215,10 @@
     gema_rubi: 'assets/icons_extra/ruby.png',
     sapphire: 'assets/icons_extra/sapphire.png',
     gema_zafiro: 'assets/icons_extra/sapphire.png',
-    jade: 'assets/icons_extra/jade.png',
     gema_jade: 'assets/icons_extra/jade.png',
     ambar: 'assets/icons_extra/ambar.png',
     gema_ambar: 'assets/icons_extra/ambar.png',
-    gema_marina: 'assets/icons_extra/gema_marina.png',
     gema_alma: 'assets/icons_extra/gema_alma.png',
-    gem_soul_gem: 'assets/icons_extra/gema_alma.png',
     dark_essence: FDA_BASE + '07_Items/Monster_Drops/shadow_essence.png',
     ancient_fragment: RPG_ICON_BASE + 'Misc/Rune Stone.png',
     special_ingot: 'assets/icons_extra/special_ingot.png',
@@ -236,9 +242,7 @@
     lingote_plata: 'assets/icons_extra/lingote_plata.png',
     lingote_adamantita: 'assets/icons_extra/lingote_adamantita.png',
     lingote_titanio: 'assets/icons_extra/lingote_titanio.png',
-    silver_bar: 'assets/icons_extra/lingote_titanio.png',
     lingote_celestial: 'assets/icons_extra/lingote_celestial.png',
-    lingote_platino: 'assets/icons_extra/bar_silver.png',
     lingote_oricalco: 'assets/icons_extra/lingote_adamantita.png',
     gear: RPG_ICON_BASE + 'Misc/Gear.png',
     seeds_carrot: 'assets/icons/seeds_carrot.png',
@@ -717,26 +721,26 @@
     compost_magico: 'assets/icons_extra/compost_magico.png',
     cofre_hundido: 'assets/sprites_extra/chest_sapphire_closed.png',
 
-    // === FASE 5: HECHIZOS ACTIVOS (VerArc 16x16 Spells) ===
-    spell_bola_fuego: VERARC_BASE + 'Spells/fire_spell.png',
-    spell_lluvia_meteoros: VERARC_BASE + 'Spells/fire_spell_2.png',
-    spell_nova_hielo: VERARC_BASE + 'Spells/ice_spell.png',
-    spell_cadena_rayos: VERARC_BASE + 'Spells/lightning_spell.png',
-    spell_curacion_sagrada: VERARC_BASE + 'Spells/healing_spell.png',
-    spell_escudo_divino: VERARC_BASE + 'Spells/divine_protection_spell.png',
-    spell_furia_arcana: VERARC_BASE + 'Spells/frenzy_spell_(critical_booster).png',
-    spell_paso_etereo: VERARC_BASE + 'Spells/teleportation_spell.png',
-    spell_espinas_tierra: VERARC_BASE + 'Spells/thorn_vine_spell.png',
-    spell_espectro_aliado: VERARC_BASE + 'Spells/summoning_spell.png',
-    spell_misil_arcano: VERARC_BASE + 'Spells/water_spell.png',
-    spell_vacio_gravitacional: VERARC_BASE + 'Spells/counterspell.png',
-    spell_destello_solar: VERARC_BASE + 'Spells/blinding_light_spell.png',
-    spell_fortificacion: VERARC_BASE + 'Spells/fortify_spell.png',
-    spell_drenaje_mana: VERARC_BASE + 'Spells/mana_replenish.png',
-    spell_daga_veneno: VERARC_BASE + 'Spells/poison_dagger.png',
-    spell_lluvia_minerales: VERARC_BASE + 'Spells/fortify_spell.png',
-    spell_llamado_horda: VERARC_BASE + 'Spells/counterspell.png',
-    spell_llamado_fauna: VERARC_BASE + 'Spells/summoning_spell.png',
+    // === HECHIZOS ACTIVOS (128x128 Hand-Pixelled V14 Grimoires & Runes) ===
+    spell_bola_fuego: 'assets/icons_tiers_v14/items/grimorio_bola_fuego.png?v=2.0.3',
+    spell_lluvia_meteoros: 'assets/icons_tiers_v14/items/grimorio_lluvia_meteoros.png?v=2.0.3',
+    spell_nova_hielo: 'assets/icons_tiers_v14/items/grimorio_nova_hielo.png?v=2.0.3',
+    spell_cadena_rayos: 'assets/icons_tiers_v14/items/grimorio_cadena_rayos.png?v=2.0.3',
+    spell_curacion_sagrada: 'assets/icons_tiers_v14/items/grimorio_curacion_sagrada.png?v=2.0.3',
+    spell_escudo_divino: 'assets/icons_tiers_v14/items/grimorio_escudo_divino.png?v=2.0.3',
+    spell_furia_arcana: 'assets/icons_tiers_v14/items/grimorio_furia_arcana.png?v=2.0.3',
+    spell_paso_etereo: 'assets/icons_tiers_v14/items/grimorio_paso_etereo.png?v=2.0.3',
+    spell_espinas_tierra: 'assets/icons_tiers_v14/items/grimorio_espinas_tierra.png?v=2.0.3',
+    spell_espectro_aliado: 'assets/icons_tiers_v14/items/runa_muerte.png?v=2.0.3',
+    spell_misil_arcano: 'assets/icons_tiers_v14/items/grimorio_misil_arcano.png?v=2.0.3',
+    spell_vacio_gravitacional: 'assets/icons_tiers_v14/items/gema_vacio.png?v=2.0.3',
+    spell_destello_solar: 'assets/icons_tiers_v14/items/runa_luz.png?v=2.0.3',
+    spell_fortificacion: 'assets/icons_tiers_v14/items/pergamino_escudo.png?v=2.0.3',
+    spell_drenaje_mana: 'assets/icons_tiers_v14/items/grimorio_drenaje_mana.png?v=2.0.3',
+    spell_daga_veneno: 'assets/icons_tiers_v14/items/grimorio_daga_veneno.png?v=2.0.3',
+    spell_lluvia_minerales: 'assets/icons_tiers_v14/items/grimorio_lluvia_minerales.png?v=2.0.3',
+    spell_llamado_horda: 'assets/icons_tiers_v14/items/grimorio_llamado_horda.png?v=2.0.3',
+    spell_llamado_fauna: 'assets/icons_tiers_v14/items/grimorio_llamado_fauna.png?v=2.0.3',
 
     // === FASE 5: NUEVAS ARMAS, BÁCULOS, VARITAS Y ARQUETIPOS (UNIFICADO 32x32) ===
     dagger_iron: 'assets/icons_extra/dagger_iron.png',
@@ -1002,191 +1006,55 @@
     pet_pez_linterna: 'assets/sprites_v2/pet_pez_linterna.png?v=2.0.0-rc2px'
   };
 
-  Abyssea.TOOL_PNG_MAP = {
-    pico: {
-      basica: 'assets/icons_extra/pico_basica.png',
-      mejorada: 'assets/icons_extra/pico_mejorada.png',
-      cobre: 'assets/icons_extra/pico_cobre.png',
-      hierro: 'assets/icons_extra/pico_hierro.png',
-      plata: 'assets/icons_extra/pico_plata.png',
-      oro: 'assets/icons_extra/pico_oro.png',
-      platino: 'assets/icons_extra/pico_platino.png',
-      acero: 'assets/icons_extra/pico_acero.png',
-      cristal: 'assets/icons_extra/pico_cristal.png',
-      mitrilo: 'assets/icons_extra/pico_mitrilo.png',
-      titanio: 'assets/icons_extra/pico_titanio.png',
-      adamantita: 'assets/icons_extra/pico_adamantita.png',
-      oricalco: 'assets/icons_extra/pico_oricalco.png',
-      legendaria: 'assets/icons_extra/pico_legendaria.png',
-      celestial: 'assets/icons_extra/pico_celestial.png'
-    },
-    hacha: {
-      basica: 'assets/icons_extra/hacha_basica.png',
-      mejorada: 'assets/icons_extra/hacha_mejorada.png',
-      cobre: 'assets/icons_extra/hacha_cobre.png',
-      hierro: 'assets/icons_extra/hacha_hierro.png',
-      plata: 'assets/icons_extra/hacha_plata.png',
-      oro: 'assets/icons_extra/hacha_oro.png',
-      platino: 'assets/icons_extra/hacha_platino.png',
-      acero: 'assets/icons_extra/hacha_acero.png',
-      cristal: 'assets/icons_extra/hacha_cristal.png',
-      mitrilo: 'assets/icons_extra/hacha_mitrilo.png',
-      titanio: 'assets/icons_extra/hacha_titanio.png',
-      adamantita: 'assets/icons_extra/hacha_adamantita.png',
-      oricalco: 'assets/icons_extra/hacha_oricalco.png',
-      legendaria: 'assets/icons_extra/hacha_legendaria.png',
-      celestial: 'assets/icons_extra/hacha_celestial.png'
-    },
-    espada: {
-      basica: 'assets/icons_extra/espada_basica.png',
-      mejorada: 'assets/icons_extra/espada_mejorada.png',
-      cobre: 'assets/icons_extra/espada_cobre.png',
-      hierro: 'assets/icons_extra/espada_hierro.png',
-      plata: 'assets/icons_extra/espada_plata.png',
-      oro: 'assets/icons_extra/espada_oro.png',
-      platino: 'assets/icons_extra/espada_platino.png',
-      acero: 'assets/icons_extra/espada_acero.png',
-      cristal: 'assets/icons_extra/espada_cristal.png',
-      mitrilo: 'assets/icons_extra/espada_mitrilo.png',
-      titanio: 'assets/icons_extra/espada_titanio.png',
-      adamantita: 'assets/icons_extra/espada_adamantita.png',
-      oricalco: 'assets/icons_extra/espada_oricalco.png',
-      legendaria: 'assets/icons_extra/espada_legendaria.png',
-      celestial: 'assets/icons_extra/espada_celestial.png'
-    },
-    pala: {
-      basica: 'assets/icons_extra/pala_basica.png',
-      mejorada: 'assets/icons_extra/pala_mejorada.png',
-      cobre: 'assets/icons_extra/pala_cobre.png',
-      hierro: 'assets/icons_extra/pala_hierro.png',
-      plata: 'assets/icons_extra/pala_plata.png',
-      oro: 'assets/icons_extra/pala_oro.png',
-      platino: 'assets/icons_extra/pala_platino.png',
-      acero: 'assets/icons_extra/pala_acero.png',
-      cristal: 'assets/icons_extra/pala_cristal.png',
-      mitrilo: 'assets/icons_extra/pala_mitrilo.png',
-      titanio: 'assets/icons_extra/pala_titanio.png',
-      adamantita: 'assets/icons_extra/pala_adamantita.png',
-      oricalco: 'assets/icons_extra/pala_oricalco.png',
-      legendaria: 'assets/icons_extra/pala_legendaria.png',
-      celestial: 'assets/icons_extra/pala_celestial.png'
-    },
-    cana: {
-      basica: 'assets/icons_extra/rod_01.png',
-      mejorada: 'assets/icons_extra/rod_02.png',
-      cobre: 'assets/icons_extra/rod_03.png',
-      hierro: 'assets/icons_extra/rod_04.png',
-      plata: 'assets/icons_extra/rod_05.png',
-      oro: 'assets/icons_extra/rod_06.png',
-      platino: 'assets/icons_extra/rod_07.png',
-      acero: 'assets/icons_extra/rod_08.png',
-      cristal: 'assets/icons_extra/rod_09.png',
-      mitrilo: 'assets/icons_extra/rod_10.png',
-      titanio: 'assets/icons_extra/rod_11.png',
-      adamantita: 'assets/icons_extra/rod_12.png',
-      oricalco: 'assets/icons_extra/rod_13.png',
-      legendaria: 'assets/icons_extra/rod_14.png',
-      celestial: 'assets/icons_extra/rod_15.png'
-    },
-    guadana: {
-      basica: 'assets/icons_extra/guadana_basica.png',
-      mejorada: 'assets/icons_extra/guadana_mejorada.png',
-      cobre: 'assets/icons_extra/guadana_cobre.png',
-      hierro: 'assets/icons_extra/guadana_hierro.png',
-      plata: 'assets/icons_extra/guadana_plata.png',
-      oro: 'assets/icons_extra/guadana_oro.png',
-      platino: 'assets/icons_extra/guadana_platino.png',
-      acero: 'assets/icons_extra/guadana_acero.png',
-      cristal: 'assets/icons_extra/guadana_cristal.png',
-      mitrilo: 'assets/icons_extra/guadana_mitrilo.png',
-      titanio: 'assets/icons_extra/guadana_titanio.png',
-      adamantita: 'assets/icons_extra/guadana_adamantita.png',
-      oricalco: 'assets/icons_extra/guadana_oricalco.png',
-      legendaria: 'assets/icons_extra/guadana_legendaria.png',
-      celestial: 'assets/icons_extra/guadana_celestial.png'
-    },
-    arco: {
-      basica: 'assets/icons_extra/arco_basica.png',
-      mejorada: 'assets/icons_extra/arco_mejorada.png',
-      cobre: 'assets/icons_extra/arco_cobre.png',
-      hierro: 'assets/icons_extra/arco_hierro.png',
-      plata: 'assets/icons_extra/arco_plata.png',
-      oro: 'assets/icons_extra/arco_oro.png',
-      platino: 'assets/icons_extra/arco_platino.png',
-      acero: 'assets/icons_extra/arco_acero.png',
-      cristal: 'assets/icons_extra/arco_cristal.png',
-      mitrilo: 'assets/icons_extra/arco_mitrilo.png',
-      titanio: 'assets/icons_extra/arco_titanio.png',
-      adamantita: 'assets/icons_extra/arco_adamantita.png',
-      oricalco: 'assets/icons_extra/arco_oricalco.png',
-      legendaria: 'assets/icons_extra/arco_legendaria.png',
-      celestial: 'assets/icons_extra/arco_celestial.png'
-    },
-    azada: {
-      basica: 'assets/icons_extra/hoe_basic.png',
-      mejorada: 'assets/icons_extra/hoe_mejorada.png',
-      cobre: 'assets/icons_extra/hoe_cobre.png',
-      hierro: 'assets/icons_extra/hoe_iron.png',
-      plata: 'assets/icons_extra/hoe_plata.png',
-      oro: 'assets/icons_extra/hoe_gold.png',
-      platino: 'assets/icons_extra/hoe_platino.png',
-      acero: 'assets/icons_extra/hoe_acero.png',
-      cristal: 'assets/icons_extra/hoe_diamond.png',
-      mitrilo: 'assets/icons_extra/hoe_mithril.png',
-      titanio: 'assets/icons_extra/hoe_titanio.png',
-      adamantita: 'assets/icons_extra/hoe_adamantita.png',
-      oricalco: 'assets/icons_extra/hoe_oricalco.png',
-      legendaria: 'assets/icons_extra/hoe_legendaria.png',
-      celestial: 'assets/icons_extra/hoe_cosmic.png'
-    }
-  };
+  // Populated by v1.4.0+ HD tiered sprite mapping below
+  Abyssea.TOOL_PNG_MAP = {};
 
   Abyssea.SKILL_EXTRA_ICONS = {
-    scroll_map: 'assets/icons/scroll_map.png',
-    amulet_ruby: FDA_BASE + '07_Items/Armor/amulet_ruby.png',
-    bow: RPG_ICON_BASE + 'Weapon & Tool/Bow.png',
-    axe: FDA_BASE + '07_Items/Weapons/axe_iron.png',
-    anvil: 'assets/icons/anvil.png',
-    station_enchant: 'assets/sprites_extra/station_enchant.png',
-    chest: 'assets/sprites_extra/chest_gold_closed.png',
-    ectoplasma: FDA_BASE + '07_Items/Monster_Drops/ectoplasm.png',
-    sun: 'assets/icons/sun.png',
-    rune_pillar: 'assets/sprites_extra/rune_pillar.png',
-    compass: FDA_BASE + '07_Items/Tools/compass.png',
-    waypoint_white: 'assets/sprites_extra/waypoint_white.png',
-    telar: 'assets/sprites_extra/bld_telar.png',
-    plantacion: 'assets/sprites_extra/bld_plantacion.png',
+    scroll_map: 'assets/icons_tiers_v14/items/mapa_tesoro_item.png?v=2.0.3',
+    amulet_ruby: 'assets/icons_tiers_v14/items/anillo_rubi_real.png?v=2.0.3',
+    bow: 'assets/icons_tiers_v14/tools/arco_acero.png?v=2.0.3',
+    axe: 'assets/icons_tiers_v14/tools/hacha_hierro.png?v=2.0.3',
+    anvil: 'assets/icons_tiers_v14/items/lingote_acero.png?v=2.0.3',
+    station_enchant: 'assets/icons_tiers_v14/items/tablilla_runica.png?v=2.0.3',
+    chest: 'assets/icons_tiers_v14/items/cofre_hundido.png?v=2.0.3',
+    ectoplasma: 'assets/icons_tiers_v14/items/ectoplasma.png?v=2.0.3',
+    sun: 'assets/icons_tiers_v14/items/nucleo_solar.png?v=2.0.3',
+    rune_pillar: 'assets/icons_tiers_v14/items/runa_luz.png?v=2.0.3',
+    compass: 'assets/icons_tiers_v14/relics/brujula_estelar.png?v=2.0.3',
+    waypoint_white: 'assets/icons_tiers_v14/items/pergamino_teletransporte.png?v=2.0.3',
+    telar: 'assets/icons_tiers_v14/items/tela_reforzada.png?v=2.0.3',
+    plantacion: 'assets/icons_tiers_v14/items/trigo.png?v=2.0.3',
     coin: 'assets/ui/coin_gold.png',
-    sword: FDA_BASE + '07_Items/Weapons/sword_iron.png',
-    lana: 'assets/icons/wool.png'
+    sword: 'assets/icons_tiers_v14/tools/espada_hierro.png?v=2.0.3',
+    lana: 'assets/icons_tiers_v14/items/lana.png?v=2.0.3'
   };
 
   Abyssea.SKILL_ICON_POOL = [
-    FDA_BASE + '08_UI/Skills/Icons/skill_haste.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_earthquake.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_regen.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_multishot.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_meteor.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_protect.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_heal.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_holy_light.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_shield_bash.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_revive.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_block.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_slash.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_whirlwind.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_flame_wave.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_berserk.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_trap.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_charge.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_thorns.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_fireball.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_arcane_missile.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_dodge.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_ice_spike.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_chain_lightning.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_frost_nova.png',
-    FDA_BASE + '08_UI/Skills/Icons/skill_teleport.png'
+    'assets/icons_tiers_v14/tools/pico_acero.png?v=2.0.3',
+    'assets/icons_tiers_v14/tools/hacha_oro.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/pocion_cosecha.png?v=2.0.3',
+    'assets/icons_tiers_v14/tools/arco_cristal.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_lluvia_meteoros.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/escudo_esmeralda.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_curacion_sagrada.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/runa_luz.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/escudo_leon.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/elixir_vida_supremo.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/escudo_glacial.png?v=2.0.3',
+    'assets/icons_tiers_v14/tools/espada_acero.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/hacha_batalla_oro.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/espada_llamarada.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_furia_arcana.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/engrane.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/pergamino_furia.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_espinas_tierra.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_bola_fuego.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_misil_arcano.png?v=2.0.3',
+    'assets/icons_tiers_v14/armor/botas_viento.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/hoja_glacial.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_cadena_rayos.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_nova_hielo.png?v=2.0.3',
+    'assets/icons_tiers_v14/items/grimorio_paso_etereo.png?v=2.0.3'
   ];
 
   Abyssea.SKILL_ICON_URLS = {
@@ -1203,14 +1071,14 @@
   };
 
   Abyssea.NPC_PORTRAIT_URLS = {
-    eldrin: FDA_BASE + '06_NPCs/Portraits/old_sage_portrait_32x32.png',
-    zara: FDA_BASE + '06_NPCs/Portraits/merchant_portrait_32x32.png',
-    lyra: FDA_BASE + '06_NPCs/Portraits/alchemist_portrait_32x32.png',
-    bjorn: FDA_BASE + '06_NPCs/Portraits/dwarf_trader_portrait_32x32.png',
-    ignis: FDA_BASE + '06_NPCs/Portraits/wizard_portrait_32x32.png',
-    kael: FDA_BASE + '06_NPCs/Portraits/blacksmith_portrait_32x32.png',
-    selene: FDA_BASE + '06_NPCs/Portraits/priestess_portrait_32x32.png',
-    doran: FDA_BASE + '06_NPCs/Portraits/miner_portrait_32x32.png'
+    eldrin: 'assets/icons_tiers_v14/npcs/portrait_eldrin.png?v=2.0.3',
+    zara: 'assets/icons_tiers_v14/npcs/portrait_zara.png?v=2.0.3',
+    lyra: 'assets/icons_tiers_v14/npcs/portrait_lyra.png?v=2.0.3',
+    bjorn: 'assets/icons_tiers_v14/npcs/portrait_bjorn.png?v=2.0.3',
+    ignis: 'assets/icons_tiers_v14/npcs/portrait_ignis.png?v=2.0.3',
+    kael: 'assets/icons_tiers_v14/npcs/portrait_kael.png?v=2.0.3',
+    selene: 'assets/icons_tiers_v14/npcs/portrait_selene.png?v=2.0.3',
+    doran: 'assets/icons_tiers_v14/npcs/portrait_doran.png?v=2.0.3'
   };
 
   const NPCS_V15 = 'assets/icons_tiers_v14/npcs/';
@@ -1225,183 +1093,12 @@
     doran:  NPCS_V15 + 'doran_4f.png?v=1.6.2'
   };
 
-  // Animated enemy sprite sheets
-  Abyssea.ENEMY_SPRITE_PATHS = {
-    slime:          { path: 'assets/sprites_extra/enemies/slime_green_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.15 },
-    golden_slime:   { path: 'assets/sprites_extra/enemies/slime_gold_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.25, goldGlow: true },
-    skeleton:       { path: 'assets/sprites_extra/enemies/skeleton_warrior_rogue_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.18 },
-    scorpion:       { path: FDA_BASE + '04_Enemies/scorpion/strips/scorpion_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.3 },
-    sand_ghoul:     { path: 'assets/sprites_extra/enemies/sandworm_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    cobra:          { path: 'assets/sprites_extra/enemies/cobra_green_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    bat:            { path: 'assets/sprites_extra/enemies/bat_horned_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    vampire_bat:    { path: 'assets/sprites_extra/enemies/vampire_bat_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    wisp:           { path: 'assets/sprites_extra/enemies/wisp_flame_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    ghost:          { path: FDA_BASE + '04_Enemies/ghost/strips/ghost_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.4 },
-    spider:         { path: 'assets/sprites_extra/enemies/spider_fuzzy_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    zombie:         { path: FDA_BASE + '04_Enemies/zombie/zombie_walk_idle_sheet.png', kind: 'sheet6x4', fw: 16, fh: 32, scale: 1.55 },
-    mushroom_mob:   { path: 'assets/sprites_extra/enemies/mushroom_monster_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    goblin:         { path: 'assets/sprites_extra/enemies/goblin_torch_red_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.15 },
-    goblin_tnt:     { path: 'assets/sprites_extra/goblin_tnt_4f.png', kind: 'strip4', fw: 64, fh: 64, scale: 1.15 },
-    wolf:           { path: FDA_BASE + '04_Enemies/wolf/strips/wolf_move_down_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.6 },
-    shadow_wolf:    { path: FDA_BASE + '04_Enemies/wolf_shadow/strips/wolf_shadow_move_down_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.75 },
-    golem:          { path: FDA_BASE + '04_Enemies/golem_ice/strips/golem_ice_move_down_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.75 },
-    rock_golem:     { path: FDA_BASE + '04_Enemies/golem_rock/strips/golem_rock_move_down_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.75 },
-    magma:          { path: FDA_BASE + '04_Enemies/golem_lava/strips/golem_lava_move_down_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.85 },
-    cultist:        { path: FDA_BASE + '04_Enemies/cultist/cultist_walk_idle_sheet.png', kind: 'sheet6x4', fw: 16, fh: 32, scale: 1.6 },
-    fire_elem:      { path: 'assets/sprites_extra/enemies/wisp_flame_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.7 },
-    rat:            { path: 'assets/sprites_extra/enemies/rat_gray_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.45 },
-    rat_giant:      { path: 'assets/sprites_extra/enemies/rat_brown_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.75 },
-    beetle:         { path: FDA_BASE + '04_Enemies/beetle/strips/beetle_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.2 },
-    beetle_fire:    { path: FDA_BASE + '04_Enemies/beetle_fire/strips/beetle_fire_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.35 },
-    imp:            { path: FDA_BASE + '04_Enemies/imp/strips/imp_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.35 },
-    orc:            { path: FDA_BASE + '04_Enemies/orc/orc_walk_idle_sheet.png', kind: 'sheet6x4', fw: 16, fh: 32, scale: 1.75 },
-    mimic:          { path: FDA_BASE + '04_Enemies/mimic/strips/mimic_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.4 },
-    mushroom_purple:{ path: 'assets/sprites_extra/enemies/mushroom_purple_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    skeleton_archer:{ path: 'assets/sprites_extra/enemies/skel_crossbowman_4f.png', kind: 'strip4', fw: 42, fh: 36, scale: 1.25 },
-    skeleton_mage:  { path: 'assets/sprites_extra/enemies/skel_mage_unhooded_4f.png', kind: 'strip4', fw: 39, fh: 49, scale: 1.2 },
-    goblin_shaman:  { path: FDA_BASE + '04_Enemies/goblin_shaman/goblin_shaman_walk_idle_sheet.png', kind: 'sheet6x4', fw: 16, fh: 32, scale: 1.6 },
-    floating_eye:   { path: 'assets/sprites_extra/enemies/floating_eye_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    cave_spider:    { path: 'assets/sprites_extra/enemies/cave_spider_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    slime_toxic:    { path: 'assets/sprites_extra/enemies/slime_toxic_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.2 },
-    grave_revenant: { path: 'assets/packs/basic asset pack/basic asset pack/Basic Undead Animations/Grave Revenant/GraveRevenant.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.35 },
-    royal_scarab:   { path: 'assets/packs/basic asset pack/basic asset pack/Basic Undead Animations/Royal Scarab/RoyalScarab.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.35 },
-    toxic_hound:    { path: 'assets/packs/basic asset pack/basic asset pack/Basic Undead Animations/Toxic Hound/ToxicHound.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.35 },
-    ghastly_eye:    { path: 'assets/sprites_extra/enemies/ghastly_eye_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    brittle_archer: { path: 'assets/packs/basic asset pack/basic asset pack/Basic Undead Animations/Brittle Archer/BrittleArcher.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.35 },
-    lava_ant:       { path: 'assets/packs/basic_asset_pack_v2/basic asset pack/Basic Vermin Animations/Lava Ant/LavaAnt.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.3 },
-    acid_ant:       { path: 'assets/packs/basic_asset_pack_v2/basic asset pack/Basic Vermin Animations/Acid Ant/AcidAnt.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.3 },
-    tunneling_mole: { path: 'assets/packs/basic_asset_pack_v2/basic asset pack/Basic Vermin Animations/Tunneling Mole/TunnelingMole.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.3 },
-    plague_bat:     { path: 'assets/sprites_extra/enemies/plague_bat_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    // === FASE 4/5: NUEVOS ENEMIGOS DE MAZMORRAS Y BIOMAS ===
-    goblin_archer:  { path: 'assets/sprites_extra/enemies/ts_goblin_torch_blue_4f.png', kind: 'strip4', fw: 79, fh: 92, scale: 0.76 },
-    ghost_spectral: { path: FDA_BASE + '04_Enemies/ghost_spectral/strips/ghost_spectral_move_down_4f.png', kind: 'strip4', fw: 16, fh: 16, scale: 2.4 },
-    slime_blue:     { path: 'assets/sprites_extra/enemies/slime_blue_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.15 },
-    slime_red:      { path: 'assets/sprites_extra/enemies/slime_red_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.15 },
-    vine_snake:     { path: 'assets/sprites_extra/enemies/biter_plant_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.45 },
-    wisp_green:     { path: 'assets/sprites_extra/enemies/wisp_green_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.5 },
-    skel_swordsman: { path: 'assets/sprites_extra/enemies/skel_great_swordman_4f.png', kind: 'strip4', fw: 53, fh: 40, scale: 1.25 },
-    skel_mage_dark: { path: 'assets/sprites_extra/enemies/skel_mage_unhooded_4f.png', kind: 'strip4', fw: 39, fh: 49, scale: 1.2 },
-    skel_crossbow:  { path: 'assets/sprites_extra/enemies/skel_crossbowman_4f.png', kind: 'strip4', fw: 42, fh: 36, scale: 1.25 },
-    skel_spearman:  { path: 'assets/sprites_extra/enemies/skel_spearman_4f.png', kind: 'strip4', fw: 44, fh: 42, scale: 1.25 },
-    flaming_skull:  { path: 'assets/sprites_extra/enemies/skel_flaming_skull_4f.png', kind: 'strip4', fw: 20, fh: 32, scale: 1.65 },
-    dark_lancer:    { path: 'assets/sprites_extra/enemies/ts_lancer_black_4f.png', kind: 'strip4', fw: 73, fh: 154, scale: 0.62 },
-    goblin_barrel:  { path: 'assets/sprites_extra/enemies/ts_goblin_barrel_4f.png', kind: 'strip4', fw: 62, fh: 88, scale: 0.78 },
-    goblin_sapper:  { path: 'assets/sprites_extra/enemies/bomb_walker_32px_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.45 },
-    goblin_raider:  { path: 'assets/sprites_extra/enemies/ts_goblin_torch_blue_4f.png', kind: 'strip4', fw: 79, fh: 92, scale: 0.76 },
-    crimson_jelly:  { path: 'assets/sprites_extra/enemies/slime_red_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.15 },
-    frost_jelly:    { path: 'assets/sprites_extra/enemies/slime_blue_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.15 },
-    void_jelly:     { path: 'assets/sprites_extra/enemies/slime_void_48px_4f.png', kind: 'strip4', fw: 48, fh: 48, scale: 1.2 },
-    // === Beta 1.3.0: Enemigos de los 9 nuevos biomas y 51 nuevas mazmorras ===
-    enemy_biter_red:      { path: 'assets/sprites_v13/enemies/enemy_biter_red_4f.png',      kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_bomb_black:     { path: 'assets/sprites_v13/enemies/enemy_bomb_black_4f.png',     kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_bat_horned:     { path: 'assets/sprites_v13/enemies/enemy_bat_horned_4f.png',     kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_dragon_whelp:   { path: 'assets/sprites_v13/enemies/enemy_dragon_whelp_4f.png',   kind: 'strip4', fw: 32, fh: 32, scale: 1.65 },
-    enemy_fire_slime:     { path: 'assets/sprites_v13/enemies/enemy_fire_slime_4f.png',     kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_ember_bat:      { path: 'assets/sprites_v13/enemies/enemy_ember_bat_4f.png',      kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_dark_bat:       { path: 'assets/sprites_v13/enemies/enemy_dark_bat_4f.png',       kind: 'strip4', fw: 48, fh: 48, scale: 1.35 },
-    enemy_coral_crab:     { path: 'assets/sprites_v13/enemies/enemy_coral_crab_4f.png',     kind: 'strip4', fw: 32, fh: 32, scale: 1.60 },
-    enemy_coral_cobra:    { path: 'assets/sprites_v13/enemies/enemy_coral_cobra_4f.png',    kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_selva_spider:   { path: 'assets/sprites_v13/enemies/enemy_selva_spider_4f.png',   kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_selva_plant:    { path: 'assets/sprites_v13/enemies/enemy_selva_plant_4f.png',    kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_pantano_slime:  { path: 'assets/sprites_v13/enemies/enemy_pantano_slime_4f.png',  kind: 'strip4', fw: 48, fh: 48, scale: 1.25 },
-    enemy_pantano_shroom: { path: 'assets/sprites_v13/enemies/enemy_pantano_shroom_4f.png', kind: 'strip4', fw: 32, fh: 32, scale: 1.55 },
-    enemy_cristal_eye:    { path: 'assets/sprites_v13/enemies/enemy_cristal_eye_4f.png',    kind: 'strip4', fw: 32, fh: 32, scale: 1.60 },
-    enemy_glaciar_whelp:  { path: 'assets/sprites_v13/enemies/enemy_glaciar_whelp_4f.png',  kind: 'strip4', fw: 32, fh: 32, scale: 1.65 },
-    enemy_necro_skull:    { path: 'assets/sprites_v13/enemies/enemy_necro_skull_4f.png',    kind: 'strip4', fw: 20, fh: 32, scale: 1.75 },
-    enemy_abismo_wisp:    { path: 'assets/sprites_v13/enemies/enemy_abismo_wisp_4f.png',    kind: 'strip4', fw: 32, fh: 32, scale: 1.65 },
-    enemy_abismo_goblin:  { path: 'assets/sprites_v13/enemies/enemy_abismo_goblin_4f.png',  kind: 'strip4', fw: 48, fh: 48, scale: 1.25 }
-  };
-
-  // Dungeon boss sprites by dungeon id (~2x2 imposing scale across all 75 dungeons)
-  Abyssea.BOSS_SPRITE_PATHS = {
-    pradera:            { path: FDA_BASE + '05_Bosses/slime_king_48x48/slime_king_idle_4f.png', fw: 48, fh: 48, frames: 4, scale: 2.35 },
-    pradera_profunda:   { path: 'assets/sprites_extra/boss_goblin_king_4f.png', fw: 64, fh: 76, frames: 4, scale: 1.78 },
-    pradera_madriguera: { path: 'assets/sprites_extra/bosses/ts_goblin_warlord_4f.png', fw: 79, fh: 92, frames: 4, scale: 1.48 },
-    pradera_baston:     { path: 'assets/sprites_extra/bosses/ts_warrior_red_4f.png', fw: 87, fh: 93, frames: 4, scale: 1.42 },
-    pradera_bosquecillo:{ path: 'assets/sprites_extra/bosses/boss_guardian_silvestre_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 1.95 },
-    desierto:           { path: 'assets/sprites_extra/bosses/boss_khepra_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.0 },
-    desierto_piramide:  { path: 'assets/sprites_extra/boss_centurion_4f.png', fw: 48, fh: 60, frames: 4, scale: 1.95 },
-    desierto_oasis:     { path: 'assets/sprites_extra/bosses/boss_sierpe_esmeralda_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.05 },
-    desierto_catacumbas:{ path: 'assets/sprites_extra/bosses/skel_royal_guard_4f.png', fw: 42, fh: 57, frames: 4, scale: 2.15 },
-    desierto_solario:   { path: 'assets/sprites_extra/bosses/ts_monk_purple_4f.png', fw: 62, fh: 73, frames: 4, scale: 1.65 },
-    bosque_oscuro:      { path: FDA_BASE + '05_Bosses/lich_king_48x48/lich_king_idle_4f.png', fw: 48, fh: 48, frames: 4, scale: 2.35 },
-    bosque_necro:       { path: 'assets/sprites_extra/boss_skeleton_king_4f.png', fw: 37, fh: 67, frames: 4, scale: 1.95 },
-    bosque_laboratorio: { path: 'assets/sprites_extra/bosses/boss_automata_alquimico_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 1.95 },
-    bosque_arana:       { path: 'assets/sprites_extra/bosses/boss_spider_empress_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.0 },
-    bosque_pantano:     { path: 'assets/sprites_extra/bosses/boss_swamp_hydra_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.05 },
-    montanas_heladas:   { path: FDA_BASE + '05_Bosses/dragon_frost_64x64/dragon_frost_idle_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.15 },
-    montanas_glaciar:   { path: 'assets/sprites_extra/boss_archmage_ice_4f.png', fw: 46, fh: 56, frames: 4, scale: 2.05 },
-    montanas_mina:      { path: 'assets/sprites_extra/bosses/boss_diamond_golem_48px_4f.png', fw: 48, fh: 48, frames: 4, scale: 2.4 },
-    montanas_fortaleza: { path: 'assets/sprites_extra/bosses/ts_warrior_black_4f.png', fw: 87, fh: 93, frames: 4, scale: 1.48 },
-    montanas_cumbre:    { path: 'assets/sprites_v13/bosses/boss_ice_golem_glaciar_4f.png', fw: 80, fh: 80, frames: 4, scale: 1.75 },
-    tierras_volcanicas: { path: FDA_BASE + '05_Bosses/dragon_red_64x64/dragon_red_idle_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.15 },
-    volcan_abismo:      { path: FDA_BASE + '05_Bosses/demon_lord_48x48/demon_lord_idle_4f.png', fw: 48, fh: 48, frames: 4, scale: 2.5 },
-    volcan_fragua:      { path: 'assets/sprites_extra/enemies/ts_lancer_black_4f.png', fw: 73, fh: 154, frames: 4, scale: 1.05 },
-    volcan_caldera:     { path: 'assets/sprites_extra/bosses/boss_fenix_magmatico_64px_4f.png', fw: 64, fh: 64, frames: 4, scale: 2.05 },
-    volcan_trono_ceniza:{ path: 'assets/sprites_extra/bosses/skel_great_maceman_4f.png', fw: 48, fh: 45, frames: 4, scale: 2.35 },
-    // Zona III Norte - Archipielago Coralino
-    coral_arrecife:     { path: 'assets/sprites_v13/bosses/boss_centipede_coral_4f.png', fw: 88, fh: 88, frames: 4, scale: 1.60 },
-    coral_perla:        { path: 'assets/sprites_v13/bosses/boss_eyeball_coral_4f.png',   fw: 64, fh: 64, frames: 4, scale: 2.05 },
-    coral_abismo:       { path: 'assets/sprites_v13/bosses/boss_big_worm_coral_4f.png',  fw: 72, fh: 72, frames: 4, scale: 1.90 },
-    coral_bastion:      { path: 'assets/sprites_v13/bosses/boss_wartotaur_coral_4f.png', fw: 96, fh: 96, frames: 4, scale: 1.55 },
-    coral_trono:        { path: 'assets/sprites_v13/bosses/boss_demon_coral_4f.png',     fw: 72, fh: 88, frames: 4, scale: 1.75 },
-    // Zona III Este - Cavernas de Cristal
-    cristal_geoda:      { path: 'assets/sprites_v13/bosses/boss_stone_golem_base_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.85 },
-    cristal_espejo:     { path: 'assets/sprites_v13/bosses/boss_eyeball_glaciar_4f.png',  fw: 64, fh: 64, frames: 4, scale: 2.05 },
-    cristal_camara:     { path: 'assets/sprites_v13/bosses/boss_ice_golem_base_4f.png',   fw: 80, fh: 80, frames: 4, scale: 1.78 },
-    cristal_nexo:       { path: 'assets/sprites_v13/bosses/boss_wartotaur_glaciar_4f.png',fw: 96, fh: 96, frames: 4, scale: 1.55 },
-    cristal_corazon:    { path: 'assets/sprites_v13/bosses/boss_demon_glaciar_4f.png',    fw: 72, fh: 88, frames: 4, scale: 1.78 },
-    // Zona III Sur - Selva Esmeralda
-    selva_raices:       { path: 'assets/sprites_v13/bosses/boss_flora_selva_4f.png',      fw: 88, fh: 88, frames: 4, scale: 1.65 },
-    selva_piramide:     { path: 'assets/sprites_v13/bosses/boss_stone_golem_selva_4f.png',fw: 72, fh: 72, frames: 4, scale: 1.85 },
-    selva_colmena:      { path: 'assets/sprites_v13/bosses/boss_centipede_selva_4f.png',  fw: 88, fh: 88, frames: 4, scale: 1.65 },
-    selva_dosel:        { path: 'assets/sprites_v13/bosses/boss_flora_base_4f.png',       fw: 88, fh: 88, frames: 4, scale: 1.72 },
-    selva_corazon:      { path: 'assets/sprites_v13/bosses/boss_wartotaur_selva_4f.png',  fw: 96, fh: 96, frames: 4, scale: 1.58 },
-    // Zona III Oeste - Caldera de Ceniza
-    caldera_fumarola:   { path: 'assets/sprites_v13/bosses/boss_big_worm_caldera_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.92 },
-    caldera_crater:     { path: 'assets/sprites_v13/bosses/boss_eyeball_caldera_4f.png',  fw: 64, fh: 64, frames: 4, scale: 2.08 },
-    caldera_fundicion:  { path: 'assets/sprites_v13/bosses/boss_stone_golem_caldera_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.88 },
-    caldera_bestia:     { path: 'assets/sprites_v13/bosses/boss_wartotaur_caldera_4f.png',fw: 96, fh: 96, frames: 4, scale: 1.58 },
-    caldera_senor:      { path: 'assets/sprites_v13/bosses/boss_demon_caldera_4f.png',    fw: 72, fh: 88, frames: 4, scale: 1.80 },
-    // Zona IV Norte - Dinastia de Arena Roja
-    dinastia_tumbas:    { path: 'assets/sprites_v13/bosses/boss_skel_coloss_arena_4f.png',fw: 112, fh: 112, frames: 4, scale: 1.48 },
-    dinastia_escarabajo:{ path: 'assets/sprites_v13/bosses/boss_centipede_arena_4f.png',  fw: 88, fh: 88, frames: 4, scale: 1.68 },
-    dinastia_obelisco:  { path: 'assets/sprites_v13/bosses/boss_stone_golem_arena_4f.png',fw: 72, fh: 72, frames: 4, scale: 1.90 },
-    dinastia_camara:    { path: 'assets/sprites_v13/bosses/boss_pumpking_arena_4f.png',   fw: 72, fh: 72, frames: 4, scale: 1.92 },
-    dinastia_sol:       { path: 'assets/sprites_v13/bosses/boss_wartotaur_arena_4f.png',  fw: 96, fh: 96, frames: 4, scale: 1.62 },
-    dinastia_faraon:    { path: 'assets/sprites_v13/bosses/boss_demon_arena_4f.png',      fw: 72, fh: 88, frames: 4, scale: 1.84 },
-    // Zona IV Este - Glaciar Profundo
-    glaciar_grieta:     { path: 'assets/sprites_v13/bosses/boss_big_worm_glaciar_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.92 },
-    glaciar_vestigios:  { path: 'assets/sprites_v13/bosses/boss_stone_golem_glaciar_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.90 },
-    glaciar_ojo:        { path: 'assets/sprites_v13/bosses/boss_eyeball_glaciar_4f.png',  fw: 64, fh: 64, frames: 4, scale: 2.12 },
-    glaciar_coloso:     { path: 'assets/sprites_v13/bosses/boss_ice_golem_base_4f.png',   fw: 80, fh: 80, frames: 4, scale: 1.88 },
-    glaciar_sancta:     { path: 'assets/sprites_v13/bosses/boss_skel_coloss_glaciar_4f.png', fw: 112, fh: 112, frames: 4, scale: 1.52 },
-    glaciar_abismo:     { path: 'assets/sprites_v13/bosses/boss_wartotaur_glaciar_4f.png',fw: 96, fh: 96, frames: 4, scale: 1.65 },
-    // Zona IV Sur - Cienaga Putrida
-    pantano_raices:     { path: 'assets/sprites_v13/bosses/boss_big_worm_pantano_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.95 },
-    pantano_esporas:    { path: 'assets/sprites_v13/bosses/boss_flora_pantano_4f.png',    fw: 88, fh: 88, frames: 4, scale: 1.72 },
-    pantano_cieno:      { path: 'assets/sprites_v13/bosses/boss_centipede_pantano_4f.png',fw: 88, fh: 88, frames: 4, scale: 1.72 },
-    pantano_calabaza:   { path: 'assets/sprites_v13/bosses/boss_pumpking_pantano_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.95 },
-    pantano_bastion:    { path: 'assets/sprites_v13/bosses/boss_demon_pantano_4f.png',    fw: 72, fh: 88, frames: 4, scale: 1.85 },
-    pantano_madre:      { path: 'assets/sprites_v13/bosses/boss_wartotaur_pantano_4f.png',fw: 96, fh: 96, frames: 4, scale: 1.66 },
-    // Zona IV Sudoeste/Sudeste - Necropolis Osea
-    necro_osario:       { path: 'assets/sprites_v13/bosses/boss_skel_coloss_necro_4f.png',fw: 112, fh: 112, frames: 4, scale: 1.55 },
-    necro_cripta:       { path: 'assets/sprites_v13/bosses/boss_pumpking_necro_4f.png',   fw: 72, fh: 72, frames: 4, scale: 1.96 },
-    necro_catacumba:    { path: 'assets/sprites_v13/bosses/boss_eyeball_necro_4f.png',    fw: 64, fh: 64, frames: 4, scale: 2.15 },
-    necro_foso:         { path: 'assets/sprites_v13/bosses/boss_big_worm_necro_4f.png',   fw: 72, fh: 72, frames: 4, scale: 1.96 },
-    necro_torre:        { path: 'assets/sprites_v13/bosses/boss_demon_necro_4f.png',      fw: 72, fh: 88, frames: 4, scale: 1.88 },
-    necro_trono:        { path: 'assets/sprites_v13/bosses/boss_skel_coloss_base_4f.png', fw: 112, fh: 112, frames: 4, scale: 1.62 },
-    // Zona IV Oeste Final - Tierras Malditas Abisales & Jefe Final Espadachin Carmesi Abisal (#75)
-    maldita_sangre:     { path: 'assets/sprites_v13/bosses/boss_eyeball_base_4f.png',     fw: 64, fh: 64, frames: 4, scale: 2.18 },
-    maldita_carne:      { path: 'assets/sprites_v13/bosses/boss_flora_base_4f.png',       fw: 88, fh: 88, frames: 4, scale: 1.78 },
-    maldita_forja:      { path: 'assets/sprites_v13/bosses/boss_stone_golem_caldera_4f.png', fw: 72, fh: 72, frames: 4, scale: 1.98 },
-    maldita_calabaza:   { path: 'assets/sprites_v13/bosses/boss_pumpking_base_4f.png',    fw: 72, fh: 72, frames: 4, scale: 2.02 },
-    maldita_abismo:     { path: 'assets/sprites_v13/bosses/boss_wartotaur_base_4f.png',   fw: 96, fh: 96, frames: 4, scale: 1.72 },
-    eclipse_carmesi:    { path: 'assets/sprites_v13/bosses/boss_espadachin_carmesi_full.png', fw: 128, fh: 64, cols: 14, rows: 8, frames: 7, multiRow: true, scale: 2.45 }
-  };
+  // Animated enemy & boss sprite sheets (populated cleanly by v1.6.8+ HD 6-frame strips below)
+  Abyssea.ENEMY_SPRITE_PATHS = {};
+  Abyssea.BOSS_SPRITE_PATHS = {};
 
   const GV15 = 'assets/icons_tiers_v14/gates/';
-  const GV15X = '.png?v=1.6.8';
+  const GV15X = '.png?v=2.0.5';
   Abyssea.DUNGEON_GATE_PATHS = {
     // Bioma Pradera
     pradera:            GV15 + 'sub_mazmorra' + GV15X,
@@ -2055,10 +1752,10 @@
     node_azurite: 'assets/sprites_extra/nodes/node_azurite.png',
     node_ice_crystal: 'assets/sprites_extra/nodes/node_ice_crystal.png',
     node_abyssal_crystal: 'assets/sprites_extra/nodes/node_abyssal_crystal.png',
-    // Animated Mini-Boss Champion Sprites (4 frames)
-    miniboss_sword: 'assets/sprites_extra/miniboss_sword_4f.png',
-    miniboss_mace: 'assets/sprites_extra/miniboss_mace_4f.png',
-    miniboss_mage: 'assets/sprites_extra/miniboss_mage_4f.png',
+    // Animated Mini-Boss Champion Sprites (6-frame HD V14 strips)
+    miniboss_sword: 'assets/sprites_extra/miniboss_sword_4f.png?v=2.0.3',
+    miniboss_mace: 'assets/sprites_extra/miniboss_mace_4f.png?v=2.0.3',
+    miniboss_mage: 'assets/sprites_extra/miniboss_mage_4f.png?v=2.0.3',
     // Textured Projectiles (Player Arrows & Enemy Magic/Spells)
     proj_arrow: FDA_BASE + '04_Enemies/Projectiles/arrow_right_1f.png',
     proj_fireball: FDA_BASE + '04_Enemies/Projectiles/fireball_right_4f.png',
@@ -2136,7 +1833,7 @@
     animal_cow: 'assets/sprites_extra/animals/animal_cow.png',
     animal_pig: 'assets/sprites_extra/animals/animal_pig.png',
     animal_duck: 'assets/sprites_extra/animals/animal_duck.png',
-    bld_omega_nexo: 'assets/sprites_extra/bld_omega_nexo.png',
+    bld_omega_nexo: 'assets/sprites_extra/bld_omega_nexo.png?v=2.0.3',
     bld_omega_pilon: 'assets/sprites_extra/bld_omega_pilon.png',
     bld_omega_bateria: 'assets/sprites_extra/bld_omega_bateria.png',
     bld_omega_gen_vapor: 'assets/sprites_extra/bld_omega_gen_vapor.png',
@@ -2189,10 +1886,10 @@
     prop_volcano_cone:    'assets/sprites_v13/props/volcano_cone.png',
     prop_burning_tree:    'assets/sprites_v13/props/burning_tree.png',
     // === Beta 2.0.0 RC2: Authentic Pixel-Art Buildings, Active Pets & Marine Encounters ===
-    bld_portal_acuario:        'assets/sprites_v2/bld_portal_acuario.png?v=2.0.0-rc2px',
-    bld_mesa_reforja:          'assets/sprites_v2/bld_mesa_reforja.png?v=2.0.0-rc2px',
+    bld_portal_acuario:        'assets/sprites_v2/bld_portal_acuario.png?v=2.0.3',
+    bld_mesa_reforja:          'assets/sprites_v2/bld_mesa_reforja.png?v=2.0.3',
     bld_salon_trofeos:         'assets/sprites_v2/bld_salon_trofeos.png?v=2.0.0-rc2px',
-    bld_baliza_teletransporte: 'assets/sprites_v2/bld_baliza_teletransporte.png?v=2.0.0-rc2px',
+    bld_baliza_teletransporte: 'assets/sprites_v2/bld_baliza_teletransporte.png?v=2.0.3',
     pet_limo_dorado_4f:        'assets/sprites_v2/pet_limo_dorado_4f.png?v=2.0.0-rc2px',
     pet_cangrejo_coral_4f:     'assets/sprites_v2/pet_cangrejo_coral_4f.png?v=2.0.0-rc2px',
     pet_buho_astral_4f:        'assets/sprites_v2/pet_buho_astral_4f.png?v=2.0.0-rc2px',
@@ -2205,15 +1902,6 @@
     pipe_conduit_sheet_20:     'assets/sprites_v2/pipe_conduit_sheet_20.png?v=2.0.0-rc2px2',
     pipe_conduit_icon:         'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2'
   };
-
-  if (ROOT) {
-    [Abyssea.UI_URLS, Abyssea.NPC_PORTRAIT_URLS, Abyssea.ITEM_PNG_MAP, Abyssea.BUFF_ICON_URLS].forEach(map => {
-      if (!map) return;
-      Object.keys(map).forEach(k => {
-        map[k] = withRoot(map[k]);
-      });
-    });
-  }
 
   const assets = Abyssea.Assets;
   if (!assets) return;
@@ -2385,7 +2073,6 @@
     assets.preloadedUrls = assets.preloadedUrls || {};
     const preloadPool = [
       ...Object.values(Abyssea.TOOL_PNG_MAP || {}).flatMap(m => Object.values(m || {})),
-      ...(Abyssea.SKILL_V2_ICONS || []),
       ...(Abyssea.SKILL_ICON_POOL || []),
       ...Object.values(Abyssea.SKILL_ICON_URLS || {}),
       ...Object.values(Abyssea.SKILL_EXTRA_ICONS || {}),
@@ -2442,7 +2129,8 @@
     const relics = {'tridente_fosa_marina':'rel_tridente_fosa','corona_emperatriz_mar':'rel_corona_emperatriz','perla_sirena_azul':'rel_perla_sirena','espejo_cuarzo_astral':'rel_espejo_cuarzo','nemes_faraon_inmortal':'rel_nemes_faraon','cetro_sol_cenit':'rel_cetro_sol','corona_soverano_huesos':'rel_corona_soverano','caliz_sangre_maldita':'rel_caliz_sangre','caliz_hielo_inmaculado':'rel_caliz_hielo','esquirla_prisma_tierra':'rel_esquirla_prisma','fragmento_obelisco_solar':'rel_fragmento_obelisco','mascara_serpiente_jade':'rel_mascara_serpiente','farol_almas_errantes':'rel_farol_almas','costilla_dragon_oseo':'rel_costilla_dragon','corazon_abominacion_carnica':'rel_corazon_abominacion','corona_senor_caldera':'rel_corona_caldera','fetiche_manglar_negro':'rel_fetiche_manglar','totem_hidra_cienaga':'rel_totem_hidra','talisman_raices_antiguas':'rel_talisman_raices','colmillo_bestia_ceniza':'rel_colmillo_bestia','linterna_cosecha_maldita':'rel_linterna_cosecha','osario_marfil_maldito':'rel_osario_marfil','ojo_tormenta_polar':'rel_ojo_tormenta','yunque_basalto_rojo':'rel_yunque_basalto','pluma_quetzal_dorado':'rel_pluma_quetzal','corazon_celestita_eterno':'rel_corazon_celestita','prisma_geoda_viva':'rel_prisma_geoda','brasa_fumarola_oscura':'rel_brasa_fumarola','escoria_crater_ardiente':'rel_escoria_crater','ambar_reina_esmeralda':'rel_ambar_reina','esquirla_grieta_azul':'rel_esquirla_grieta','corazon_cero_absoluto':'rel_corazon_cero','corazon_eclipse_carmesi':'rel_corazon_eclipse','ojo_abismo_singularity':'rel_ojo_abismo_sing'};
     for (const [id, f] of Object.entries(items)) { const k = 'ov_' + id; M[k] = P + f + X; M[id] = M[k]; if (I[id]) I[id].icon = k; }
     for (const [id, f] of Object.entries(relics)) { const k = 'ov_' + id; M[k] = P + f + X; M[id] = M[k]; if (R[id]) R[id].icon = k; }
-    for (const f of ['fragmento_', 'polvo_']) for (const fam of ['cobre','hierro','oro','plata','platino','titanio','adamantita','oricalco','coral','boreal','selvano','escoria','pirita','hueso','maldito']) M[f + fam] = P + f + fam + X;
+    const OIP = 'assets/icons_tiers_v14/items/', OX = '.png?v=2.0.0';
+    for (const f of ['fragmento_', 'polvo_']) for (const fam of ['cobre','hierro','oro','plata','platino','titanio','adamantita','oricalco','coral','boreal','selvano','escoria','pirita','hueso','maldito']) M[f + fam] = OIP + f + fam + OX;
     ['armor_solar','helm_solar','boots_solar','shield_solar'].forEach(k => { M[k] = P + k + X; });
     M.helm_caldera = P + 'rel_corona_caldera' + X;
     M.helm_faraon = P + 'rel_nemes_faraon' + X;
@@ -2507,8 +2195,8 @@
       'botas_glaciar','botas_abismal','botas_viento','botas_celestiales','botas_omega'
     ];
     armorIds.forEach((id) => bindItem(id, AP + id + X));
-    // Also map botas_solar (T15 alternate) to Boreal boots if unmapped
-    bindItem('botas_solar', AP + 'botas_boreal' + X);
+    // Custom 3D Navy & Gold Solar Greaves (T15 Solar Set)
+    bindItem('botas_solar', AP + 'botas_solar' + X);
 
     const miniIds = [
       'mochila_cuero','mochila_reforzada','mochila_astral',
@@ -2635,7 +2323,7 @@
       'bld_torre_rayos','bld_laboratorio','station_library','bld_taller_mecanico','bld_centro_investigacion','station_enchant',
       'bld_mesa_hechiceria','bld_taladro','bld_recolector','Bridge_Tile','prop_pipe','prop_chest','bld_balista'
     ];
-    const V15Q = '.png?v=2.0.0-rc2px2';
+    const V15Q = '.png?v=2.0.3';
     buildingKeys.forEach((k) => { EX[k] = BP + k + V15Q; });
     EX.prop_pipe = 'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2';
     EX.pipe_conduit_sheet_20 = 'assets/sprites_v2/pipe_conduit_sheet_20.png?v=2.0.0-rc2px2';
@@ -2646,8 +2334,8 @@
     EX.well_health_strip = 'assets/sprites_extra/well_health_strip.png?v=2.0.0-rc2px2';
     if (Abyssea.ITEM_PNG_MAP) {
       Abyssea.ITEM_PNG_MAP.tuberias_conduit = 'assets/sprites_v2/pipe_conduit_icon.png?v=2.0.0-rc2px2';
-      Abyssea.ITEM_PNG_MAP.bloque_fuente = 'assets/icons_tiers_v14/buildings/bld_fuente_plaza.png?v=2.0.0-rc2px2';
-      Abyssea.ITEM_PNG_MAP.bloque_estatua_caballero = 'assets/icons_tiers_v14/buildings/prop_angel.png?v=2.0.0-rc2px2';
+      Abyssea.ITEM_PNG_MAP.bloque_fuente = 'assets/icons_tiers_v14/items/bloque_fuente.png?v=2.0.0-rc2px2';
+      Abyssea.ITEM_PNG_MAP.bloque_estatua_caballero = 'assets/icons_tiers_v14/items/bloque_estatua_caballero.png?v=2.0.0-rc2px2';
       Abyssea.ITEM_PNG_MAP.prop_well = 'assets/sprites_extra/stone_well.png?v=2.0.0-rc2px2';
     }
     EX.ruin_pillar = BP + 'ruin_pillar' + V15Q;
@@ -2656,13 +2344,13 @@
 
     const CP = Abyssea.CHEST_SPRITE_PATHS = Abyssea.CHEST_SPRITE_PATHS || {};
     CP.wood_closed = BP + 'chest_wood' + V15Q;
-    CP.wood_open = BP + 'chest_wood' + V15Q;
+    CP.wood_open = BP + 'chest_wood_open' + V15Q;
     CP.oak_closed = BP + 'chest_wood' + V15Q;
-    CP.oak_open = BP + 'chest_wood' + V15Q;
+    CP.oak_open = BP + 'chest_wood_open' + V15Q;
     CP.sapphire_closed = BP + 'chest_sapphire' + V15Q;
-    CP.sapphire_open = BP + 'chest_sapphire' + V15Q;
+    CP.sapphire_open = BP + 'chest_sapphire_open' + V15Q;
     CP.gold_closed = BP + 'chest_gold' + V15Q;
-    CP.gold_open = BP + 'chest_gold' + V15Q;
+    CP.gold_open = BP + 'chest_gold_open' + V15Q;
 
     // 72 world resource nodes, crystals, meteors & biome props
     const NP = 'assets/icons_tiers_v14/nodes/';
@@ -2675,12 +2363,12 @@
       'node_agata_roja','node_cuarzo_boreal','node_hielo_eterno','node_cristal_carmesi','node_bismuto_astral','node_celestita','node_jade_ancestral','meteor_red',
       'meteor_gold','meteor_blue','node_herb_patch','node_wild_crop','node_cactus','node_madera_ferrea','node_resina_toxica','node_flor_pantano',
       'cave_mushroom_orange','cave_mushroom_brown','mushroom_blue_anim','mushroom_green_anim','prop_palm_tree','prop_desert_ribs','prop_cactus_tall','prop_giant_jungle',
-      'prop_giant_fungi','prop_snow_pine','prop_crystal_pillar','prop_swamp_altar','prop_obelisk_sand','prop_grave_angel','prop_cursed_eye','prop_burning_tree'
+      'prop_giant_fungi','prop_snow_pine','prop_crystal_pillar','prop_swamp_altar','prop_obelisk_sand','prop_grave_angel','prop_cursed_eye','prop_burning_tree','dig_spot_x'
     ];
     nodeKeys.forEach((k) => { EX[k] = NP + k + V15Q; });
     EX.cactus_icon = NP + 'node_cactus' + V15Q;
 
-    // 19 biome trees (de-haloed, 0.5fps)
+    // 19 biome trees (de-haloed, 4-frame sway strips)
     const TRP = 'assets/icons_tiers_v14/trees/';
     const v14TreeIds = [
       'pradera_1','pradera_3',
@@ -2693,12 +2381,12 @@
       'dinastia_arena_1','dinastia_arena_2',
       'glaciar_profundo_1','necropolis_osea_1','tierras_malditas_1'
     ];
-    v14TreeIds.forEach((tid) => { EX['tree_v14_' + tid] = TRP + tid + '_4f.png?v=1.6.8'; });
+    v14TreeIds.forEach((tid) => { EX['tree_v14_' + tid] = TRP + tid + '_4f.png?v=2.0.5'; });
 
     // v15 Unified Sprite Sets: Flora, Crops + Tilled Soil, Proportional Altars & Secrets, Animated Animals, Water Foam & Bridges
     const FP = 'assets/icons_tiers_v14/flora/';
     [
-      'deco_berry_bush','deco_dark_bush','deco_bush_1','deco_fern_1','deco_pebble_1','deco_shroom_1',
+      'deco_berry_bush','deco_dark_bush','deco_bush_1','deco_fern_1','deco_pebble_1','deco_shroom_1','deco_thorn_bush',
       'deco_glow_shroom_b','deco_glow_shroom_g','deco_shroom_p','deco_shroom_r','nat_flower','nat_leaf','nat_mushroom',
       'undead_grave','undead_bones','undead_dead_arm','undead_crystal','undead_dead_tree',
       'butterfly_orange','butterfly_blue','butterfly_violet','butterfly_gold',
@@ -2730,12 +2418,13 @@
       EX[`crop_${cid}_s1`] = CRP + 'crop_stage_1' + V15Q;
       EX[`crop_${cid}_s2`] = CRP + 'crop_stage_2' + V15Q;
       EX[`crop_${cid}_s3`] = CRP + `crop_${cid}_s3` + V15Q;
+      EX[`crop_${cid}`] = EX[`crop_${cid}_s3`];
     });
 
     const ALP = 'assets/icons_tiers_v14/altars/';
     [
-      'altar_fortuna','altar_furia','fuente_sagrada','altar_sabio','altar_sacrificio','altar_arcanista','altar_cazador',
-      'ee_sword_rock','ee_caldero','ee_monolito','ee_arbol_cristal','ee_naufragio','ee_well','ee_fuente_mana','ee_altar_guardian'
+      'altar_fortuna','altar_furia','fuente_sagrada','altar_sabio','altar_sacrificio','altar_arcanista','altar_cazador','altar_stone',
+      'ee_sword_rock','ee_caldero','ee_monolito','ee_arbol_cristal','ee_naufragio','ee_well','ee_fuente_mana','ee_altar_guardian','ee_throne'
     ].forEach((k) => { EX[k] = ALP + k + V15Q; });
     EX.altar_gold = EX.altar_fortuna;
     EX.altar_dark = EX.altar_furia;
@@ -2751,12 +2440,14 @@
     EX.ee_treasure = EX.ee_naufragio;
     EX.well_mana_strip = EX.ee_fuente_mana;
 
-    // Restore authentic multi-frame animated animal spritesheets (3x2 walk/idle sheets & Tiny Swords sheep)
-    EX.cow_sheet = 'assets/packs/Pixel_Farm_Assets/Pixel Farm_Assets/PixelFarm_Cow-Sheet.png';
-    EX.pig_sheet = 'assets/sprites_extra/animals/pig_sheet.png';
-    EX.rabbit_sheet = 'assets/sprites_extra/animals/rabbit_sheet.png';
-    EX.duck_sheet = 'assets/sprites_extra/animals/duck_sheet.png';
-    EX.sheep_farm_sheet = 'assets/packs/Pixel_Farm_Assets/Pixel Farm_Assets/PixelFarm_Sheep-Sheet.png';
+    // Authentic cohesive 4-frame hand-pixelled farm animal strips (cow, sheep, pig, rabbit, duck)
+    const ANP = 'assets/icons_tiers_v14/animals/';
+    EX.cow_sheet = ANP + 'animal_cow_4f' + V15Q;
+    EX.sheep_farm_sheet = ANP + 'animal_sheep_4f' + V15Q;
+    EX.sheep_pf_sheet = EX.sheep_farm_sheet;
+    EX.pig_sheet = ANP + 'animal_pig_4f' + V15Q;
+    EX.rabbit_sheet = ANP + 'animal_rabbit_4f' + V15Q;
+    EX.duck_sheet = ANP + 'animal_duck_4f' + V15Q;
     EX.animal_cow = EX.cow_sheet;
     EX.animal_pig = EX.pig_sheet;
     EX.animal_duck = EX.duck_sheet;
@@ -2850,10 +2541,22 @@
       necro_trono:1.42, maldita_sangre:1.28, maldita_carne:1.38, maldita_forja:1.38,
       maldita_calabaza:1.36, maldita_abismo:1.44
     };
+    // All 74 dungeon bosses use crisp 256x256 x 6-frame HD locomotion strips (1536x256)
     Object.entries(bossScales).forEach(([id, sc]) => {
-      BPPaths[id] = { path: BSP + id + '_6f.png?v=1.6.8', fw: 192, fh: 192, frames: 6, scale: Number((sc * 0.5).toFixed(4)) };
+      BPPaths[id] = { path: BSP + id + '_6f.png?v=2.0.2', fw: 256, fh: 256, frames: 6, scale: Number((sc * 0.375).toFixed(4)) };
     });
+    // Final Boss #75: authentic 8-row multi-animation pixel-art sheet (Guard, Charge, 8f Run, Scarlet Aura, 14f Whirlwind, 7f Dash Slash, Blink, 9f Death)
+    BPPaths.eclipse_carmesi = { path: 'assets/sprites_v13/bosses/boss_espadachin_carmesi_full.png', fw: 128, fh: 64, cols: 14, rows: 8, frames: 7, multiRow: true, scale: 2.45, anchorX: 29, anchorY: 50 };
   })();
+
+  if (ROOT) {
+    [Abyssea.UI_URLS, Abyssea.NPC_PORTRAIT_URLS, Abyssea.ITEM_PNG_MAP, Abyssea.BUFF_ICON_URLS].forEach(map => {
+      if (!map) return;
+      Object.keys(map).forEach(k => {
+        map[k] = withRoot(map[k]);
+      });
+    });
+  }
 
   assets.deferReady = true;
   const origLoadAll = assets.loadAll.bind(assets);
@@ -2962,11 +2665,6 @@
     let url = null;
     if (sk && sk.grantSpell && Abyssea.SKILL_ICON_URLS[skillId]) {
       url = Abyssea.SKILL_ICON_URLS[skillId];
-    } else if (Abyssea.SKILL_V2_ICONS && Abyssea.SKILL_V2_ICONS.length) {
-      let h = 0;
-      for (let i = 0; i < skillId.length; i++) h = (h * 33 + skillId.charCodeAt(i)) >>> 0;
-      const bOff = sk && sk.branch ? (sk.branch.charCodeAt(0) * 7) : 0;
-      url = Abyssea.SKILL_V2_ICONS[(h + bOff) % Abyssea.SKILL_V2_ICONS.length];
     } else {
       url = Abyssea.SKILL_ICON_URLS[skillId];
       if (!url && sk) {
@@ -3086,20 +2784,26 @@
 
     if (kind === 'animal') {
       const aKind = spec.animalKind || 'sheep';
+      const cropAnim = (key, im) => {
+        const is4f = im.width >= im.height * 3.5;
+        return {
+          key, img: im, sx: 0, sy: 0,
+          sw: is4f ? Math.round(im.width / 4) : (Math.round(im.width / 3) || 32),
+          sh: is4f ? im.height : (Math.round(im.height / 2) || 32),
+          size: 36
+        };
+      };
       if (aKind === 'sheep') {
-        const sh = assets.get('sheep_idle') || assets.get('sheep_move') || ex.sheep_farm_sheet;
-        if (ok(sh)) {
-          const isTinySwords = sh.height >= 100;
-          return { key: 'animal:sheep', img: sh, sx: 0, sy: 0, sw: isTinySwords ? 128 : 32, sh: isTinySwords ? 128 : 32, size: 36 };
-        }
+        const sh = ex.sheep_farm_sheet || assets.get('sheep_move') || assets.get('sheep_idle');
+        if (ok(sh)) return cropAnim('animal:sheep', sh);
       } else if (aKind === 'vaca' && ok(ex.cow_sheet)) {
-        return { key: 'animal:vaca', img: ex.cow_sheet, sx: 0, sy: 0, sw: Math.round(ex.cow_sheet.width / 3) || 32, sh: Math.round(ex.cow_sheet.height / 2) || 32, size: 36 };
+        return cropAnim('animal:vaca', ex.cow_sheet);
       } else if (aKind === 'cerdo' && ok(ex.pig_sheet)) {
-        return { key: 'animal:cerdo', img: ex.pig_sheet, sx: 0, sy: 0, sw: Math.round(ex.pig_sheet.width / 3) || 32, sh: Math.round(ex.pig_sheet.height / 2) || 32, size: 36 };
+        return cropAnim('animal:cerdo', ex.pig_sheet);
       } else if (aKind === 'conejo' && ok(ex.rabbit_sheet)) {
-        return { key: 'animal:conejo', img: ex.rabbit_sheet, sx: 0, sy: 0, sw: Math.round(ex.rabbit_sheet.width / 3) || 32, sh: Math.round(ex.rabbit_sheet.height / 2) || 32, size: 36 };
+        return cropAnim('animal:conejo', ex.rabbit_sheet);
       } else if (aKind === 'pato') {
-        if (ok(ex.duck_sheet)) return { key: 'animal:pato_s', img: ex.duck_sheet, sx: 0, sy: 0, sw: Math.round(ex.duck_sheet.width / 3) || 32, sh: Math.round(ex.duck_sheet.height / 2) || 32, size: 36 };
+        if (ok(ex.duck_sheet)) return cropAnim('animal:pato_s', ex.duck_sheet);
         if (ok(ex.rubber_duck)) return { key: 'animal:pato_r', img: ex.rubber_duck, sx: 0, sy: 0, sw: 32, sh: 32, size: 36 };
       }
       const lanaUrl = Abyssea.ITEM_PNG_MAP && (Abyssea.ITEM_PNG_MAP.wool || Abyssea.ITEM_PNG_MAP.lana);
@@ -3111,7 +2815,13 @@
       if (nUrl) return { url: encodeURI(withRoot(nUrl)) };
       const sheet = assets.npcSheets && assets.npcSheets[spec.npcId];
       if (ok(sheet)) {
-        return { key: `npc:${spec.npcId}`, img: sheet, sx: 0, sy: 0, sw: Math.round(sheet.width / 6) || 16, sh: Math.round(sheet.height / 4) || 32, size: 36 };
+        const is4f = sheet.width >= sheet.height * 3.5;
+        return {
+          key: `npc:${spec.npcId}`, img: sheet, sx: 0, sy: 0,
+          sw: is4f ? Math.round(sheet.width / 4) : (Math.round(sheet.width / 6) || 16),
+          sh: is4f ? sheet.height : (Math.round(sheet.height / 4) || 32),
+          size: 36
+        };
       }
       return { url: encodeURI(withRoot(Abyssea.UI_URLS.avatarHero)) };
     }
@@ -3153,7 +2863,7 @@
       const aDef = Abyssea.ALTAR_DEFS && Abyssea.ALTAR_DEFS[spec.altarId];
       const aImg = (aDef && ex[aDef.spriteKey]) || ex.altar_shrine;
       if (ok(aImg)) {
-        const fw = aImg.width >= aImg.height * 3 ? aImg.height : aImg.width;
+        const fw = aImg.width >= aImg.height * 2.5 ? aImg.height : aImg.width;
         return { key: `altar:${spec.altarId}`, img: aImg, sx: 0, sy: 0, sw: fw, sh: aImg.height, size: 36 };
       }
       return null;

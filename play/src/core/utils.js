@@ -44,25 +44,25 @@
       desc: 'Núcleo fértil central con bosques serenos, vetas iniciales y criaturas dóciles.'
     },
     desierto: {
-      id: 'desierto', zone: 2, zoneName: 'Zona II · Frontera Exterior', wing: 'north',
+      id: 'desierto', zone: 2, zoneName: 'Zona II · Cuadrantes Elementales', wing: 'north',
       name: 'Desierto Dorado',
       color: '#e5b85c', accent: '#ffe38c', waterColor: '#2c8fa8', musicMood: 'desert', danger: 2,
       desc: 'Al Norte: dunas cálidas, cactus, minerales de cobre/oro y templos enterrados.'
     },
     montanas_heladas: {
-      id: 'montanas_heladas', zone: 2, zoneName: 'Zona II · Frontera Exterior', wing: 'east',
+      id: 'montanas_heladas', zone: 2, zoneName: 'Zona II · Cuadrantes Elementales', wing: 'east',
       name: 'Montañas Heladas',
       color: '#a8d8ea', accent: '#e8fbff', waterColor: '#1f5e8a', musicMood: 'ice', danger: 3,
       desc: 'Al Este: cumbres nevadas con hielo puro, esmeraldas, lobos árticos y fortalezas heladas.'
     },
     bosque_oscuro: {
-      id: 'bosque_oscuro', zone: 2, zoneName: 'Zona II · Frontera Exterior', wing: 'south',
+      id: 'bosque_oscuro', zone: 2, zoneName: 'Zona II · Cuadrantes Elementales', wing: 'south',
       name: 'Bosque Oscuro',
       color: '#345b58', accent: '#8c69d4', waterColor: '#21455c', musicMood: 'dark_forest', danger: 4,
       desc: 'Al Sur: arboledas gigantes, hongos luminosos, esencia oscura y criptas antiguas.'
     },
     tierras_volcanicas: {
-      id: 'tierras_volcanicas', zone: 2, zoneName: 'Zona II · Frontera Exterior', wing: 'west',
+      id: 'tierras_volcanicas', zone: 2, zoneName: 'Zona II · Cuadrantes Elementales', wing: 'west',
       name: 'Tierras Volcánicas',
       color: '#5a3234', accent: '#ff6a33', waterColor: '#b33818', musicMood: 'volcano', danger: 5,
       desc: 'Al Oeste: suelo basáltico y ríos de lava con diamantes, oricalco y monstruos ígneos.'
@@ -92,31 +92,31 @@
       desc: 'Volcanes del Oeste: conos humeantes, escoria volcánica, titanes de magma y ceniza ardiente.'
     },
     dinastia_arena: {
-      id: 'dinastia_arena', zone: 4, zoneName: 'Zona IV · Conquistas Abisales', wing: 'north',
+      id: 'dinastia_arena', zone: 4, zoneName: 'Zona IV · Confines Abisales', wing: 'north',
       name: 'Dinastía de Arena Roja',
       color: '#cc7a44', accent: '#ffd54f', waterColor: '#287a92', musicMood: 'desert', danger: 10,
       desc: 'Confín Norte: desierto escarlata imperial con pirita solar, ágata roja y dinastías faraónicas.'
     },
     glaciar_profundo: {
-      id: 'glaciar_profundo', zone: 4, zoneName: 'Zona IV · Conquistas Abisales', wing: 'east',
+      id: 'glaciar_profundo', zone: 4, zoneName: 'Zona IV · Confines Abisales', wing: 'east',
       name: 'Glaciar Profundo',
       color: '#6bb0c9', accent: '#e0f7fa', waterColor: '#133d63', musicMood: 'ice', danger: 11,
       desc: 'Confín Este: hielo eterno milenario, bismuto astral y colosos del cero absoluto.'
     },
     cienaga_putrida: {
-      id: 'cienaga_putrida', zone: 4, zoneName: 'Zona IV · Conquistas Abisales', wing: 'south',
+      id: 'cienaga_putrida', zone: 4, zoneName: 'Zona IV · Confines Abisales', wing: 'south',
       name: 'Ciénaga Pútrida',
       color: '#466146', accent: '#aeea00', waterColor: '#224732', musicMood: 'dark_forest', danger: 12,
       desc: 'Confín Sur: pantanos venenosos, resina tóxica, flora carnívora e hidras de plaga.'
     },
     necropolis_osea: {
-      id: 'necropolis_osea', zone: 4, zoneName: 'Zona IV · Conquistas Abisales', wing: 'south',
+      id: 'necropolis_osea', zone: 4, zoneName: 'Zona IV · Confines Abisales', wing: 'south',
       name: 'Necrópolis Ósea',
       color: '#737570', accent: '#ce93d8', waterColor: '#262338', musicMood: 'dark_forest', danger: 13,
       desc: 'Brumas Sudoeste/Sureste: cementerios de gigantes, hueso fósil, plata maldita y reyes liche.'
     },
     tierras_malditas: {
-      id: 'tierras_malditas', zone: 4, zoneName: 'Zona IV · Conquistas Abisales', wing: 'west',
+      id: 'tierras_malditas', zone: 4, zoneName: 'Zona IV · Confines Abisales', wing: 'west',
       name: 'Tierras Malditas Abisales',
       color: '#6b2029', accent: '#ff1744', waterColor: '#4f0c18', musicMood: 'volcano', danger: 14,
       desc: 'Confín Oeste: el corazón del eclipse escarlata, cristal carmesí y la ciudadela del Espadachín Carmesí.'
@@ -137,7 +137,8 @@
     poco_comun: { id: 'poco_comun', name: 'Poco común', color: '#81c784', bg: '#1b3b24' },
     raro: { id: 'raro', name: 'Raro', color: '#4fc3f7', bg: '#103447' },
     epico: { id: 'epico', name: 'Épico', color: '#ce93d8', bg: '#381947' },
-    legendario: { id: 'legendario', name: 'Legendario', color: '#ffd54f', bg: '#4a3208' }
+    legendario: { id: 'legendario', name: 'Legendario', color: '#ffd54f', bg: '#4a3208' },
+    mitico: { id: 'mitico', name: 'Mítico', color: '#ff5277', bg: '#4a0d22' }
   };
 
   function clamp(v, min, max) {
@@ -189,12 +190,6 @@
     if (!img) return false;
     if (img.tagName === 'IMG') return img.complete && img.naturalWidth > 0;
     return img.width > 0 && img.height > 0;
-  }
-
-  function safeDraw(ctx, img, ...args) {
-    if (!isImgReady(img)) return false;
-    ctx.drawImage(img, ...args);
-    return true;
   }
 
   function getEntityHitbox(e) {
@@ -286,7 +281,6 @@
     formatNum,
     deepClone,
     isImgReady,
-    safeDraw,
     getEntityHitbox,
     pointInEntityHitbox,
     segmentHitsEntity

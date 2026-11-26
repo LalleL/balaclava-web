@@ -19,14 +19,6 @@
     return { title, text };
   }
 
-  const SKILL_BRANCH_ANGLES = {
-    recoleccion: -90,
-    economia: -18,
-    combate: 54,
-    produccion: 126,
-    exploracion: 198
-  };
-
   const KEYBIND_STORAGE_KEY = 'abyssea_keybinds_v2';
   const DEFAULT_KEYBINDS = {
     moveUp: 'KeyW',
@@ -336,11 +328,11 @@
     biomeIcon(biomeId, size = 26) {
       const pngMap = Abyssea.ITEM_PNG_MAP || {};
       const urlMap = {
-        pradera: Abyssea.UI_URLS.biomePradera,
-        desierto: Abyssea.UI_URLS.biomeDesierto,
-        bosque_oscuro: Abyssea.UI_URLS.biomeBosque,
-        montanas_heladas: Abyssea.UI_URLS.biomeHielo,
-        tierras_volcanicas: Abyssea.UI_URLS.biomeVolcan,
+        pradera: pngMap.malaquita_pradera || Abyssea.UI_URLS.biomePradera,
+        desierto: pngMap.ambar_desierto || Abyssea.UI_URLS.biomeDesierto,
+        bosque_oscuro: pngMap.cristal_abismal || Abyssea.UI_URLS.biomeBosque,
+        montanas_heladas: pngMap.azurita_glacial || Abyssea.UI_URLS.biomeHielo,
+        tierras_volcanicas: pngMap.esencia_magma || Abyssea.UI_URLS.biomeVolcan,
         archipielago_coral: pngMap.perla_turquesa,
         cavernas_cristal: pngMap.celestita_cristal,
         selva_esmeralda: pngMap.jade_ancestral,
@@ -470,9 +462,8 @@
     }
 
     _uiAssetFallback(relPath) {
-      const pre = (Abyssea.UI_URLS && Abyssea.UI_URLS.panelWood) || '';
-      const base = pre.startsWith('../')
-        ? '../'
+      const base = (typeof window !== 'undefined' && window.ABYSSEA_ROOT_BASE)
+        ? window.ABYSSEA_ROOT_BASE
         : (typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.indexOf('/tests/') !== -1 ? '../' : '');
       return base + relPath;
     }
@@ -567,10 +558,10 @@
         const stored = localStorage.getItem(UI_SCALE_STORAGE_KEY);
         if (stored !== null && stored !== undefined && stored !== '') {
           const num = Number(stored);
-          raw = (num === 1) ? 0.88 : num;
+          if (Number.isFinite(num) && num > 0) raw = num;
         }
       } catch (_) {}
-      return this.applyUiScale(raw, { persist: true });
+      return this.applyUiScale(raw, { persist: false });
     }
 
     _catLabel(cat) {
@@ -622,35 +613,6 @@
         desc: it.desc || '',
         stats,
         foot
-      };
-    }
-
-    _buildToolTipSpec(toolId, opts = {}) {
-      const tool = Abyssea.TOOLS && Abyssea.TOOLS[toolId];
-      if (!tool) return null;
-      const g = this.game;
-      const tier = (g && g.toolTiers && g.toolTiers[toolId]) || 'basica';
-      const tierMeta = (Abyssea.TIER_META && Abyssea.TIER_META[tier]) || { name: tier, color: '#ffe8a3' };
-      const st = Abyssea.getToolStats ? Abyssea.getToolStats(toolId, tier) : null;
-      const stats = [];
-      if (st) {
-        stats.push(tr('tip.toolPower', { n: st.power }));
-        stats.push(tr('tip.toolSpeed', { n: st.speed }));
-        stats.push(tr('tip.toolReach', { n: (st.reach / 48).toFixed(1) }));
-      }
-      const enchMap = g && g.toolEnchants && g.toolEnchants[toolId];
-      const enchs = enchMap ? Object.entries(enchMap).filter(([, lv]) => lv > 0)
-        .map(([eid, lv]) => `${(Abyssea.TOOL_ENCHANTS[eid] && Abyssea.TOOL_ENCHANTS[eid].name) || eid} ${lv}`).join(' · ') : '';
-      return {
-        title: `${tool.name} (${tierMeta.name})`,
-        sub: enchs ? tr('tip.toolSubEnch', { enchs }) : tr('tip.toolSubDefault'),
-        color: tierMeta.color,
-        icon: { kind: 'tool', id: toolId, tier },
-        desc: tool.role || tool.desc || '',
-        stats,
-        foot: opts.context === 'hotbar'
-          ? tr('tip.toolFootHotbar')
-          : tr('tip.footInv')
       };
     }
 
@@ -773,23 +735,24 @@
       tip.setAttribute('aria-hidden', 'true');
     }
 
-    bindTooltipDelegation() {
+    migrateStaticTitles() {
       if (typeof document === 'undefined') return;
-      const migrateStaticTitles = () => {
-        document.querySelectorAll('[title]').forEach(node => {
-          const t = node.getAttribute('title');
-          node.removeAttribute('title');
-          if (t && !node.getAttribute('data-tip') && !node.getAttribute('data-tip-text')) {
-            node.setAttribute('data-tip-text', t);
-            if (!node.getAttribute('aria-label')) node.setAttribute('aria-label', t);
-          }
-        });
-      };
-      migrateStaticTitles();
-      if (this._tooltipBound) return;
+      document.querySelectorAll('[title]').forEach(node => {
+        const t = node.getAttribute('title');
+        node.removeAttribute('title');
+        if (t && !node.getAttribute('data-tip')) {
+          node.setAttribute('data-tip-text', t);
+          if (!node.getAttribute('aria-label')) node.setAttribute('aria-label', t);
+        }
+      });
+    }
+
+    bindTooltipDelegation() {
+      if (this._tooltipBound || typeof document === 'undefined') return;
       this._tooltipBound = true;
+      this.migrateStaticTitles();
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', migrateStaticTitles, { once: true });
+        document.addEventListener('DOMContentLoaded', () => this.migrateStaticTitles(), { once: true });
       }
       const selector = '[data-tip], [data-tip-text], [title]';
       document.addEventListener('mouseover', (e) => {
@@ -1298,7 +1261,8 @@
         b.textContent = text;
         badges.appendChild(b);
       };
-      addBadge('', `${meta.biomeName || 'Archipiélago'} · ${isEn ? 'Depth' : 'Nv.'} ${meta.tier || 1}/24`);
+      const totalDungs = Object.keys(Abyssea.DUNGEON_DEFS || {}).length || 75;
+      addBadge('', `${meta.biomeName || 'Archipiélago'} · ${isEn ? 'Depth' : 'Nv.'} ${meta.tier || 1}/${totalDungs}`);
       addBadge('is-rec', `${isEn ? 'Rec. Level' : 'Nivel Rec.'} ${meta.recLevel || 2}+`);
       addBadge('is-lvl', `${isEn ? 'Mobs Lv.' : 'Mobs Nv.'}${meta.mobLevelMin || 2}+ · ${isEn ? 'Guardian Lv.' : 'Guardián Nv.'}${meta.miniLevel || 4}`);
       top.appendChild(badges);
@@ -1505,16 +1469,6 @@
       ctx.fillRect(rx + Math.round(w * 0.2), ry + 2, Math.round(w * 0.48), 6);
       ctx.fillStyle = cLit;
       ctx.fillRect(rx + Math.round(w * 0.28), ry, Math.round(w * 0.28), 3);
-    }
-
-    _resolveTransitionHeroSkin() {
-      const skins = Abyssea.SKINS || [];
-      return skins[0] || {
-        id: 'hana',
-        idle: 'hana_idle',
-        run: 'hana_run',
-        type: 'hana'
-      };
     }
 
     _startTransitionDiorama(sceneKind, durationMs) {
@@ -2363,8 +2317,9 @@
         if (this.game.clearTransientInputs) this.game.clearTransientInputs();
         if (this.game.resetAmbientParticles) this.game.resetAmbientParticles();
         if (this.game.resetAltarNotifications) this.game.resetAltarNotifications();
-        if (this.canvas && typeof this.game.generateTitleArchipelago === 'function') {
-          this.game.generateTitleArchipelago(this.canvas.width, this.canvas.height);
+        const cv = this.game.canvas;
+        if (cv && typeof this.game.generateTitleArchipelago === 'function') {
+          this.game.generateTitleArchipelago(cv.width, cv.height);
         }
         this.game.activeDungeon = null;
         this.game.started = false;
@@ -2644,6 +2599,7 @@
               this.closeModal();
             }
           }
+          else if (this.photoMode) this.togglePhotoMode();
           else if (this.menuOpen) this.closeMenuDropdown();
           else if (g.v2Runtime && g.v2Runtime.relocatorActive) { g.v2Runtime.relocatorActive = false; g.v2Runtime.relocating = null; g.toast('Modo Traslado cancelado.', 'info'); this.updateHUD(true); }
           else if (g.placingBuildingId || g.placingItemId) { g.placingBuildingId = null; g.placingItemId = null; this.updateHUD(true); }
@@ -2910,21 +2866,28 @@
       this.openModal('npc', npc);
     }
 
-    closeModal() {
-      const closingModal = this.activeModal;
-      this.hideTooltip();
-      if (this.game && this.game.activeChestBuilding) {
+    _cleanupActiveModalResources(nextModalName = null) {
+      if (this._v14ActiveLoop) { cancelAnimationFrame(this._v14ActiveLoop); this._v14ActiveLoop = null; }
+      if (this._v14EnchantLoop) { cancelAnimationFrame(this._v14EnchantLoop); this._v14EnchantLoop = null; }
+      if (this._v14ModalCleanup) { this._v14ModalCleanup(); this._v14ModalCleanup = null; }
+      if (this._mapCleanup) { this._mapCleanup(); this._mapCleanup = null; }
+      if (this._skillBoardCleanup) { this._skillBoardCleanup(); this._skillBoardCleanup = null; }
+      if (this._skillHoldCleanup) { this._skillHoldCleanup(); this._skillHoldCleanup = null; }
+      if (this._skillUnlockFxTimer) { clearTimeout(this._skillUnlockFxTimer); this._skillUnlockFxTimer = null; }
+      if (this._skillQuakeTimer) { clearTimeout(this._skillQuakeTimer); this._skillQuakeTimer = null; }
+      if (nextModalName !== 'chest' && this.game && this.game.activeChestBuilding) {
         this.game.activeChestBuilding.isOpen = false;
         this.game.activeChestBuilding = null;
         if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') {
           Abyssea.Audio.play('chest');
         }
       }
-      if (this._mapCleanup) { this._mapCleanup(); this._mapCleanup = null; }
-      if (this._skillBoardCleanup) { this._skillBoardCleanup(); this._skillBoardCleanup = null; }
-      if (this._skillHoldCleanup) { this._skillHoldCleanup(); this._skillHoldCleanup = null; }
-      if (this._skillUnlockFxTimer) { clearTimeout(this._skillUnlockFxTimer); this._skillUnlockFxTimer = null; }
-      if (this._skillQuakeTimer) { clearTimeout(this._skillQuakeTimer); this._skillQuakeTimer = null; }
+    }
+
+    closeModal() {
+      const closingModal = this.activeModal;
+      this.hideTooltip();
+      this._cleanupActiveModalResources(null);
       this.activeModal = null;
       this.modalData = null;
       this.rebindingAction = null;
@@ -2941,6 +2904,8 @@
       }
       const backdrop = document.getElementById('modal-backdrop');
       const modalBox = document.getElementById('modal-box');
+      const bodyEl = document.getElementById('modal-body');
+      if (bodyEl) bodyEl.innerHTML = '';
       const headerTools = document.getElementById('modal-header-tools');
       if (headerTools) {
         headerTools.innerHTML = '';
@@ -2951,11 +2916,51 @@
       if (typeof document !== 'undefined' && document.body) {
         document.body.classList.remove('modal-open', 'modal-drawer-open', 'modal-fullscreen-active');
       }
-      if (modalBox) modalBox.classList.remove('modal-fullscreen', 'skills-cosmic-fullscreen', 'map-atlas-fullscreen', 'quests-modal', 'pause-pixel-modal', 'pause-root-compact', 'pause-settings-compact');
+      if (modalBox) {
+        modalBox.classList.remove(
+          'modal-fullscreen', 'skills-cosmic-fullscreen', 'map-atlas-fullscreen',
+          'quests-modal', 'pause-pixel-modal', 'pause-root-compact', 'pause-settings-compact',
+          'steam-dialog-box', 'patch-notes-modal', 'chest-wide-modal', 'cosmic-quake-active'
+        );
+        modalBox.style.width = '';
+        modalBox.style.maxWidth = '';
+        modalBox.style.minHeight = '';
+      }
+    }
+
+    _getHudEls() {
+      if (!this._hudEls && typeof document !== 'undefined') {
+        this._hudEls = {
+          hpFill: document.getElementById('hp-fill'),
+          hpText: document.getElementById('hp-text'),
+          enFill: document.getElementById('en-fill'),
+          enText: document.getElementById('en-text'),
+          xpFill: document.getElementById('xp-fill'),
+          xpText: document.getElementById('xp-text'),
+          xpRow: document.getElementById('hud-xp-row'),
+          lvlText: document.getElementById('lvl-text'),
+          coinText: document.getElementById('coin-text'),
+          dayIcon: document.getElementById('day-icon'),
+          dayLabel: document.getElementById('day-label'),
+          dayFill: document.getElementById('day-progress-fill'),
+          tCard: document.getElementById('hud-target'),
+          deathOverlay: document.getElementById('death-overlay'),
+          tutHud: document.getElementById('tutorial-hud'),
+          objEl: document.getElementById('objective-text'),
+          objProg: document.getElementById('objective-progress'),
+          objRew: document.getElementById('objective-reward'),
+          dungHud: document.getElementById('dungeon-hud'),
+          lvlEl: document.getElementById('levelup-banner'),
+          altarStack: document.getElementById('altar-blessing-stack'),
+          topLeft: document.getElementById('hud-top-left')
+        };
+      }
+      return this._hudEls || {};
     }
 
     updateHUD(force = false) {
       const g = this.game;
+      const H = this._getHudEls();
       // Throttle: sin force, solo ejecutar el HUD completo ~10 veces/seg.
       // El hover-HP se actualiza igual fuera del throttle (ver bloque tCard abajo).
       this._hudFrameCount = ((this._hudFrameCount || 0) + 1);
@@ -2967,7 +2972,7 @@
           const hpPct = Math.max(0, Math.min(100, Math.round((ht.hp / ht.maxHp) * 100)));
           if (hpPct !== this._lastTargetHp) {
             this._lastTargetHp = hpPct;
-            const tCard = document.getElementById('hud-target');
+            const tCard = H.tCard;
             if (tCard) {
               const fill = tCard.querySelector('[data-tghp]');
               if (fill) fill.style.width = `${hpPct}%`;
@@ -2976,17 +2981,15 @@
             }
           }
         } else if (!ht) {
-          // Si no hay target, esconder el card rápido
           if (this._lastTargetKey !== '') {
             this._lastTargetKey = '';
             this._lastTargetHp = null;
-            const tCard = document.getElementById('hud-target');
-            if (tCard) tCard.classList.add('hidden');
+            if (H.tCard) H.tCard.classList.add('hidden');
           }
         }
         return;
       }
-      const deathOverlay = document.getElementById('death-overlay');
+      const deathOverlay = H.deathOverlay;
       const isDead = Boolean(g && g.started && g.isPlayerDead && g.isPlayerDead());
       if (deathOverlay) {
         const maxD = (g && g.player && g.player.deadMax) || 10.0;
@@ -3018,38 +3021,44 @@
       g.uiDirty = false;
 
       const p = g.player;
-      document.getElementById('hp-fill').style.width = `${(p.hp / p.maxHp) * 100}%`;
-      document.getElementById('hp-text').textContent = `${Math.ceil(p.hp)}/${p.maxHp}`;
-      document.getElementById('en-fill').style.width = `${(p.energy / p.maxEnergy) * 100}%`;
-      document.getElementById('en-text').textContent = `${Math.floor(p.energy)}/${p.maxEnergy}`;
-      const xpPct = Math.min(100, Math.max(0, (p.xp / p.nextXp) * 100));
-      const xpFillEl = document.getElementById('xp-fill');
-      if (xpFillEl) xpFillEl.style.width = `${xpPct}%`;
-      const xpTxtEl = document.getElementById('xp-text');
-      if (xpTxtEl) {
+      const hpW = `${((p.hp / Math.max(1, p.maxHp)) * 100).toFixed(1)}%`;
+      const hpT = `${Math.ceil(p.hp)}/${p.maxHp}`;
+      if (H.hpFill && H.hpFill.style.width !== hpW) H.hpFill.style.width = hpW;
+      if (H.hpText && H.hpText.textContent !== hpT) H.hpText.textContent = hpT;
+      const enW = `${((p.energy / Math.max(1, p.maxEnergy)) * 100).toFixed(1)}%`;
+      const enT = `${Math.floor(p.energy)}/${p.maxEnergy}`;
+      if (H.enFill && H.enFill.style.width !== enW) H.enFill.style.width = enW;
+      if (H.enText && H.enText.textContent !== enT) H.enText.textContent = enT;
+      const xpPct = Math.min(100, Math.max(0, (p.xp / Math.max(1, p.nextXp)) * 100));
+      const xpW = `${xpPct.toFixed(1)}%`;
+      if (H.xpFill && H.xpFill.style.width !== xpW) H.xpFill.style.width = xpW;
+      if (H.xpText) {
         const curXp = Math.floor(p.xp);
         const nextXp = Math.floor(p.nextXp);
-        const remXp = Math.max(0, nextXp - curXp);
-        xpTxtEl.textContent = `${formatNum(curXp)}/${formatNum(nextXp)}`;
-        const isEnXp = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
-        const fullCur = curXp.toLocaleString();
-        const fullNext = nextXp.toLocaleString();
-        const fullRem = remXp.toLocaleString();
-        const tip = isEnXp
-          ? `Progress: ${fullCur} / ${fullNext} XP (${Math.floor(xpPct)}%) - Next level in ${fullRem} XP`
-          : `Progreso: ${fullCur} / ${fullNext} XP (${Math.floor(xpPct)}%) - Siguiente nivel en ${fullRem} XP`;
-        xpTxtEl.title = tip;
-        const xpRowEl = document.getElementById('hud-xp-row');
-        if (xpRowEl) xpRowEl.title = tip;
+        const langNow = Abyssea.I18n && Abyssea.I18n.getLanguage ? Abyssea.I18n.getLanguage() : 'es';
+        const xpSig = `${langNow}|${curXp}|${nextXp}`;
+        if (xpSig !== this._lastXpSig) {
+          this._lastXpSig = xpSig;
+          const remXp = Math.max(0, nextXp - curXp);
+          H.xpText.textContent = `${formatNum(curXp)}/${formatNum(nextXp)}`;
+          const tip = langNow === 'en'
+            ? `Progress: ${curXp.toLocaleString()} / ${nextXp.toLocaleString()} XP (${Math.floor(xpPct)}%) - Next level in ${remXp.toLocaleString()} XP`
+            : `Progreso: ${curXp.toLocaleString()} / ${nextXp.toLocaleString()} XP (${Math.floor(xpPct)}%) - Siguiente nivel en ${remXp.toLocaleString()} XP`;
+          H.xpText.setAttribute('data-tip-text', tip);
+          if (H.xpRow) H.xpRow.setAttribute('data-tip-text', tip);
+        }
       }
-      document.getElementById('lvl-text').textContent = `${tr('common.levelShort')}${p.level}`;
-      document.getElementById('coin-text').textContent = formatNum(g.coins);
+      const lvlStr = `${tr('common.levelShort')}${p.level}`;
+      if (H.lvlText && H.lvlText.textContent !== lvlStr) H.lvlText.textContent = lvlStr;
+      const coinStr = formatNum(g.coins);
+      if (H.coinText && H.coinText.textContent !== coinStr) H.coinText.textContent = coinStr;
 
       ['skill-badge', 'skill-badge-top'].forEach(bid => {
         const spBadge = document.getElementById(bid);
         if (!spBadge) return;
         if (p.skillPoints > 0) {
-          spBadge.textContent = p.skillPoints;
+          const spStr = String(p.skillPoints);
+          if (spBadge.textContent !== spStr) spBadge.textContent = spStr;
           spBadge.classList.remove('hidden');
         } else {
           spBadge.classList.add('hidden');
@@ -3058,9 +3067,9 @@
 
       // Day/Night clock pill with exact mm:ss phase countdown (no biome indicator)
       const dayPhase = g.getDayPhase ? g.getDayPhase() : { phase: 'dia', label: tr('hud.phaseDay'), iconKey: 'sun', phaseLeftSec: 480 };
-      const dIcon = document.getElementById('day-icon');
-      const dLabel = document.getElementById('day-label');
-      const dFill = document.getElementById('day-progress-fill');
+      const dIcon = H.dayIcon;
+      const dLabel = H.dayLabel;
+      const dFill = H.dayFill;
       if (dIcon && Abyssea.UI_URLS[dayPhase.iconKey]) {
         const targetSrc = Abyssea.UI_URLS[dayPhase.iconKey];
         if (dIcon.getAttribute('src') !== targetSrc) dIcon.src = targetSrc;
@@ -3071,50 +3080,17 @@
         const ss = String(left % 60).padStart(2, '0');
         const lp = typeof g.getLunarPhase === 'function' ? g.getLunarPhase() : null;
         const lunarTag = lp ? ` · Luna ${lp.short}` : '';
-        dLabel.textContent = `${tr('common.dayShort')} ${g.dayCount || 1} · ${dayPhase.label}${lunarTag} · ${mm}:${ss}`;
+        const clockStr = `${tr('common.dayShort')} ${g.dayCount || 1} · ${dayPhase.label}${lunarTag} · ${mm}:${ss}`;
+        if (dLabel.textContent !== clockStr) dLabel.textContent = clockStr;
       }
       if (dFill) {
-        const pct = Math.round(((g.dayTime % 1) + 1) % 1 * 100);
-        dFill.style.width = `${pct}%`;
-        dFill.classList.toggle('night', g.isNightTime && g.isNightTime());
+        const pctW = `${Math.round(((g.dayTime % 1) + 1) % 1 * 100)}%`;
+        if (dFill.style.width !== pctW) dFill.style.width = pctW;
+        dFill.classList.toggle('night', Boolean(g.isNightTime && g.isNightTime()));
       }
 
-      // Quick resources strip (fallback if present)
-      const qr = document.getElementById('quick-res');
-      if (qr) {
-        const resIds = ['madera', 'piedra', 'carbon', 'hierro', 'oro', 'cristales'];
-        const resKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|` + resIds.map(id => g.inventory[id] || 0).join(',');
-        if (force || !this._lastResKey || resKey !== this._lastResKey || qr.children.length !== resIds.length) {
-          this._lastResKey = resKey;
-          if (qr.children.length !== resIds.length) {
-            qr.innerHTML = '';
-            resIds.forEach(id => {
-              const it = Abyssea.ITEMS[id];
-              if (!it) return;
-              const qty = g.inventory[id] || 0;
-              const qtyEl = this.el('span', { 'data-res-qty': id }, String(qty));
-              const pill = this.el('span', { class: 'res-pill', title: `${it.name}: ${qty}` }, [
-                this.itemIcon(it.icon, 28),
-                qtyEl
-              ]);
-              qr.appendChild(pill);
-            });
-          } else {
-            resIds.forEach(id => {
-              const it = Abyssea.ITEMS[id];
-              const qty = g.inventory[id] || 0;
-              const qtyEl = qr.querySelector(`[data-res-qty="${id}"]`);
-              if (qtyEl) qtyEl.textContent = String(qty);
-              if (qtyEl && qtyEl.parentElement && it) {
-                qtyEl.parentElement.title = `${it.name}: ${qty}`;
-              }
-            });
-          }
-        }
-      }
-
-      // Guided Interactive Tutorial Widget Sync
-      const tutHud = document.getElementById('tutorial-hud');
+      // Guided Interactive Tutorial Widget Sync (caches desc innerHTML per step+lang)
+      const tutHud = H.tutHud;
       if (tutHud) {
         const tut = g.tutorialSys;
         if (!tut || tut.done || tut.skipped || g.activeDungeon) {
@@ -3137,16 +3113,17 @@
             const totalSteps = Abyssea.TUTORIAL_STEPS ? Abyssea.TUTORIAL_STEPS.length : 9;
 
             const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
-            if (titleEl) titleEl.textContent = (isEn && stepDef.title_en) ? stepDef.title_en : stepDef.title;
-            if (descEl) descEl.innerHTML = tut.getFormattedDesc(stepDef, this);
-            if (counterEl) counterEl.textContent = `${tut.step + 1}/${totalSteps}`;
+            const tutHtmlKey = `${isEn ? 'en' : 'es'}|${tut.step}`;
+            if (tutHtmlKey !== this._lastTutHtmlKey) {
+              this._lastTutHtmlKey = tutHtmlKey;
+              if (titleEl) titleEl.textContent = (isEn && stepDef.title_en) ? stepDef.title_en : stepDef.title;
+              if (descEl) descEl.innerHTML = tut.getFormattedDesc(stepDef, this);
+              if (counterEl) counterEl.textContent = `${tut.step + 1}/${totalSteps}`;
+              if (progBar) progBar.style.width = `${Math.round(((tut.step) / totalSteps) * 100)}%`;
+            }
 
             const progLine = stepDef.getProgress ? stepDef.getProgress(g, tut.stepState) : '';
-            if (progTxt) progTxt.textContent = progLine;
-            if (progBar) {
-              const pct = Math.round(((tut.step) / totalSteps) * 100);
-              progBar.style.width = `${pct}%`;
-            }
+            if (progTxt && progTxt.textContent !== progLine) progTxt.textContent = progLine;
 
             const bodyEl = document.getElementById('tut-body');
             const minBtn = document.getElementById('btn-tut-minimize');
@@ -3162,7 +3139,8 @@
                   });
                   bodyEl.appendChild(mapActionBtn);
                 }
-                mapActionBtn.textContent = isEn ? 'Open Map & Focus 1st Island [M]' : 'Abrir Mapa y Ver 1ra Isla [M]';
+                const btnLbl = isEn ? 'Open Map & Focus 1st Island [M]' : 'Abrir Mapa y Ver 1ra Isla [M]';
+                if (mapActionBtn.textContent !== btnLbl) mapActionBtn.textContent = btnLbl;
                 mapActionBtn.classList.remove('hidden');
                 mapActionBtn.onclick = () => {
                   if (typeof tut.focusRecommendedIslandInMap === 'function') {
@@ -3180,35 +3158,38 @@
         }
       }
 
-      const objEl = document.getElementById('objective-text');
+      const objEl = H.objEl;
       if (objEl) {
-        objEl.textContent = g.events.getNextObjectiveHint(g);
+        const nextHint = g.events.getNextObjectiveHint(g);
+        if (objEl.textContent !== nextHint) objEl.textContent = nextHint;
       }
-      const objProg = document.getElementById('objective-progress');
-      const objRew = document.getElementById('objective-reward');
+      const objProg = H.objProg;
+      const objRew = H.objRew;
       const ch = Abyssea.STORY_CHAPTERS && Abyssea.STORY_CHAPTERS[g.storyIndex];
       if (objProg) {
+        let progText = '';
         if (ch && ch.getProgress) {
           const items = ch.getProgress(g) || [];
-          objProg.textContent = items.map(p => `${p.label}: ${p.cur}/${p.max}`).join(' · ');
+          progText = items.map(p => `${p.label}: ${p.cur}/${p.max}`).join(' · ');
         } else {
-          objProg.textContent = g.storyIndex >= (Abyssea.STORY_CHAPTERS || []).length ? tr('hud.mainStoryComplete') : '';
+          progText = g.storyIndex >= (Abyssea.STORY_CHAPTERS || []).length ? tr('hud.mainStoryComplete') : '';
         }
+        if (objProg.textContent !== progText) objProg.textContent = progText;
       }
       if (objRew) {
+        let rewText = '';
         if (ch && ch.reward) {
           const rwItems = ch.reward.items
             ? Object.entries(ch.reward.items).filter(([, q]) => q > 0).map(([id, q]) => `${q}x ${(Abyssea.ITEMS[id] && Abyssea.ITEMS[id].name) || id}`).join(', ')
             : '';
           const parts = `+${ch.reward.coins} ${tr('common.coins')} · +${ch.reward.xp} ${tr('common.xp')}${rwItems ? ' · ' + rwItems : ''}`;
-          objRew.textContent = tr('hud.rewardLine', { parts });
-        } else {
-          objRew.textContent = '';
+          rewText = tr('hud.rewardLine', { parts });
         }
+        if (objRew.textContent !== rewText) objRew.textContent = rewText;
       }
 
       // Left-column Dungeon Objective HUD (moved out of canvas top-center)
-      const dungHud = document.getElementById('dungeon-hud');
+      const dungHud = H.dungHud;
       if (dungHud) {
         const dung = g.activeDungeon;
         if (!dung) {
@@ -3236,7 +3217,7 @@
           const dName = dung.def.name;
           let dObj = '';
           if (dung.isLateBiome) {
-            const isEn = Abyssea.I18n && Abyssea.I18n.locale === 'en';
+            const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
             const mini2Txt = dung.miniBoss2Defeated ? tr('hud.dungDefeated') : tr('hud.dungPending');
             const shrineTxt = `${dung.shrineProgress || 0}/${dung.shrineTarget || 2}`;
             dObj = isEn
@@ -3261,13 +3242,12 @@
         }
       }
 
-      // Centered Level-Up Celebration Banner
-      const lvlEl = document.getElementById('levelup-banner');
+      // Centered Level-Up Celebration Banner (zero per-tick getBoundingClientRect reflows!)
+      const lvlEl = H.lvlEl;
       if (lvlEl) {
         if (g.levelBannerTimer > 0 && g.levelUpSummary) {
           const s = g.levelUpSummary;
           if (s.title) {
-            // Banner de evento o título personalizado
             const lKey = `custom:${s.title}:${s.subtitle || ''}`;
             if (this._lastLevelBannerKey !== lKey) {
               this._lastLevelBannerKey = lKey;
@@ -3277,7 +3257,6 @@
             }
             lvlEl.classList.remove('hidden');
           } else if (s.from !== undefined && s.to !== undefined) {
-            // Subida de nivel real
             const pts = (s.pts !== undefined && s.pts !== null) ? s.pts : ((s.points !== undefined && s.points !== null) ? s.points : 1);
             const langCode = Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en';
             const lKey = `${langCode}:${s.from}:${s.to}:${pts}`;
@@ -3292,24 +3271,12 @@
             lvlEl.classList.add('hidden');
           }
           if (!lvlEl.classList.contains('hidden')) {
-            const sc = this.getUiScale ? this.getUiScale() : 1;
-            const clockEl = document.getElementById('world-clock-panel');
-            const targetEl = document.getElementById('hud-target');
+            const hasTarget = H.tCard && !H.tCard.classList.contains('hidden');
             const bossEl = document.getElementById('boss-bar');
-            let safeTop = 164;
-            if (clockEl && clockEl.getBoundingClientRect) {
-              const r = clockEl.getBoundingClientRect();
-              if (r.height > 0) safeTop = Math.max(safeTop, Math.round(r.bottom / sc) + 92);
-            }
-            if (targetEl && !targetEl.classList.contains('hidden') && targetEl.getBoundingClientRect) {
-              const r = targetEl.getBoundingClientRect();
-              if (r.height > 0) safeTop = Math.max(safeTop, Math.round(r.bottom / sc) + 18);
-            }
-            if (bossEl && !bossEl.classList.contains('hidden') && bossEl.getBoundingClientRect) {
-              const r = bossEl.getBoundingClientRect();
-              if (r.height > 0) safeTop = Math.max(safeTop, Math.round(r.bottom / sc) + 18);
-            }
-            lvlEl.style.top = `${safeTop}px`;
+            const hasBoss = bossEl && !bossEl.classList.contains('hidden');
+            const safeTop = hasBoss ? 228 : hasTarget ? 194 : 156;
+            const topStr = `${safeTop}px`;
+            if (lvlEl.style.top !== topStr) lvlEl.style.top = topStr;
           }
         } else if (this._lastLevelBannerKey !== '') {
           this._lastLevelBannerKey = '';
@@ -3317,27 +3284,24 @@
         }
       }
 
-      // Floating Altar Blessing Notifications anchored over character (non-overlapping stack)
-      const altarStack = document.getElementById('altar-blessing-stack');
+      // Floating Altar Blessing Notifications (in-place timer updates + zero layout reflow thrashing)
+      const altarStack = H.altarStack;
       if (altarStack) {
         const notices = (!(g.isPlayerDead && g.isPlayerDead()) && Array.isArray(g.altarNotifications)) ? g.altarNotifications : [];
         if (notices.length === 0) {
           if (this._lastAltarKey !== '') {
             this._lastAltarKey = '';
+            this._altarDurEls = null;
             altarStack.innerHTML = '';
             altarStack.classList.add('hidden');
           }
         } else {
           altarStack.classList.remove('hidden');
-          const sigParts = notices.map(n => {
-            const liveRem = (n.status === 'active' || n.status === 'renewed') && Array.isArray(n.buffKeys) && n.buffKeys.length > 0 && g.activeBuffs && g.activeBuffs[n.buffKeys[0]]
-              ? Math.max(0, Math.ceil(g.activeBuffs[n.buffKeys[0]].time))
-              : '';
-            return `${n.uid}:${n.rev || 1}:${n.status}:${n.leaving ? 1 : 0}:${liveRem}`;
-          });
-          const aKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|${sigParts.join('|')}`;
-          if (force || aKey !== this._lastAltarKey) {
-            this._lastAltarKey = aKey;
+          const structSig = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|` +
+            notices.map(n => `${n.uid}:${n.rev || 1}:${n.status}:${n.leaving ? 1 : 0}`).join('|');
+          if (force || structSig !== this._lastAltarKey) {
+            this._lastAltarKey = structSig;
+            this._altarDurEls = [];
             altarStack.innerHTML = '';
             notices.forEach(n => {
               let durLine = n.durationText || tr('hud.altarInstant');
@@ -3352,6 +3316,8 @@
                 n.status === 'expired' ? 'is-expired' : '',
                 n.leaving ? 'is-leaving' : ''
               ].filter(Boolean).join(' ');
+              const durSpan = this.el('span', { class: 'altar-blessing-dur' }, durLine);
+              this._altarDurEls.push({ notice: n, span: durSpan });
               const card = this.el('div', {
                 class: cardCls,
                 style: `--blessing-accent:${n.color || '#ffd54f'};`
@@ -3363,16 +3329,23 @@
                   this.el('div', { class: 'altar-blessing-title' }, n.kicker || n.title || tr('hud.altarFallbackSub')),
                   this.el('div', { class: 'altar-blessing-kicker' }, n.title || tr('hud.altarFallbackTitle')),
                   this.el('div', { class: 'altar-blessing-desc' }, n.effectText || ''),
-                  this.el('div', { class: 'altar-blessing-meta' }, [
-                    this.el('span', { class: 'altar-blessing-dur' }, durLine)
-                  ])
+                  this.el('div', { class: 'altar-blessing-meta' }, [durSpan])
                 ])
               ]);
               altarStack.appendChild(card);
             });
+          } else if (Array.isArray(this._altarDurEls)) {
+            for (const rec of this._altarDurEls) {
+              const n = rec.notice;
+              if ((n.status === 'active' || n.status === 'renewed') && Array.isArray(n.buffKeys) && n.buffKeys.length > 0 && g.activeBuffs && g.activeBuffs[n.buffKeys[0]]) {
+                const rem = Math.max(0, Math.ceil(g.activeBuffs[n.buffKeys[0]].time));
+                const nextLine = n.durationSec ? tr('hud.altarDurRem', { total: n.durationSec, rem }) : `${rem}s`;
+                if (rec.span.textContent !== nextLine) rec.span.textContent = nextLine;
+              }
+            }
           }
 
-          // Position stack cleanly above the hero, clamped away from top HUD & hotbar
+          // Pure math positioning above the hero without synchronous layout reflow queries
           const sc = this.getUiScale ? this.getUiScale() : 1;
           const hudW = (window.innerWidth || 1280) / sc;
           const hudH = (window.innerHeight || 720) / sc;
@@ -3384,21 +3357,9 @@
           const pyScr = (ch * 0.5 + ((g.player ? g.player.y : g.camera.y) - g.camera.y) * zoom) / sc;
           const halfCardW = Math.min(190, Math.floor((hudW - 32) / 2));
           const leftPx = Math.max(halfCardW + 16, Math.min(hudW - halfCardW - 16, Math.round(pxScr)));
-          const topClock = document.getElementById('world-clock-panel');
-          const topTarget = document.getElementById('hud-target');
-          const lvlBanner = document.getElementById('levelup-banner');
-          const clockBot = (topClock && topClock.getBoundingClientRect) ? (topClock.getBoundingClientRect().bottom / sc) : 76;
-          const targetBot = (topTarget && !topTarget.classList.contains('hidden') && topTarget.getBoundingClientRect)
-            ? (topTarget.getBoundingClientRect().bottom / sc) : 0;
-          const lvlBot = (lvlBanner && !lvlBanner.classList.contains('hidden') && lvlBanner.getBoundingClientRect)
-            ? (lvlBanner.getBoundingClientRect().bottom / sc) : 0;
-          const minTopSafe = Math.max(88, Math.round(Math.max(clockBot + 12, targetBot ? targetBot + 12 : 0, lvlBot ? lvlBot + 12 : (g.levelBannerTimer > 0 ? clockBot + 150 : 0))));
-          const estH = Math.max(88, altarStack.offsetHeight || (notices.length * 102));
-          const hotbarEl = document.getElementById('hotbar');
-          const hotbarTop = (hotbarEl && hotbarEl.getBoundingClientRect && hotbarEl.getBoundingClientRect().top > 0)
-            ? (hotbarEl.getBoundingClientRect().top / sc)
-            : (hudH - 96);
-          const maxBottomFromHotbar = Math.max(112, Math.round(hudH - hotbarTop + 14));
+          const minTopSafe = g.levelBannerTimer > 0 ? 248 : 112;
+          const estH = Math.max(88, notices.length * 102);
+          const maxBottomFromHotbar = 114;
           const maxBottomBeforeTopHud = Math.max(maxBottomFromHotbar, Math.round(hudH - minTopSafe - estH));
           const desiredBottom = Math.round(hudH - (pyScr - (56 * zoom) / sc));
           const clampedBottom = Math.max(maxBottomFromHotbar, Math.min(maxBottomBeforeTopHud, desiredBottom));
@@ -3408,8 +3369,8 @@
         }
       }
 
-      // Active potion / elixir buff pills with crisp PNG icons
-      const topLeft = document.getElementById('hud-top-left');
+      // Active potion / elixir buff pills (in-place timer updates + all 10 V14 buffs labeled)
+      const topLeft = H.topLeft;
       if (topLeft) {
         let buffBar = document.getElementById('hud-buffs');
         if (!buffBar) {
@@ -3422,34 +3383,69 @@
           }
         }
         const entries = Object.entries(g.activeBuffs || {}).filter(([, b]) => b && b.time > 0);
-        const buffKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}|` + entries.map(([k, b]) => `${k}:${Math.ceil(b.time)}`).join('|');
-        if (force || buffKey !== this._lastBuffKey) {
-          this._lastBuffKey = buffKey;
+        const langB = Abyssea.I18n && Abyssea.I18n.getLanguage ? Abyssea.I18n.getLanguage() : 'es';
+        const isEnB = langB === 'en';
+        const buffStructKey = `${langB}|` + entries.map(([k]) => k).join('|');
+        const buffLabels = {
+          speed: tr('buff.speed'), dmg: tr('buff.dmg'), attack: tr('buff.dmg'),
+          luck: tr('buff.luck'), xp: tr('buff.xp'), defense: tr('buff.defense'),
+          regen: tr('buff.regen'), crit: tr('buff.crit'), arcane: tr('buff.arcane'),
+          hunter: tr('buff.hunter'), furia_arcana: tr('buff.furia_arcana'),
+          titan_skin: isEnB ? 'Titan Skin' : 'Piel de Titán',
+          miner_sight: isEnB ? 'Miner Sight' : 'Vista Minera',
+          chrono_haste: isEnB ? 'Chrono Haste' : 'Celeridad Crono',
+          vampiric_thirst: isEnB ? 'Vampiric Thirst' : 'Sed Vampírica',
+          storm_overload: isEnB ? 'Storm Overload' : 'Sobrecarga Tormenta',
+          golden_fortune: isEnB ? 'Golden Fortune' : 'Fortuna Dorada',
+          phantom_step: isEnB ? 'Phantom Step' : 'Paso Fantasmal',
+          colossus_might: isEnB ? 'Colossus Might' : 'Fuerza Coloso',
+          radiant_harvest: isEnB ? 'Radiant Harvest' : 'Cosecha Radiante',
+          omega_transcendence: isEnB ? 'Omega Transcendence' : 'Trascendencia Omega'
+        };
+        if (force || buffStructKey !== this._lastBuffKey) {
+          this._lastBuffKey = buffStructKey;
+          this._buffNodes = new Map();
           buffBar.innerHTML = '';
           if (entries.length === 0) {
             buffBar.classList.add('hidden');
           } else {
-            const buffLabels = {
-              speed: tr('buff.speed'), dmg: tr('buff.dmg'), attack: tr('buff.dmg'),
-              luck: tr('buff.luck'), xp: tr('buff.xp'), defense: tr('buff.defense'),
-              regen: tr('buff.regen'), crit: tr('buff.crit'), arcane: tr('buff.arcane'),
-              hunter: tr('buff.hunter'), furia_arcana: tr('buff.furia_arcana')
-            };
             const urlMap = Abyssea.BUFF_ICON_URLS || {};
+            const fallbackMap = {
+              titan_skin: 'defense', miner_sight: 'luck', chrono_haste: 'speed',
+              vampiric_thirst: 'regen', storm_overload: 'arcane', golden_fortune: 'luck',
+              phantom_step: 'speed', colossus_might: 'dmg', radiant_harvest: 'xp',
+              omega_transcendence: 'furia_arcana'
+            };
             buffBar.classList.remove('hidden');
             entries.forEach(([k, b]) => {
-              const iconUrl = urlMap[k] || urlMap.speed;
+              const iconUrl = urlMap[k] || urlMap[fallbackMap[k]] || urlMap.speed;
               const pct = Math.round(((b.mult || 1) - 1) * 100);
               const label = buffLabels[k] || k;
-              buffBar.appendChild(this.el('div', {
+              const rem = Math.ceil(b.time);
+              const txtSpan = this.el('span', {}, `${label} ${rem}s`);
+              const pill = this.el('div', {
                 class: 'hud-buff-pill',
-                title: tr('hud.buffTitle', { label, pct, src: b.sourceName ? ' · ' + b.sourceName : '', rem: Math.ceil(b.time) })
+                'data-tip-text': tr('hud.buffTitle', { label, pct, src: b.sourceName ? ' · ' + b.sourceName : '', rem })
               }, [
                 iconUrl ? this.el('img', { class: 'pixel-img', src: iconUrl, width: 18, height: 18, alt: label }) : null,
-                this.el('span', {}, `${label} ${Math.ceil(b.time)}s`)
-              ]));
+                txtSpan
+              ]);
+              this._buffNodes.set(k, { pill, txtSpan, label });
+              buffBar.appendChild(pill);
             });
           }
+        } else if (this._buffNodes && entries.length > 0) {
+          entries.forEach(([k, b]) => {
+            const rec = this._buffNodes.get(k);
+            if (!rec) return;
+            const rem = Math.ceil(b.time);
+            const txt = `${rec.label} ${rem}s`;
+            if (rec.txtSpan.textContent !== txt) {
+              rec.txtSpan.textContent = txt;
+              const pct = Math.round(((b.mult || 1) - 1) * 100);
+              rec.pill.setAttribute('data-tip-text', tr('hud.buffTitle', { label: rec.label, pct, src: b.sourceName ? ' · ' + b.sourceName : '', rem }));
+            }
+          });
         }
       }
 
@@ -3686,12 +3682,12 @@
           const rem = sid && cds[sid] ? Math.ceil(cds[sid] * 10) : 0;
           return `${keyCodes[i]}:${sp ? sp.id : 'none'}:${rem}`;
         });
-        const sbKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}:${sbParts.join('|')}:${Math.floor(g.player.energy)}`;
+        const sbKey = `${Abyssea.I18n ? Abyssea.I18n.getLanguage() : 'en'}:${sbParts.join('|')}`;
         if (force || sbKey !== this._lastSpellBarKey) {
           this._lastSpellBarKey = sbKey;
           sb.innerHTML = '';
           slots.forEach((sid, idx) => {
-            const keyLbl = String(keyCodes[idx] || '').replace(/^Key/, '');
+            const keyLbl = this.formatKeyCode(keyCodes[idx] || '');
             const sp = sid && Abyssea.SPELLS && Abyssea.SPELLS[sid];
             if (!sp) {
               const emptyS = this.el('div', {
@@ -3729,8 +3725,8 @@
         }
       }
 
-      // Live timed craft-queue & ready-box sync inside open drawers without flickering buttons
-      const qBox = document.getElementById('live-craft-queue-list');
+      // Live timed craft-queue & ready-box sync (skip entirely when crafting/building modal is closed)
+      const qBox = (this.activeModal === 'crafting' || this.activeModal === 'building') ? document.getElementById('live-craft-queue-list') : null;
       if (qBox) {
         const queue = g.craftQueue || [];
         const ready = g.craftReady || [];
@@ -3827,7 +3823,7 @@
         feed.forEach(entry => {
           const iconKey = entry.id === '_coin'
             ? 'coin_gold'
-            : (entry.icon || (Abyssea.ITEMS[entry.id] ? Abyssea.ITEMS[entry.id].icon : 'wood_log'));
+            : (entry.icon || (Abyssea.ITEMS[entry.id] ? Abyssea.ITEMS[entry.id].icon : 'madera'));
           const opStr = entry.ttl < 0.75 ? Math.max(0.12, entry.ttl / 0.75).toFixed(2) : '1';
           const existing = this._pickupNodes.get(entry.id);
           if (existing) {
@@ -3852,8 +3848,7 @@
     }
 
     renderModal() {
-      if (this._skillBoardCleanup) { this._skillBoardCleanup(); this._skillBoardCleanup = null; }
-      if (this._skillHoldCleanup) { this._skillHoldCleanup(); this._skillHoldCleanup = null; }
+      this._cleanupActiveModalResources(this.activeModal);
       const titleEl = document.getElementById('modal-title');
       const body = document.getElementById('modal-body');
       const headerTools = document.getElementById('modal-header-tools');
@@ -3952,8 +3947,9 @@
       else if (this.activeModal === 'spell_ritual' && typeof this.renderSpellRitualModal === 'function') this.renderSpellRitualModal(body);
       else if (this.activeModal === 'reforge' && typeof this.renderReforgeTab === 'function') this.renderReforgeTab(body);
       else if (this.activeModal === 'alchemy' && typeof this.renderAlchemyLab === 'function') this.renderAlchemyLab(body);
-      else if (this.activeModal === 'trophy_hall' && typeof this.renderTrophyHallModal === 'function') { titleEl.textContent = 'Salón de Trofeos y Museo'; this.renderTrophyHallModal(body); }
-      else if (this.activeModal === 'ghost_merchant' && typeof this.renderGhostMerchantModal === 'function') { titleEl.textContent = 'Barco Fantasma Mercante'; this.renderGhostMerchantModal(body); }
+      else if (this.activeModal === 'trophy_hall' && typeof this.renderTrophyHallModal === 'function') this.renderTrophyHallModal(body);
+      else if (this.activeModal === 'ghost_merchant' && typeof this.renderGhostMerchantModal === 'function') this.renderGhostMerchantModal(body);
+      else if (this.activeModal === 'guild_shop') this.renderQuests(body);
       else if (this.activeModal === 'specialist_villager' && typeof this.renderSpecialistVillagerModal === 'function') { titleEl.textContent = (this.modalData && this.modalData.name) || 'Especialista'; this.renderSpecialistVillagerModal(body, this.modalData); }
       else if (this.activeModal === 'pause' || this.activeModal === 'settings') this.renderPauseMenu(body);
       else if (this.activeModal === 'title_settings') this.renderTitleAudioSettings(body);
@@ -4614,14 +4610,19 @@
       });
 
       // Live Stat Panel (Zero Emojis, Clean Pixel Icons, Single-Line Space-Between Layout)
+      const isEnStat = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
+      const defFlat = Math.round(g.mods.def || 0);
+      const defPctVal = Math.round((g.mods.defPct || 0) * 100);
+      const defDisplay = defPctVal > 0 ? `${defFlat} (+${defPctVal}%)` : `${defFlat}`;
+      const luckTotalPct = Math.round(((g.mods.doubleDropChance || 0) + (g.mods.luckBonus || 0)) * 100);
       const statItems = [
-        { icon: 'iconHeart', label: 'Vida', val: `${Math.round(g.player.hp)} / ${Math.round(g.player.maxHp)}`, color: '#ef5350' },
-        { icon: 'manaOrb', label: 'Energía', val: `${Math.round(g.player.energy)} / ${Math.round(g.player.maxEnergy)}`, color: '#4fc3f7' },
-        { icon: 'iconSword', label: 'Daño', val: `+${Math.round((g.mods.dmgBonus || 0) * 100)}%`, color: '#ffb74d' },
-        { icon: 'iconBow', label: 'Vel. Ataque', val: `+${Math.round((g.mods.attackSpeed || 0) * 100)}%`, color: '#80deea' },
-        { icon: 'iconShield', label: 'Armadura', val: `${Math.round((g.mods.armor || 0) + (g.mods.defense || 0))}`, color: '#81c784' },
-        { icon: 'iconReset', label: 'Vel. Mov.', val: `+${Math.round((g.mods.moveSpeed || 0) * 100)}%`, color: '#ba68c8' },
-        { icon: 'iconSparkle', label: 'Suerte / Drop', val: `+${Math.round((g.mods.doubleDropChance || 0) * 100)}%`, color: '#ffd54f', full: true }
+        { icon: 'iconHeart', label: isEnStat ? 'HP' : 'Vida', val: `${Math.round(g.player.hp)} / ${Math.round(g.player.maxHp)}`, color: '#ef5350' },
+        { icon: 'manaOrb', label: isEnStat ? 'Energy' : 'Energía', val: `${Math.round(g.player.energy)} / ${Math.round(g.player.maxEnergy)}`, color: '#4fc3f7' },
+        { icon: 'iconSword', label: isEnStat ? 'Damage' : 'Daño', val: `+${Math.round((g.mods.dmgBonus || 0) * 100)}%`, color: '#ffb74d' },
+        { icon: 'iconBow', label: isEnStat ? 'Atk Spd' : 'Vel. Ataque', val: `+${Math.round((g.mods.attackSpeed || 0) * 100)}%`, color: '#80deea' },
+        { icon: 'iconShield', label: isEnStat ? 'Defense' : 'Defensa', val: defDisplay, color: '#81c784' },
+        { icon: 'iconReset', label: isEnStat ? 'Move Spd' : 'Vel. Mov.', val: `+${Math.round((g.mods.moveSpeed || 0) * 100)}%`, color: '#ba68c8' },
+        { icon: 'iconSparkle', label: isEnStat ? 'Luck / Drop' : 'Suerte / Drop', val: `+${luckTotalPct}%`, color: '#ffd54f', full: true }
       ];
 
       const statGrid = this.el('div', {
@@ -4876,11 +4877,13 @@
             title: 'Mover todos los objetos de tu inventario al cofre (los objetos de tu Hotbar se conservan)',
             onclick: () => {
               let anyMoved = false;
+              let hadSource = false;
               for (const [id, count] of Object.entries(g.inventory)) {
                 if (count <= 0) continue;
                 const hbSlots = (g.hotbar || []).filter(s => s && s.kind === 'item' && s.id === id).length;
                 const invOnlyCount = Math.max(0, count - hbSlots * maxStack);
                 if (invOnlyCount <= 0) continue;
+                hadSource = true;
                 const fit = getChestFit(id);
                 const toMove = Math.min(invOnlyCount, fit);
                 if (toMove > 0) {
@@ -4894,7 +4897,7 @@
                 this.updateHUD(true);
                 this.renderModal();
               } else {
-                g.toast('Cofre lleno', 'warning');
+                g.toast(hadSource ? 'Cofre lleno' : 'No hay objetos para depositar', hadSource ? 'warn' : 'info');
               }
             }
           }, 'Depositar Todo'),
@@ -4903,8 +4906,10 @@
             title: 'Mover todos los objetos del cofre a tu inventario',
             onclick: () => {
               let anyMoved = false;
+              let hadSource = false;
               for (const [id, count] of Object.entries(b.storage)) {
                 if (count <= 0) continue;
+                hadSource = true;
                 const fit = getPlayerFit(id);
                 const toMove = Math.min(count, fit);
                 if (toMove > 0) {
@@ -4919,7 +4924,7 @@
                 this.updateHUD(true);
                 this.renderModal();
               } else {
-                g.toast('Inventario lleno', 'warning');
+                g.toast(hadSource ? 'Inventario lleno' : 'El cofre está vacío', hadSource ? 'warn' : 'info');
               }
             }
           }, 'Retirar Todo'),
@@ -4961,7 +4966,7 @@
                 this.updateHUD(true);
                 this.renderModal();
               } else {
-                g.toast('Inventario lleno', 'warning');
+                g.toast('Inventario lleno', 'warn');
               }
             },
             oncontextmenu: (ev) => {
@@ -4976,7 +4981,7 @@
                 this.updateHUD(true);
                 this.renderModal();
               } else {
-                g.toast('Inventario lleno', 'warning');
+                g.toast('Inventario lleno', 'warn');
               }
             }
           }, [
@@ -5046,7 +5051,7 @@
                 this.updateHUD(true);
                 this.renderModal();
               } else {
-                g.toast('Cofre lleno', 'warning');
+                g.toast('Cofre lleno', 'warn');
               }
             },
             oncontextmenu: (ev) => {
@@ -5060,7 +5065,7 @@
                 this.updateHUD(true);
                 this.renderModal();
               } else {
-                g.toast('Cofre lleno', 'warning');
+                g.toast('Cofre lleno', 'warn');
               }
             }
           }, [
@@ -5620,121 +5625,6 @@
       });
     }
 
-    _buildRecipeCard(rec, showStationLabel = true) {
-      const g = this.game;
-      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
-      const hasStation = g.hasStationAvailable(rec.station);
-      const reqSkill = rec.reqSkill ? (Abyssea.SKILLS && Abyssea.SKILLS[rec.reqSkill]) : null;
-      const hasSkill = !rec.reqSkill || (Array.isArray(g.unlockedSkills) && g.unlockedSkills.includes(rec.reqSkill));
-      const hasOmegaRes = !rec.reqOmega || Boolean(g.omega && g.omega.hasResearch(rec.reqOmega));
-      const canAfford = hasStation && hasSkill && hasOmegaRes && Object.entries(rec.in).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
-
-      const ingList = this.el('div', { style: 'font-size:14px;' });
-      Object.entries(rec.in).forEach(([id, q]) => {
-        const check = this._checkCraftIngredient(id, q);
-        ingList.appendChild(this.el('div', { style: `color:${check.ok ? '#81c784' : '#ff8a65'};font-weight:600;` },
-          `${Abyssea.ITEMS[id] ? Abyssea.ITEMS[id].name : id}: ${check.have}/${q}${check.viaEquipped ? ` (${tr('common.equipped')})` : ''}`));
-      });
-
-      const dur = g.getCraftDuration ? g.getCraftDuration(rec) : (rec.craftTime || 2.0);
-      if (rec.toolUnlock) {
-        const tDef = Abyssea.TOOLS[rec.toolUnlock];
-        if (!tDef) return null;
-        const alreadyOwned = Boolean(g.toolTiers[rec.toolUnlock]);
-        const queuedJob = (g.craftQueue || []).find(j => j.toolUnlock === rec.toolUnlock);
-        const rem = queuedJob ? Math.max(0, (queuedJob.totalTime || 0) - (queuedJob.elapsed || 0)).toFixed(1) : null;
-        const tDesc = tDef.desc || tDef.role || '';
-        return this.el('div', { class: 'card' + (alreadyOwned ? '' : ' selected') }, [
-          this.el('div', { class: 'card-head' }, [
-            this.toolIcon(rec.toolUnlock, 'basica', 34),
-            this.el('div', {}, [
-              this.el('strong', {}, tDef.name),
-              this.el('div', { style: `font-size:14px;line-height:1.45;color:${alreadyOwned ? '#81c784' : '#ffd54f'}` },
-                alreadyOwned ? tr('craft.alreadyBuiltTool') : tr('craft.initialToolTime', { dur: dur.toFixed(1) }))
-            ])
-          ]),
-          tDesc ? this.el('div', { style: 'font-size:14px;color:#efe5d6;line-height:1.48;' }, tDesc) : null,
-          ingList,
-          this.el('button', {
-            class: 'btn btn-green btn-sm',
-            'data-tool-busy-id': queuedJob ? rec.toolUnlock : null,
-            'data-busy-kind': queuedJob ? 'craft' : null,
-            disabled: (!alreadyOwned && !queuedJob && canAfford) ? null : 'disabled',
-            onclick: () => { g.craftRecipe(rec.id, 1); this.renderModal(); }
-          }, alreadyOwned
-            ? tr('craft.alreadyCraftedBtn')
-            : (queuedJob ? tr('craft.forgingProgress', { sec: rem }) : tr('craft.craftTimedBtn', { dur: dur.toFixed(1) })))
-        ]);
-      }
-
-      const isCoin = rec.out === '_coin';
-      const progArmor = !isCoin && Abyssea.isProgressiveArmorItem ? Abyssea.isProgressiveArmorItem(rec.out) : null;
-      if (progArmor) {
-        return this._buildArmorSlotCard(progArmor.slot);
-      }
-      const outItem = isCoin ? { name: tr('craft.coinName'), icon: 'coin_gold', desc: tr('craft.coinDesc') } : Abyssea.ITEMS[rec.out];
-      if (!outItem) return null;
-      const itemSummary = this._describeItemExtras(outItem);
-      const stLabel = (Abyssea.I18n && Abyssea.I18n.getStationName) ? Abyssea.I18n.getStationName(rec.station) : rec.station;
-      const subText = showStationLabel
-        ? tr('craft.stationLine', { station: stLabel, dur: dur.toFixed(1), missing: hasStation ? '' : tr('craft.notBuilt') })
-        : tr('craft.timeLine', { dur: dur.toFixed(1) });
-      const isSingleArmorPiece = Boolean(outItem.equipSlot && ['armor', 'helm', 'helmet', 'shield', 'boots'].includes(outItem.equipSlot));
-      const actionButtons = isSingleArmorPiece
-        ? [
-            this.el('button', {
-              class: 'btn btn-green btn-sm',
-              style: 'flex:1 1 100%;white-space:nowrap;padding:5px 8px;',
-              disabled: canAfford ? null : 'disabled',
-              onclick: () => { g.craftRecipe(rec.id, 1); this.renderModal(); }
-            }, tr('craft.craftTimedBtn', { dur: dur.toFixed(1) }))
-          ]
-        : [
-            this.el('button', {
-              class: 'btn btn-primary btn-sm',
-              style: 'flex:1 1 88px;min-width:0;white-space:nowrap;padding:4px 6px;',
-              disabled: canAfford ? null : 'disabled',
-              onclick: () => { g.craftRecipe(rec.id, 1); this.renderModal(); }
-            }, `x1 (${dur.toFixed(1)}s)`),
-            this.el('button', {
-              class: 'btn btn-sm',
-              style: 'flex:0 1 auto;min-width:42px;white-space:nowrap;padding:4px 8px;',
-              disabled: canAfford ? null : 'disabled',
-              onclick: () => { g.craftRecipe(rec.id, 5); this.renderModal(); }
-            }, 'x5'),
-            this.el('button', {
-              class: 'btn btn-sm',
-              style: 'flex:0 1 auto;min-width:46px;white-space:nowrap;padding:4px 8px;',
-              disabled: canAfford ? null : 'disabled',
-              onclick: () => { g.craftRecipe(rec.id, 10); this.renderModal(); }
-            }, 'x10')
-          ];
-      return this.el('div', { class: 'card' }, [
-        this.el('div', { class: 'card-head' }, [
-          this.itemIcon(outItem.icon, 32),
-          this.el('div', {}, [
-            this.el('strong', {}, isSingleArmorPiece ? outItem.name : `${outItem.name} x${rec.qty}`),
-            this.el('div', { style: `font-size:14px;line-height:1.45;color:${hasStation ? '#ffd54f' : '#ff8a65'}` }, subText)
-          ])
-        ]),
-        itemSummary ? this.el('div', { style: 'font-size:14px;color:#efe5d6;line-height:1.48;margin:5px 0;' }, itemSummary) : null,
-        this._buildWeaponStatsBox(outItem),
-        (outItem.equipSlot && (outItem.stats || outItem.bonus)) ? (() => {
-          const sk = outItem.equipSlot === 'helmet' ? 'helm' : outItem.equipSlot;
-          const eqId = g.equipped && g.equipped[sk];
-          const eqIt = eqId && eqId !== outItem.id ? Abyssea.ITEMS[eqId] : null;
-          return this._buildArmorComparisonBox(eqIt, outItem);
-        })() : null,
-        reqSkill ? this.el('div', {
-          style: `font-size:13px;font-weight:700;padding:4px 7px;border-radius:4px;margin:2px 0;background:${hasSkill ? 'rgba(46,125,50,0.22)' : 'rgba(183,28,28,0.28)'};border:1px solid ${hasSkill ? '#66bb6a' : '#ef5350'};color:${hasSkill ? '#a5d6a7' : '#ffab91'};`
-        }, hasSkill
-          ? (isEn ? `Skill unlocked: ${reqSkill.name}` : `Habilidad desbloqueada: ${reqSkill.name}`)
-          : (isEn ? `Requires Skill: ${reqSkill.name}` : `Requiere habilidad: ${reqSkill.name}`)) : null,
-        ingList,
-        this.el('div', { style: 'display:flex;gap:4px;margin-top:auto;flex-wrap:wrap;' }, actionButtons)
-      ]);
-    }
-
     _renderCraftingWorkspace(body, recList, opts = {}) {
       const g = this.game;
       const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
@@ -5887,7 +5777,7 @@
         ]);
         Object.entries(rec.in || {}).forEach(([ingId, needQty]) => {
           const check = this._checkCraftIngredient(ingId, needQty);
-          const ingDef = Abyssea.ITEMS[ingId] || { name: ingId, icon: 'item_default' };
+          const ingDef = Abyssea.ITEMS[ingId] || { name: ingId, icon: 'piedra' };
           const row = this.el('div', {
             class: `craft-ing-row ${check.ok ? 'ing-ok' : 'ing-missing'}`
           }, [
@@ -5988,7 +5878,8 @@
 
         const hasStation = g.hasStationAvailable(rec.station);
         const hasSkill = !rec.reqSkill || (Array.isArray(g.unlockedSkills) && g.unlockedSkills.includes(rec.reqSkill));
-        const canAfford = hasStation && hasSkill && Object.entries(rec.in || {}).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
+        const hasOmegaRes = !rec.reqOmega || Boolean(g.omega && g.omega.hasResearch(rec.reqOmega));
+        const canAfford = hasStation && hasSkill && hasOmegaRes && Object.entries(rec.in || {}).every(([id, q]) => this._checkCraftIngredient(id, q).ok);
         const isSelected = Boolean(this.selectedCraftRecipeId && this.selectedCraftRecipeId === key);
 
         const slotKids = [
@@ -6055,10 +5946,26 @@
       }
 
       if (activeFilter === 'alquimia' && typeof this.renderAlchemyLab === 'function') {
+        const hasAlch = g.hasStationAvailable('alquimia') || (g.buildings || []).some(b => b.type === 'alquimia' || b.type === 'laboratorio');
+        if (!hasAlch) {
+          body.appendChild(this.el('div', { class: 'parchment-box', style: 'padding:20px;text-align:center;' }, [
+            this.el('strong', { style: 'color:#ffd54f;font-size:16px;display:block;margin-bottom:6px;' }, 'Requiere Mesa de Alquimia construida'),
+            this.el('div', { style: 'color:#cbd5e1;font-size:14px;' }, 'Construye una Mesa de Alquimia desde el menú de Construcción [R] para destilar pociones y elixires.')
+          ]));
+          return;
+        }
         this.renderAlchemyLab(body);
         return;
       }
       if (activeFilter === 'reforja' && typeof this.renderReforgeTab === 'function') {
+        const hasReforge = (g.buildings || []).some(b => b.type === 'mesa_reforja');
+        if (!hasReforge) {
+          body.appendChild(this.el('div', { class: 'parchment-box', style: 'padding:20px;text-align:center;' }, [
+            this.el('strong', { style: 'color:#ffd54f;font-size:16px;display:block;margin-bottom:6px;' }, 'Requiere Mesa de Reforja construida'),
+            this.el('div', { style: 'color:#cbd5e1;font-size:14px;' }, 'Construye una Mesa de Reforja desde el menú de Construcción [R] para reforjar prefijos de equipo.')
+          ]));
+          return;
+        }
         this.renderReforgeTab(body);
         return;
       }
@@ -6493,7 +6400,7 @@
       if (this.forjaTab === 'armas' || this.forjaTab === 'armas_especiales') {
         const isSpecialTab = this.forjaTab === 'armas_especiales';
         const stRecs = Abyssea.RECIPES.filter(r => {
-          if (r.station !== stationId && r.station !== 'forja' && r.station !== 'yunque_runico') return false;
+          if (r.station !== stationId) return false;
           if (!isWeaponOut(r.out)) return false;
           const isStd = standardWeaponTypes.includes(r.out);
           return isSpecialTab ? !isStd : isStd;
@@ -6512,7 +6419,7 @@
 
         const armorSlots = ['helm', 'armor', 'legs', 'shield', 'boots'];
         const exoticRecs = Abyssea.RECIPES.filter(r => {
-          if (r.station !== stationId && r.station !== 'forja' && r.station !== 'yunque_runico') return false;
+          if (r.station !== stationId) return false;
           const it = Abyssea.ITEMS[r.out];
           if (!it || !it.equipSlot) return false;
           const sk = it.equipSlot === 'helmet' ? 'helm' : it.equipSlot;
@@ -6530,7 +6437,7 @@
       if (this.forjaTab === 'otros') {
         const armorSlots = ['helm', 'armor', 'legs', 'shield', 'boots'];
         const otherRecs = Abyssea.RECIPES.filter(r => {
-          if (r.station !== stationId && r.station !== 'forja' && r.station !== 'yunque_runico') return false;
+          if (r.station !== stationId) return false;
           if (isWeaponOut(r.out)) return false;
           const it = Abyssea.ITEMS[r.out];
           if (it && it.equipSlot) {
@@ -8221,8 +8128,17 @@
             class: 'btn btn-primary',
             style: 'margin-top:4px;',
             onclick: () => {
-              g.player.x = (portalB.tx + 0.5) * TILE_SIZE;
-              g.player.y = (portalB.ty + 1.2) * TILE_SIZE;
+              if (g.activeDungeon) {
+                g.toast('No puedes usar viaje rápido dentro de una mazmorra.', 'warn');
+                return;
+              }
+              const tx = (portalB.tx + 0.5) * TILE_SIZE;
+              const ty = (portalB.ty + 1.4) * TILE_SIZE;
+              const safe = typeof g.findSafeOverworldSpawn === 'function' ? g.findSafeOverworldSpawn(tx, ty) : { x: tx, y: ty };
+              g.player.x = safe.x;
+              g.player.y = safe.y;
+              g.camera.x = g.player.x;
+              g.camera.y = g.player.y;
               Abyssea.Audio.play('portal');
               this.closeModal();
             }
@@ -8240,8 +8156,15 @@
               class: 'btn btn-gold',
               style: 'margin-top:6px;border-color:#00e5ff;',
               onclick: () => {
-                g.player.x = (beaconB.tx + 0.5) * TILE_SIZE;
-                g.player.y = (beaconB.ty + 1.1) * TILE_SIZE;
+                if (g.activeDungeon) {
+                  g.toast('No puedes usar viaje rápido dentro de una mazmorra.', 'warn');
+                  return;
+                }
+                const tx = (beaconB.tx + 0.5) * TILE_SIZE;
+                const ty = (beaconB.ty + 1.4) * TILE_SIZE;
+                const safe = typeof g.findSafeOverworldSpawn === 'function' ? g.findSafeOverworldSpawn(tx, ty) : { x: tx, y: ty };
+                g.player.x = safe.x;
+                g.player.y = safe.y;
                 g.camera.x = g.player.x;
                 g.camera.y = g.player.y;
                 Abyssea.Audio.play('portal');
@@ -9737,17 +9660,19 @@
         this.el('span', { style: 'font-size:15px;line-height:1.48;' }, tr('ench.tableDesc'))
       ]));
 
-      // Owned tools & modular armor pieces (helm, armor, shield, boots)
+      // Owned tools & modular armor pieces (helm, armor, legs, shield, boots, ring, amulet)
       const ownedTools = Object.values(Abyssea.TOOLS).filter(t => Boolean(g.toolTiers[t.id]));
       const ownedArmors = Object.values(Abyssea.ITEMS).filter(it => {
         const slot = it.equipSlot === 'helmet' ? 'helm' : it.equipSlot;
-        return ['armor', 'helm', 'shield', 'boots', 'ring', 'amulet'].includes(slot) &&
+        return ['armor', 'helm', 'legs', 'shield', 'boots', 'ring', 'amulet'].includes(slot) &&
           ((g.inventory[it.id] || 0) > 0 || g.equipped[slot] === it.id);
       });
 
       // Ensure valid default selection
       if (this.enchantTarget.kind === 'tool' && !g.toolTiers[this.enchantTarget.id]) {
-        this.enchantTarget = { kind: 'tool', id: ownedTools[0] ? ownedTools[0].id : 'pico' };
+        this.enchantTarget = ownedTools.length
+          ? { kind: 'tool', id: ownedTools[0].id }
+          : (ownedArmors.length ? { kind: 'armor', id: ownedArmors[0].id } : { kind: 'tool', id: '' });
       } else if (this.enchantTarget.kind === 'armor' && !ownedArmors.some(a => a.id === this.enchantTarget.id)) {
         this.enchantTarget = ownedTools.length
           ? { kind: 'tool', id: ownedTools[0].id }
@@ -9777,14 +9702,15 @@
       const curStore = tKind === 'armor' ? (g.armorEnchants && g.armorEnchants[tId]) : (g.toolEnchants && g.toolEnchants[tId]);
       const curLevels = curStore || {};
 
-      if (!tId) {
+      if (!tId || (tKind === 'tool' && (!Abyssea.TOOLS[tId] || !g.toolTiers[tId]))) {
         body.appendChild(this.el('div', { class: 'card' }, tr('ench.noGear')));
         return;
       }
 
+      const targetTierMeta = Abyssea.TIER_META[g.toolTiers[tId]];
       const targetLabel = tKind === 'armor'
         ? (Abyssea.ITEMS[tId] ? Abyssea.ITEMS[tId].name : tId)
-        : `${Abyssea.TOOLS[tId].name} (${Abyssea.TIER_META[g.toolTiers[tId]].name})`;
+        : `${Abyssea.TOOLS[tId].name} (${targetTierMeta ? targetTierMeta.name : g.toolTiers[tId]})`;
       const appliedEntries = Object.entries(curLevels).filter(([, v]) => v > 0);
       const usedSlots = appliedEntries.length;
       const maxSlots = g.getMaxEnchantSlots ? g.getMaxEnchantSlots() : 3;
@@ -10098,7 +10024,10 @@
           const thumb = this.makeEnemyThumb(en, 42);
           if (!found && thumb) thumb.style.filter = 'brightness(0) contrast(1.2)';
           const dropsText = found && en.drops
-            ? Object.keys(en.drops).map(k => (Abyssea.ITEMS[k] && Abyssea.ITEMS[k].name) || k).join(', ')
+            ? (Array.isArray(en.drops)
+                ? en.drops.map(d => (Abyssea.ITEMS[d.id] && Abyssea.ITEMS[d.id].name) || d.id)
+                : Object.keys(en.drops).map(k => (Abyssea.ITEMS[k] && Abyssea.ITEMS[k].name) || k)
+              ).filter(Boolean).join(', ')
             : '';
           const tierColors = ['#78909c', '#69f0ae', '#4fc3f7', '#ffd54f'];
           const tierLabels = ['Sin Maestría', 'Maestría I', 'Maestría II', 'Maestría III (MAX)'];
@@ -10114,7 +10043,7 @@
                 found ? this.el('div', { style: `font-size:12px;color:${tierColors[bm.tier]};font-weight:bold;` }, `${tierLabels[bm.tier]} · Bajas: ${bm.kills}/${bm.nextTarget}`) : null
               ])
             ]),
-            this.el('div', { style: 'font-size:13px;color:#efe8db;line-height:1.45;' }, found ? tr('enc.enemyStats', { hp: en.hp, dmg: en.dmg, coins: en.coins }) : tr('enc.enemyHint')),
+            this.el('div', { style: 'font-size:13px;color:#efe8db;line-height:1.45;' }, found ? tr('enc.enemyStats', { hp: en.hp, dmg: en.dmg, coins: Array.isArray(en.coins) ? `${en.coins[0]}–${en.coins[1]}` : en.coins }) : tr('enc.enemyHint')),
             found && dropsText ? this.el('div', { style: 'font-size:12px;color:#80cbc4;margin-top:3px;' }, `Botín: ${dropsText}`) : null,
             found && bm.tier > 0 ? this.el('div', { style: 'font-size:12px;color:#ffd54f;margin-top:2px;' }, `Bono Permanente: +${Math.round(bm.dmgBonus * 100)}% Daño y +${Math.round(bm.dropBonus * 100)}% Drops`) : null
           ]));
@@ -10133,10 +10062,6 @@
       }
       if (this.encycSearch) applyEncycSearch(this.encycSearch);
       body.appendChild(grid);
-    }
-
-    renderSettings(body) {
-      this.renderPauseMenu(body);
     }
 
     _syncPauseModalClasses(isSettings) {
@@ -10934,7 +10859,7 @@
         {
           badge: 'DUNGEONS & BOSSES',
           color: '#ff8a65',
-          icon: 'espada_omega',
+          icon: 'espada_eclipse',
           title: 'Expanded Late-Biome Dungeons (Biomes 3, 4 & 5) & Corrupted Mode',
           items: [
             'Desert, Volcano, and Shadow Crypt dungeons expanded with 3x difficulty, 3 new side chambers, and reinforced 3-tile boss chamber stone walls.',
@@ -11020,7 +10945,7 @@
         {
           badge: 'MAZMORRAS Y JEFES',
           color: '#ff8a65',
-          icon: 'espada_omega',
+          icon: 'espada_eclipse',
           title: 'Expansion de Mazmorras (Biomas 3, 4 y 5) y Modo Corrupto',
           items: [
             'Mazmorras de Desierto, Volcan y Criptas Sombrias expandidas con dificultad x3, 3 salas nuevas y muros reforzados en la camara del jefe.',
@@ -11069,7 +10994,7 @@
         {
           badge: 'WORLD 19x19',
           color: '#4fc3f7',
-          icon: 'mapa_tesoro',
+          icon: 'mapa_tesoro_item',
           title: '361 Directional Islands, 14 Biomes & 4 Zones',
           items: [
             'Expanded archipelago from 10x10 (100 islands) to 19x19 (361 islands) anchored around Zone I (Central Emerald Meadow 3x3).',
@@ -11113,7 +11038,7 @@
         {
           badge: 'MUNDO 19x19',
           color: '#4fc3f7',
-          icon: 'mapa_tesoro',
+          icon: 'mapa_tesoro_item',
           title: '361 Islas Direccionales, 14 Biomas y 4 Zonas',
           items: [
             'Mapa expandido a 19x19 (361 islas) centrado en la Zona I (Pradera Esmeralda 3x3).',
@@ -11198,7 +11123,7 @@
         {
           badge: 'BALANCE Y CORRECCIONES',
           color: '#81c784',
-          icon: 'pico',
+          icon: 'lingote_omega',
           title: isEn ? 'Zero-Softlock Forging & Omega Research Gating' : 'Cero Bloqueos de Progresión y Requisito Omega Estricto',
           items: isEn ? [
             'Fixed Copper Pickaxe (T3) crafting order so upgrading Improved -> Copper no longer requires a Forge (which needs Iron), while Iron (T4+) keeps the Forge requirement.',
@@ -11259,7 +11184,7 @@
             {
               badge: 'RED OMEGA',
               color: '#80d8ff',
-              icon: 'energia',
+              icon: 'elixir_mana',
               title: isEn ? 'Autonomous Nexus & Energy Grid' : 'Nexo Central Autónomo y Energía',
               items: isEn ? [
                 'Central Nexus passively vacuums nearby fuels and drops on the island.',
@@ -11272,7 +11197,7 @@
             {
               badge: 'HECHIZOS & PROPORCIONES',
               color: '#b388ff',
-              icon: 'libro_hechizos',
+              icon: 'grimorio_furia_arcana',
               title: isEn ? 'Spell Leveling (Lv.1-5) & 2x2 Scaling' : 'Niveles de Hechizos y Proporciones 2x2',
               items: isEn ? [
                 'Upgrade every spell up to Lv.5 in the Grimoire (+25% damage, -8% cooldown per level).',
@@ -11758,12 +11683,25 @@
         foot.appendChild(this.el('button', {
           class: 'btn btn-danger',
           onclick: () => {
-            g.automation.collectFromBuilding(g, b);
-            g.buildings = g.buildings.filter(x => x !== b);
-            Object.entries(def.cost).forEach(([id, q]) => g.addItem(id, Math.max(1, Math.floor(q * 0.5))));
-            g.recomputeModifiers();
+            if (b.baitSlot && b.baitSlot.id && b.baitSlot.qty > 0) {
+              g.addItem(b.baitSlot.id, b.baitSlot.qty);
+              b.baitSlot = null;
+            }
+            if (b.breedFish) {
+              g.addItem(b.breedFish, 1);
+              b.breedFish = null;
+            }
+            if (typeof g.demolishBuilding === 'function') {
+              g.demolishBuilding(b);
+            } else {
+              g.automation.collectFromBuilding(g, b);
+              g.buildings = g.buildings.filter(x => x !== b);
+              Object.entries(def.cost || {}).forEach(([id, q]) => g.addItem(id, Math.max(1, Math.floor(q * 0.5))));
+              g.recomputeModifiers();
+              g.toast(tr('bldg.demolishToast', { name: def.name }), 'info');
+            }
+            if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('destroy');
             this.closeModal();
-            g.toast(tr('bldg.demolishToast', { name: def.name }), 'info');
           }
         }, tr('bldg.demolishBtn')));
         body.appendChild(foot);
@@ -11774,13 +11712,18 @@
         foot.appendChild(this.el('button', {
           class: 'btn btn-danger',
           onclick: () => {
-            g.buildings = g.buildings.filter(x => x !== b);
-            if (def.cost) {
-              Object.entries(def.cost).forEach(([id, q]) => g.addItem(id, Math.max(1, Math.floor(q * 0.5))));
+            if (typeof g.demolishBuilding === 'function') {
+              g.demolishBuilding(b);
+            } else {
+              g.buildings = g.buildings.filter(x => x !== b);
+              if (def.cost) {
+                Object.entries(def.cost).forEach(([id, q]) => g.addItem(id, Math.max(1, Math.floor(q * 0.5))));
+              }
+              g.recomputeModifiers();
+              g.toast(tr('bldg.demolishToast', { name: def.name }), 'info');
             }
-            g.recomputeModifiers();
+            if (Abyssea.Audio && typeof Abyssea.Audio.play === 'function') Abyssea.Audio.play('destroy');
             this.closeModal();
-            g.toast(tr('bldg.demolishToast', { name: def.name }), 'info');
           }
         }, tr('bldg.demolishBtn')));
         body.appendChild(foot);
@@ -11868,6 +11811,9 @@
             onclick: () => {
               const loadQty = Math.min(owned, 5);
               if (loadQty <= 0) return;
+              if (b.baitSlot && b.baitSlot.id && b.baitSlot.id !== bid && b.baitSlot.qty > 0) {
+                g.addItem(b.baitSlot.id, b.baitSlot.qty);
+              }
               g.removeItem(bid, loadQty);
               if (b.baitSlot && b.baitSlot.id === bid) b.baitSlot.qty += loadQty;
               else b.baitSlot = { id: bid, qty: loadQty };
@@ -11892,6 +11838,7 @@
             class: b.breedFish === fid ? 'btn btn-gold btn-sm' : 'btn btn-primary btn-sm',
             onclick: () => {
               if (b.breedFish === fid) return;
+              if (b.breedFish) g.addItem(b.breedFish, 1);
               g.removeItem(fid, 1);
               b.breedFish = fid;
               g.toast(`Cría activa en Estanque: ${fIt.name} se reproducirá pasivamente.`, 'success');
@@ -11902,7 +11849,11 @@
         if (b.breedFish) {
           breedRow.appendChild(this.el('button', {
             class: 'btn btn-stone btn-sm',
-            onclick: () => { b.breedFish = null; this.renderModal(); }
+            onclick: () => {
+              if (b.breedFish) g.addItem(b.breedFish, 1);
+              b.breedFish = null;
+              this.renderModal();
+            }
           }, 'Limpiar Cría'));
         }
         body.appendChild(this.el('div', { class: 'card', style: 'margin-bottom:12px;' }, [
@@ -11934,8 +11885,17 @@
           pCard.appendChild(this.el('button', {
             class: 'btn btn-primary btn-sm',
             onclick: () => {
-              g.player.x = (pt.tx + 0.5) * TILE_SIZE;
-              g.player.y = (pt.ty + 1.2) * TILE_SIZE;
+              if (g.activeDungeon) {
+                g.toast('No puedes usar portales de superficie dentro de una mazmorra.', 'warn');
+                return;
+              }
+              const tx = (pt.tx + 0.5) * TILE_SIZE;
+              const ty = (pt.ty + 1.4) * TILE_SIZE;
+              const safe = typeof g.findSafeOverworldSpawn === 'function' ? g.findSafeOverworldSpawn(tx, ty) : { x: tx, y: ty };
+              g.player.x = safe.x;
+              g.player.y = safe.y;
+              g.camera.x = g.player.x;
+              g.camera.y = g.player.y;
               Abyssea.Audio.play('portal');
               this.closeModal();
             }
@@ -12424,7 +12384,7 @@
 
       if (!currentCat) {
         body.appendChild(this.el('div', { class: 'parchment-box', style: 'text-align:center;padding:24px;color:#b8d4ec;' },
-          'Selecciona una categoría de recursos para calibrar la Prensa de Singularidades. Requiere 10.000 recursos compatibles de dicha categoría para condensar 1 Singularidad.'));
+          `Selecciona una categoría de recursos para calibrar la Prensa de Singularidades. Requiere ${cost.toLocaleString('es-ES')} recursos compatibles de dicha categoría para condensar 1 Singularidad.`));
         return;
       }
 
@@ -12448,6 +12408,7 @@
             class: 'btn btn-primary btn-sm',
             onclick: () => {
               const it = g.omega.nexusData(plotKey).items;
+              if (!o.deposit) o.deposit = {};
               let added = 0;
               for (const id of CATS[currentCat] || []) {
                 const avail = it[id] || 0;
@@ -12854,7 +12815,7 @@
         if (stationId === 'horno' || stationId === 'fundicion') {
           if (curTab === 'lingotes') return outId.startsWith('lingote_') && !outId.includes('aleacion');
           if (curTab === 'aleaciones') return outId.includes('aleacion') || outId.includes('acero') || outId.includes('bronce') || outId === 'vidrio';
-          return !outId.startsWith('lingote_') && !outId.includes('aleacion') && !outId.includes('acero');
+          return !outId.startsWith('lingote_') && !outId.includes('aleacion') && !outId.includes('acero') && !outId.includes('bronce') && outId !== 'vidrio';
         }
         if (stationId === 'aserradero') {
           if (curTab === 'vigas') return outId.includes('tablon') || outId.includes('viga');
@@ -12862,19 +12823,26 @@
           return !outId.includes('tablon') && !outId.includes('viga') && !outId.includes('madera');
         }
         if (stationId === 'telar') {
-          if (curTab === 'telas') return outId.includes('tela') || outId.includes('cuerda') || outId.includes('hilo') || outId.includes('fibra');
-          if (curTab === 'armaduras') return (it.equipSlot === 'armor' || it.equipSlot === 'helm') && !outId.includes('pantalones');
-          if (curTab === 'pantalones') return outId.includes('pantalones') || it.equipSlot === 'legs';
-          return true;
+          const isTela = outId.includes('tela') || outId.includes('cuerda') || outId.includes('hilo') || outId.includes('fibra');
+          const isPant = outId.includes('pantalones') || it.equipSlot === 'legs';
+          const isArm = (it.equipSlot === 'armor' || it.equipSlot === 'helm') && !outId.includes('pantalones');
+          if (curTab === 'telas') return isTela;
+          if (curTab === 'armaduras') return isArm;
+          if (curTab === 'pantalones') return isPant;
+          return !isTela && !isArm && !isPant;
         }
         if (stationId === 'cocina') {
-          if (curTab === 'platos') return outId.includes('estofado') || outId.includes('sopa') || outId.includes('guiso') || outId.includes('pan');
-          if (curTab === 'pescados') return outId.includes('sashimi') || outId.includes('brocheta') || outId.includes('pez') || outId.includes('pescado');
-          return true;
+          const isPlato = outId.includes('estofado') || outId.includes('sopa') || outId.includes('guiso') || outId.includes('pan');
+          const isPesc = outId.includes('sashimi') || outId.includes('brocheta') || outId.includes('pez') || outId.includes('pescado');
+          if (curTab === 'platos') return isPlato;
+          if (curTab === 'pescados') return isPesc;
+          return !isPlato && !isPesc;
         }
-        if (curTab === 'materiales') return it.category === 'materiales' || it.category === 'recursos';
-        if (curTab === 'equipo') return it.equipSlot || it.type === 'weapon' || it.category === 'equipamiento';
-        return true;
+        const isMat = it.category === 'materiales' || it.category === 'recursos';
+        const isEq = Boolean(it.equipSlot || it.type === 'weapon' || it.category === 'equipamiento');
+        if (curTab === 'materiales') return isMat;
+        if (curTab === 'equipo') return isEq;
+        return !isMat && !isEq;
       });
 
       const stRecs = this._sortRecipes(filteredRecs);
@@ -12965,7 +12933,7 @@
         const grid = this.el('div', { style: 'display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto;' });
         stKeys.forEach(k => {
           const qty = b.storage[k];
-          const it = Abyssea.ITEMS[k] || { name: k, icon: 'items/gem_ruby' };
+          const it = Abyssea.ITEMS[k] || { name: k, icon: 'rubi' };
           const withdraw = (amount) => {
             const want = Math.min(qty, amount);
             if (want <= 0) return;
@@ -13145,8 +13113,10 @@
             class: `inv-slot rarity-${it.rarity || 'comun'}`,
             title: `${it.name} (x${q}) — Clic: Recuperar al inventario`,
             onclick: () => {
-              const take = Math.min(q, maxStack);
-              if (!g.canAddItem(id, 1)) {
+              const capInfo = typeof g.getItemCapacityInfo === 'function' ? g.getItemCapacityInfo(id) : null;
+              const fit = capInfo ? capInfo.totalFit : (g.canAddItem(id, 1) ? maxStack : 0);
+              const take = Math.min(q, maxStack, fit);
+              if (take <= 0) {
                 g.toast('Inventario lleno para recuperar.', 'warn');
                 return;
               }
@@ -13450,7 +13420,14 @@
       if (this._cmdEl) this._cmdEl.classList.add('hidden');
     }
 
-    toggleSecretConsole() {
+    toggleSecretConsole(forceOpen = null) {
+      if (forceOpen === false) {
+        this.closeSecretConsole();
+        return false;
+      }
+      if (forceOpen === true) {
+        return this.openSecretConsole();
+      }
       if (this._cmdOpen) {
         this.closeSecretConsole();
         return false;
@@ -13776,12 +13753,13 @@
       }
 
       if (cmd === 'armor' || cmd === 'armadura') {
-        if (!args.length) return fail('Uso: /armor <helm|armor|shield|boots|all> [tier=celestial]');
+        if (!args.length) return fail('Uso: /armor <helm|armor|legs|shield|boots|all> [tier=celestial]');
         const ARMORS = Abyssea.ARMORS || {};
         const TIERS = Abyssea.TOOL_TIERS || [];
         const aliasMap = {
           helm: 'helm', helmet: 'helm', casco: 'helm',
           armor: 'armor', armadura: 'armor', pecho: 'armor', chest: 'armor',
+          legs: 'legs', pantalones: 'legs', grebas: 'legs',
           shield: 'shield', escudo: 'shield',
           boots: 'boots', botas: 'boots'
         };
@@ -13800,7 +13778,7 @@
         const slots = (slotReq === 'all' || slotReq === 'todas' || slotReq === 'todo')
           ? Object.keys(ARMORS)
           : (aliasMap[slotReq] ? [aliasMap[slotReq]] : []);
-        if (!slots.length) return fail('Slot inválido. Usa helm, armor, shield, boots o all.');
+        if (!slots.length) return fail('Slot inválido. Usa helm, armor, legs, shield, boots o all.');
         slots.forEach(sl => {
           const chain = ARMORS[sl];
           if (!chain || !chain.tiers.length) return;
@@ -14263,5 +14241,7 @@
   }
 
   Abyssea.getKeybinds = () => (Abyssea.UI && Abyssea.UI.keybinds) || DEFAULT_KEYBINDS;
+  Abyssea.UIController = UIController;
+  Abyssea.UIManager = UIController;
   Abyssea.UI = new UIController();
 })();

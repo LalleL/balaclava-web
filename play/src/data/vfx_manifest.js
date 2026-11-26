@@ -2,7 +2,7 @@
   'use strict';
   const Abyssea = (window.Abyssea = window.Abyssea || {});
 
-  // Auto-curated sprite sheet manifest generated from assets v2
+  // Auto-curated sprite sheet manifest (pruned unused entries in audit Phase 9)
   Abyssea.VFX_V2 = {
   "pvfx_arcane_beam": {
     "path": "assets/vfx_v2/pvfx/arcane_beam.png",
@@ -64,18 +64,6 @@
     "py": 0.734375,
     "loop": false
   },
-  "pvfx_portal_summon": {
-    "path": "assets/vfx_v2/pvfx/portal_summon.png",
-    "fw": 108,
-    "fh": 128,
-    "cols": 8,
-    "rows": 3,
-    "frames": 22,
-    "dur": 1.76,
-    "px": 0.5,
-    "py": 0.84375,
-    "loop": false
-  },
   "pvfx_rune_trap": {
     "path": "assets/vfx_v2/pvfx/rune_trap.png",
     "fw": 64,
@@ -86,18 +74,6 @@
     "dur": 1.24,
     "px": 0.5,
     "py": 0.8125,
-    "loop": false
-  },
-  "pvfx_shield_shatter": {
-    "path": "assets/vfx_v2/pvfx/shield_shatter.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 8,
-    "rows": 3,
-    "frames": 17,
-    "dur": 1.02,
-    "px": 0,
-    "py": 0,
     "loop": false
   },
   "pvfx_teleport_in": {
@@ -288,8 +264,8 @@
     "rows": 2,
     "frames": 16,
     "dur": 0.88,
-    "px": 0,
-    "py": 0,
+    "px": 0.5,
+    "py": 0.5,
     "loop": false
   },
   "pvfx_divine_beam": {
@@ -324,30 +300,6 @@
     "rows": 2,
     "frames": 14,
     "dur": 1.12,
-    "px": 0.5,
-    "py": 0.9,
-    "loop": false
-  },
-  "pvfx_regen_aura": {
-    "path": "assets/vfx_v2/pvfx/regen_aura.png",
-    "fw": 48,
-    "fh": 64,
-    "cols": 8,
-    "rows": 2,
-    "frames": 16,
-    "dur": 1.28,
-    "px": 0.5,
-    "py": 0.890625,
-    "loop": true
-  },
-  "pvfx_resurrect": {
-    "path": "assets/vfx_v2/pvfx/resurrect.png",
-    "fw": 48,
-    "fh": 80,
-    "cols": 8,
-    "rows": 3,
-    "frames": 21,
-    "dur": 1.47,
     "px": 0.5,
     "py": 0.9,
     "loop": false
@@ -436,30 +388,6 @@
     "py": 0.5,
     "loop": false
   },
-  "pvfx_parry": {
-    "path": "assets/vfx_v2/pvfx/parry.png",
-    "fw": 96,
-    "fh": 80,
-    "cols": 8,
-    "rows": 2,
-    "frames": 13,
-    "dur": 0.78,
-    "px": 0.5,
-    "py": 0.475,
-    "loop": false
-  },
-  "pvfx_punch_hit": {
-    "path": "assets/vfx_v2/pvfx/punch_hit.png",
-    "fw": 48,
-    "fh": 40,
-    "cols": 8,
-    "rows": 2,
-    "frames": 11,
-    "dur": 0.66,
-    "px": 0.3541666666666667,
-    "py": 0.525,
-    "loop": false
-  },
   "pvfx_rock_shatter": {
     "path": "assets/vfx_v2/pvfx/rock_shatter.png",
     "fw": 64,
@@ -482,18 +410,6 @@
     "dur": 1.12,
     "px": 0.5,
     "py": 0.5769230769230769,
-    "loop": false
-  },
-  "pvfx_ball_lightning": {
-    "path": "assets/vfx_v2/pvfx/ball_lightning.png",
-    "fw": 96,
-    "fh": 48,
-    "cols": 8,
-    "rows": 3,
-    "frames": 20,
-    "dur": 1.2,
-    "px": 0,
-    "py": 0.5,
     "loop": false
   },
   "pvfx_chain_lightning": {
@@ -660,8 +576,8 @@
     "rows": 3,
     "frames": 18,
     "dur": 1.17,
-    "px": 0,
-    "py": 0,
+    "px": 0.5,
+    "py": 0.5,
     "loop": false
   },
   "pvfx_poison_cloud": {
@@ -772,18 +688,6 @@
     "py": 0.5357142857142857,
     "loop": false
   },
-  "pvfx_shadow_tendrils": {
-    "path": "assets/vfx_v2/pvfx/shadow_tendrils.png",
-    "fw": 64,
-    "fh": 56,
-    "cols": 8,
-    "rows": 3,
-    "frames": 21,
-    "dur": 1.47,
-    "px": 0.5,
-    "py": 0.8214285714285714,
-    "loop": false
-  },
   "pvfx_soul_drain": {
     "path": "assets/vfx_v2/pvfx/soul_drain.png",
     "fw": 96,
@@ -792,8 +696,8 @@
     "rows": 3,
     "frames": 23,
     "dur": 1.5,
-    "px": 0,
-    "py": 0,
+    "px": 0.5,
+    "py": 0.5,
     "loop": false
   },
   "pvfx_void_implosion": {
@@ -844,90 +748,6 @@
     "py": 0.8928571428571429,
     "loop": false
   },
-  "pvfx_steam_vent": {
-    "path": "assets/vfx_v2/pvfx/steam_vent.png",
-    "fw": 48,
-    "fh": 72,
-    "cols": 8,
-    "rows": 4,
-    "frames": 30,
-    "dur": 2.4,
-    "px": 0.2916666666666667,
-    "py": 0.9444444444444444,
-    "loop": true
-  },
-  "pvfx_bleeding": {
-    "path": "assets/vfx_v2/pvfx/bleeding.png",
-    "fw": 40,
-    "fh": 56,
-    "cols": 8,
-    "rows": 3,
-    "frames": 20,
-    "dur": 1.6,
-    "px": 0.5,
-    "py": 0.875,
-    "loop": true
-  },
-  "pvfx_burning_aura": {
-    "path": "assets/vfx_v2/pvfx/burning_aura.png",
-    "fw": 48,
-    "fh": 64,
-    "cols": 8,
-    "rows": 2,
-    "frames": 12,
-    "dur": 0.9,
-    "px": 0.5,
-    "py": 0.84375,
-    "loop": true
-  },
-  "pvfx_charm_hearts": {
-    "path": "assets/vfx_v2/pvfx/charm_hearts.png",
-    "fw": 40,
-    "fh": 40,
-    "cols": 8,
-    "rows": 3,
-    "frames": 20,
-    "dur": 1.6,
-    "px": 0.5,
-    "py": 0.575,
-    "loop": true
-  },
-  "pvfx_electrified": {
-    "path": "assets/vfx_v2/pvfx/electrified.png",
-    "fw": 48,
-    "fh": 56,
-    "cols": 8,
-    "rows": 2,
-    "frames": 14,
-    "dur": 0.91,
-    "px": 0.5,
-    "py": 0.8392857142857143,
-    "loop": true
-  },
-  "pvfx_frozen_chill": {
-    "path": "assets/vfx_v2/pvfx/frozen_chill.png",
-    "fw": 40,
-    "fh": 48,
-    "cols": 8,
-    "rows": 2,
-    "frames": 14,
-    "dur": 0.98,
-    "px": 0.5,
-    "py": 0.875,
-    "loop": true
-  },
-  "pvfx_poisoned": {
-    "path": "assets/vfx_v2/pvfx/poisoned.png",
-    "fw": 64,
-    "fh": 80,
-    "cols": 8,
-    "rows": 3,
-    "frames": 18,
-    "dur": 1.44,
-    "px": 0.5,
-    "py": 0.9,
-    "loop": true
-  },
   "pvfx_power_up_aura": {
     "path": "assets/vfx_v2/pvfx/power_up_aura.png",
     "fw": 56,
@@ -940,18 +760,6 @@
     "py": 0.8928571428571429,
     "loop": true
   },
-  "pvfx_stun_stars": {
-    "path": "assets/vfx_v2/pvfx/stun_stars.png",
-    "fw": 48,
-    "fh": 32,
-    "cols": 8,
-    "rows": 2,
-    "frames": 16,
-    "dur": 1.2,
-    "px": 0.5,
-    "py": 0.5,
-    "loop": true
-  },
   "pvfx_coin_pickup": {
     "path": "assets/vfx_v2/pvfx/coin_pickup.png",
     "fw": 32,
@@ -962,18 +770,6 @@
     "dur": 0.6,
     "px": 0.5,
     "py": 0.5,
-    "loop": false
-  },
-  "pvfx_heart_pickup": {
-    "path": "assets/vfx_v2/pvfx/heart_pickup.png",
-    "fw": 32,
-    "fh": 40,
-    "cols": 8,
-    "rows": 2,
-    "frames": 10,
-    "dur": 0.7,
-    "px": 0.5,
-    "py": 0.675,
     "loop": false
   },
   "pvfx_level_up": {
@@ -1072,18 +868,6 @@
     "py": 0.5208333333333334,
     "loop": true
   },
-  "pvfx_whirlwind": {
-    "path": "assets/vfx_v2/pvfx/whirlwind.png",
-    "fw": 48,
-    "fh": 72,
-    "cols": 8,
-    "rows": 2,
-    "frames": 14,
-    "dur": 0.91,
-    "px": 0.5,
-    "py": 0.9444444444444444,
-    "loop": true
-  },
   "pvfx_wind_blade": {
     "path": "assets/vfx_v2/pvfx/wind_blade.png",
     "fw": 96,
@@ -1096,18 +880,6 @@
     "py": 0.5,
     "loop": false
   },
-  "pvfx_wind_gust": {
-    "path": "assets/vfx_v2/pvfx/wind_gust.png",
-    "fw": 96,
-    "fh": 48,
-    "cols": 8,
-    "rows": 2,
-    "frames": 9,
-    "dur": 0.63,
-    "px": 0.5,
-    "py": 0.5,
-    "loop": false
-  },
   "pvfx_frost_nova": {
     "path": "assets/vfx_v2/pvfx/frost_nova.png",
     "fw": 96,
@@ -1115,7 +887,7 @@
     "cols": 5,
     "rows": 3,
     "frames": 13,
-    "dur": 13,
+    "dur": 0.65,
     "px": 0.5,
     "py": 0.6354166666666666,
     "loop": false
@@ -1127,7 +899,7 @@
     "cols": 5,
     "rows": 8,
     "frames": 36,
-    "dur": 36,
+    "dur": 1.2,
     "px": 0.5,
     "py": 0.5208333333333334,
     "loop": false
@@ -1139,7 +911,7 @@
     "cols": 5,
     "rows": 3,
     "frames": 14,
-    "dur": 14,
+    "dur": 0.65,
     "px": 0.5,
     "py": 0.6458333333333334,
     "loop": false
@@ -1151,7 +923,7 @@
     "cols": 5,
     "rows": 12,
     "frames": 60,
-    "dur": 60,
+    "dur": 1.8,
     "px": 0.5,
     "py": 0.5,
     "loop": true
@@ -1163,7 +935,7 @@
     "cols": 5,
     "rows": 3,
     "frames": 14,
-    "dur": 14,
+    "dur": 0.65,
     "px": 0.5,
     "py": 0.5833333333333334,
     "loop": false
@@ -1240,15 +1012,6 @@
     "frames": 23,
     "dur": 0.75
   },
-  "aw_fire_impact": {
-    "path": "assets/vfx_v2/aw/fire_impact.png",
-    "fw": 112,
-    "fh": 112,
-    "cols": 9,
-    "rows": 1,
-    "frames": 9,
-    "dur": 0.38
-  },
   "aw_ice_impact": {
     "path": "assets/vfx_v2/aw/ice_impact.png",
     "fw": 112,
@@ -1276,15 +1039,6 @@
     "frames": 6,
     "dur": 0.25
   },
-  "aw_hit_parry": {
-    "path": "assets/vfx_v2/aw/hit_parry.png",
-    "fw": 96,
-    "fh": 96,
-    "cols": 5,
-    "rows": 1,
-    "frames": 5,
-    "dur": 0.24
-  },
   "aw_hit_spark_medium": {
     "path": "assets/vfx_v2/aw/hit_spark_medium.png",
     "fw": 80,
@@ -1311,15 +1065,6 @@
     "rows": 1,
     "frames": 15,
     "dur": 0.63
-  },
-  "aw_punch_swoosh": {
-    "path": "assets/vfx_v2/aw/punch_swoosh.png",
-    "fw": 96,
-    "fh": 64,
-    "cols": 16,
-    "rows": 1,
-    "frames": 16,
-    "dur": 0.67
   },
   "aw_slash_diagonal": {
     "path": "assets/vfx_v2/aw/slash_diagonal.png",
@@ -1355,15 +1100,6 @@
     "cols": 20,
     "rows": 1,
     "frames": 20,
-    "dur": 0.75
-  },
-  "aw_slash_vertical": {
-    "path": "assets/vfx_v2/aw/slash_vertical.png",
-    "fw": 64,
-    "fh": 128,
-    "cols": 19,
-    "rows": 1,
-    "frames": 19,
     "dur": 0.75
   },
   "aw_slash_wave": {
@@ -1437,15 +1173,6 @@
     "rows": 1,
     "frames": 6,
     "dur": 0.25
-  },
-  "aw_fire_muzzleshockwave": {
-    "path": "assets/vfx_v2/aw/fire_muzzleshockwave.png",
-    "fw": 88,
-    "fh": 104,
-    "cols": 3,
-    "rows": 1,
-    "frames": 3,
-    "dur": 0.24
   },
   "aw_holy_pillar": {
     "path": "assets/vfx_v2/aw/holy_pillar.png",
@@ -1537,15 +1264,6 @@
     "frames": 18,
     "dur": 0.75
   },
-  "aw_wind_tornado": {
-    "path": "assets/vfx_v2/aw/wind_tornado.png",
-    "fw": 72,
-    "fh": 84,
-    "cols": 18,
-    "rows": 1,
-    "frames": 18,
-    "dur": 0.75
-  },
   "aw_arcane_charge": {
     "path": "assets/vfx_v2/aw/arcane_charge.png",
     "fw": 96,
@@ -1582,24 +1300,6 @@
     "frames": 18,
     "dur": 0.75
   },
-  "aw_buff_up": {
-    "path": "assets/vfx_v2/aw/buff_up.png",
-    "fw": 80,
-    "fh": 128,
-    "cols": 18,
-    "rows": 1,
-    "frames": 18,
-    "dur": 0.75
-  },
-  "aw_heal_aura": {
-    "path": "assets/vfx_v2/aw/heal_aura.png",
-    "fw": 120,
-    "fh": 112,
-    "cols": 18,
-    "rows": 1,
-    "frames": 18,
-    "dur": 0.75
-  },
   "aw_heal_burst": {
     "path": "assets/vfx_v2/aw/heal_burst.png",
     "fw": 88,
@@ -1609,28 +1309,8 @@
     "frames": 18,
     "dur": 0.75
   },
-  "st_armor": {
-    "path": "assets/vfx_v2/status/armor.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
   "st_bleed": {
     "path": "assets/vfx_v2/status/bleed.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
-  "st_blessed": {
-    "path": "assets/vfx_v2/status/blessed.png",
     "fw": 64,
     "fh": 64,
     "cols": 4,
@@ -1669,26 +1349,6 @@
     "dur": 0.96,
     "loop": true
   },
-  "st_haste": {
-    "path": "assets/vfx_v2/status/haste.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
-  "st_heal": {
-    "path": "assets/vfx_v2/status/heal.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
   "st_poisonbubble": {
     "path": "assets/vfx_v2/status/poisonbubble.png",
     "fw": 64,
@@ -1701,16 +1361,6 @@
   },
   "st_rage": {
     "path": "assets/vfx_v2/status/rage.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
-  "st_regen": {
-    "path": "assets/vfx_v2/status/regen.png",
     "fw": 64,
     "fh": 64,
     "cols": 4,
@@ -1739,28 +1389,8 @@
     "dur": 0.96,
     "loop": true
   },
-  "st_slow": {
-    "path": "assets/vfx_v2/status/slow.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
   "st_stun": {
     "path": "assets/vfx_v2/status/stun.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 4,
-    "rows": 4,
-    "frames": 16,
-    "dur": 0.96,
-    "loop": true
-  },
-  "st_weaken": {
-    "path": "assets/vfx_v2/status/weaken.png",
     "fw": 64,
     "fh": 64,
     "cols": 4,
@@ -1786,15 +1416,6 @@
     "rows": 3,
     "frames": 20,
     "dur": 0.85
-  },
-  "px_campfire": {
-    "path": "assets/vfx_v2/pixelcore/campfire.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 8,
-    "rows": 3,
-    "frames": 18,
-    "dur": 0.81
   },
   "px_crit_star": {
     "path": "assets/vfx_v2/pixelcore/crit_star.png",
@@ -1823,15 +1444,6 @@
     "frames": 12,
     "dur": 0.54
   },
-  "px_fire_pillar": {
-    "path": "assets/vfx_v2/pixelcore/fire_pillar.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 8,
-    "rows": 3,
-    "frames": 20,
-    "dur": 0.85
-  },
   "px_level_up": {
     "path": "assets/vfx_v2/pixelcore/level_up.png",
     "fw": 64,
@@ -1859,15 +1471,6 @@
     "frames": 20,
     "dur": 0.85
   },
-  "px_wide_arc": {
-    "path": "assets/vfx_v2/pixelcore/wide_arc.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 8,
-    "rows": 2,
-    "frames": 15,
-    "dur": 0.67
-  },
   "soggy_incinerate": {
     "path": "assets/vfx_v2/extra/soggy_incinerate.png",
     "fw": 100,
@@ -1885,15 +1488,6 @@
     "rows": 1,
     "frames": 6,
     "dur": 0.3
-  },
-  "soggy_fireclouds": {
-    "path": "assets/vfx_v2/extra/soggy_fireclouds.png",
-    "fw": 100,
-    "fh": 100,
-    "cols": 8,
-    "rows": 1,
-    "frames": 7,
-    "dur": 0.42
   },
   "soggy_fireball": {
     "path": "assets/vfx_v2/extra/soggy_fireball.png",
@@ -1922,24 +1516,6 @@
     "frames": 5,
     "dur": 0.3
   },
-  "lt_bolt5": {
-    "path": "assets/vfx_v2/extra/lt_bolt5.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 7,
-    "rows": 1,
-    "frames": 7,
-    "dur": 0.35
-  },
-  "mp9_lightning": {
-    "path": "assets/vfx_v2/extra/mp9_lightning.png",
-    "fw": 64,
-    "fh": 128,
-    "cols": 10,
-    "rows": 1,
-    "frames": 10,
-    "dur": 0.46
-  },
   "mp9_dark_bolt": {
     "path": "assets/vfx_v2/extra/mp9_dark_bolt.png",
     "fw": 64,
@@ -1957,15 +1533,6 @@
     "rows": 1,
     "frames": 14,
     "dur": 0.55
-  },
-  "mp9_spark": {
-    "path": "assets/vfx_v2/extra/mp9_spark.png",
-    "fw": 32,
-    "fh": 32,
-    "cols": 7,
-    "rows": 1,
-    "frames": 7,
-    "dur": 0.28
   },
   "wood_hit": {
     "path": "assets/vfx_v2/extra/wood_hit.png",
@@ -1994,24 +1561,6 @@
     "frames": 6,
     "dur": 0.32
   },
-  "holy_beam2": {
-    "path": "assets/vfx_v2/extra/holy_beam2.png",
-    "fw": 48,
-    "fh": 48,
-    "cols": 16,
-    "rows": 1,
-    "frames": 15,
-    "dur": 0.52
-  },
-  "dark_vfx1": {
-    "path": "assets/vfx_v2/extra/dark_vfx1.png",
-    "fw": 40,
-    "fh": 32,
-    "cols": 10,
-    "rows": 2,
-    "frames": 16,
-    "dur": 0.42
-  },
   "dark_vfx2": {
     "path": "assets/vfx_v2/extra/dark_vfx2.png",
     "fw": 48,
@@ -2030,78 +1579,6 @@
     "frames": 4,
     "dur": 0.22
   },
-  "smear_h2": {
-    "path": "assets/vfx_v2/extra/smear_h2.png",
-    "fw": 48,
-    "fh": 48,
-    "cols": 5,
-    "rows": 1,
-    "frames": 4,
-    "dur": 0.22
-  },
-  "smoke_vfx1": {
-    "path": "assets/vfx_v2/extra/smoke_vfx1.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 11,
-    "rows": 1,
-    "frames": 11,
-    "dur": 0.44
-  },
-  "smoke_vfx2": {
-    "path": "assets/vfx_v2/extra/smoke_vfx2.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 8,
-    "rows": 1,
-    "frames": 8,
-    "dur": 0.4
-  },
-  "smoke_vfx4": {
-    "path": "assets/vfx_v2/extra/smoke_vfx4.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 9,
-    "rows": 1,
-    "frames": 7,
-    "dur": 0.42
-  },
-  "f20_lightning": {
-    "path": "assets/vfx_v2/extra/f20_lightning.png",
-    "fw": 32,
-    "fh": 48,
-    "cols": 6,
-    "rows": 1,
-    "frames": 5,
-    "dur": 0.34
-  },
-  "f20_fire_col": {
-    "path": "assets/vfx_v2/extra/f20_fire_col.png",
-    "fw": 32,
-    "fh": 48,
-    "cols": 8,
-    "rows": 1,
-    "frames": 8,
-    "dur": 0.42
-  },
-  "f20_heal": {
-    "path": "assets/vfx_v2/extra/f20_heal.png",
-    "fw": 32,
-    "fh": 32,
-    "cols": 6,
-    "rows": 1,
-    "frames": 6,
-    "dur": 0.45
-  },
-  "f20_acid": {
-    "path": "assets/vfx_v2/extra/f20_acid.png",
-    "fw": 48,
-    "fh": 48,
-    "cols": 6,
-    "rows": 1,
-    "frames": 6,
-    "dur": 0.5
-  },
   "portal_anim": {
     "path": "assets/vfx_v2/extra/portal_anim.png",
     "fw": 64,
@@ -2110,42 +1587,6 @@
     "rows": 2,
     "frames": 7,
     "dur": 0.85
-  },
-  "palt_vfx1": {
-    "path": "assets/vfx_v2/extra/palt_vfx1.png",
-    "fw": 256,
-    "fh": 128,
-    "cols": 4,
-    "rows": 1,
-    "frames": 4,
-    "dur": 0.38
-  },
-  "palt_vfx3": {
-    "path": "assets/vfx_v2/extra/palt_vfx3.png",
-    "fw": 128,
-    "fh": 256,
-    "cols": 5,
-    "rows": 1,
-    "frames": 5,
-    "dur": 0.38
-  },
-  "palt_vfx5": {
-    "path": "assets/vfx_v2/extra/palt_vfx5.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 4,
-    "rows": 1,
-    "frames": 4,
-    "dur": 0.32
-  },
-  "pa_fire1": {
-    "path": "assets/vfx_v2/extra/pa_fire1.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 5,
-    "rows": 2,
-    "frames": 7,
-    "dur": 0.42
   },
   "pa_fire2": {
     "path": "assets/vfx_v2/extra/pa_fire2.png",
@@ -2165,42 +1606,6 @@
     "frames": 14,
     "dur": 0.52
   },
-  "pa_frost2": {
-    "path": "assets/vfx_v2/extra/pa_frost2.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 5,
-    "rows": 2,
-    "frames": 9,
-    "dur": 0.42
-  },
-  "pa_blood2": {
-    "path": "assets/vfx_v2/extra/pa_blood2.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 12,
-    "rows": 1,
-    "frames": 12,
-    "dur": 0.48
-  },
-  "pa_blood3": {
-    "path": "assets/vfx_v2/extra/pa_blood3.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 4,
-    "rows": 1,
-    "frames": 4,
-    "dur": 0.36
-  },
-  "pa_rogue1": {
-    "path": "assets/vfx_v2/extra/pa_rogue1.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 5,
-    "rows": 2,
-    "frames": 9,
-    "dur": 0.34
-  },
   "pa_rogue3": {
     "path": "assets/vfx_v2/extra/pa_rogue3.png",
     "fw": 128,
@@ -2209,15 +1614,6 @@
     "rows": 2,
     "frames": 9,
     "dur": 0.36
-  },
-  "pa_hall1": {
-    "path": "assets/vfx_v2/extra/pa_hall1.png",
-    "fw": 128,
-    "fh": 128,
-    "cols": 5,
-    "rows": 2,
-    "frames": 7,
-    "dur": 0.32
   },
   "pa_slash1_blue": {
     "path": "assets/vfx_v2/extra/pa_slash1_blue.png",
@@ -2291,346 +1687,593 @@
     "frames": 9,
     "dur": 0.26
   },
-  "mse_01": {
-    "path": "assets/vfx_v2/mse/01.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 15,
+  "sp_epic_explosion_orange": {
+    "path": "assets/vfx_v13/sp_epic_explosion_orange.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 13,
     "rows": 1,
-    "frames": 15,
-    "dur": 0.54
+    "frames": 13,
+    "dur": 0.78,
+    "px": 0.5,
+    "py": 0.55,
+    "loop": false
   },
-  "mse_03": {
-    "path": "assets/vfx_v2/mse/03.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 16,
+  "sp_stylized_explosion_violet": {
+    "path": "assets/vfx_v13/sp_stylized_explosion_violet.png",
+    "fw": 96,
+    "fh": 96,
+    "cols": 10,
     "rows": 1,
-    "frames": 16,
-    "dur": 0.58
+    "frames": 10,
+    "dur": 0.6,
+    "px": 0.5,
+    "py": 0.55,
+    "loop": false
   },
-  "mse_05": {
-    "path": "assets/vfx_v2/mse/05.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 17,
+  "sp_frost_explosion_cyan": {
+    "path": "assets/vfx_v13/sp_frost_explosion_cyan.png",
+    "fw": 96,
+    "fh": 96,
+    "cols": 10,
     "rows": 1,
-    "frames": 17,
-    "dur": 0.61
+    "frames": 10,
+    "dur": 0.6,
+    "px": 0.5,
+    "py": 0.55,
+    "loop": false
   },
-  "mse_08": {
-    "path": "assets/vfx_v2/mse/08.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 17,
+  "sp_spell_absorb_violet": {
+    "path": "assets/vfx_v13/sp_spell_absorb_violet.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 31,
     "rows": 1,
-    "frames": 17,
-    "dur": 0.61
+    "frames": 31,
+    "dur": 1.24,
+    "px": 0.5,
+    "py": 0.72,
+    "loop": false
   },
-  "mse_12": {
-    "path": "assets/vfx_v2/mse/12.png",
+  "sp_spell_death_red": {
+    "path": "assets/vfx_v13/sp_spell_death_red.png",
     "fw": 64,
     "fh": 64,
+    "cols": 50,
+    "rows": 1,
+    "frames": 50,
+    "dur": 1.5,
+    "px": 0.5,
+    "py": 0.7,
+    "loop": false
+  },
+  "sp_spell_attack_red": {
+    "path": "assets/vfx_v13/sp_spell_attack_red.png",
+    "fw": 128,
+    "fh": 128,
     "cols": 18,
     "rows": 1,
     "frames": 18,
-    "dur": 0.65
+    "dur": 0.9,
+    "px": 0.5,
+    "py": 0.75,
+    "loop": false
   },
-  "mse_16": {
-    "path": "assets/vfx_v2/mse/16.png",
+  "sp_spell_defense_blue": {
+    "path": "assets/vfx_v13/sp_spell_defense_blue.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 18,
+    "rows": 1,
+    "frames": 18,
+    "dur": 0.9,
+    "px": 0.5,
+    "py": 0.75,
+    "loop": false
+  },
+  "sp_spell_haste_green": {
+    "path": "assets/vfx_v13/sp_spell_haste_green.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 29,
+    "rows": 1,
+    "frames": 29,
+    "dur": 1.16,
+    "px": 0.5,
+    "py": 0.75,
+    "loop": false
+  },
+  "sp_spell_heal_green": {
+    "path": "assets/vfx_v13/sp_spell_heal_green.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 16,
+    "rows": 1,
+    "frames": 16,
+    "dur": 0.88,
+    "px": 0.5,
+    "py": 0.75,
+    "loop": false
+  },
+  "sp_spell_poison_green": {
+    "path": "assets/vfx_v13/sp_spell_poison_green.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 17,
+    "rows": 1,
+    "frames": 17,
+    "dur": 0.85,
+    "px": 0.5,
+    "py": 0.72,
+    "loop": false
+  },
+  "sp_lightning_strike_violet": {
+    "path": "assets/vfx_v13/sp_lightning_strike_violet.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 7,
+    "rows": 1,
+    "frames": 7,
+    "dur": 0.49,
+    "px": 0.5,
+    "py": 0.88,
+    "loop": false
+  },
+  "sp_lightning_burst_violet": {
+    "path": "assets/vfx_v13/sp_lightning_burst_violet.png",
+    "fw": 96,
+    "fh": 96,
+    "cols": 10,
+    "rows": 1,
+    "frames": 10,
+    "dur": 0.55,
+    "px": 0.5,
+    "py": 0.55,
+    "loop": false
+  },
+  "sp_impact_blue": {
+    "path": "assets/vfx_v13/sp_impact_blue.png",
+    "fw": 96,
+    "fh": 96,
+    "cols": 10,
+    "rows": 1,
+    "frames": 10,
+    "dur": 0.45,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "sp_impact_violet": {
+    "path": "assets/vfx_v13/sp_impact_violet.png",
+    "fw": 80,
+    "fh": 80,
+    "cols": 6,
+    "rows": 1,
+    "frames": 6,
+    "dur": 0.36,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "sp_scifi_warp": {
+    "path": "assets/vfx_v13/sp_scifi_warp.png",
+    "fw": 128,
+    "fh": 128,
+    "cols": 10,
+    "rows": 1,
+    "frames": 10,
+    "dur": 0.65,
+    "px": 0.5,
+    "py": 0.75,
+    "loop": false
+  },
+  "sp_scifi_charge": {
+    "path": "assets/vfx_v13/sp_scifi_charge.png",
+    "fw": 96,
+    "fh": 96,
+    "cols": 12,
+    "rows": 1,
+    "frames": 12,
+    "dur": 0.72,
+    "px": 0.5,
+    "py": 0.7,
+    "loop": false
+  },
+  "sp_skull_smoke": {
+    "path": "assets/vfx_v13/sp_skull_smoke.png",
     "fw": 64,
     "fh": 64,
-    "cols": 19,
+    "cols": 12,
     "rows": 1,
-    "frames": 19,
-    "dur": 0.68
+    "frames": 12,
+    "dur": 0.66,
+    "px": 0.5,
+    "py": 0.65,
+    "loop": false
   },
-  "mse_20": {
-    "path": "assets/vfx_v2/mse/20.png",
+  "sp_splatter_red": {
+    "path": "assets/vfx_v13/sp_splatter_red.png",
     "fw": 64,
     "fh": 64,
-    "cols": 20,
+    "cols": 10,
     "rows": 1,
-    "frames": 20,
-    "dur": 0.72
+    "frames": 10,
+    "dur": 0.5,
+    "px": 0.5,
+    "py": 0.55,
+    "loop": false
   },
-  "mse_24": {
-    "path": "assets/vfx_v2/mse/24.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 20,
-    "rows": 1,
-    "frames": 20,
-    "dur": 0.72
+  "sp_fire_loop_orange": {
+    "path": "assets/vfx_v13/sp_fire_loop_orange.png",
+    "fw": 85,
+    "fh": 128,
+    "cols": 3,
+    "rows": 2,
+    "frames": 5,
+    "dur": 0.5,
+    "px": 0.5,
+    "py": 0.85,
+    "loop": true
   },
-  "mse_28": {
-    "path": "assets/vfx_v2/mse/28.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 20,
-    "rows": 1,
-    "frames": 20,
-    "dur": 0.72
-  },
-  "mse_34": {
-    "path": "assets/vfx_v2/mse/34.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 20,
-    "rows": 1,
-    "frames": 20,
-    "dur": 0.72
-  },
-  "mse_40": {
-    "path": "assets/vfx_v2/mse/40.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 21,
-    "rows": 1,
-    "frames": 21,
-    "dur": 0.76
-  },
-  "mse_46": {
-    "path": "assets/vfx_v2/mse/46.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 22,
-    "rows": 1,
-    "frames": 22,
-    "dur": 0.79
-  },
-  "mse_52": {
-    "path": "assets/vfx_v2/mse/52.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 22,
-    "rows": 1,
-    "frames": 22,
-    "dur": 0.79
-  },
-  "mse_60": {
-    "path": "assets/vfx_v2/mse/60.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 22,
-    "rows": 1,
-    "frames": 22,
-    "dur": 0.79
-  },
-  "mse_68": {
-    "path": "assets/vfx_v2/mse/68.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 23,
-    "rows": 1,
-    "frames": 23,
-    "dur": 0.83
-  },
-  "mse_76": {
-    "path": "assets/vfx_v2/mse/76.png",
-    "fw": 64,
-    "fh": 64,
-    "cols": 24,
-    "rows": 1,
+  "fpe_magicspell": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_magicspell.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
     "frames": 24,
-    "dur": 0.86
+    "dur": 0.68,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_bluefire": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_bluefire.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.65,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_casting": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_casting.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.72,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_magickahit": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_magickahit.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 20,
+    "dur": 0.52,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_flamelash": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_flamelash.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.55,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_firespin": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_firespin.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.7,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_circle": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_circle.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.78,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_brightfire": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_brightfire.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.66,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_weaponhit": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_weaponhit.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 18,
+    "dur": 0.45,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_fire": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_fire.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.68,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_nebula": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_nebula.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.72,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_vortex": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_vortex.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.74,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_phantom": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_phantom.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.6,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_sunburn": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_sunburn.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.66,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_felspell": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_felspell.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.72,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_midnight": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_midnight.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.68,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_freezing": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_freezing.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.7,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "fpe_bubbles": {
+    "path": "assets/vfx_v2/mob_vfx/fpe_bubbles.png",
+    "fw": 100,
+    "fh": 100,
+    "cols": 8,
+    "rows": 3,
+    "frames": 24,
+    "dur": 0.68,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_blood": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_blood.png",
+    "fw": 69,
+    "fh": 60,
+    "cols": 8,
+    "rows": 3,
+    "frames": 20,
+    "dur": 0.46,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_bighit": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_bighit.png",
+    "fw": 120,
+    "fh": 119,
+    "cols": 8,
+    "rows": 2,
+    "frames": 12,
+    "dur": 0.52,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_charged": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_charged.png",
+    "fw": 104,
+    "fh": 120,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.68,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_ditherfire": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_ditherfire.png",
+    "fw": 120,
+    "fh": 57,
+    "cols": 8,
+    "rows": 3,
+    "frames": 20,
+    "dur": 0.64,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_eldenring": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_eldenring.png",
+    "fw": 119,
+    "fh": 120,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.72,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_electric_shield": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_electric_shield.png",
+    "fw": 120,
+    "fh": 120,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.68,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_explosion": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_explosion.png",
+    "fw": 120,
+    "fh": 120,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.65,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_fastfire": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_fastfire.png",
+    "fw": 108,
+    "fh": 120,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.62,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_magma": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_magma.png",
+    "fw": 120,
+    "fh": 59,
+    "cols": 8,
+    "rows": 3,
+    "frames": 20,
+    "dur": 0.65,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_tentacles": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_tentacles.png",
+    "fw": 120,
+    "fh": 89,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.74,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_vortex": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_vortex.png",
+    "fw": 119,
+    "fh": 120,
+    "cols": 8,
+    "rows": 3,
+    "frames": 22,
+    "dur": 0.72,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
+  },
+  "vfp_kaboom": {
+    "path": "assets/vfx_v2/mob_vfx/vfp_kaboom.png",
+    "fw": 120,
+    "fh": 97,
+    "cols": 8,
+    "rows": 3,
+    "frames": 20,
+    "dur": 0.62,
+    "px": 0.5,
+    "py": 0.5,
+    "loop": false
   }
 };
-
-  // Pixel-exact bottom padding ratio (0.0..0.45) measured per enemy sprite frame so ground enemies stand flush on their shadow
-  Abyssea.ENEMY_FOOT_PADS = {
-  "slime": 0.313,
-  "golden_slime": 0.313,
-  "skeleton": 0.104,
-  "scorpion": 0,
-  "sand_ghoul": 0.094,
-  "cobra": 0.219,
-  "bat": 0.25,
-  "vampire_bat": 0.25,
-  "wisp": 0.188,
-  "ghost": 0.063,
-  "spider": 0.188,
-  "zombie": 0,
-  "mushroom_mob": 0.313,
-  "goblin": 0.104,
-  "goblin_tnt": 0.047,
-  "wolf": 0,
-  "shadow_wolf": 0,
-  "golem": 0.063,
-  "rock_golem": 0.063,
-  "magma": 0.063,
-  "cultist": 0.008,
-  "fire_elem": 0.188,
-  "rat": 0.313,
-  "rat_giant": 0.313,
-  "beetle": 0,
-  "beetle_fire": 0,
-  "imp": 0,
-  "orc": 0,
-  "mimic": 0,
-  "mushroom_purple": 0.313,
-  "skeleton_archer": 0.056,
-  "skeleton_mage": 0.041,
-  "goblin_shaman": 0.008,
-  "floating_eye": 0.125,
-  "cave_spider": 0.188,
-  "slime_toxic": 0.313,
-  "grave_revenant": 0,
-  "royal_scarab": 0,
-  "toxic_hound": 0,
-  "ghastly_eye": 0.125,
-  "brittle_archer": 0,
-  "lava_ant": 0,
-  "acid_ant": 0,
-  "tunneling_mole": 0,
-  "plague_bat": 0.25,
-  "goblin_archer": 0.022,
-  "ghost_spectral": 0.063,
-  "slime_blue": 0.313,
-  "slime_red": 0.313,
-  "vine_snake": 0.094,
-  "wisp_green": 0.188,
-  "skel_swordsman": 0.05,
-  "skel_mage_dark": 0.041,
-  "skel_crossbow": 0.056,
-  "skel_spearman": 0.048,
-  "flaming_skull": 0.063,
-  "dark_lancer": 0.013,
-  "goblin_barrel": 0.023,
-  "goblin_sapper": 0.125,
-  "goblin_raider": 0.022,
-  "crimson_jelly": 0.313,
-  "frost_jelly": 0.313,
-  "void_jelly": 0.313,
-  "boss_pradera": 0,
-  "boss_pradera_profunda": 0.026,
-  "boss_pradera_madriguera": 0.022,
-  "boss_pradera_baston": 0.022,
-  "boss_pradera_bosquecillo": 0.063,
-  "boss_desierto": 0.094,
-  "boss_desierto_piramide": 0.05,
-  "boss_desierto_oasis": 0.219,
-  "boss_desierto_catacumbas": 0.035,
-  "boss_desierto_solario": 0.027,
-  "boss_bosque_oscuro": 0.021,
-  "boss_bosque_necro": 0.03,
-  "boss_bosque_laboratorio": 0.094,
-  "boss_bosque_arana": 0.141,
-  "boss_bosque_pantano": 0.203,
-  "boss_montanas_heladas": 0.078,
-  "boss_montanas_glaciar": 0.089,
-  "boss_montanas_mina": 0.021,
-  "boss_montanas_fortaleza": 0.022,
-  "boss_tierras_volcanicas": 0.078,
-  "boss_volcan_abismo": 0,
-  "boss_volcan_fragua": 0.013,
-  "boss_volcan_caldera": 0.203,
-  "boss_volcan_trono_ceniza": 0.044,
-  "miniboss_sword": 0.071,
-  "miniboss_mace": 0.064,
-  "miniboss_mage": 0.058
-};
-
-  // Cohesive pixel-art skill icons for Constellation Skill Tree
-  Abyssea.SKILL_V2_ICONS = [
-  "assets/icons_skills_v2/skill_1.png",
-  "assets/icons_skills_v2/skill_2.png",
-  "assets/icons_skills_v2/skill_3.png",
-  "assets/icons_skills_v2/skill_4.png",
-  "assets/icons_skills_v2/skill_5.png",
-  "assets/icons_skills_v2/skill_6.png",
-  "assets/icons_skills_v2/skill_7.png",
-  "assets/icons_skills_v2/skill_8.png",
-  "assets/icons_skills_v2/skill_9.png",
-  "assets/icons_skills_v2/skill_10.png",
-  "assets/icons_skills_v2/skill_11.png",
-  "assets/icons_skills_v2/skill_12.png",
-  "assets/icons_skills_v2/skill_13.png",
-  "assets/icons_skills_v2/skill_14.png",
-  "assets/icons_skills_v2/skill_15.png",
-  "assets/icons_skills_v2/skill_16.png",
-  "assets/icons_skills_v2/skill_17.png",
-  "assets/icons_skills_v2/skill_18.png",
-  "assets/icons_skills_v2/skill_19.png",
-  "assets/icons_skills_v2/skill_20.png",
-  "assets/icons_skills_v2/skill_21.png",
-  "assets/icons_skills_v2/skill_22.png",
-  "assets/icons_skills_v2/skill_23.png",
-  "assets/icons_skills_v2/skill_24.png",
-  "assets/icons_skills_v2/skill_25.png",
-  "assets/icons_skills_v2/skill_26.png",
-  "assets/icons_skills_v2/skill_27.png",
-  "assets/icons_skills_v2/skill_28.png",
-  "assets/icons_skills_v2/skill_29.png",
-  "assets/icons_skills_v2/skill_30.png",
-  "assets/icons_skills_v2/skill_31.png",
-  "assets/icons_skills_v2/skill_32.png",
-  "assets/icons_skills_v2/skill_33.png",
-  "assets/icons_skills_v2/skill_34.png",
-  "assets/icons_skills_v2/skill_35.png",
-  "assets/icons_skills_v2/skill_36.png",
-  "assets/icons_skills_v2/skill_37.png",
-  "assets/icons_skills_v2/skill_38.png",
-  "assets/icons_skills_v2/skill_39.png",
-  "assets/icons_skills_v2/skill_40.png",
-  "assets/icons_skills_v2/skill_41.png",
-  "assets/icons_skills_v2/skill_42.png",
-  "assets/icons_skills_v2/skill_43.png",
-  "assets/icons_skills_v2/skill_44.png",
-  "assets/icons_skills_v2/skill_45.png"
-];
-
-  // Beta 1.3.0 Super Pixel Effects Gigapack VFX sheets
-  Object.assign(Abyssea.VFX_V2, {
-    sp_epic_explosion_orange:     { path: "assets/vfx_v13/sp_epic_explosion_orange.png",     fw: 128, fh: 128, cols: 13, rows: 1, frames: 13, dur: 0.78, px: 0.5, py: 0.55, loop: false },
-    sp_stylized_explosion_violet: { path: "assets/vfx_v13/sp_stylized_explosion_violet.png", fw: 96,  fh: 96,  cols: 10, rows: 1, frames: 10, dur: 0.60, px: 0.5, py: 0.55, loop: false },
-    sp_frost_explosion_cyan:      { path: "assets/vfx_v13/sp_frost_explosion_cyan.png",      fw: 96,  fh: 96,  cols: 10, rows: 1, frames: 10, dur: 0.60, px: 0.5, py: 0.55, loop: false },
-    sp_spell_absorb_violet:       { path: "assets/vfx_v13/sp_spell_absorb_violet.png",       fw: 128, fh: 128, cols: 31, rows: 1, frames: 31, dur: 1.24, px: 0.5, py: 0.72, loop: false },
-    sp_spell_death_red:           { path: "assets/vfx_v13/sp_spell_death_red.png",           fw: 64,  fh: 64,  cols: 50, rows: 1, frames: 50, dur: 1.50, px: 0.5, py: 0.70, loop: false },
-    sp_spell_attack_red:          { path: "assets/vfx_v13/sp_spell_attack_red.png",          fw: 128, fh: 128, cols: 18, rows: 1, frames: 18, dur: 0.90, px: 0.5, py: 0.75, loop: false },
-    sp_spell_defense_blue:        { path: "assets/vfx_v13/sp_spell_defense_blue.png",        fw: 128, fh: 128, cols: 18, rows: 1, frames: 18, dur: 0.90, px: 0.5, py: 0.75, loop: false },
-    sp_spell_haste_green:         { path: "assets/vfx_v13/sp_spell_haste_green.png",         fw: 128, fh: 128, cols: 29, rows: 1, frames: 29, dur: 1.16, px: 0.5, py: 0.75, loop: false },
-    sp_spell_heal_green:          { path: "assets/vfx_v13/sp_spell_heal_green.png",          fw: 128, fh: 128, cols: 16, rows: 1, frames: 16, dur: 0.88, px: 0.5, py: 0.75, loop: false },
-    sp_spell_poison_green:        { path: "assets/vfx_v13/sp_spell_poison_green.png",        fw: 128, fh: 128, cols: 17, rows: 1, frames: 17, dur: 0.85, px: 0.5, py: 0.72, loop: false },
-    sp_lightning_strike_violet:   { path: "assets/vfx_v13/sp_lightning_strike_violet.png",   fw: 128, fh: 128, cols: 7,  rows: 1, frames: 7,  dur: 0.49, px: 0.5, py: 0.88, loop: false },
-    sp_lightning_burst_violet:    { path: "assets/vfx_v13/sp_lightning_burst_violet.png",    fw: 96,  fh: 96,  cols: 10, rows: 1, frames: 10, dur: 0.55, px: 0.5, py: 0.55, loop: false },
-    sp_impact_blue:               { path: "assets/vfx_v13/sp_impact_blue.png",               fw: 96,  fh: 96,  cols: 10, rows: 1, frames: 10, dur: 0.45, px: 0.5, py: 0.50, loop: false },
-    sp_impact_violet:             { path: "assets/vfx_v13/sp_impact_violet.png",             fw: 80,  fh: 80,  cols: 6,  rows: 1, frames: 6,  dur: 0.36, px: 0.5, py: 0.50, loop: false },
-    sp_scifi_warp:                { path: "assets/vfx_v13/sp_scifi_warp.png",                fw: 128, fh: 128, cols: 10, rows: 1, frames: 10, dur: 0.65, px: 0.5, py: 0.75, loop: false },
-    sp_scifi_charge:              { path: "assets/vfx_v13/sp_scifi_charge.png",              fw: 96,  fh: 96,  cols: 12, rows: 1, frames: 12, dur: 0.72, px: 0.5, py: 0.70, loop: false },
-    sp_skull_smoke:               { path: "assets/vfx_v13/sp_skull_smoke.png",               fw: 64,  fh: 64,  cols: 12, rows: 1, frames: 12, dur: 0.66, px: 0.5, py: 0.65, loop: false },
-    sp_splatter_red:              { path: "assets/vfx_v13/sp_splatter_red.png",              fw: 64,  fh: 64,  cols: 10, rows: 1, frames: 10, dur: 0.50, px: 0.5, py: 0.55, loop: false },
-    sp_fire_loop_orange:          { path: "assets/vfx_v13/sp_fire_loop_orange.png",          fw: 80,  fh: 128, cols: 3,  rows: 2, frames: 5,  dur: 0.50, px: 0.5, py: 0.85, loop: true  },
-    // v1.5.8 Curated Multi-Frame Mob Combat VFX Sheets (Free_Pixel_Effects_Pack + VFX_Free_Pack)
-    fpe_magicspell:      { path: "assets/vfx_v2/mob_vfx/fpe_magicspell.png",      fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
-    fpe_bluefire:        { path: "assets/vfx_v2/mob_vfx/fpe_bluefire.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.65, px: 0.5, py: 0.5, loop: false },
-    fpe_casting:         { path: "assets/vfx_v2/mob_vfx/fpe_casting.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.72, px: 0.5, py: 0.5, loop: false },
-    fpe_magickahit:      { path: "assets/vfx_v2/mob_vfx/fpe_magickahit.png",      fw: 100, fh: 100, cols: 8, rows: 3, frames: 20, dur: 0.52, px: 0.5, py: 0.5, loop: false },
-    fpe_flamelash:       { path: "assets/vfx_v2/mob_vfx/fpe_flamelash.png",       fw: 100, fh: 100, cols: 8, rows: 3, frames: 22, dur: 0.55, px: 0.5, py: 0.5, loop: false },
-    fpe_firespin:        { path: "assets/vfx_v2/mob_vfx/fpe_firespin.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.70, px: 0.5, py: 0.5, loop: false },
-    fpe_circle:          { path: "assets/vfx_v2/mob_vfx/fpe_circle.png",          fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.78, px: 0.5, py: 0.5, loop: false },
-    fpe_brightfire:      { path: "assets/vfx_v2/mob_vfx/fpe_brightfire.png",      fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.66, px: 0.5, py: 0.5, loop: false },
-    fpe_weaponhit:       { path: "assets/vfx_v2/mob_vfx/fpe_weaponhit.png",       fw: 100, fh: 100, cols: 8, rows: 3, frames: 18, dur: 0.45, px: 0.5, py: 0.5, loop: false },
-    fpe_fire:            { path: "assets/vfx_v2/mob_vfx/fpe_fire.png",            fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
-    fpe_nebula:          { path: "assets/vfx_v2/mob_vfx/fpe_nebula.png",          fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.72, px: 0.5, py: 0.5, loop: false },
-    fpe_vortex:          { path: "assets/vfx_v2/mob_vfx/fpe_vortex.png",          fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.74, px: 0.5, py: 0.5, loop: false },
-    fpe_phantom:         { path: "assets/vfx_v2/mob_vfx/fpe_phantom.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.60, px: 0.5, py: 0.5, loop: false },
-    fpe_sunburn:         { path: "assets/vfx_v2/mob_vfx/fpe_sunburn.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.66, px: 0.5, py: 0.5, loop: false },
-    fpe_felspell:        { path: "assets/vfx_v2/mob_vfx/fpe_felspell.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.72, px: 0.5, py: 0.5, loop: false },
-    fpe_midnight:        { path: "assets/vfx_v2/mob_vfx/fpe_midnight.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
-    fpe_freezing:        { path: "assets/vfx_v2/mob_vfx/fpe_freezing.png",        fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.70, px: 0.5, py: 0.5, loop: false },
-    fpe_bubbles:         { path: "assets/vfx_v2/mob_vfx/fpe_bubbles.png",         fw: 100, fh: 100, cols: 8, rows: 3, frames: 24, dur: 0.68, px: 0.5, py: 0.5, loop: false },
-    vfp_blood:           { path: "assets/vfx_v2/mob_vfx/vfp_blood.png",           fw: 69,  fh: 60,  cols: 8, rows: 3, frames: 20, dur: 0.46, px: 0.5, py: 0.5, loop: false },
-    vfp_bighit:          { path: "assets/vfx_v2/mob_vfx/vfp_bighit.png",          fw: 120, fh: 119, cols: 8, rows: 2, frames: 12, dur: 0.52, px: 0.5, py: 0.5, loop: false },
-    vfp_charged:         { path: "assets/vfx_v2/mob_vfx/vfp_charged.png",         fw: 104, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.68, px: 0.5, py: 0.5, loop: false },
-    vfp_ditherfire:      { path: "assets/vfx_v2/mob_vfx/vfp_ditherfire.png",      fw: 120, fh: 57,  cols: 8, rows: 3, frames: 20, dur: 0.64, px: 0.5, py: 0.5, loop: false },
-    vfp_eldenring:       { path: "assets/vfx_v2/mob_vfx/vfp_eldenring.png",       fw: 119, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.72, px: 0.5, py: 0.5, loop: false },
-    vfp_electric_shield: { path: "assets/vfx_v2/mob_vfx/vfp_electric_shield.png", fw: 120, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.68, px: 0.5, py: 0.5, loop: false },
-    vfp_explosion:       { path: "assets/vfx_v2/mob_vfx/vfp_explosion.png",       fw: 120, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.65, px: 0.5, py: 0.5, loop: false },
-    vfp_fastfire:        { path: "assets/vfx_v2/mob_vfx/vfp_fastfire.png",        fw: 108, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.62, px: 0.5, py: 0.5, loop: false },
-    vfp_magma:           { path: "assets/vfx_v2/mob_vfx/vfp_magma.png",           fw: 120, fh: 59,  cols: 8, rows: 3, frames: 20, dur: 0.65, px: 0.5, py: 0.5, loop: false },
-    vfp_tentacles:       { path: "assets/vfx_v2/mob_vfx/vfp_tentacles.png",       fw: 120, fh: 89,  cols: 8, rows: 3, frames: 22, dur: 0.74, px: 0.5, py: 0.5, loop: false },
-    vfp_vortex:          { path: "assets/vfx_v2/mob_vfx/vfp_vortex.png",          fw: 119, fh: 120, cols: 8, rows: 3, frames: 22, dur: 0.72, px: 0.5, py: 0.5, loop: false },
-    vfp_kaboom:          { path: "assets/vfx_v2/mob_vfx/vfp_kaboom.png",          fw: 120, fh: 97,  cols: 8, rows: 3, frames: 20, dur: 0.62, px: 0.5, py: 0.5, loop: false }
-  });
 })();

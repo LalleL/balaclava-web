@@ -170,7 +170,7 @@
       const eff = FERTILIZER_EFFECTS[fertId];
       const crop = game.world.crops.find(c => c.tx === tx && c.ty === ty);
       if (crop) {
-        if (crop.stage >= 3 && crop.fertilized) return false;
+        if (crop.fertilized || crop.stage >= 3) return false;
         game.removeItem(fertId, 1);
         crop.progress = Math.min(1, crop.progress + eff.boost);
         crop.watered = true;
@@ -218,7 +218,7 @@
       game.world.crops.splice(idx, 1);
       const azEnch = game.getToolEnchantBonuses ? game.getToolEnchantBonuses('azada') : null;
       const guEnch = game.getToolEnchantBonuses ? game.getToolEnchantBonuses('guadana') : null;
-      const harvestBonus = Math.max(azEnch ? (azEnch.harvestBonus || 0) : 0, guEnch ? (guEnch.harvestBonus || 0) : 0);
+      const harvestBonus = Math.max(azEnch ? (azEnch.harvestBonus || 0) : 0, guEnch ? (guEnch.harvestBonus || 0) : 0) + (game.mods.harvestBonus || 0);
       const cropDoubleChance = Math.max(azEnch ? (azEnch.doubleChance || 0) : 0, guEnch ? (guEnch.doubleChance || 0) : 0);
       let qty = randInt(def.minQty, def.maxQty) + (game.mods.extraDrop || 0) + harvestBonus + (crop.yieldBonus || 0);
       if (cropDoubleChance > 0 && Math.random() < cropDoubleChance) qty *= 2;
@@ -227,7 +227,7 @@
       if (Math.random() < 0.8 + (crop.qualityBonus || 0) * 0.25) {
         game.addItem(def.seedId, def.seedDrop + ((crop.qualityBonus || 0) >= 0.5 && Math.random() < 0.45 ? 1 : 0));
       }
-      if ((crop.qualityBonus || 0) >= 0.35 && Math.random() < 0.25) {
+      if (crop.cropId === 'trigo' && (crop.qualityBonus || 0) >= 0.35 && Math.random() < 0.25) {
         game.addItem('trigo_dorado', 1);
       }
       game.gainXp(def.xp);
@@ -239,24 +239,37 @@
     }
 
     updateCrops(dt, game) {
-      const mills = game.buildings.filter(b => b.type === 'molino');
-      const plantations = game.buildings.filter(b => b.type === 'plantacion');
-      const irrigators = game.buildings.filter(b => {
-        const def = Abyssea.BUILDINGS[b.type];
-        return def && (def.cropBoost || def.autoWaterRadius);
-      });
+      const crops = game.world && game.world.crops;
+      if (!crops || crops.length === 0) return;
 
-      for (let i = game.world.crops.length - 1; i >= 0; i--) {
-        const c = game.world.crops[i];
+      const mills = [];
+      const plantations = [];
+      const boosters = [];
+      for (let bi = 0; bi < game.buildings.length; bi++) {
+        const b = game.buildings[bi];
+        if (b.type === 'molino') mills.push(b);
+        else if (b.type === 'plantacion') plantations.push(b);
+        const def = Abyssea.BUILDINGS[b.type];
+        if (def && def.cropBoost) boosters.push(b);
+      }
+      const modCropSpeed = 1 + (game.mods.cropSpeed || 0);
+
+      for (let i = crops.length - 1; i >= 0; i--) {
+        const c = crops[i];
+        if (c.progress >= 1 && c.stage >= 3) continue;
         const def = CROPS[c.cropId];
         if (!def) continue;
 
         const cx = (c.tx + 0.5) * TILE_SIZE;
         const cy = (c.ty + 0.5) * TILE_SIZE;
 
-        if (!c.watered) {
-          for (const p of plantations) {
-            if (Math.abs(p.tx - c.tx) <= 4 && Math.abs(p.ty - c.ty) <= 4) {
+        if (!c.watered && plantations.length > 0) {
+          for (let pi = 0; pi < plantations.length; pi++) {
+            const p = plantations[pi];
+            const pDef = Abyssea.BUILDINGS[p.type];
+            const pCx = p.tx + ((pDef && pDef.size) || 1) * 0.5;
+            const pCy = p.ty + ((pDef && pDef.size) || 1) * 0.5;
+            if (Math.abs((c.tx + 0.5) - pCx) <= 4.5 && Math.abs((c.ty + 0.5) - pCy) <= 4.5) {
               c.watered = true;
               break;
             }
@@ -264,24 +277,30 @@
         }
 
         let speedMult = c.watered ? 1.9 : 0.72; // Watering nearly triples speed compared to dry soil!
-        for (const m of mills) {
-          if (Math.abs(m.tx - c.tx) <= 6 && Math.abs(m.ty - c.ty) <= 6) {
-            speedMult += 0.30;
+        for (let mi = 0; mi < mills.length; mi++) {
+          const m = mills[mi];
+          const mDef = Abyssea.BUILDINGS[m.type];
+          const mCx = m.tx + ((mDef && mDef.size) || 1) * 0.5;
+          const mCy = m.ty + ((mDef && mDef.size) || 1) * 0.5;
+          if (Math.abs((c.tx + 0.5) - mCx) <= 6.5 && Math.abs((c.ty + 0.5) - mCy) <= 6.5) {
+            speedMult += (mDef && mDef.auraCropSpeed) || 0.30;
             break;
           }
         }
-        for (const ir of irrigators) {
-          const defB = Abyssea.BUILDINGS[ir.type];
-          const r = (defB.autoWaterRadius || 220) * (1 + (ir.level - 1) * 0.2);
-          const bx = (ir.tx + defB.size * 0.5) * TILE_SIZE;
-          const by = (ir.ty + defB.size * 0.5) * TILE_SIZE;
-          if (Abyssea.Utils.dist(bx, by, cx, cy) <= r) {
-            if (defB.autoWaterRadius) c.watered = true;
-            if (defB.cropBoost) speedMult += defB.cropBoost;
+        for (let bi = 0; bi < boosters.length; bi++) {
+          const br = boosters[bi];
+          const defB = Abyssea.BUILDINGS[br.type];
+          const r = (defB.autoWaterRadius || 220) * (1 + (br.level - 1) * 0.2);
+          const bx = (br.tx + (defB.size || 1) * 0.5) * TILE_SIZE;
+          const by = (br.ty + (defB.size || 1) * 0.5) * TILE_SIZE;
+          const dx = bx - cx;
+          const dy = by - cy;
+          if (dx * dx + dy * dy <= r * r) {
+            speedMult += defB.cropBoost;
           }
         }
 
-        c.progress += (dt * speedMult) / def.growTime;
+        c.progress = Math.min(1, c.progress + (dt * speedMult * modCropSpeed) / def.growTime);
         c.stage = c.progress >= 1 ? 3 : c.progress >= 0.65 ? 2 : c.progress >= 0.3 ? 1 : 0;
       }
     }
@@ -293,7 +312,9 @@
         : baitId === 'cebo_dorado' ? 2.1
         : baitId === 'cebo_gusano' ? 1.35
         : baitId === 'cebo_lombriz' ? 1.22 : 1.0;
-      const rareScore = clamp((roll - (luck * 0.18 + (baitMult - 1) * 0.22)), 0, 1);
+      // Multiplicative rarity boost keeps every rare tier proportional without collapsing negative rolls onto index 0
+      const rareMult = 1 + Math.min(3.5, Math.max(0, luck || 0) * 0.75 + Math.max(0, baitMult - 1) * 0.95);
+      const rareScore = roll / rareMult;
 
       if (rareScore < 0.008) return { id: 'raya_singularidad', diff: 0.96, xp: 165 };
       if (rareScore < 0.016) return { id: 'pez_legendario_kraken', diff: 0.95, xp: 120 };
@@ -502,7 +523,7 @@
         biome,
         spotNode,
         baitId,
-        luck,
+        luck: effectiveLuck,
         targetFish,
         zoneWidth,
         zoneStart: 0.34,
@@ -541,7 +562,7 @@
       Abyssea.Audio.play('bite');
       if (game.spawnParticles) game.spawnParticles(f.wx, f.wy, '#80deea', 10);
       if (game.spawnFx) game.spawnFx('water_splash_fx', f.wx, f.wy, 0, 0.35, 0.28, 0.9);
-      game.addFloatingText(f.wx, f.wy - 28, Abyssea.I18n ? Abyssea.I18n.t('fish.hooked') : '¡Enganchado! Pulsa [E] o Click en lo verde', '#80deea');
+      game.addFloatingText(f.wx, f.wy - 28, Abyssea.I18n ? Abyssea.I18n.t('fish.hooked') : '¡Enganchado! Pulsa Click, [E] o Espacio en lo verde', '#80deea');
     }
 
     strikeFishingZone(game) {
@@ -725,8 +746,11 @@
       const itemName = (Abyssea.ITEMS[fishId] && Abyssea.ITEMS[fishId].name) || 'Pez';
       game.addFloatingText(game.player.x, game.player.y - 34, `¡Atrapado: ${itemName}!`, '#ffe082');
 
-      // Chance for sunken treasure!
-      const treasureChance = 0.20 + (f.luck || 0) * 0.22 + (f.baitId === 'cebo_dorado' ? 0.20 : 0);
+      // Chance for sunken treasure (scales across all high-tier baits)
+      const baitTreasureBonus = f.baitId === 'cebo_arcano' ? 0.30
+        : f.baitId === 'cebo_volcanico' ? 0.25
+        : f.baitId === 'cebo_dorado' ? 0.20 : 0;
+      const treasureChance = 0.20 + (f.luck || 0) * 0.22 + baitTreasureBonus;
       if (Math.random() < treasureChance) {
         const bonusCoins = randInt(8, 22);
         game.addCoins(bonusCoins);

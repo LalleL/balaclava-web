@@ -646,13 +646,6 @@
       desc: 'Artefacto imbuido con magia espacial que dobla el espacio interior hasta 100 de stack y 80 slots.',
       backpackBonus: { slots: 25, stack: 25 }, icon: 'mochila_astral'
     },
-    lingote_bronce: {
-      id: 'lingote_bronce', name: 'Lingote de Bronce Antiguo', category: 'minerales', rarity: 'comun',
-      sellValue: 24, buyValue: 58, source: 'Horno (Cobre x2 + Estaño x1)',
-      uses: 'Forja de herramientas tempranas y piezas de precisión',
-      desc: 'Aleación milenaria de cobre y estaño.',
-      icon: 'ingot_copper'
-    },
     aleacion_ignea: {
       id: 'aleacion_ignea', name: 'Aleación Ígnea Volcánica', category: 'minerales', rarity: 'epico',
       sellValue: 120, buyValue: 280, source: 'Fundición (Lingote Acero x2 + Material Volcánico x4)',
@@ -686,7 +679,7 @@
       sellValue: 500, buyValue: 1200, source: 'Completar las 24 Mazmorras Corruptas',
       uses: 'Reliquia legendaria activa: +40% Daño, +25% Defensa, +20% Velocidad',
       desc: 'El poder absoluto del abismo domado por el conquistador.',
-      stats: { dmgBonus: 0.40, def: 50, moveSpeed: 0.20 }, icon: 'relic_abyss'
+      equipSlot: 'relic', stats: { dmgBonus: 0.40, def: 50, defPct: 0.25, moveSpeed: 0.20 }, icon: 'relic_abyss'
     },
 
     // === COMIDA COCINADA & POCIONES ===
@@ -1658,8 +1651,8 @@
     anillo_platino: {
       id: 'anillo_platino', name: 'Sello de Platino y Jade', category: 'equipamiento', rarity: 'raro',
       sellValue: 140, buyValue: 320, source: 'Forja (Lingote Platino + Jade)',
-      uses: 'Equipa en Accesorio para +16% Daño y +20% Experiencia obtenida', desc: 'Anillo refinado que acelera el aprendizaje en batalla.',
-      equipSlot: 'relic', stats: { dmgPct: 0.16, luckPct: 0.10 }, icon: 'ring_platinum'
+      uses: 'Equipa en Accesorio para +16% Daño, +20% Experiencia y +10% Suerte', desc: 'Anillo refinado que acelera el aprendizaje en batalla.',
+      equipSlot: 'relic', stats: { dmgPct: 0.16, xpBonus: 0.20, luckPct: 0.10 }, icon: 'ring_platinum'
     },
     anillo_mitrilo: {
       id: 'anillo_mitrilo', name: 'Sortija de Sanguinaria', category: 'equipamiento', rarity: 'epico',
@@ -1904,7 +1897,7 @@
       id: 'sombrero_mago', name: 'Sombrero del Archimago', category: 'equipamiento', rarity: 'epico',
       sellValue: 175, buyValue: 410, source: 'Investigación Arcana', uses: 'Equípalo para +35 Energía máx y +18% daño',
       desc: 'Tocado violeta bordado con hilos de maná.', icon: 'mage_hat_purple',
-      equipSlot: 'helmet', bonus: { def: 7, maxEnergy: 35, dmgBonus: 0.18, energyRegen: 0.8 }
+      equipSlot: 'helm', bonus: { def: 7, maxEnergy: 35, dmgBonus: 0.18, energyRegen: 0.8 }
     },
     capa_sombras: {
       id: 'capa_sombras', name: 'Manto de Sombras Silentes', category: 'equipamiento', rarity: 'epico',
@@ -1917,12 +1910,6 @@
       sellValue: 340, buyValue: 800, source: 'Investigación Ígnea', uses: 'Equípalo para +22 Defensa, +28% Daño y luz solar',
       desc: 'Capa ardiente tejida con plumas de fénix reales.', icon: 'cloak_red',
       equipSlot: 'armor', bonus: { def: 22, maxHp: 90, dmgBonus: 0.28, lightRadius: 110 }
-    },
-    anillo_diamante: {
-      id: 'anillo_diamante', name: 'Sortija de Diamante Puro', category: 'equipamiento', rarity: 'epico',
-      sellValue: 195, buyValue: 450, source: 'Joyería de Forja', uses: 'Equípala para +14% Crítico y +20% Suerte',
-      desc: 'Refracta la luz aumentando la fortuna del portador.', icon: 'ring_diamond',
-      equipSlot: 'ring', bonus: { critChance: 0.14, luckBonus: 0.20, dmgBonus: 0.10 }
     },
     anillo_amatista: {
       id: 'anillo_amatista', name: 'Anillo de Amatista Arcana', category: 'equipamiento', rarity: 'raro',
@@ -2191,7 +2178,7 @@
       id: 'corona_soberana', name: 'Corona del Soberano Real', category: 'equipamiento', rarity: 'legendario',
       sellValue: 390, buyValue: 900, source: 'Investigación Real', uses: 'Equípala como yelmo para +18 Defensa, +35% Monedas y +25% Suerte',
       desc: 'Símbolo máximo de dominio sobre el archipiélago.', icon: 'crown_sovereign',
-      equipSlot: 'helmet', bonus: { def: 18, maxHp: 60, coinDropBonus: 0.35, luckBonus: 0.25 }
+      equipSlot: 'helm', bonus: { def: 18, maxHp: 60, coinDropBonus: 0.35, luckBonus: 0.25 }
     },
     anillo_astral: {
       id: 'anillo_astral', name: 'Sortija Astral de Zafiro', category: 'equipamiento', rarity: 'legendario',
@@ -2209,7 +2196,7 @@
       id: 'colgante_fenix', name: 'Colgante Pluma de Fénix', category: 'equipamiento', rarity: 'legendario',
       sellValue: 365, buyValue: 850, source: 'Investigación Ígnea', uses: 'Equípalo para +25% Daño, +75 Vida y regeneración constante',
       desc: 'Irradia calor vital incluso en la noche más profunda.', icon: 'pendant_phoenix',
-      equipSlot: 'amulet', bonus: { dmgBonus: 0.25, maxHp: 75, lightRadius: 100, killHeal: 5 }
+      equipSlot: 'amulet', bonus: { dmgBonus: 0.25, maxHp: 75, lightRadius: 100, regen: 1.5, killHeal: 5 }
     },
 
     // === COCINA GOURMET Y BEBIDAS (Free_pixel_food_16x16 & items_pack_new) ===
@@ -2554,16 +2541,16 @@
     tuberias_conduit: {
       id: 'tuberias_conduit', name: 'Tuberías Conduit de Aleación', category: 'materiales', rarity: 'poco_comun',
       sellValue: 20, buyValue: 45, source: 'Taller',
-      uses: 'Componente de automatización y transporte de fluidos',
+      uses: 'Coloca en el suelo para transportar objetos entre máquinas, cofres logísticos y el Nexo',
       desc: 'Tuberías reforzadas con aleación de cobre y hierro diseñadas para sistemas industriales.',
-      icon: 'tuberias_conduit'
+      placeBuilding: 'tuberias_conduit', icon: 'tuberias_conduit'
     },
     cofre_logistico: {
       id: 'cofre_logistico', name: 'Cofre Logístico Reforzado', category: 'almacenamiento', rarity: 'raro',
       sellValue: 90, buyValue: 200, source: 'Taller',
-      uses: 'Almacenamiento de alta capacidad para rutas automatizadas',
+      uses: 'Coloca en el suelo para recibir excedentes automatizados con filtrado',
       desc: 'Cofre acorazado con engranajes de precisión compatible con automatizaciones.',
-      icon: 'cofre_logistico'
+      placeBuilding: 'cofre_logistico', icon: 'cofre_logistico'
     },
     escudo_omega: {
       id: 'escudo_omega', name: 'Égida del Horizonte Omega (T23)', category: 'equipamiento', rarity: 'legendario', tier: 23,

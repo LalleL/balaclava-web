@@ -135,13 +135,20 @@
           altars: [...(game.encyclopedia.altars || [])]
         },
         stats: Abyssea.Utils.deepClone(game.stats),
+        nextBuildingId: Number(game.nextBuildingId) || 1,
+        activeBuffs: game.activeBuffs ? JSON.parse(JSON.stringify(game.activeBuffs)) : {},
+        v2Persist: game.v2Runtime ? {
+          villagerContractDay: Number(game.v2Runtime.villagerContractDay) || 0,
+          _lastPulseDay: Number(game.v2Runtime._lastPulseDay) || 0,
+          weeklyResetWeek: Number(game.v2Runtime.weeklyResetWeek) || 0
+        } : null,
         buildings: game.buildings.map(b => ({
           id: b.id, type: b.type, tx: b.tx, ty: b.ty, level: b.level,
           timer: b.timer, fuel: b.fuel, coinsStored: b.coinsStored,
           storage: { ...b.storage }, autoRefuel: b.autoRefuel, autoPull: b.autoPull,
           isChest: b.isChest ? true : undefined,
           queue: b.queue ? [...b.queue] : [],
-          filters: Array.isArray(b.filters) ? [...b.filters] : undefined,
+          filters: (b.type === 'cofre_logistico' && Array.isArray(b.filters)) ? [...b.filters] : undefined,
           baitSlot: b.baitSlot ? { ...b.baitSlot } : undefined,
           breedFish: b.breedFish || undefined,
           omega: b.omega ? JSON.parse(JSON.stringify(b.omega)) : undefined
@@ -158,6 +165,7 @@
         npcPlots: game.world.npcPlots ? { ...game.world.npcPlots } : null,
         npcOffsets: game.world.npcOffsets ? { ...game.world.npcOffsets } : null,
         terraformedTiles: Array.isArray(game.world.terraformedTiles) ? game.world.terraformedTiles.map(p => [...p]) : [],
+        fertilizedTiles: (game.world && game.world.fertilizedTiles) ? JSON.parse(JSON.stringify(game.world.fertilizedTiles)) : {},
         worldTilesOverrides: this.extractModifiedTiles(game.world),
         nodes: game.world.nodes.map(n => ({ ...n })),
         crops: game.world.crops.map(c => ({ ...c })),
@@ -183,7 +191,8 @@
         tutorial: (game.tutorialSys || game.tutorial) ? {
           step: (game.tutorialSys || game.tutorial).step || 0,
           done: !!(game.tutorialSys || game.tutorial).done,
-          skipped: !!(game.tutorialSys || game.tutorial).skipped
+          skipped: !!(game.tutorialSys || game.tutorial).skipped,
+          rewardClaimed: !!(game.tutorialSys || game.tutorial).rewardClaimed
         } : null,
         settings: { ...(game.settings || {}) }
       };
@@ -238,7 +247,10 @@
         game.toast(tr ? tr('toast.saveLoaded', { slot }) : `Game loaded (Slot ${slot}).`, 'success');
         if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
         return true;
-      } catch {
+      } catch (err) {
+        if (typeof console !== 'undefined' && console.warn) {
+          console.warn('[SaveSystem] Failed to load slot ' + slot, err);
+        }
         return false;
       }
     }
@@ -273,7 +285,7 @@
       return {
         ...a,
         items: mergedItems,
-        energy: Math.max(Number(a.energy) || 0, Number(b.energy) || 0) + Math.min(Number(a.energy) || 0, Number(b.energy) || 0),
+        energy: (Number(a.energy) || 0) + (Number(b.energy) || 0),
         level: Math.max(Number(a.level) || 1, Number(b.level) || 1),
         stat: a.stat || b.stat || { in: {}, out: {}, lastProd: 0, lastCons: 0, lastDeficit: 0 }
       };
@@ -703,6 +715,41 @@
       }
       if (Array.isArray(data.crops)) game.world.crops = data.crops;
       if (Array.isArray(data.sheep)) game.world.sheep = data.sheep;
+      game.world.fertilizedTiles = (data.fertilizedTiles && typeof data.fertilizedTiles === 'object')
+        ? JSON.parse(JSON.stringify(data.fertilizedTiles))
+        : {};
+
+      // Clear transient runtime combat/FX/event entities so Slot A never bleeds into Slot B
+      if (game.combat) {
+        game.combat.enemies = [];
+        game.combat.worldHazards = [];
+      }
+      game.projectiles = [];
+      game.enemyProjectiles = [];
+      game.thrownBombs = [];
+      game.laserBeams = [];
+      game.hotHeals = [];
+      game.particles = [];
+      game.floatingTexts = [];
+      game.shockwaves = [];
+      game.worldWhirlpools = [];
+      game.activeBuffs = (data.activeBuffs && typeof data.activeBuffs === 'object')
+        ? JSON.parse(JSON.stringify(data.activeBuffs))
+        : {};
+      if (game.farming) game.farming.fishing = null;
+      if (game.v2Runtime) {
+        const vp = data.v2Persist || {};
+        game.v2Runtime.ghostShip = null;
+        game.v2Runtime.raid = null;
+        game.v2Runtime.abyssPulseBoss = null;
+        game.v2Runtime.seaBoss = null;
+        game.v2Runtime.fireTrails = [];
+        game.v2Runtime.relocating = null;
+        game.v2Runtime.relocatorActive = false;
+        game.v2Runtime.villagerContractDay = Number(vp.villagerContractDay) || 0;
+        game.v2Runtime._lastPulseDay = Number(vp._lastPulseDay) || 0;
+        game.v2Runtime.weeklyResetWeek = Number(vp.weeklyResetWeek) || 0;
+      }
 
       game.player = { ...game.makeInitialPlayer(), ...data.player, skinId: 'hana' };
       if ((game.player.deadTimer || 0) > 0 || (game.player.hp || 0) <= 0) {
@@ -713,10 +760,11 @@
       game.coins = data.coins || 0;
       game.dayTime = typeof data.dayTime === 'number' ? data.dayTime : 0.035;
       game.dayCount = data.dayCount || 1;
-      game.dayDuration = 660;
+      game.dayDuration = (Number.isFinite(data.dayDuration) && data.dayDuration >= 60) ? data.dayDuration : 660;
       game.inventory = data.inventory || {};
       game.backpackTier = Math.max(0, Number(data.backpackTier) || 0);
-      game.toolTiers = { ...game.toolTiers, ...(data.toolTiers || {}) };
+      const defaultToolTiers = { pico: 'basica', hacha: 'basica', espada: null, pala: null, cana: null, guadana: null, azada: null, arco: null };
+      game.toolTiers = { ...defaultToolTiers, ...(data.toolTiers || {}) };
       game.toolRarities = { ...(data.toolRarities || {}) };
       game.weaponRarities = { ...(data.weaponRarities || {}) };
       game.aquariumExhibits = Array.isArray(data.aquariumExhibits) ? [...data.aquariumExhibits] : new Array(12).fill(null);
@@ -740,8 +788,9 @@
       while (game.hotbar.length < 9) game.hotbar.push(null);
       if (game.hotbar.length > 9) game.hotbar.length = 9;
       game.activeSlot = Math.max(0, Math.min(8, data.activeSlot || 0));
-      game.equipped = { ...game.equipped, ...(data.equipped || {}) };
-      game.armorTiers = { helm: null, armor: null, shield: null, boots: null, ...(data.armorTiers || {}) };
+      const defaultEquipped = { helm: null, armor: null, legs: null, boots: null, shield: null, ring: null, amulet: null, relic: null, relic2: null, relic3: null };
+      game.equipped = { ...defaultEquipped, ...(data.equipped || {}) };
+      game.armorTiers = { helm: null, armor: null, legs: null, shield: null, boots: null, ...(data.armorTiers || {}) };
       if (typeof game.syncArmorTiersFromGear === 'function') game.syncArmorTiersFromGear();
       game.toolEnchants = data.toolEnchants || {};
       game.armorEnchants = data.armorEnchants || {};
@@ -778,32 +827,44 @@
       game.clearedDungeons = data.clearedDungeons || [];
       game.corruptedClearedDungeons = Array.isArray(data.corruptedClearedDungeons) ? [...data.corruptedClearedDungeons] : [];
       if (game.events) {
-        if (data.dailySchedule) game.events.dailySchedule = { ...data.dailySchedule };
-        if (data.activeEvent) game.events.activeEvent = { ...data.activeEvent };
+        game.events.dailySchedule = data.dailySchedule ? { ...data.dailySchedule } : null;
+        game.events.activeEvent = data.activeEvent ? { ...data.activeEvent } : null;
       }
       game.dungeonIntroSeen = !!data.dungeonIntroSeen;
       game.unlockedAchievements = data.unlockedAchievements || [];
-      if (data.encyclopedia) {
-        game.encyclopedia.items = new Set(data.encyclopedia.items || []);
-        game.encyclopedia.enemies = new Set(data.encyclopedia.enemies || []);
-        game.encyclopedia.buildings = new Set(data.encyclopedia.buildings || []);
-        game.encyclopedia.relics = new Set(data.encyclopedia.relics || game.permanentRelics || []);
-        game.encyclopedia.enchants = new Set(data.encyclopedia.enchants || []);
-        game.encyclopedia.altars = new Set(data.encyclopedia.altars || []);
-      }
+      game.encyclopedia.items = new Set((data.encyclopedia && data.encyclopedia.items) || []);
+      game.encyclopedia.enemies = new Set((data.encyclopedia && data.encyclopedia.enemies) || []);
+      game.encyclopedia.buildings = new Set((data.encyclopedia && data.encyclopedia.buildings) || []);
+      game.encyclopedia.relics = new Set((data.encyclopedia && data.encyclopedia.relics) || game.permanentRelics || []);
+      game.encyclopedia.enchants = new Set((data.encyclopedia && data.encyclopedia.enchants) || []);
+      game.encyclopedia.altars = new Set((data.encyclopedia && data.encyclopedia.altars) || []);
       if (typeof game.syncEncyclopedia === 'function') game.syncEncyclopedia();
-      if (data.stats) game.stats = { ...game.makeInitialStats(), ...data.stats };
+      game.stats = data.stats ? { ...game.makeInitialStats(), ...data.stats } : game.makeInitialStats();
+      let maxBuildingId = 0;
       game.buildings = (data.buildings || []).map(b => {
         const bDef = Abyssea.BUILDINGS && Abyssea.BUILDINGS[b.type];
-        return {
+        const bid = Number(b.id) || (++maxBuildingId);
+        if (bid > maxBuildingId) maxBuildingId = bid;
+        const entry = {
           ...b,
+          id: bid,
           storage: b.storage || {},
           queue: b.queue || [],
-          filters: Array.isArray(b.filters) ? [...b.filters] : [],
           isChest: Boolean(b.isChest || (bDef && bDef.isChest)),
           omega: b.omega ? JSON.parse(JSON.stringify(b.omega)) : undefined
         };
+        if (b.type === 'cofre_logistico') {
+          entry.filters = Array.isArray(b.filters) ? [...b.filters] : [];
+        } else {
+          delete entry.filters;
+        }
+        return entry;
       });
+      game.nextBuildingId = Math.max(Number(data.nextBuildingId) || 1, maxBuildingId + 1);
+      game._pipeGridCache = null;
+      if (game.economy && typeof game.economy.invalidateBiomeCache === 'function') {
+        game.economy.invalidateBiomeCache();
+      }
       if (game.omega && typeof game.omega.load === 'function') {
         game.omega.load(data.omega || null, game, true);
         if (game.omega.report && Object.keys(game.omega.report.gained || {}).length > 0 && typeof game.toast === 'function') {
@@ -935,10 +996,12 @@
           tut.step = Math.max(0, Number(data.tutorial.step) || 0);
           tut.done = !!data.tutorial.done;
           tut.skipped = !!data.tutorial.skipped;
+          tut.rewardClaimed = Boolean(data.tutorial.rewardClaimed || data.tutorial.done);
         } else {
           tut.step = 0;
           tut.done = false;
           tut.skipped = false;
+          tut.rewardClaimed = false;
         }
         tut.stepState = {};
         tut.minimized = false;
@@ -995,9 +1058,10 @@
     importJSON(game, jsonStr) {
       try {
         const data = JSON.parse(jsonStr);
-        if (!data || typeof data !== 'object' || !data.player) throw new Error('invalid');
+        if (!data || typeof data !== 'object' || !data.player || typeof data.player !== 'object') throw new Error('invalid');
         this.applySaveData(game, data);
         this.save(game, game.currentSlot || 1, true);
+        if (Abyssea.actualizarDiscord) Abyssea.actualizarDiscord(true);
         game.toast(Abyssea.I18n ? Abyssea.I18n.t('toast.saveImported') : 'Partida importada correctamente.', 'success');
         return true;
       } catch {

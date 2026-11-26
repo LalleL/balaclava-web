@@ -66,7 +66,6 @@
 
   class EventsSystem {
     constructor() {
-      this.eventTimer = 45;
       this.dailyChallenges = this.generateDailyChallenges();
       this.dailySchedule = null;
       this.activeEvent = null;
@@ -136,28 +135,35 @@
       const curDay = Math.floor(game.dayCount || 1);
       const curTime = (game.dayTime % 1 + 1) % 1;
 
-      // 1 random scheduled event per in-game day (not ad-hoc timers)
+      // 1 random scheduled event per in-game day + fresh daily challenges on day rollover
       if (!this.dailySchedule || this.dailySchedule.day !== curDay) {
+        const hadPrevDay = Boolean(this.dailySchedule && this.dailySchedule.day !== curDay);
         const eventKeys = Object.keys(DAILY_EVENTS);
+        const eventRateBonus = Math.min(0.15, (game.mods && game.mods.eventRate) || 0);
         this.dailySchedule = {
           day: curDay,
-          triggerTime: 0.18 + Math.random() * 0.62,
+          triggerTime: Math.max(0.10, 0.18 + Math.random() * 0.62 - eventRateBonus),
           eventId: pick(eventKeys),
           triggered: false
         };
+        if (hadPrevDay) {
+          this.dailyChallenges = this.generateDailyChallenges();
+        }
       }
 
       if (!this.dailySchedule.triggered && curTime >= this.dailySchedule.triggerTime) {
         this.dailySchedule.triggered = true;
-        // RC2: Interactive Events rotation (Biome Weather, Pirate/Goblin Raid, Ghost Ship, or Classic Event)
+        // RC2: Interactive Events rotation (independent probability bands — no raid skew on non-weather biomes)
         const rollInteractive = Math.random();
-        if (rollInteractive < 0.22 && typeof game.triggerBiomeWeatherEvent === 'function' && game.triggerBiomeWeatherEvent()) {
-          // biome-specific weather event triggered!
-        } else if (rollInteractive < 0.44 && (game.unlockedPlots || []).length >= 2 && typeof game.startBiomeRaid === 'function' && game.startBiomeRaid()) {
-          // interactive raid triggered!
-        } else if (rollInteractive < 0.62 && (game.unlockedPlots || []).length >= 2 && typeof game.spawnGhostMerchantShip === 'function' && game.spawnGhostMerchantShip()) {
-          // wandering ghost merchant ship docked!
-        } else {
+        let fired = false;
+        if (rollInteractive < 0.22) {
+          fired = typeof game.triggerBiomeWeatherEvent === 'function' && Boolean(game.triggerBiomeWeatherEvent());
+        } else if (rollInteractive < 0.44 && (game.unlockedPlots || []).length >= 2) {
+          fired = typeof game.startBiomeRaid === 'function' && Boolean(game.startBiomeRaid());
+        } else if (rollInteractive < 0.62 && (game.unlockedPlots || []).length >= 2) {
+          fired = typeof game.spawnGhostMerchantShip === 'function' && Boolean(game.spawnGhostMerchantShip());
+        }
+        if (!fired) {
           this.startDailyEvent(game, this.dailySchedule.eventId);
         }
       }
@@ -169,37 +175,44 @@
           const endedName = this.activeEvent.name;
           this.activeEvent = null;
           game.recomputeModifiers();
-          game.toast(`El evento "${endedName}" ha concluido.`, 'info');
+          const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
+          game.toast(isEn ? `The event "${endedName}" has ended.` : `El evento "${endedName}" ha concluido.`, 'info');
         }
       }
     }
 
     startDailyEvent(game, eventId) {
       const def = DAILY_EVENTS[eventId] || DAILY_EVENTS.lluvia_fertil;
+      const isEn = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
+      const enEv = isEn && Abyssea.I18N_DATA_EN && Abyssea.I18N_DATA_EN.dailyEvents && Abyssea.I18N_DATA_EN.dailyEvents[def.id];
+      const evName = (enEv && enEv.name) || def.name;
+      const evDesc = (enEv && enEv.desc) || def.desc;
       this.activeEvent = {
         id: def.id,
-        name: def.name,
-        desc: def.desc,
+        name: evName,
+        desc: evDesc,
         timeLeft: def.duration,
         duration: def.duration,
         color: def.color
       };
       game.recomputeModifiers();
       Abyssea.Audio.play('portal');
-      game.toast(`¡Evento Diario: ${def.name}! ${def.desc}`, 'warn');
+      game.toast(isEn ? `Daily Event: ${evName}! ${evDesc}` : `¡Evento Diario: ${evName}! ${evDesc}`, 'warn');
 
-      if (def.id === 'lluvia_meteoritos' && game.unlockedPlots.length >= 2) {
-        for (let i = 0; i < 2; i++) {
+      if (def.id === 'lluvia_meteoritos' && game.unlockedPlots && game.unlockedPlots.length >= 1) {
+        let spawned = 0;
+        for (let attempt = 0; attempt < 28 && spawned < 2; attempt++) {
           const plot = pick(game.unlockedPlots);
           const biome = game.world.plotBiomes[plot[1]][plot[0]];
           const tx = plot[0] * PLOT_TILES + randInt(2, PLOT_TILES - 3);
           const ty = plot[1] * PLOT_TILES + randInt(2, PLOT_TILES - 3);
-          if (game.world.tiles[ty][tx] === 1 && !game.world.getNodeAtTile(tx, ty) && !game.getBuildingAtTile(tx, ty)) {
+          if (game.world.tiles[ty] && game.world.tiles[ty][tx] === 1 && !game.world.getNodeAtTile(tx, ty) && !game.getBuildingAtTile(tx, ty)) {
             game.world.spawnNodeAtTile(tx, ty, 'meteor', biome);
             game.spawnParticles((tx + 0.5) * TILE_SIZE, (ty + 0.5) * TILE_SIZE, '#ff8a65', 18);
+            spawned++;
           }
         }
-        game.shake(0.35, 6);
+        if (spawned > 0) game.shake(0.35, 6);
       }
     }
 
@@ -208,24 +221,50 @@
       const id = this.activeEvent.id;
 
       if (id === 'lluvia_fertil') {
-        // Accelerate crop watering and growth
+        // Accelerate crop watering and proportional growth
         for (const c of game.world.crops) {
           c.watered = true;
-          c.progress = Math.min(1.0, c.progress + dt * 0.05);
+          const cDef = Abyssea.CROPS && Abyssea.CROPS[c.cropId];
+          const growT = (cDef && cDef.growTime) || 55;
+          c.progress = Math.min(1.0, c.progress + (dt * 1.15) / growT);
           c.stage = c.progress >= 1 ? 3 : c.progress >= 0.65 ? 2 : c.progress >= 0.3 ? 1 : 0;
         }
       } else if (id === 'tormenta_electrica') {
         this._strikeTimer = (this._strikeTimer || 0) + dt;
         if (this._strikeTimer >= 8.5) {
           this._strikeTimer = 0;
-          if (game.combat.enemies.length > 0) {
-            const target = pick(game.combat.enemies);
-            game.spawnFx('fx_thunder_strike', target.x, target.y - 18, 0, 0.34, 1.35, 0.92);
-            game.combat.damageEnemy(game, target, 45, 0, false);
+          const alive = (game.combat && game.combat.enemies || []).filter(e => e && !e._dead && e.hp > 0);
+          if (alive.length > 0) {
+            const target = pick(alive);
+            const stormDmg = Math.max(45, Math.round((target.maxHp || 180) * 0.22));
+            game.spawnFx('pvfx_lightning_strike', target.x, target.y - 18, 0, 0.34, 1.35, 0.92, { blend: 'lighter' });
+            game.combat.damageEnemy(game, target, stormDmg, null, false, false, { nonPlayer: true, noKnockback: true });
           }
         }
       } else if (id === 'abundancia_mineral') {
         game.world.spawnTimer = (game.world.spawnTimer || 0) + dt * 0.8;
+      } else if (id === 'esencia_arcana') {
+        // Arcane surge: restores player energy passively and empowers arcane essence drops (handled in combat.onEnemyKilled)
+        if (game.player) {
+          game.player.energy = Math.min(game.player.maxEnergy || 100, (game.player.energy || 0) + dt * 4.5);
+        }
+        this._arcaneFxTimer = (this._arcaneFxTimer || 0) + dt;
+        if (this._arcaneFxTimer >= 1.4 && game.player && game.spawnParticles) {
+          this._arcaneFxTimer = 0;
+          game.spawnParticles(game.player.x + randInt(-90, 90), game.player.y + randInt(-60, 60), '#ce93d8', 3);
+        }
+      } else if (id === 'niebla_espesa') {
+        // Dense mist: spawns nocturnal creatures periodically even by day & drifting fog motes
+        this._fogSpawnTimer = (this._fogSpawnTimer || 0) + dt;
+        if (this._fogSpawnTimer >= 16 && game.combat && game.combat.enemies.length < 18) {
+          this._fogSpawnTimer = 0;
+          game.combat.spawnWorldEnemy(game, pick(['ghost', 'spider', 'vampire_bat']));
+        }
+        this._fogFxTimer = (this._fogFxTimer || 0) + dt;
+        if (this._fogFxTimer >= 0.9 && game.player && game.spawnParticles) {
+          this._fogFxTimer = 0;
+          game.spawnParticles(game.player.x + randInt(-140, 140), game.player.y + randInt(-90, 90), '#b0bec5', 2);
+        }
       }
     }
 

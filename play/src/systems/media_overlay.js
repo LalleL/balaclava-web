@@ -13,6 +13,7 @@
   let pollTimer = null;
   let inFlight = false;
   let lastInfo = { title: '', artist: '', status: '' };
+  let lastRenderSig = '';
 
   function tr(key, vars) {
     if (Abyssea.I18n && typeof Abyssea.I18n.t === 'function') {
@@ -93,13 +94,17 @@
     };
   }
 
-  function renderInfo(info) {
+  function renderInfo(info, force = false) {
     const els = getElements();
     if (!els) return;
 
     const titleText = info && typeof info.title === 'string' ? info.title.trim() : '';
     const artistText = info && typeof info.artist === 'string' ? info.artist.trim() : '';
     const statusText = info && typeof info.status === 'string' ? info.status.trim() : '';
+    const lang = (Abyssea.I18n && typeof Abyssea.I18n.getLanguage === 'function') ? Abyssea.I18n.getLanguage() : 'es';
+    const sig = `${lang}|${statusText}|${titleText}|${artistText}`;
+    if (!force && sig === lastRenderSig) return;
+    lastRenderSig = sig;
     const hasTrack = !!(titleText || artistText || statusText === 'Playing' || statusText === 'Paused');
 
     els.root.classList.toggle('is-idle', !hasTrack);
@@ -145,6 +150,7 @@
     if (!enabled || inFlight) return;
     const invoke = getTauriInvoke();
     if (!invoke) {
+      stopPolling();
       lastInfo = { title: '', artist: '', status: '' };
       renderInfo(lastInfo);
       return;
@@ -184,6 +190,10 @@
   function startPolling() {
     stopPolling();
     if (!enabled) return;
+    if (!getTauriInvoke()) {
+      renderInfo(lastInfo);
+      return;
+    }
     refresh();
     pollTimer = setInterval(refresh, POLL_INTERVAL_MS);
   }
@@ -219,7 +229,7 @@
     els.root.dataset.boundMedia = '1';
 
     const blockFallthrough = (e) => e.stopPropagation();
-    ['mousedown', 'pointerdown', 'mouseup', 'pointerup'].forEach(evt => {
+    ['mousedown', 'pointerdown', 'mouseup', 'pointerup', 'click'].forEach(evt => {
       els.root.addEventListener(evt, blockFallthrough);
     });
 
@@ -264,7 +274,7 @@
       syncButtonLabels();
       return;
     }
-    renderInfo(lastInfo);
+    renderInfo(lastInfo, true);
   }
 
   function init() {

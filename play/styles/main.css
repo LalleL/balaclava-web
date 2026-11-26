@@ -2213,6 +2213,10 @@ input:focus-visible,
   align-items: center;
   gap: 8px;
   z-index: 60;
+  pointer-events: none;
+}
+
+#btn-exit-dungeon {
   pointer-events: auto;
 }
 
@@ -3025,6 +3029,7 @@ body.modal-fullscreen-active #bottom-hud {
 
 .inv-slot.empty-slot {
   opacity: 0.42;
+  border-image: none;
   border-style: dashed;
   border-width: 2px;
   border-color: rgba(255, 213, 79, 0.28);
@@ -3910,7 +3915,9 @@ body.modal-fullscreen-active #bottom-hud {
 }
 
 #modal-box.skills-cosmic-fullscreen.cosmic-quake-active,
-.skill-tree-workspace.cosmic-quake-active {
+.skill-tree-workspace.cosmic-quake-active,
+#modal-box.map-atlas-fullscreen.cosmic-quake-active,
+.map-workspace.cosmic-quake-active {
   animation: cosmic-skill-quake 0.28s steps(2, end) 1 !important;
 }
 
@@ -6324,16 +6331,14 @@ button {
   bottom: auto;
 }
 
+#bottom-hud {
+  transform: translateX(-50%) scale(var(--ui-scale, 1));
+  transform-origin: bottom center;
+}
+
 .abyssea-tooltip {
   zoom: var(--ui-scale, 1);
   max-width: min(336px, calc(100vw * var(--ui-inv-scale, 1) - 24px));
-}
-
-/* Decouple interactive canvases from UI scale so the skill tree and the world map
-   keep their own natural size & zoom regardless of the GUI scale setting. */
-.skill-board,
-#world-map-canvas {
-  zoom: calc(1 / var(--ui-scale, 1));
 }
 
 #title-screen .title-left-column {
@@ -6400,58 +6405,58 @@ button {
   max-height: 92%;
 }
 
-/* Large presets (2.2 / 4.4 zoom) need extra room so HUD rows never overflow the viewport */
-body:is(.ui-scale-22, .ui-scale-44) #top-hud {
+/* Large presets (1.25 / 1.5 zoom) need extra room so HUD rows never overflow the viewport */
+body:is(.ui-scale-125, .ui-scale-15) #top-hud {
   flex-wrap: wrap;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) #bottom-hud {
+body:is(.ui-scale-125, .ui-scale-15) #bottom-hud {
   max-width: 98%;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .bottom-bars-row {
+body:is(.ui-scale-125, .ui-scale-15) .bottom-bars-row {
   flex-wrap: wrap;
   max-width: 100%;
   gap: 6px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .hotbar,
-body:is(.ui-scale-22, .ui-scale-44) .spell-bar {
+body:is(.ui-scale-125, .ui-scale-15) .hotbar,
+body:is(.ui-scale-125, .ui-scale-15) .spell-bar {
   gap: 4px;
   padding: 5px 7px;
   max-width: 100%;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .modal-box:not(.modal-fullscreen) {
+body:is(.ui-scale-125, .ui-scale-15) .modal-box:not(.modal-fullscreen) {
   padding: 10px 12px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .modal-header {
+body:is(.ui-scale-125, .ui-scale-15) .modal-header {
   gap: 6px;
   padding: 2px 2px 8px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .modal-title-carved {
+body:is(.ui-scale-125, .ui-scale-15) .modal-title-carved {
   min-width: 0;
   flex: 1 1 auto;
   padding: 3px 8px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .modal-title {
+body:is(.ui-scale-125, .ui-scale-15) .modal-title {
   font-size: 16px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .modal-tabs {
+body:is(.ui-scale-125, .ui-scale-15) .modal-tabs {
   flex-wrap: wrap;
   gap: 4px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .modal-tab {
+body:is(.ui-scale-125, .ui-scale-15) .modal-tab {
   padding: 4px 8px;
   font-size: 14px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .setting-row {
+body:is(.ui-scale-125, .ui-scale-15) .setting-row {
   flex-wrap: wrap;
   gap: 6px;
 }
@@ -6749,7 +6754,7 @@ body:is(.ui-scale-22, .ui-scale-44) .setting-row {
   letter-spacing: 0.3px;
 }
 
-body:is(.ui-scale-22, .ui-scale-44) .hud-controls-helper {
+body:is(.ui-scale-125, .ui-scale-15) .hud-controls-helper {
   left: 12px;
   bottom: 116px;
   padding: 6px 10px;
@@ -7810,6 +7815,39 @@ body.photo-mode-active #boss-bar {
   color: #86efac;
   text-shadow: 1px 1px 0 #000;
 }
+
+/* ============================================================================
+   CRISP PIXEL-ART RENDERING & SUBTLE ICON DEPTH (Audit Técnico v2.0.0)
+   Preserves authentic nearest-neighbor pixel art sharpness on canvas and icons.
+   ============================================================================ */
+#game-canvas {
+  image-rendering: pixelated;
+}
+.slot img,
+.inv-slot img,
+.hotbar-slot img,
+.equip-slot img,
+.card-head img,
+.recipe-icon img,
+.item-icon-img,
+.build-icon img,
+.modal-body img,
+.tooltip img,
+.hud-buff img,
+.npc-portrait img,
+.bestiary-card img,
+.relic-chest-cell img,
+.quest-reward img,
+.craft-ing img {
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.52));
+}
+.slot img[src*="item_frame_"],
+.slot img[src*="rpg_slot_"],
+.hud-bar-fill {
+  filter: none;
+}
+
 
 
 

@@ -103,9 +103,9 @@
       title: 'IX. Maestro del Encantamiento',
       lore: 'En la Mesa de Encantamientos puedes imbuir herramientas y armaduras con runas arcanas que multiplican tu poder.',
       objective: 'Construye una Mesa de Encantamientos e inscribe al menos 1 encantamiento.',
-      check: (gs) => Object.values(gs.toolEnchants || {}).some(e => Object.keys(e).length > 0) || Object.keys(gs.armorEnchants || {}).length > 0,
+      check: (gs) => Object.values(gs.toolEnchants || {}).some(e => e && Object.values(e).some(v => v > 0)) || Object.values(gs.armorEnchants || {}).some(e => e && Object.values(e).some(v => v > 0)),
       getProgress: (gs) => {
-        const hasEnch = Object.values(gs.toolEnchants || {}).some(e => Object.keys(e).length > 0) || Object.keys(gs.armorEnchants || {}).length > 0;
+        const hasEnch = Object.values(gs.toolEnchants || {}).some(e => e && Object.values(e).some(v => v > 0)) || Object.values(gs.armorEnchants || {}).some(e => e && Object.values(e).some(v => v > 0));
         return [{ label: 'Encantamientos', cur: hasEnch ? 1 : 0, max: 1 }];
       },
       reward: { coins: 340, xp: 380, items: { amatista: 2, cristales_magicos: 4 } }
@@ -151,12 +151,12 @@
       objective: 'Fabrica al menos 3 Runas elementales e inscribe 4 encantamientos.',
       check: (gs) => {
         const runas = (gs.stats.byItem.runa_fuego || 0) + (gs.stats.byItem.runa_agua || 0) + (gs.stats.byItem.runa_tierra || 0) + (gs.stats.byItem.runa_aire || 0) + (gs.stats.byItem.runa_luz || 0) + (gs.stats.byItem.runa_oscura || 0) + (gs.stats.byItem.runa_vida || 0);
-        const ench = Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.keys(e).length, 0) + Object.values(gs.armorEnchants || {}).reduce((a, e) => a + Object.keys(e).length, 0);
+        const ench = Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.values(e || {}).filter(v => v > 0).length, 0) + Object.values(gs.armorEnchants || {}).reduce((a, e) => a + Object.values(e || {}).filter(v => v > 0).length, 0);
         return runas >= 3 && ench >= 4;
       },
       getProgress: (gs) => {
         const runas = (gs.stats.byItem.runa_fuego || 0) + (gs.stats.byItem.runa_agua || 0) + (gs.stats.byItem.runa_tierra || 0) + (gs.stats.byItem.runa_aire || 0) + (gs.stats.byItem.runa_luz || 0) + (gs.stats.byItem.runa_oscura || 0) + (gs.stats.byItem.runa_vida || 0);
-        const ench = Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.keys(e).length, 0) + Object.values(gs.armorEnchants || {}).reduce((a, e) => a + Object.keys(e).length, 0);
+        const ench = Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.values(e || {}).filter(v => v > 0).length, 0) + Object.values(gs.armorEnchants || {}).reduce((a, e) => a + Object.values(e || {}).filter(v => v > 0).length, 0);
         return [
           { label: 'Runas creadas', cur: Math.min(3, runas), max: 3 },
           { label: 'Encantamientos activos', cur: Math.min(4, ench), max: 4 }
@@ -168,11 +168,17 @@
       id: 'cap_14',
       title: 'XIV. Arsenal de Adamantita',
       lore: 'Los mares exteriores esconden menas capaces de superar el mitrilo. Forja equipamiento y herramientas de Adamantita o superior.',
-      objective: 'Alcanza nivel Adamantita o Celestial en al menos 2 herramientas.',
-      check: (gs) => Object.values(gs.toolTiers || {}).filter(t => ['adamantita', 'legendaria', 'celestial'].includes(t)).length >= 2,
-      getProgress: (gs) => [
-        { label: 'Herramientas Adamantita+', cur: Math.min(2, Object.values(gs.toolTiers || {}).filter(t => ['adamantita', 'legendaria', 'celestial'].includes(t)).length), max: 2 }
-      ],
+      objective: 'Alcanza nivel Adamantita o superior en al menos 2 herramientas.',
+      check: (gs) => {
+        const ord = Abyssea.TIER_ORDER || [];
+        const minI = ord.indexOf('adamantita');
+        return Object.values(gs.toolTiers || {}).filter(t => ord.indexOf(t) >= minI).length >= 2;
+      },
+      getProgress: (gs) => {
+        const ord = Abyssea.TIER_ORDER || [];
+        const minI = ord.indexOf('adamantita');
+        return [{ label: 'Herramientas Adamantita+', cur: Math.min(2, Object.values(gs.toolTiers || {}).filter(t => ord.indexOf(t) >= minI).length), max: 2 }];
+      },
       reward: { coins: 2200, xp: 1350, items: { lingote_celestial: 4, bomba_abismal: 2 } }
     },
     {
@@ -191,12 +197,20 @@
       id: 'cap_16',
       title: 'XVI. Soberano Celestial',
       lore: 'Solo quien domina la forja astral, la alquimia cósmica y las constelaciones merece gobernar Abyssea.',
-      objective: 'Forja una herramienta Celestial y desbloquea 75 estrellas del Árbol.',
-      check: (gs) => Object.values(gs.toolTiers || {}).includes('celestial') && (gs.unlockedSkills || []).length >= 75,
-      getProgress: (gs) => [
-        { label: 'Herramienta Celestial', cur: Object.values(gs.toolTiers || {}).includes('celestial') ? 1 : 0, max: 1 },
-        { label: 'Habilidades Estelares', cur: Math.min(75, (gs.unlockedSkills || []).length), max: 75 }
-      ],
+      objective: 'Forja una herramienta Celestial o superior y desbloquea 75 estrellas del Árbol.',
+      check: (gs) => {
+        const ord = Abyssea.TIER_ORDER || [];
+        const minI = ord.indexOf('celestial');
+        return Object.values(gs.toolTiers || {}).some(t => ord.indexOf(t) >= minI) && (gs.unlockedSkills || []).length >= 75;
+      },
+      getProgress: (gs) => {
+        const ord = Abyssea.TIER_ORDER || [];
+        const minI = ord.indexOf('celestial');
+        return [
+          { label: 'Herramienta Celestial+', cur: Object.values(gs.toolTiers || {}).some(t => ord.indexOf(t) >= minI) ? 1 : 0, max: 1 },
+          { label: 'Habilidades Estelares', cur: Math.min(75, (gs.unlockedSkills || []).length), max: 75 }
+        ];
+      },
       reward: { coins: 5000, xp: 2800, items: { baculo_estelar: 1, amuleto_diamante: 1 } }
     },
     {
@@ -215,14 +229,19 @@
       id: 'cap_18',
       title: 'XVIII. Forja del Yunque Rúnico',
       lore: 'Los antiguos maestros herreros forjaban armas especializadas para cada estilo de combate: dagas veloces, alabardas y báculos.',
-      objective: 'Construye el Yunque Rúnico y fabrica al menos 3 armas de arquetipo o grimorios.',
-      check: (gs) => gs.buildings.some(b => b.type === 'yunque_runico') && ((gs.stats.byItem.daga_acero || 0) + (gs.stats.byItem.espadon_acero || 0) + (gs.stats.byItem.lanza_carmesi || 0) + (gs.stats.byItem.maza_acero || 0) + (gs.stats.byItem.ballesta_madera || 0) + (gs.stats.byItem.baculo_druida || 0) + (gs.stats.byItem.varita_escarcha || 0)) >= 1,
+      objective: 'Construye el Yunque Rúnico y fabrica al menos 1 arma especializada de arquetipo.',
+      check: (gs) => {
+        const b = gs.stats.byItem || {};
+        const specialized = (b.daga_acero || 0) + (b.daga_oro || 0) + (b.daga_legendaria || 0) + (b.hacha_batalla_oro || 0) + (b.hacha_batalla_legendaria || 0) + (b.espadon_acero || 0) + (b.espadon_oro || 0) + (b.espadon_legendario || 0) + (b.lanza_carmesi || 0) + (b.alabarda_real || 0) + (b.maza_acero || 0) + (b.maza_legendaria || 0) + (b.ballesta_madera || 0) + (b.ballesta_legendaria || 0) + (b.baculo_druida || 0) + (b.varita_escarcha || 0) + (b.espada_llamarada || 0) + (b.hoja_glacial || 0) + (b.hoja_espinas || 0) + (b.katana_sakura || 0) + (b.espada_relampago || 0) + (b.martillo_paladin || 0);
+        return gs.buildings.some(x => x.type === 'yunque_runico') && specialized >= 1;
+      },
       getProgress: (gs) => {
-        const built = gs.buildings.some(b => b.type === 'yunque_runico') ? 1 : 0;
-        const armed = ((gs.stats.byItem.daga_acero || 0) + (gs.stats.byItem.espadon_acero || 0) + (gs.stats.byItem.lanza_carmesi || 0) + (gs.stats.byItem.maza_acero || 0) + (gs.stats.byItem.ballesta_madera || 0) + (gs.stats.byItem.baculo_druida || 0) + (gs.stats.byItem.varita_escarcha || 0)) >= 1 ? 1 : 0;
+        const built = gs.buildings.some(x => x.type === 'yunque_runico') ? 1 : 0;
+        const b = gs.stats.byItem || {};
+        const specialized = (b.daga_acero || 0) + (b.daga_oro || 0) + (b.daga_legendaria || 0) + (b.hacha_batalla_oro || 0) + (b.hacha_batalla_legendaria || 0) + (b.espadon_acero || 0) + (b.espadon_oro || 0) + (b.espadon_legendario || 0) + (b.lanza_carmesi || 0) + (b.alabarda_real || 0) + (b.maza_acero || 0) + (b.maza_legendaria || 0) + (b.ballesta_madera || 0) + (b.ballesta_legendaria || 0) + (b.baculo_druida || 0) + (b.varita_escarcha || 0) + (b.espada_llamarada || 0) + (b.hoja_glacial || 0) + (b.hoja_espinas || 0) + (b.katana_sakura || 0) + (b.espada_relampago || 0) + (b.martillo_paladin || 0);
         return [
           { label: 'Yunque Rúnico', cur: built, max: 1 },
-          { label: 'Arma Especializada', cur: armed, max: 1 }
+          { label: 'Arma Especializada', cur: specialized >= 1 ? 1 : 0, max: 1 }
         ];
       },
       reward: { coins: 2400, xp: 1550, items: { llave_dorada: 2, cristales_magicos: 6 } }
@@ -537,8 +556,8 @@
           title: 'Sellado Arcano Completo',
           desc: 'Inscribe al menos 3 encantamientos en herramientas y 2 piezas de armadura encantadas.',
           reqCheck: (gs) => {
-            const tCnt = Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.keys(e).length, 0);
-            const aCnt = Object.keys(gs.armorEnchants || {}).length;
+            const tCnt = Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.values(e || {}).filter(v => v > 0).length, 0);
+            const aCnt = Object.values(gs.armorEnchants || {}).filter(e => e && Object.values(e).some(v => v > 0)).length;
             return tCnt >= 3 && aCnt >= 2;
           },
           reward: { coins: 1200, xp: 880, items: { amuleto_estelar: 1 } }
@@ -567,7 +586,7 @@
           id: 'q_kael_1',
           title: 'Tinta de las Dunas',
           desc: 'Tráeme 2 Tablillas Rúnicas, 4 Cristales y 15 de Arena estelar.',
-          reqItems: { tablilla_runica: 2, cristales: 4, arena: 15 },
+          reqItems: { tablilla_runica: 2, cristales: 4, arena_estelar: 15 },
           reward: { coins: 340, xp: 260, items: { grimorio_bola_fuego: 1 } }
         },
         {
@@ -589,8 +608,8 @@
         {
           id: 'q_kael_4',
           title: 'Dominio del Solario',
-          desc: 'Conquista el Solario del Faraón Radiante y entrega 3 Cristales de Nebulosa.',
-          reqItems: { cristal_nebulosa: 3 },
+          desc: 'Conquista el Solario del Faraón Radiante y entrega 3 Cristales Abismales.',
+          reqItems: { cristal_abismal: 3 },
           reqDungeon: 'desierto_solario',
           reward: { coins: 1680, xp: 1180, items: { grimorio_paso_etereo: 1, anillo_diamante: 1 } }
         }
@@ -869,9 +888,9 @@
     { id: 'gc_coins_15000', cat: 'Forja y Comercio', title: 'Gran Banquero', desc: 'Gana un acumulado de 15,000 monedas.', progress: gs => gs.stats.coinsEarned || 0, target: 15000, reward: { coins: 1200, xp: 850, items: { amuleto_diamante: 1 } } },
     { id: 'gc_build_28', cat: 'Forja y Comercio', title: 'Ciudadela Viviente', desc: 'Mantén 28 edificios o estructuras construidas.', progress: gs => gs.buildings.length, target: 28, reward: { coins: 480, xp: 390, items: { lingote_platino: 4, ladrillo: 12 } } },
     { id: 'gc_tools_all', cat: 'Forja y Comercio', title: 'Maestro Multi-Oficios', desc: 'Desbloquea todas las 8 herramientas básicas.', progress: gs => Object.values(gs.toolTiers || {}).filter(Boolean).length, target: 8, reward: { coins: 350, xp: 290, items: { lingote_acero: 5, pergamino_curacion: 2 } } },
-    { id: 'gc_adamant_tools', cat: 'Forja y Comercio', title: 'Herrería de Élite', desc: 'Eleva 4 herramientas a rango Adamantita o superior.', progress: gs => Object.values(gs.toolTiers || {}).filter(t => ['adamantita', 'legendaria', 'celestial'].includes(t)).length, target: 4, reward: { coins: 980, xp: 780, items: { lingote_celestial: 3, gema_alma: 2 } } },
-    { id: 'gc_celestial_tool', cat: 'Forja y Comercio', title: 'Forja de los Dioses', desc: 'Lleva al menos 1 herramienta a tier Celestial.', progress: gs => Object.values(gs.toolTiers || {}).includes('celestial') ? 1 : 0, target: 1, reward: { coins: 1600, xp: 1200, items: { runa_luz: 2, elixir_supremo: 2 } } },
-    { id: 'gc_armor_set', cat: 'Forja y Comercio', title: 'Armadura Completa', desc: 'Equipa Casco, Armadura, Escudo, Botas, Anillo y Amuleto.', progress: gs => ['helm', 'armor', 'shield', 'boots', 'ring', 'amulet'].filter(k => gs.equipped && gs.equipped[k]).length, target: 6, reward: { coins: 420, xp: 340, items: { onice: 2, pergamino_escudo: 2 } } },
+    { id: 'gc_adamant_tools', cat: 'Forja y Comercio', title: 'Herrería de Élite', desc: 'Eleva 4 herramientas a rango Adamantita o superior.', progress: gs => { const ord = Abyssea.TIER_ORDER || []; const m = ord.indexOf('adamantita'); return Object.values(gs.toolTiers || {}).filter(t => ord.indexOf(t) >= m).length; }, target: 4, reward: { coins: 980, xp: 780, items: { lingote_celestial: 3, gema_alma: 2 } } },
+    { id: 'gc_celestial_tool', cat: 'Forja y Comercio', title: 'Forja de los Dioses', desc: 'Lleva al menos 1 herramienta a tier Celestial o superior.', progress: gs => { const ord = Abyssea.TIER_ORDER || []; const m = ord.indexOf('celestial'); return Object.values(gs.toolTiers || {}).some(t => ord.indexOf(t) >= m) ? 1 : 0; }, target: 1, reward: { coins: 1600, xp: 1200, items: { runa_luz: 2, elixir_supremo: 2 } } },
+    { id: 'gc_armor_set', cat: 'Forja y Comercio', title: 'Armadura Completa', desc: 'Equipa Casco, Armadura, Pantalones, Escudo, Botas, Anillo y Amuleto.', progress: gs => ['helm', 'armor', 'legs', 'shield', 'boots', 'ring', 'amulet'].filter(k => gs.equipped && gs.equipped[k]).length, target: 7, reward: { coins: 420, xp: 340, items: { onice: 2, pergamino_escudo: 2 } } },
     { id: 'gc_enchant_5', cat: 'Forja y Comercio', title: 'Maestro Runógrafo', desc: 'Inscribe 5 niveles totales de encantamiento.', progress: gs => Object.values(gs.toolEnchants || {}).reduce((a, e) => a + Object.values(e).reduce((x, y) => x + y, 0), 0) + Object.values(gs.armorEnchants || {}).reduce((a, e) => a + Object.values(e).reduce((x, y) => x + y, 0), 0), target: 5, reward: { coins: 520, xp: 420, items: { tinta_arcana: 4, amatista: 2 } } },
 
     { id: 'gc_kill_200', cat: 'Combate y Mazmorras', title: 'Cruzado de Abyssea', desc: 'Derrota 200 enemigos hostiles.', progress: gs => gs.stats.kills || 0, target: 200, reward: { coins: 540, xp: 460, items: { elixir_titan: 2, bomba_solar: 2 } } },
@@ -913,7 +932,7 @@
     { id: 'ach_boss_10', name: 'Leyenda Absoluta de Abyssea', desc: 'Completa las 10 Mazmorras del archipiélago.', check: gs => gs.clearedDungeons.length >= 10, coins: 1600 },
     { id: 'ach_crafter', name: 'Maestro Artesano', desc: 'Fabrica 30 objetos en mesas o estaciones.', check: gs => gs.stats.craftedTotal >= 30, coins: 85 },
     { id: 'ach_level_10', name: 'Veterano Nivel 10', desc: 'Alcanza el nivel 10 de personaje.', check: gs => gs.player.level >= 10, coins: 200 },
-    { id: 'ach_legend_tool', name: 'Forja Suprema', desc: 'Mejora cualquier herramienta a nivel Legendario o Celestial.', check: gs => Object.values(gs.toolTiers).some(t => t === 'legendaria' || t === 'celestial'), coins: 500 },
+    { id: 'ach_legend_tool', name: 'Forja Suprema', desc: 'Mejora cualquier herramienta a nivel Legendario o superior.', check: gs => { const ord = Abyssea.TIER_ORDER || []; const m = ord.indexOf('legendaria'); return Object.values(gs.toolTiers || {}).some(t => ord.indexOf(t) >= m); }, coins: 500 },
     { id: 'ach_meteor', name: 'Cazador de Estrellas', desc: 'Mina un meteorito estrellado.', check: gs => gs.stats.meteorsMined >= 1, coins: 150 },
     { id: 'ach_core', name: 'Corazón Restaurado', desc: 'Consigue el Corazón de Abyssea.', check: gs => (gs.inventory.nucleo_abyssea || 0) >= 1, coins: 1500 },
     { id: 'ach_tiller', name: 'Labrador de Tierras', desc: 'Ara la tierra y obtén tu primera Azada agrícola.', check: gs => !!gs.toolTiers.azada && (gs.stats.tilesTilled || 0) >= 5, coins: 40 },
@@ -925,7 +944,7 @@
     { id: 'ach_irrigator', name: 'Riego Inteligente', desc: 'Construye un Aspersor o Invernadero Real.', check: gs => gs.buildings.some(b => b.type === 'aspersor' || b.type === 'invernadero'), coins: 110 },
     { id: 'ach_fortress', name: 'Señor de Murallas', desc: 'Construye al menos 15 edificios o bloques de aldea.', check: gs => gs.buildings.length >= 15, coins: 180 },
     { id: 'ach_metropolis', name: 'Arquitecto Real', desc: 'Construye 35 estructuras o fortificaciones.', check: gs => gs.buildings.length >= 35, coins: 450 },
-    { id: 'ach_enchanter', name: 'Aprendiz Arcano', desc: 'Inscribe tu primer encantamiento en la Mesa de Encantamientos.', check: gs => Object.values(gs.toolEnchants || {}).some(e => Object.keys(e).length > 0) || Object.keys(gs.armorEnchants || {}).length > 0, coins: 130 },
+    { id: 'ach_enchanter', name: 'Aprendiz Arcano', desc: 'Inscribe tu primer encantamiento en la Mesa de Encantamientos.', check: gs => Object.values(gs.toolEnchants || {}).some(e => e && Object.values(e).some(v => v > 0)) || Object.values(gs.armorEnchants || {}).some(e => e && Object.values(e).some(v => v > 0)), coins: 130 },
     { id: 'ach_full_tools', name: 'Arsenal Completo', desc: 'Desbloquea todas las 8 herramientas del jugador.', check: gs => Object.values(gs.toolTiers || {}).filter(Boolean).length >= 8, coins: 200 },
     { id: 'ach_armored', name: 'Caballero Completo', desc: 'Equipa armadura, casco, escudo y botas a la vez.', check: gs => !!(gs.equipped && gs.equipped.armor && gs.equipped.helm && gs.equipped.shield && gs.equipped.boots), coins: 240 },
     { id: 'ach_hunter_100', name: 'Campeón de Batalla', desc: 'Derrota a 100 monstruos.', check: gs => gs.stats.kills >= 100, coins: 240 },
@@ -940,8 +959,8 @@
     { id: 'ach_quarry', name: 'Barón de Canteras', desc: 'Construye una Cantera de Granito y un Taladro.', check: gs => gs.buildings.some(b => b.type === 'cantera_piedra') && gs.buildings.some(b => b.type === 'taladro'), coins: 260 },
     { id: 'ach_relic_hunter', name: 'Guardián de Reliquias', desc: 'Consigue al menos 2 Reliquias Permanentes de Jefes.', check: gs => (gs.permanentRelics || []).length >= 2, coins: 400 },
     { id: 'ach_level_20', name: 'Héroe Inmortal', desc: 'Alcanza el nivel 20 de personaje.', check: gs => gs.player.level >= 20, coins: 600 },
-    { id: 'ach_adamantite_forger', name: 'Templado en Adamantita', desc: 'Mejora cualquier herramienta a rango Adamantita o superior.', check: gs => Object.values(gs.toolTiers || {}).some(t => ['adamantita', 'legendaria', 'celestial'].includes(t)), coins: 420 },
-    { id: 'ach_celestial_master', name: 'Soberano Celestial', desc: 'Alcanza el rango Celestial en cualquier herramienta.', check: gs => Object.values(gs.toolTiers || {}).includes('celestial'), coins: 1200 },
+    { id: 'ach_adamantite_forger', name: 'Templado en Adamantita', desc: 'Mejora cualquier herramienta a rango Adamantita o superior.', check: gs => { const ord = Abyssea.TIER_ORDER || []; const m = ord.indexOf('adamantita'); return Object.values(gs.toolTiers || {}).some(t => ord.indexOf(t) >= m); }, coins: 420 },
+    { id: 'ach_celestial_master', name: 'Soberano Celestial', desc: 'Alcanza el rango Celestial o superior en cualquier herramienta.', check: gs => { const ord = Abyssea.TIER_ORDER || []; const m = ord.indexOf('celestial'); return Object.values(gs.toolTiers || {}).some(t => ord.indexOf(t) >= m); }, coins: 1200 },
     { id: 'ach_rune_scholar', name: 'Maestro de Runas', desc: 'Crea al menos 5 Runas elementales.', check: gs => ((gs.stats.byItem.runa_fuego || 0) + (gs.stats.byItem.runa_agua || 0) + (gs.stats.byItem.runa_tierra || 0) + (gs.stats.byItem.runa_aire || 0) + (gs.stats.byItem.runa_luz || 0) + (gs.stats.byItem.runa_oscura || 0) + (gs.stats.byItem.runa_vida || 0) + (gs.stats.byItem.runa_muerte || 0)) >= 5, coins: 480 },
     { id: 'ach_all_relics', name: 'Colección del Panteón', desc: 'Consigue las 10 Reliquias Permanentes de Abyssea.', check: gs => (gs.permanentRelics || []).length >= 10, coins: 1500 },
     { id: 'ach_enchant_master', name: 'Encantador Supremo', desc: 'Desbloquea 6 encantamientos diferentes en la Enciclopedia.', check: gs => gs.encyclopedia && gs.encyclopedia.enchants && gs.encyclopedia.enchants.size >= 6, coins: 650 },

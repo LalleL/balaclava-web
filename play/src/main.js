@@ -12,9 +12,14 @@
   // Bloquear menú contextual (clic derecho) para experiencia inmersiva
   document.addEventListener('contextmenu', e => e.preventDefault());
 
-  // Bloquear atajos de recarga accidental
+  // Bloquear atajos de recarga accidental (sin interferir con inputs de texto)
   document.addEventListener('keydown', e => {
-    if (e.ctrlKey && (e.key === 'r' || e.key === 'R' || e.key === 'a' || e.key === 'A')) {
+    const ae = document.activeElement;
+    const isTyping = !!(ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable));
+    if (e.ctrlKey && (e.key === 'r' || e.key === 'R')) {
+      e.preventDefault();
+    }
+    if (!isTyping && e.ctrlKey && (e.key === 'a' || e.key === 'A')) {
       e.preventDefault();
     }
     if (e.key === 'F5') {
@@ -23,14 +28,9 @@
   });
 
   window.addEventListener('DOMContentLoaded', () => {
-    // 1. Inicializar Internacionalización
+    // 1. Inicializar Internacionalización (Audio.loadPrefs ya corre en el constructor de SoundEngine)
     if (Abyssea.I18n && Abyssea.I18n.init) {
       Abyssea.I18n.init();
-    }
-
-    // 2. Inicializar Preferencias y Audio
-    if (Abyssea.Audio && Abyssea.Audio.loadPrefs) {
-      Abyssea.Audio.loadPrefs();
     }
 
     const canvas = document.getElementById('game-canvas');
@@ -47,11 +47,17 @@
         game.camera.height = ch;
       }
     }
+    let _resizeRaf = null;
+    let _resizeTimer1 = null;
+    let _resizeTimer2 = null;
     function scheduleResizeSync() {
       resize();
-      requestAnimationFrame(resize);
-      setTimeout(resize, 60);
-      setTimeout(resize, 200);
+      if (_resizeRaf) cancelAnimationFrame(_resizeRaf);
+      _resizeRaf = requestAnimationFrame(() => { _resizeRaf = null; resize(); });
+      if (_resizeTimer1) clearTimeout(_resizeTimer1);
+      if (_resizeTimer2) clearTimeout(_resizeTimer2);
+      _resizeTimer1 = setTimeout(() => { _resizeTimer1 = null; resize(); }, 60);
+      _resizeTimer2 = setTimeout(() => { _resizeTimer2 = null; resize(); }, 200);
     }
     window.addEventListener('resize', scheduleResizeSync);
     if (typeof ResizeObserver !== 'undefined') {
@@ -85,7 +91,13 @@
       const statusEl = document.getElementById('boot-status-text');
       const pctEl = document.getElementById('boot-percent-text');
       const legacyStatus = document.getElementById('assets-status');
-      const trBoot = (k, fb) => (Abyssea.I18n && Abyssea.I18n.t) ? Abyssea.I18n.t(k) : fb;
+      const trBoot = (k, fb) => {
+        if (Abyssea.I18n && Abyssea.I18n.t) {
+          const v = Abyssea.I18n.t(k);
+          if (v && v !== k) return v;
+        }
+        return fb;
+      };
 
       let assetsFinished = false;
       const loadPromise = Abyssea.Assets.loadAll().then(() => {
@@ -130,10 +142,16 @@
 
       setPhaseText(0);
 
+      let bootRafId = null;
+
       function finishBoot() {
         if (finalized) return;
         finalized = true;
         clearInterval(backupTicker);
+        if (bootRafId !== null) {
+          cancelAnimationFrame(bootRafId);
+          bootRafId = null;
+        }
         fillEl.style.width = '100%';
         if (pctEl) pctEl.textContent = '100%';
         setPhaseText(3);
@@ -156,8 +174,9 @@
         }, 360);
       }
 
-      function stepBoot(now) {
+      function stepBoot(now, fromBackup = false) {
         if (finalized) return;
+        if (!fromBackup) bootRafId = null;
         const dt = Math.min(0.05, Math.max(0.004, (now - lastFrameTime) / 1000));
         lastFrameTime = now;
 
@@ -190,14 +209,16 @@
           finishBoot();
           return;
         }
-        requestAnimationFrame(stepBoot);
+        if (bootRafId === null) {
+          bootRafId = requestAnimationFrame(stepBoot);
+        }
       }
 
       const backupTicker = setInterval(() => {
-        if (!finalized) stepBoot(performance.now());
-      }, 150);
+        if (!finalized) stepBoot(performance.now(), true);
+      }, 180);
 
-      requestAnimationFrame(stepBoot);
+      bootRafId = requestAnimationFrame(stepBoot);
     })();
 
     // Wire HUD menu buttons
