@@ -2655,6 +2655,26 @@ body.modal-fullscreen-active #bottom-hud {
   background-color: rgba(12, 22, 38, 0.94);
   image-rendering: pixelated;
 }
+#modal-box.map-atlas-fullscreen .map-coins-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  margin-left: 4px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 213, 79, 0.72);
+  background: linear-gradient(180deg, rgba(24, 34, 52, 0.95) 0%, rgba(12, 18, 30, 0.95) 100%);
+  color: #ffe082;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  box-shadow: inset 0 1px 0 rgba(255, 248, 179, 0.16);
+}
+#modal-box.map-atlas-fullscreen .map-coins-pill img {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
 #modal-box.map-atlas-fullscreen .map-legend-floating {
   position: absolute;
   bottom: 12px;

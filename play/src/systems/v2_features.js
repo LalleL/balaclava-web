@@ -335,12 +335,12 @@
           petPos: { x: (this.player && this.player.x) || 0, y: (this.player && this.player.y) || 0 },
           petAtkCd: 0,
           ghostShip: null,
-          ghostShipCd: 110,
+          ghostShipCd: 360,
           raid: null,
           abyssPulseBoss: null,
           seaBoss: null,
-          seaBossCd: 195,
-          whirlpoolCd: 18,
+          seaBossCd: 480,
+          whirlpoolCd: 85,
           fireTrails: [],
           _fireTrailCd: 0,
           villagerContractDay: {},
@@ -742,7 +742,99 @@
       return true;
     };
 
-    // --- #4 MARINE ENCOUNTERS: WHIRLPOOLS + COASTAL LEVIATHAN BOSS ---
+    // --- #4 MARINE ENCOUNTERS: WHIRLPOOLS, GHOST SHIP & COASTAL LEVIATHAN BOSS ---
+    proto.getOceanZoneInfo = function (tx, ty) {
+      const gridPlots = Abyssea.CONST.GRID_PLOTS || 19;
+      const center = Math.floor(gridPlots / 2);
+      const gx = clamp(Math.floor(tx / PLOT_TILES), 0, gridPlots - 1);
+      const gy = clamp(Math.floor(ty / PLOT_TILES), 0, gridPlots - 1);
+      const biomesMap = (this.world && this.world.plotBiomes) || [];
+      let bestId = (biomesMap[gy] && biomesMap[gy][gx]) || 'pradera';
+      let bestDef = BIOMES[bestId] || BIOMES.pradera || { id: 'pradera', name: 'Pradera Esmeralda', zone: 1, danger: 1, accent: '#9de64e' };
+
+      // If tile lies in outer boundary sea off an adjacent unlocked plot, inherit highest adjacent unlocked zone
+      if (!this.world || !this.world.isPlotUnlocked || !this.world.isPlotUnlocked(gx, gy)) {
+        for (let oy = -1; oy <= 1; oy++) {
+          for (let ox = -1; ox <= 1; ox++) {
+            const nx = gx + ox, ny = gy + oy;
+            if (nx < 0 || ny < 0 || nx >= gridPlots || ny >= gridPlots) continue;
+            if (this.world && this.world.isPlotUnlocked && this.world.isPlotUnlocked(nx, ny)) {
+              const candId = (biomesMap[ny] && biomesMap[ny][nx]) || bestId;
+              const candDef = BIOMES[candId];
+              if (candDef && ((candDef.danger || 1) >= (bestDef.danger || 1))) {
+                bestId = candId;
+                bestDef = candDef;
+              }
+            }
+          }
+        }
+      }
+
+      const zone = Math.max(1, bestDef.zone || 1);
+      const danger = Math.max(1, bestDef.danger || 1);
+      const ring = Math.max(Math.abs(gx - center), Math.abs(gy - center));
+      const level = Math.max(5, Math.round(6 + (danger - 1) * 7.5 + ring * 3.5 + (zone - 1) * 6));
+      return {
+        gx,
+        gy,
+        zone,
+        danger,
+        ring,
+        level,
+        biomeId: bestDef.id || bestId,
+        biomeName: bestDef.name || 'Océano Abisal',
+        color: bestDef.accent || bestDef.color || '#00e5ff'
+      };
+    };
+
+    proto.getUnlockedOceanProgression = function () {
+      const plots = [];
+      const seen = new Set();
+      const pushPlot = (gx, gy) => {
+        const key = `${gx},${gy}`;
+        if (!seen.has(key)) { seen.add(key); plots.push([gx, gy]); }
+      };
+      for (const p of (this.unlockedPlots || [])) pushPlot(p[0], p[1]);
+      const pGrid = this.world && this.world.plotUnlocked;
+      if (Array.isArray(pGrid)) {
+        for (let gy = 0; gy < pGrid.length; gy++) {
+          const row = pGrid[gy];
+          if (!Array.isArray(row)) continue;
+          for (let gx = 0; gx < row.length; gx++) {
+            if (row[gx]) pushPlot(gx, gy);
+          }
+        }
+      }
+      const biomesMap = (this.world && this.world.plotBiomes) || [];
+      let maxZone = 1;
+      let maxDanger = 1;
+      let sumWeight = 0;
+      const weighted = [];
+      for (const [gx, gy] of plots) {
+        const bId = (biomesMap[gy] && biomesMap[gy][gx]) || 'pradera';
+        const b = BIOMES[bId] || BIOMES.pradera || { zone: 1, danger: 1 };
+        const zone = Math.max(1, b.zone || 1);
+        const danger = Math.max(1, b.danger || 1);
+        if (zone > maxZone) maxZone = zone;
+        if (danger > maxDanger) maxDanger = danger;
+        const w = 1 + (danger - 1) * 0.55 + (zone - 1) * 1.85;
+        sumWeight += w;
+        weighted.push({ gx, gy, w });
+      }
+      return { maxZone, maxDanger, plots, weighted, sumWeight };
+    };
+
+    proto._pickWeightedUnlockedPlot = function (prog) {
+      if (!prog || !prog.weighted || !prog.weighted.length) return null;
+      let r = Math.random() * prog.sumWeight;
+      for (const item of prog.weighted) {
+        r -= item.w;
+        if (r <= 0) return [item.gx, item.gy];
+      }
+      const last = prog.weighted[prog.weighted.length - 1];
+      return [last.gx, last.gy];
+    };
+
     proto.getWhirlpoolNear = function (wx, wy, radius = 130) {
       if (!Array.isArray(this.worldWhirlpools)) return null;
       return this.worldWhirlpools.find(wp => dist(wx, wy, wp.x, wp.y) <= radius) || null;
@@ -767,17 +859,63 @@
       return true;
     };
 
+    proto.isValidGhostShipTile = function (tx, ty) {
+      if (!this.world || !Array.isArray(this.world.tiles)) return false;
+      const gridT = (Abyssea.CONST.GRID_PLOTS || 19) * PLOT_TILES;
+      if (tx < 2 || ty < 2 || tx >= gridT - 2 || ty >= gridT - 2) return false;
+      // Full 3x3 open ocean footprint so hull never touches/overlaps grass islands
+      for (let oy = -1; oy <= 1; oy++) {
+        for (let ox = -1; ox <= 1; ox++) {
+          const nx = tx + ox, ny = ty + oy;
+          if (!this.world.tiles[ny] || this.world.tiles[ny][nx] !== 0) return false;
+          if (typeof this.getBuildingAtTile === 'function' && this.getBuildingAtTile(nx, ny)) return false;
+        }
+      }
+      return true;
+    };
+
+    proto.isValidSeaBossSpot = function (wx, wy) {
+      if (!this.world || !Array.isArray(this.world.tiles)) return false;
+      const gridT = (Abyssea.CONST.GRID_PLOTS || 19) * PLOT_TILES;
+      const tx = Math.floor(wx / TILE_SIZE);
+      const ty = Math.floor(wy / TILE_SIZE);
+      if (tx < 3 || ty < 3 || tx >= gridT - 3 || ty >= gridT - 3) return false;
+      // Main boss 3x3 ocean body check
+      for (let oy = -1; oy <= 1; oy++) {
+        for (let ox = -1; ox <= 1; ox++) {
+          const nx = tx + ox, ny = ty + oy;
+          if (!this.world.tiles[ny] || this.world.tiles[ny][nx] !== 0) return false;
+          if (typeof this.getBuildingAtTile === 'function' && this.getBuildingAtTile(nx, ny)) return false;
+        }
+      }
+      // Every tentacle world offset + 22px radius must lie cleanly in ocean water (0), never over grass!
+      const tentOffsets = [[-78, 24], [78, 24], [0, 66]];
+      for (const [tox, toy] of tentOffsets) {
+        const cx = wx + tox, cy = wy + toy;
+        const tx0 = Math.floor((cx - 22) / TILE_SIZE);
+        const tx1 = Math.floor((cx + 22) / TILE_SIZE);
+        const ty0 = Math.floor((cy - 22) / TILE_SIZE);
+        const ty1 = Math.floor((cy + 22) / TILE_SIZE);
+        for (let cty = ty0; cty <= ty1; cty++) {
+          for (let ctx = tx0; ctx <= tx1; ctx++) {
+            if (ctx < 1 || cty < 1 || ctx >= gridT - 1 || cty >= gridT - 1) return false;
+            if (!this.world.tiles[cty] || this.world.tiles[cty][ctx] !== 0) return false;
+          }
+        }
+      }
+      return true;
+    };
+
     proto.findUnlockedOceanTileNearShore = function () {
-      const plots = this.unlockedPlots || [];
-      if (!plots.length) return null;
+      const prog = this.getUnlockedOceanProgression();
+      if (!prog.plots.length) return null;
       const existing = Array.isArray(this.worldWhirlpools) ? this.worldWhirlpools : [];
-      for (let tries = 0; tries < 90; tries++) {
-        const [gx, gy] = pick(plots);
+      for (let tries = 0; tries < 110; tries++) {
+        const [gx, gy] = this._pickWeightedUnlockedPlot(prog);
         const tx = gx * PLOT_TILES + randInt(-2, PLOT_TILES + 1);
         const ty = gy * PLOT_TILES + randInt(-2, PLOT_TILES + 1);
         if (!this.isValidWhirlpoolTile(tx, ty)) continue;
 
-        // Require at least 1 unlocked solid land tile within 1..2 tiles (castable from shore, never too deep)
         let nearLand = false;
         let minLandDist = 99;
         for (let oy = -2; oy <= 2; oy++) {
@@ -796,7 +934,49 @@
         const wx = (tx + 0.5) * TILE_SIZE;
         const wy = (ty + 0.5) * TILE_SIZE;
         if (existing.some(wp => wp && dist(wx, wy, wp.x, wp.y) < TILE_SIZE * 2.8)) continue;
-        return { tx, ty, x: wx, y: wy };
+        const zInfo = this.getOceanZoneInfo(tx, ty);
+        return { tx, ty, x: wx, y: wy, zone: zInfo.zone, danger: zInfo.danger, biomeId: zInfo.biomeId, biomeName: zInfo.biomeName };
+      }
+      return null;
+    };
+
+    proto.findOpenOceanEntitySpot = function (kind = 'boss', preferHighZones = true) {
+      const prog = this.getUnlockedOceanProgression();
+      if (!prog.plots.length) return null;
+      const maxShoreTiles = kind === 'ship' ? 2.75 : 3.75;
+      const minShoreTiles = kind === 'ship' ? 1.85 : 2.10;
+
+      for (let tries = 0; tries < 180; tries++) {
+        const [gx, gy] = preferHighZones
+          ? this._pickWeightedUnlockedPlot(prog)
+          : pick(prog.plots);
+        const tx = gx * PLOT_TILES + randInt(-4, PLOT_TILES + 3);
+        const ty = gy * PLOT_TILES + randInt(-4, PLOT_TILES + 3);
+        const wx = (tx + 0.5) * TILE_SIZE;
+        const wy = (ty + 0.5) * TILE_SIZE;
+
+        if (kind === 'ship') {
+          if (!this.isValidGhostShipTile(tx, ty)) continue;
+        } else {
+          if (!this.isValidSeaBossSpot(wx, wy)) continue;
+        }
+
+        // Must be close enough to an unlocked walkable island shore to engage / interact [E] without stranding on grass
+        let minShoreDist = 99;
+        const r = Math.ceil(maxShoreTiles);
+        for (let oy = -r; oy <= r; oy++) {
+          for (let ox = -r; ox <= r; ox++) {
+            const d = Math.hypot(ox, oy);
+            if (d < minShoreTiles || d > maxShoreTiles) continue;
+            const nx = tx + ox, ny = ty + oy;
+            if (this.world.isTileUnlocked(nx, ny) && this.world.tiles[ny] && (this.world.tiles[ny][nx] === 1 || this.world.tiles[ny][nx] === 2)) {
+              if (d < minShoreDist) minShoreDist = d;
+            }
+          }
+        }
+        if (minShoreDist > maxShoreTiles) continue;
+        const zInfo = this.getOceanZoneInfo(tx, ty);
+        return { tx, ty, x: wx, y: wy, zone: zInfo };
       }
       return null;
     };
@@ -804,11 +984,15 @@
     proto.spawnSeaBoss = function (forced = false) {
       const rt = this.ensureV2State();
       if (rt.seaBoss && rt.seaBoss.hp > 0) return false;
-      const spot = this.findUnlockedOceanTileNearShore();
+      const prog = this.getUnlockedOceanProgression();
+      if (!forced && prog.plots.length < 4 && prog.maxZone < 2) return false;
+      const spot = this.findOpenOceanEntitySpot('boss', true);
       if (!spot) return false;
-      const lv = Math.max(1, (this.player && this.player.level) || 1);
-      const hp = Math.round(620 + lv * 55);
-      const tentHp = Math.round(hp * 0.25);
+      const z = spot.zone || this.getOceanZoneInfo(spot.tx, spot.ty);
+      const pLv = Math.max(1, (this.player && this.player.level) || 1);
+      const bossLevel = Math.max(z.level, Math.round(pLv * 0.85));
+      const hp = Math.round(2400 + bossLevel * 380 + z.zone * 900 + z.danger * 420);
+      const tentHp = Math.round(hp * 0.22);
       const tentacles = [
         { ox: -78, oy: 24, hp: tentHp, maxHp: tentHp, atkCd: 2.2 },
         { ox: 78, oy: 24, hp: tentHp, maxHp: tentHp, atkCd: 2.8 },
@@ -816,21 +1000,26 @@
       ];
       rt.seaBoss = {
         id: 'leviatan_marino',
-        name: 'Leviatán Abisal de las Fosas',
+        name: `Leviatán Abisal [Nv.${bossLevel} · ${z.biomeName}]`,
+        level: bossLevel,
+        zone: z.zone,
+        danger: z.danger,
+        biomeId: z.biomeId,
+        biomeName: z.biomeName,
         x: spot.x,
         y: spot.y,
         tx: spot.tx,
         ty: spot.ty,
         hp,
         maxHp: hp,
-        dmg: Math.round(24 + lv * 2.1),
-        ttl: 180,
+        dmg: Math.round(22 + bossLevel * 1.45 + z.zone * 8),
+        ttl: 220,
         atkCd: 2.6,
         tentacles
       };
       if (Abyssea.Audio) Abyssea.Audio.play('portal');
       this.shake(0.45, 8);
-      this.toast('¡ENCUENTRO MARINO! El Leviatán Abisal emerge en la costa. ¡Destruye sus tentáculos y véncelo!', 'warn');
+      this.toast(`¡ENCUENTRO MARINO! El Leviatán Abisal (Nv.${bossLevel}) emerge frente a ${z.biomeName}. ¡Destruye sus tentáculos y véncelo!`, 'warn');
       this.uiDirty = true;
       return true;
     };
@@ -838,24 +1027,40 @@
     // --- A. INTERACTIVE DYNAMIC EVENTS (Ghost Ship, Raids, Abyssal Pulse, Biome Weather) ---
     proto.spawnGhostMerchantShip = function () {
       const rt = this.ensureV2State();
-      const spot = this.findUnlockedOceanTileNearShore();
+      const spot = this.findOpenOceanEntitySpot('ship', true);
       if (!spot) return false;
+      const z = spot.zone || this.getOceanZoneInfo(spot.tx, spot.ty);
+      const shipLevel = z.level;
+      const stock = [
+        { itemId: 'cebo_dorado', price: Math.round(45 + z.zone * 10), qty: 5 },
+        { itemId: 'cebo_volcanico', price: Math.round(65 + z.zone * 12), qty: 4 },
+        { itemId: 'cebo_arcano', price: Math.round(80 + z.zone * 15), qty: 3 + (z.zone >= 3 ? 2 : 0) },
+        { itemId: 'catalizador_reforja', price: Math.round(290 + z.zone * 55), qty: 2 + (z.zone >= 3 ? 1 : 0) },
+        { itemId: 'pergamino_fortuna', price: Math.round(105 + z.zone * 20), qty: 3 },
+        { itemId: 'pet_cangrejo_coral', price: 420, qty: 1 }
+      ];
+      if (z.zone >= 2) {
+        stock.push({ itemId: 'esencia_lunar', price: Math.round(160 + z.zone * 30), qty: 3 });
+        stock.push({ itemId: 'lingote_oro', price: Math.round(90 + z.zone * 18), qty: 4 });
+      }
+      if (z.zone >= 3) {
+        stock.push({ itemId: 'esencia_oscura', price: Math.round(210 + z.zone * 35), qty: 3 });
+        stock.push({ itemId: 'ficha_gremio', price: Math.round(240 + z.zone * 45), qty: 2 });
+      }
       rt.ghostShip = {
         x: spot.x,
         y: spot.y,
         tx: spot.tx,
         ty: spot.ty,
-        ttl: 155,
-        stock: [
-          { itemId: 'cebo_arcano', price: 75, qty: 4 },
-          { itemId: 'cebo_volcanico', price: 65, qty: 4 },
-          { itemId: 'catalizador_reforja', price: 320, qty: 2 },
-          { itemId: 'pergamino_fortuna', price: 110, qty: 3 },
-          { itemId: 'pet_cangrejo_coral', price: 420, qty: 1 }
-        ]
+        level: shipLevel,
+        zone: z.zone,
+        biomeId: z.biomeId,
+        biomeName: z.biomeName,
+        ttl: 170,
+        stock
       };
       if (Abyssea.Audio) Abyssea.Audio.play('portal');
-      this.toast('¡El Barco Fantasma Mercante ha fondeado junto a tus costas por 2.5 min! Acércate y pulsa [E] para comerciar.', 'success');
+      this.toast(`¡Barco Fantasma Mercante (Nv.${shipLevel} · ${z.biomeName}) fondeado en aguas cercanas por 2.8 min! Pulsa [E] desde la orilla.`, 'success');
       this.uiDirty = true;
       return true;
     };
@@ -1234,7 +1439,10 @@
       // Overworld-only encounters (Whirlpools, Ghost Ship, Raids, Sea Boss, Abyssal Night Pulse)
       if (this.activeDungeon || this.activeAquarium) return;
 
-      // Deep Fishing Whirlpools (max 2 active; always scrub any spot that became land after an island expansion)
+      // Deep Fishing Whirlpools (rarer early, higher chance & cap as unlocked biomes/zones advance; always scrubbed off land)
+      const prog = this.getUnlockedOceanProgression();
+      const wpCap = prog.maxZone <= 1 ? 1 : (prog.maxZone <= 2 ? 2 : 3);
+      const wpSpawnChance = clamp(0.30 + (prog.maxZone - 1) * 0.20 + (prog.maxDanger - 1) * 0.02, 0.30, 0.96);
       if (!Array.isArray(this.worldWhirlpools)) this.worldWhirlpools = [];
       for (let i = this.worldWhirlpools.length - 1; i >= 0; i--) {
         const wp = this.worldWhirlpools[i];
@@ -1247,8 +1455,8 @@
       }
       rt.whirlpoolCd -= dt;
       if (rt.whirlpoolCd <= 0) {
-        rt.whirlpoolCd = 42;
-        if (this.worldWhirlpools.length < 2) {
+        rt.whirlpoolCd = 125;
+        if (this.worldWhirlpools.length < wpCap && Math.random() < wpSpawnChance) {
           const spot = this.findUnlockedOceanTileNearShore();
           if (spot) {
             this.worldWhirlpools.push({ ...spot, ttl: 120 });
@@ -1256,10 +1464,21 @@
         }
       }
 
-      // Ghost Merchant Ship lifecycle
+      // Ghost Merchant Ship lifecycle (rarer, scales probability & stock by biome/zone, never overlaps grass)
       if (rt.ghostShip) {
         rt.ghostShip.ttl -= dt;
-        if (rt.ghostShip.ttl <= 0) {
+        const gstx = Number.isFinite(rt.ghostShip.tx) ? rt.ghostShip.tx : Math.floor(rt.ghostShip.x / TILE_SIZE);
+        const gsty = Number.isFinite(rt.ghostShip.ty) ? rt.ghostShip.ty : Math.floor(rt.ghostShip.y / TILE_SIZE);
+        if (!this.isValidGhostShipTile(gstx, gsty)) {
+          const altSpot = this.findOpenOceanEntitySpot('ship', true);
+          if (altSpot) {
+            rt.ghostShip.x = altSpot.x; rt.ghostShip.y = altSpot.y;
+            rt.ghostShip.tx = altSpot.tx; rt.ghostShip.ty = altSpot.ty;
+          } else {
+            rt.ghostShip = null;
+          }
+        }
+        if (rt.ghostShip && rt.ghostShip.ttl <= 0) {
           rt.ghostShip = null;
           this.toast('El Barco Fantasma Mercante ha levado anclas hacia la niebla.', 'info');
           this.uiDirty = true;
@@ -1267,8 +1486,11 @@
       } else {
         rt.ghostShipCd -= dt;
         if (rt.ghostShipCd <= 0) {
-          rt.ghostShipCd = 280;
-          if ((this.unlockedPlots || []).length >= 2) this.spawnGhostMerchantShip();
+          rt.ghostShipCd = 680;
+          const shipChance = clamp(0.36 + (prog.maxZone - 1) * 0.18 + (prog.maxDanger - 1) * 0.015, 0.36, 0.92);
+          if ((prog.plots.length >= 3 || prog.maxZone >= 2) && Math.random() < shipChance) {
+            this.spawnGhostMerchantShip();
+          }
         }
       }
 
@@ -1298,6 +1520,14 @@
       if (rt.seaBoss) {
         const sb = rt.seaBoss;
         sb.ttl -= dt;
+        if (!this.isValidSeaBossSpot(sb.x, sb.y)) {
+          const altSpot = this.findOpenOceanEntitySpot('boss', true);
+          if (altSpot) {
+            sb.x = altSpot.x; sb.y = altSpot.y; sb.tx = altSpot.tx; sb.ty = altSpot.ty;
+          } else {
+            sb.ttl = 0;
+          }
+        }
         sb.atkCd -= dt;
         const dPlayer = dist(this.player.x, this.player.y, sb.x, sb.y);
         if (sb.atkCd <= 0 && dPlayer <= 420) {
@@ -1332,15 +1562,20 @@
         }
         if (sb.hp <= 0) {
           this.stats.seaBossesKilled = (this.stats.seaBossesKilled || 0) + 1;
-          this.addCoins(420 + (this.player.level || 1) * 24);
-          this.addItem('perla_leviatan', 1);
-          this.addItem('ficha_gremio', 2);
-          this.addItem(pick(['mantarraya_celestial', 'tiburon_cristal', 'leviatan_esmeralda']), 1);
-          this.gainXp(320);
+          const bLv = sb.level || (this.player.level || 1);
+          const bZone = sb.zone || 1;
+          const coinReward = 500 + bLv * 35 + bZone * 220;
+          const xpReward = 380 + bLv * 28 + bZone * 160;
+          const tokenReward = 1 + Math.min(4, bZone);
+          this.addCoins(coinReward);
+          this.addItem('perla_leviatan', Math.max(1, Math.min(3, bZone)));
+          this.addItem('ficha_gremio', tokenReward);
+          this.addItem(pick(['mantarraya_celestial', 'tiburon_cristal', 'leviatan_esmeralda', 'celacanto_ancestral']), 1);
+          this.gainXp(xpReward);
           if (Abyssea.Audio) Abyssea.Audio.play('levelup');
           this.spawnShockwave(sb.x, sb.y, 180, '#00e5ff');
           this.spawnParticles(sb.x, sb.y, '#80ffff', 34);
-          this.toast('¡LEVIATÁN ABISAL DERROTADO! Has obtenido Perla del Leviatán, pez exótico y +2 Fichas de Gremio.', 'success');
+          this.toast(`¡LEVIATÁN ABISAL (Nv.${bLv}) DERROTADO! +${coinReward} oro, Perla del Leviatán, pez exótico y +${tokenReward} Fichas de Gremio.`, 'success');
           rt.seaBoss = null;
           this.uiDirty = true;
         } else if (sb.ttl <= 0) {
@@ -1351,8 +1586,11 @@
       } else {
         rt.seaBossCd -= dt;
         if (rt.seaBossCd <= 0) {
-          rt.seaBossCd = 420;
-          if ((this.unlockedPlots || []).length >= 3) this.spawnSeaBoss(false);
+          rt.seaBossCd = 880;
+          const bossChance = clamp(0.38 + (prog.maxZone - 1) * 0.18 + (prog.maxDanger - 1) * 0.015, 0.38, 0.94);
+          if ((prog.plots.length >= 4 || prog.maxZone >= 2) && Math.random() < bossChance) {
+            this.spawnSeaBoss(false);
+          }
         }
       }
 
@@ -1623,7 +1861,8 @@
         ctx.fill();
         ctx.restore();
         drawStrip4(ex.ship_mercader_fantasma_4f, gs.x, gs.y, 144, 144, false);
-        drawWorldLabel(`Barco Fantasma (${Math.ceil(gs.ttl)}s) [E]`, gs.x, gs.y - 68, '#80ffff', 11);
+        const shipLvTag = gs.level ? `Nv.${gs.level} · ` : '';
+        drawWorldLabel(`Barco Fantasma (${shipLvTag}${Math.ceil(gs.ttl)}s) [E]`, gs.x, gs.y - 68, '#80ffff', 11);
       }
 
       // 6. Coastal Leviathan Sea Boss & Destructible Tentacles
@@ -1823,7 +2062,7 @@
       body.appendChild(this.el('div', {
         style: 'background:linear-gradient(135deg,#0c2233,#133b4a);border:2px solid #00e5ff;border-radius:8px;padding:12px;margin-bottom:12px;'
       }, [
-        this.el('strong', { style: 'color:#80ffff;font-size:17px;' }, `Barco Fantasma Mercante — Zarpa en ${Math.ceil(gs.ttl)}s`),
+        this.el('strong', { style: 'color:#80ffff;font-size:17px;' }, `Barco Fantasma Mercante${gs.level ? ` (Nv.${gs.level} · ${gs.biomeName || 'Océano'})` : ''} — Zarpa en ${Math.ceil(gs.ttl)}s`),
         this.el('div', { style: 'font-size:13px;color:#cfd8dc;margin-top:4px;' },
           'Compra cebos exóticos, catalizadores de reforja y sellos de mascotas, o vende tus peces raros y Perlas del Leviatán al doble de precio (2x).')
       ]));

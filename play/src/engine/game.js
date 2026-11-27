@@ -11167,11 +11167,30 @@
           } else if (aImg.width >= aImg.height * 2.5) {
             const fw = aImg.height || 64;
             const frames = Math.max(1, Math.round(aImg.width / fw));
-            const altarFps = n.altarId === 'fuente_sagrada' ? 2.4 : 2.6;
+            const altarFps = n.altarId === 'fuente_sagrada' ? 5.2 : 2.6;
             const fr = Math.floor((this.time * altarFps + (n.id || 0)) % frames);
             const dw = lm.w, dh = lm.w;
             drawnH = dh;
             ctx.drawImage(aImg, fr * fw, 0, fw, aImg.height, Math.round(-dw / 2), Math.round(lm.ry * 0.55 - dh), dw, dh);
+            // Smooth water-only surface ripples & ascending sacred droplets (stone structure never shifts!)
+            if (n.altarId === 'fuente_sagrada') {
+              const basePoolY = Math.round(lm.ry * 0.55 - dh * 0.24);
+              const ripT = (this.time * 1.15 + (n.id || 0) * 0.37) % 1;
+              ctx.save();
+              ctx.strokeStyle = `rgba(178, 235, 242, ${(0.58 * (1 - ripT)).toFixed(2)})`;
+              ctx.lineWidth = 1.4;
+              ctx.beginPath();
+              ctx.ellipse(0, basePoolY, 8 + ripT * 18, 3 + ripT * 5.5, 0, 0, Math.PI * 2);
+              ctx.stroke();
+              for (let d = 0; d < 4; d++) {
+                const dp = ((this.time * 1.4 + d * 0.25 + (n.id || 0) * 0.13) % 1);
+                const dx = Math.sin(this.time * 3.1 + d * 1.9) * (6 + d * 2.5);
+                const dy = Math.round(lm.ry * 0.55 - dh * (0.28 + dp * 0.42));
+                ctx.fillStyle = d % 2 === 0 ? `rgba(224, 247, 250, ${(0.85 * Math.sin(dp * Math.PI)).toFixed(2)})` : `rgba(77, 208, 225, ${(0.8 * Math.sin(dp * Math.PI)).toFixed(2)})`;
+                ctx.fillRect(Math.round(dx), Math.round(dy), 2, 2);
+              }
+              ctx.restore();
+            }
           } else {
             const dw = lm.w;
             const dh = Math.round(dw * (aImg.height / Math.max(1, aImg.width)));
@@ -11901,9 +11920,13 @@
 
       ctx.save();
       ctx.translate(s.x, s.y);
+      const isRabbit = kind === 'conejo' || kind === 'rabbit';
+      const rabbitCycle = ((aT * 2.25) % 1 + 1) % 1;
+      const rabbitArc = isRabbit && moving ? 4 * rabbitCycle * (1 - rabbitCycle) * 10.5 : 0;
+      const shadowScale = isRabbit ? Math.max(0.62, 1 - rabbitArc * 0.032) : 1;
       ctx.fillStyle = 'rgba(0,0,0,0.20)';
       ctx.beginPath();
-      ctx.ellipse(0, 12, kind === 'vaca' ? 18 : kind === 'conejo' || kind === 'pato' ? 10 : 14, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 12, (kind === 'vaca' ? 18 : kind === 'conejo' || kind === 'pato' ? 10 : 14) * shadowScale, 5 * shadowScale, 0, 0, Math.PI * 2);
       ctx.fill();
 
       const okAn = (im) => im && (!Abyssea.Utils.isImgReady || Abyssea.Utils.isImgReady(im));
@@ -11953,9 +11976,36 @@
           drawAnimalStrip(ex.pig_sheet, 42, 42, 0);
         }
       } else if (kind === 'conejo') {
-        const hop = moving ? Math.abs(Math.sin(aT * 7.5)) * 3.5 : 0;
         if (okAn(ex.rabbit_sheet)) {
-          drawAnimalStrip(ex.rabbit_sheet, 30, 30, hop);
+          const rImg = ex.rabbit_sheet;
+          const fw = Math.round(rImg.width / 4) || rImg.height;
+          let rFrame = 0;
+          let rHopY = 0;
+          let rScaleX = 1;
+          let rScaleY = 1;
+          if (moving) {
+            if (rabbitCycle < 0.16) rFrame = 0;
+            else if (rabbitCycle < 0.48) rFrame = 1;
+            else if (rabbitCycle < 0.80) rFrame = 2;
+            else rFrame = 3;
+            rHopY = rabbitArc;
+            const stretch = rabbitCycle < 0.16 ? -0.07 : (rabbitCycle < 0.82 ? 0.09 : -0.06);
+            rScaleX = 1 + stretch * 0.7;
+            rScaleY = 1 - stretch * 0.65;
+          } else {
+            // Idle alert: natural crouch <-> perked ears glance + soft breathing stretch
+            const idleTick = ((aT * 0.9) % 4 + 4) % 4;
+            rFrame = idleTick < 2.2 ? 3 : 0;
+            const breath = Math.sin(aT * 4.2) * 0.035;
+            rScaleX = 1 - breath * 0.5;
+            rScaleY = 1 + breath;
+          }
+          ctx.save();
+          ctx.translate(0, 14 - rHopY);
+          if (faceLeft) ctx.scale(-rScaleX, rScaleY);
+          else ctx.scale(rScaleX, rScaleY);
+          ctx.drawImage(rImg, rFrame * fw, 0, fw, rImg.height, -17, -34, 34, 34);
+          ctx.restore();
         }
       }
 

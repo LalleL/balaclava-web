@@ -2290,7 +2290,24 @@
         } else {
           s.timer -= dt;
           if (s.timer <= 0) {
-            if (Math.random() < 0.68) {
+            if (aKind === 'conejo' || aKind === 'rabbit') {
+              // Rabbits move in brisk playful hops with brief alert pauses instead of steady walking
+              if (Math.random() < 0.56) {
+                s.timer = 0.55 + Math.random() * 0.65;
+                s.grazing = false;
+                s.wanderAngle += (Math.random() - 0.5) * 1.9;
+                s.turnRate = 0;
+                const spd = baseSpd * (1.28 + Math.random() * 0.34);
+                s.targetVx = Math.cos(s.wanderAngle) * spd;
+                s.targetVy = Math.sin(s.wanderAngle) * spd;
+              } else {
+                s.timer = 0.65 + Math.random() * 0.95;
+                s.grazing = Math.random() < 0.45;
+                s.turnRate = 0;
+                s.targetVx = 0;
+                s.targetVy = 0;
+              }
+            } else if (Math.random() < 0.68) {
               // Smooth natural stroll (2.2s - 4.4s)
               s.timer = 2.2 + Math.random() * 2.2;
               s.grazing = false;

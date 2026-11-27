@@ -838,6 +838,84 @@
       }
     }
 
+    _getTauriInvoke() {
+      try {
+        if (window.__TAURI__ && window.__TAURI__.core && typeof window.__TAURI__.core.invoke === 'function') {
+          return window.__TAURI__.core.invoke.bind(window.__TAURI__.core);
+        }
+        if (window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function') {
+          return window.__TAURI_INTERNALS__.invoke.bind(window.__TAURI_INTERNALS__);
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    isDisplayFullscreen() {
+      return Boolean(this._nativeFullscreen || document.fullscreenElement);
+    }
+
+    _syncDisplayModeUi() {
+      const el = document.getElementById('display-mode-readout');
+      if (el) el.textContent = this.isDisplayFullscreen() ? tr('settings.fullscreen') : tr('settings.windowed');
+    }
+
+    async syncNativeFullscreenState() {
+      const invoke = this._getTauriInvoke();
+      if (!invoke) return;
+      try {
+        const fs = await invoke('is_window_fullscreen');
+        this._nativeFullscreen = Boolean(fs);
+        this._syncDisplayModeUi();
+      } catch (_) {}
+    }
+
+    async toggleDisplayMode() {
+      const g = this.game;
+      const invoke = this._getTauriInvoke();
+      if (invoke) {
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen().catch(() => {});
+          }
+          const cur = await invoke('is_window_fullscreen').catch(() => Boolean(this._nativeFullscreen));
+          const next = !cur;
+          await invoke('set_window_fullscreen', { fullscreen: next });
+          this._nativeFullscreen = next;
+          this._syncDisplayModeUi();
+          if (this.hasOpenModal() && (this.activeModal === 'settings' || this.activeModal === 'pause' || this.activeModal === 'title_settings')) {
+            this.renderModal();
+          }
+          return next;
+        } catch (_) {}
+      }
+
+      try {
+        if (document.fullscreenElement) {
+          if (navigator.keyboard && typeof navigator.keyboard.unlock === 'function') {
+            try { navigator.keyboard.unlock(); } catch (_) {}
+          }
+          if (document.exitFullscreen) {
+            const res = document.exitFullscreen();
+            if (res && typeof res.catch === 'function') {
+              res.catch(() => g && g.toast && g.toast(tr('settings.fullscreenError'), 'warn'));
+            }
+          }
+        } else if (document.documentElement && document.documentElement.requestFullscreen) {
+          const res = document.documentElement.requestFullscreen();
+          Promise.resolve(res).then(() => {
+            if (navigator.keyboard && typeof navigator.keyboard.lock === 'function') {
+              navigator.keyboard.lock(['Escape']).catch(() => {});
+            }
+          }).catch(() => g && g.toast && g.toast(tr('settings.fullscreenError'), 'warn'));
+        } else if (g && g.toast) {
+          g.toast(tr('settings.fullscreenError'), 'warn');
+        }
+      } catch (_) {
+        if (g && g.toast) g.toast(tr('settings.fullscreenError'), 'warn');
+      }
+      return this.isDisplayFullscreen();
+    }
+
     executeQuitGame() {
       const g = this.game;
       if (g && g.started && g.saveSys && !(g.isPlayerDead && g.isPlayerDead())) {
@@ -2508,9 +2586,26 @@
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) clearTransient();
       });
+      document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+          if (navigator.keyboard && typeof navigator.keyboard.lock === 'function') {
+            navigator.keyboard.lock(['Escape']).catch(() => {});
+          }
+        } else if (navigator.keyboard && typeof navigator.keyboard.unlock === 'function') {
+          try { navigator.keyboard.unlock(); } catch (_) {}
+        }
+        this._syncDisplayModeUi();
+      });
+      this.syncNativeFullscreenState();
 
       window.addEventListener('keydown', (e) => {
         this.recordPlayerActivity();
+        if (e.code === 'F11' && !this.rebindingAction) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.toggleDisplayMode();
+          return;
+        }
         if (!this.rebindingAction && e.code === 'F9' && e.shiftKey && !e.altKey && g && g.started) {
           e.preventDefault();
           e.stopPropagation();
@@ -2591,6 +2686,7 @@
 
         const kb = this.keybinds || DEFAULT_KEYBINDS;
         if (e.code === 'Escape') {
+          e.preventDefault();
           if (this.hasOpenModal()) {
             if (this.activeModal === 'pause' && this.pauseView === 'settings') {
               this.pauseView = 'root';
@@ -7916,7 +8012,12 @@
         ctx.restore();
       };
 
+      const mapCoinsVal = this.el('span', { id: 'map-coins-readout' }, Abyssea.Utils.formatNum(g.coins));
+      const syncMapCoinsBadge = () => {
+        if (mapCoinsVal) mapCoinsVal.textContent = Abyssea.Utils.formatNum(g.coins);
+      };
       const renderInspector = () => {
+        syncMapCoinsBadge();
         inspectorSlot.innerHTML = '';
         const [sgx, sgy] = this.selectedMapPlot;
         const unlocked = g.world.isPlotUnlocked(sgx, sgy);
@@ -9419,7 +9520,22 @@
         this.el('button', {
           class: 'btn ' + (this.showDungeonAtlas ? 'btn-gold' : 'btn-primary') + ' btn-sm',
           onclick: () => { this.showDungeonAtlas = !this.showDungeonAtlas; renderInspector(); }
-        }, tr('map.dungeonsBtn', { n: Object.keys(Abyssea.DUNGEON_DEFS || {}).length }))
+        }, tr('map.dungeonsBtn', { n: Object.keys(Abyssea.DUNGEON_DEFS || {}).length })),
+        this.el('div', {
+          id: 'map-coins-badge',
+          class: 'map-coins-pill',
+          'data-tip-text': (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Available Gold' : 'Oro disponible',
+          'aria-label': (Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en') ? 'Available Gold' : 'Oro disponible'
+        }, [
+          this.el('img', {
+            class: 'pixel-img',
+            src: encodeURI((Abyssea.UI_URLS && Abyssea.UI_URLS.coin) || this._uiAssetFallback('assets/ui/coin_gold.png')),
+            width: 16,
+            height: 16,
+            alt: ''
+          }),
+          mapCoinsVal
+        ])
       ]);
 
       const legendSvg = (svgInner, label) => {
@@ -10588,29 +10704,12 @@
         ])
       ]);
 
-      const isFullscreen = Boolean(document.fullscreenElement);
+      const isFullscreen = this.isDisplayFullscreen();
       const toggleDisplayMode = () => {
-        try {
-          if (document.fullscreenElement) {
-            if (document.exitFullscreen) {
-              const res = document.exitFullscreen();
-              if (res && typeof res.catch === 'function') {
-                res.catch(() => g.toast && g.toast(tr('settings.fullscreenError'), 'warn'));
-              }
-            }
-          } else if (document.documentElement && document.documentElement.requestFullscreen) {
-            const res = document.documentElement.requestFullscreen();
-            if (res && typeof res.catch === 'function') {
-              res.catch(() => g.toast && g.toast(tr('settings.fullscreenError'), 'warn'));
-            }
-          } else if (g.toast) {
-            g.toast(tr('settings.fullscreenError'), 'warn');
-          }
-        } catch (_) {
-          if (g.toast) g.toast(tr('settings.fullscreenError'), 'warn');
-        }
-        saveSettings();
-        this.renderModal();
+        this.toggleDisplayMode().finally(() => {
+          saveSettings();
+          if (this.hasOpenModal()) this.renderModal();
+        });
       };
       const displayCarousel = this.el('div', { class: 'water-carousel-row compact-speed' }, [
         this.el('span', { class: 'carousel-row-label' }, tr('settings.displayMode')),

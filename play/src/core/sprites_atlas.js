@@ -2392,7 +2392,7 @@
       'dinastia_arena_1','dinastia_arena_2',
       'glaciar_profundo_1','necropolis_osea_1','tierras_malditas_1'
     ];
-    v14TreeIds.forEach((tid) => { EX['tree_v14_' + tid] = TRP + tid + '_4f.png?v=2.0.5'; });
+    v14TreeIds.forEach((tid) => { EX['tree_v14_' + tid] = TRP + tid + '_4f.png?v=2.0.6'; });
 
     // v15 Unified Sprite Sets: Flora, Crops + Tilled Soil, Proportional Altars & Secrets, Animated Animals, Water Foam & Bridges
     const FP = 'assets/icons_tiers_v14/flora/';
@@ -2439,6 +2439,7 @@
     ].forEach((k) => { EX[k] = ALP + k + V15Q; });
     EX.altar_gold = EX.altar_fortuna;
     EX.altar_dark = EX.altar_furia;
+    EX.fuente_sagrada = ALP + 'fuente_sagrada.png?v=2.0.6';
     EX.healing_fountain = EX.fuente_sagrada;
     EX.altar_shrine = EX.altar_sabio;
     EX.altar_ritual = EX.altar_sacrificio;
@@ -2457,7 +2458,7 @@
     EX.sheep_farm_sheet = ANP + 'animal_sheep_4f' + V15Q;
     EX.sheep_pf_sheet = EX.sheep_farm_sheet;
     EX.pig_sheet = ANP + 'animal_pig_4f' + V15Q;
-    EX.rabbit_sheet = ANP + 'animal_rabbit_4f' + V15Q;
+    EX.rabbit_sheet = ANP + 'animal_rabbit_4f.png?v=2.0.6';
     EX.duck_sheet = ANP + 'animal_duck_4f' + V15Q;
     EX.animal_cow = EX.cow_sheet;
     EX.animal_pig = EX.pig_sheet;
