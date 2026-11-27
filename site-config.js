@@ -20,8 +20,8 @@ window.BALACLAVA_SITE_CONFIG = {
 
   // 4. Datos técnicos del archivo descargable
   fileName: 'abyssea.exe',
-  fileSizeEs: '86.12 MB',
-  fileSizeEn: '86.12 MB',
+  fileSizeEs: '86.00 MB',
+  fileSizeEn: '86.00 MB',
   releaseDateEs: '26 Nov 2026',
   releaseDateEn: 'Nov 26, 2026',
   platformLabel: 'Windows 10 / 11 (64-bit · Tauri 2)',
