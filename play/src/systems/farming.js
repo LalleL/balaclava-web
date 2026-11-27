@@ -490,8 +490,10 @@
           y: wy
         }
       ];
-      const ambPool = ['anchoa', 'pez_azul', 'pez_comun', 'pez_payaso'];
-      const extraFishCount = 1 + (Math.random() < 0.45 ? 1 : 0);
+      const ambPool = nearWhirlpool
+        ? ['mantarraya_celestial', 'tiburon_cristal', 'koi_solar_mitico', 'pez_dorado', 'pez_payaso']
+        : ['anchoa', 'pez_azul', 'pez_comun', 'pez_payaso'];
+      const extraFishCount = nearWhirlpool ? 3 : (1 + (Math.random() < 0.45 ? 1 : 0));
       for (let k = 0; k < extraFishCount; k++) {
         shadows.push({
           id: pick(ambPool),
@@ -499,10 +501,10 @@
           ang: Math.random() * Math.PI * 2,
           dist: 24 + Math.random() * 16,
           speed: (Math.random() < 0.5 ? 1 : -1) * (0.55 + Math.random() * 0.35),
-          depth: 0.78,
+          depth: nearWhirlpool ? 0.45 : 0.78,
           wiggle: Math.random() * Math.PI * 2,
           wiggleSpeed: 7 + Math.random() * 3,
-          size: 0.82,
+          size: nearWhirlpool ? 0.96 : 0.82,
           fleeing: false,
           x: wx,
           y: wy
@@ -522,6 +524,7 @@
         wx, wy,
         biome,
         spotNode,
+        inWhirlpool: Boolean(nearWhirlpool),
         baitId,
         luck: effectiveLuck,
         targetFish,

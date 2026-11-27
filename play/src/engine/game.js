@@ -4341,12 +4341,17 @@
         const tx = Math.floor(wx / TILE_SIZE);
         const ty = Math.floor(wy / TILE_SIZE);
         const fSpot = this.world.nodes.find(n => n.kind === 'fish_spot' && dist(n.x, n.y, wx, wy) < 42);
+        const wpHit = (typeof this.getWhirlpoolNear === 'function') ? this.getWhirlpoolNear(wx, wy, 56) : null;
+        const wpValid = Boolean(wpHit && (typeof this.isValidWhirlpoolTile !== 'function' || this.isValidWhirlpoolTile(wpHit.tx ?? Math.floor(wpHit.x / TILE_SIZE), wpHit.ty ?? Math.floor(wpHit.y / TILE_SIZE))));
+        const castX = wpValid ? wpHit.x : wx;
+        const castY = wpValid ? wpHit.y : wy;
         const pond = this.getBuildingAtTile(tx, ty);
-        const isWater = (this.world.tiles[ty] && this.world.tiles[ty][tx] === 0) || (pond && pond.type === 'estanque');
+        const isWater = wpValid || (this.world.tiles[ty] && this.world.tiles[ty][tx] === 0) || (pond && pond.type === 'estanque');
+        const castReach = wpValid ? Math.max(reach + 44, 152) : (reach + 12);
         if (this.farming.fishing) {
-          this.farming.startFishing(this, wx, wy, fSpot);
-        } else if ((isWater || fSpot) && dist(this.player.x, this.player.y, wx, wy) <= reach + 12) {
-          this.farming.startFishing(this, wx, wy, fSpot);
+          this.farming.startFishing(this, castX, castY, fSpot);
+        } else if ((isWater || fSpot) && dist(this.player.x, this.player.y, castX, castY) <= castReach) {
+          this.farming.startFishing(this, castX, castY, fSpot);
         } else {
           this.addFloatingText(this.player.x, this.player.y - 26, Abyssea.I18n ? Abyssea.I18n.t('toast.aimWater') : 'Apunta al agua o estanque cercano', '#81d4fa');
         }
@@ -9241,6 +9246,9 @@
         }
       }
 
+      // Deep Fishing Whirlpools draw directly on the ocean surface BEFORE land overhangs, fish, bobber & player
+      if (typeof this.renderV2WaterEntities === 'function') this.renderV2WaterEntities(ctx);
+
       for (let ty = minTy; ty <= maxTy; ty++) {
         for (let tx = minTx; tx <= maxTx; tx++) {
           const gx = Math.floor(tx / PLOT_TILES);
@@ -9473,14 +9481,25 @@
             : 0;
 
       const fDir = (this.player && this.player.dir) || ((this.player && this.player.facing < 0) ? 'left' : 'right');
-      let rodOffX = (this.player && this.player.facing >= 0 ? 1 : -1) * 28;
-      let rodOffY = -12;
-      if (fDir === 'down') { rodOffX = 4; rodOffY = 18; }
-      else if (fDir === 'up') { rodOffX = 6; rodOffY = -28; }
+      let rodOffX = (fDir === 'left' || (this.player && this.player.facing < 0 && fDir !== 'right')) ? -44 : 44;
+      let rodOffY = 0;
+      if (fDir === 'down') { rodOffX = 0; rodOffY = 42; }
+      else if (fDir === 'up') { rodOffX = 5; rodOffY = -50; }
+      if (f.phase === 'cast') {
+        const cp = clamp(1 - (f.timer || 0) / Math.max(0.05, f.maxTimer || 0.38), 0, 1);
+        rodOffX = Math.round(rodOffX * (0.45 + 0.55 * cp));
+        rodOffY = Math.round(rodOffY - Math.sin(cp * Math.PI) * 26);
+      }
       const px = Math.round(this.player.x + rodOffX);
       const py = Math.round(this.player.y + rodOffY);
       const bobX = Math.round(bx);
       const bobY = Math.round(by + bob);
+
+      // Subtle rod-tip ferrule highlight so the line anchor pops cleanly over bright water/whirlpools
+      ctx.fillStyle = '#5d4037';
+      ctx.fillRect(px - 2, py - 2, 4, 4);
+      ctx.fillStyle = '#ffe082';
+      ctx.fillRect(px - 1, py - 1, 2, 2);
 
       // 1. Taut Pixel-Art Fishing Line
       const midX = (px + bobX) * 0.5;
@@ -9555,12 +9574,18 @@
             ctx.translate(sx, sy);
             ctx.rotate(heading + wiggle);
             if (Math.cos(heading) < 0) ctx.scale(1, -1);
-            const depthAlpha = clamp(0.48 + (1 - (s.depth || 0.6)) * 0.48, 0.35, 0.96);
+            const isWhirlFish = Boolean(f.inWhirlpool || img.naturalWidth >= 96);
+            const depthAlpha = f.inWhirlpool
+              ? clamp(0.68 + (1 - (s.depth || 0.5)) * 0.32, 0.55, 0.98)
+              : clamp(0.48 + (1 - (s.depth || 0.6)) * 0.48, 0.35, 0.96);
             ctx.globalAlpha = depthAlpha;
-            const fsz = Math.round(16 * (s.size || 1));
+            const baseFishPx = f.inWhirlpool ? (s.isTarget ? 22 : 17) : 16;
+            const fsz = Math.round(baseFishPx * (s.size || 1));
+            ctx.imageSmoothingEnabled = isWhirlFish;
+            if (isWhirlFish) ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(img, -fsz / 2, -fsz / 2, fsz, fsz);
             // Subtle aquatic caustics shimmer
-            ctx.fillStyle = 'rgba(64, 196, 255, 0.15)';
+            ctx.fillStyle = f.inWhirlpool ? 'rgba(128, 240, 255, 0.16)' : 'rgba(64, 196, 255, 0.15)';
             ctx.fillRect(-fsz / 2, -fsz / 2, fsz, fsz);
             ctx.restore();
           } else {
@@ -9837,6 +9862,7 @@
       const flowerPalettes = FLORA_FLOWER_PALETTES;
 
       ctx.save();
+
       for (let ty = minTy; ty <= maxTy; ty++) {
         for (let tx = minTx; tx <= maxTx; tx++) {
           if (!this.world.isTileUnlocked(tx, ty)) continue;

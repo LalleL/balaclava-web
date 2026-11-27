@@ -748,28 +748,55 @@
       return this.worldWhirlpools.find(wp => dist(wx, wy, wp.x, wp.y) <= radius) || null;
     };
 
+    proto.isValidWhirlpoolTile = function (tx, ty) {
+      if (!this.world || !Array.isArray(this.world.tiles)) return false;
+      const gridT = (Abyssea.CONST.GRID_PLOTS || 19) * PLOT_TILES;
+      if (tx < 1 || ty < 1 || tx >= gridT - 1 || ty >= gridT - 1) return false;
+      if (!this.world.tiles[ty] || this.world.tiles[ty][tx] !== 0) return false;
+
+      // Require open ocean (at least 3 orthogonal neighbors must also be ocean) so it never perches inside grass coves
+      let waterOrth = 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        if (this.world.tiles[ty + dy] && this.world.tiles[ty + dy][tx + dx] === 0) waterOrth++;
+      }
+      if (waterOrth < 3) return false;
+
+      // Also avoid solid world nodes/buildings overlapping the spot
+      if (typeof this.getBuildingAtTile === 'function' && this.getBuildingAtTile(tx, ty)) return false;
+      if (Array.isArray(this.world.nodes) && this.world.nodes.some(n => n && n.tx === tx && n.ty === ty)) return false;
+      return true;
+    };
+
     proto.findUnlockedOceanTileNearShore = function () {
       const plots = this.unlockedPlots || [];
       if (!plots.length) return null;
-      const gridT = (Abyssea.CONST.GRID_PLOTS || 19) * PLOT_TILES;
-      for (let tries = 0; tries < 40; tries++) {
+      const existing = Array.isArray(this.worldWhirlpools) ? this.worldWhirlpools : [];
+      for (let tries = 0; tries < 90; tries++) {
         const [gx, gy] = pick(plots);
         const tx = gx * PLOT_TILES + randInt(-2, PLOT_TILES + 1);
         const ty = gy * PLOT_TILES + randInt(-2, PLOT_TILES + 1);
-        if (tx < 1 || ty < 1 || tx >= gridT - 1 || ty >= gridT - 1) continue;
-        if (this.world.tiles[ty] && this.world.tiles[ty][tx] === 0) {
-          // Ensure adjacent to unlocked land within 3 tiles so player can reach or cast into it
-          let nearLand = false;
-          for (let oy = -3; oy <= 3 && !nearLand; oy++) {
-            for (let ox = -3; ox <= 3 && !nearLand; ox++) {
-              const nx = tx + ox, ny = ty + oy;
-              if (this.world.isTileUnlocked(nx, ny) && this.world.tiles[ny] && this.world.tiles[ny][nx] === 1) {
-                nearLand = true;
-              }
+        if (!this.isValidWhirlpoolTile(tx, ty)) continue;
+
+        // Require at least 1 unlocked solid land tile within 1..2 tiles (castable from shore, never too deep)
+        let nearLand = false;
+        let minLandDist = 99;
+        for (let oy = -2; oy <= 2; oy++) {
+          for (let ox = -2; ox <= 2; ox++) {
+            const d = Math.hypot(ox, oy);
+            if (d === 0 || d > 2.25) continue;
+            const nx = tx + ox, ny = ty + oy;
+            if (this.world.isTileUnlocked(nx, ny) && this.world.tiles[ny] && (this.world.tiles[ny][nx] === 1 || this.world.tiles[ny][nx] === 2)) {
+              nearLand = true;
+              if (d < minLandDist) minLandDist = d;
             }
           }
-          if (nearLand) return { tx, ty, x: (tx + 0.5) * TILE_SIZE, y: (ty + 0.5) * TILE_SIZE };
         }
+        if (!nearLand || minLandDist < 0.9) continue;
+
+        const wx = (tx + 0.5) * TILE_SIZE;
+        const wy = (ty + 0.5) * TILE_SIZE;
+        if (existing.some(wp => wp && dist(wx, wy, wp.x, wp.y) < TILE_SIZE * 2.8)) continue;
+        return { tx, ty, x: wx, y: wy };
       }
       return null;
     };
@@ -1207,7 +1234,17 @@
       // Overworld-only encounters (Whirlpools, Ghost Ship, Raids, Sea Boss, Abyssal Night Pulse)
       if (this.activeDungeon || this.activeAquarium) return;
 
-      // Deep Fishing Whirlpools (max 2 active)
+      // Deep Fishing Whirlpools (max 2 active; always scrub any spot that became land after an island expansion)
+      if (!Array.isArray(this.worldWhirlpools)) this.worldWhirlpools = [];
+      for (let i = this.worldWhirlpools.length - 1; i >= 0; i--) {
+        const wp = this.worldWhirlpools[i];
+        const wtx = Number.isFinite(wp?.tx) ? wp.tx : Math.floor((wp?.x || 0) / TILE_SIZE);
+        const wty = Number.isFinite(wp?.ty) ? wp.ty : Math.floor((wp?.y || 0) / TILE_SIZE);
+        wp.ttl -= dt;
+        if (wp.ttl <= 0 || !this.isValidWhirlpoolTile(wtx, wty)) {
+          this.worldWhirlpools.splice(i, 1);
+        }
+      }
       rt.whirlpoolCd -= dt;
       if (rt.whirlpoolCd <= 0) {
         rt.whirlpoolCd = 42;
@@ -1217,10 +1254,6 @@
             this.worldWhirlpools.push({ ...spot, ttl: 120 });
           }
         }
-      }
-      for (let i = this.worldWhirlpools.length - 1; i >= 0; i--) {
-        this.worldWhirlpools[i].ttl -= dt;
-        if (this.worldWhirlpools[i].ttl <= 0) this.worldWhirlpools.splice(i, 1);
       }
 
       // Ghost Merchant Ship lifecycle
@@ -1446,6 +1479,34 @@
       return false;
     };
 
+    // --- OCEAN SURFACE LAYER (renders BEFORE terrain overhangs, fish, bobber & player) ---
+    proto.renderV2WaterEntities = function (ctx) {
+      if (this.activeDungeon || this.activeAquarium) return;
+      const wps = this.worldWhirlpools;
+      if (!Array.isArray(wps) || wps.length === 0) return;
+      const ex = (Abyssea.Assets && Abyssea.Assets.extraImages) || {};
+      const img = ex.sea_whirlpool_4f;
+      if (!img || !img.complete || img.naturalWidth <= 0) return;
+      const fw = Math.round(img.naturalWidth / 4);
+      const fh = img.naturalHeight;
+      const fIdx = Math.floor(this.time * 4.2) % 4;
+      for (let i = 0; i < wps.length; i++) {
+        const wp = wps[i];
+        const wtx = Number.isFinite(wp?.tx) ? wp.tx : Math.floor((wp?.x || 0) / TILE_SIZE);
+        const wty = Number.isFinite(wp?.ty) ? wp.ty : Math.floor((wp?.y || 0) / TILE_SIZE);
+        if (!this.isValidWhirlpoolTile(wtx, wty)) continue;
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        ctx.translate(wp.x, wp.y);
+        // Subtle 2.5D animated scale breath matching ocean currents
+        const pulse = 1 + Math.sin(this.time * 3.1 + i * 1.7) * 0.035;
+        const dw = Math.round(68 * pulse);
+        const dh = Math.round(50 * pulse);
+        ctx.drawImage(img, fIdx * fw, 0, fw, fh, -dw / 2, -dh / 2, dw, dh);
+        ctx.restore();
+      }
+    };
+
     // --- WORLD RENDER LAYER FOR V2 ENTITIES (Pets, Specialist Villagers, Ghost Ship, Whirlpools, Sea Boss, Cosmetics, Relocator) ---
     proto.renderV2WorldEntities = function (ctx) {
       const rt = this.ensureV2State();
@@ -1540,10 +1601,15 @@
 
       if (this.activeDungeon || this.activeAquarium) return;
 
-      // 4. Deep Fishing Whirlpools
+      // 4. Deep Fishing Whirlpool subtle label (vortex sprite itself draws inside renderV2WaterEntities beneath fish/bobber/player)
+      const activeFish = this.farming && this.farming.fishing;
+      const isEnLang = Abyssea.I18n && Abyssea.I18n.getLanguage && Abyssea.I18n.getLanguage() === 'en';
       for (const wp of this.worldWhirlpools) {
-        drawStrip4(ex.sea_whirlpool_4f, wp.x, wp.y, 76, 76, false);
-        drawWorldLabel('Pesca Profunda', wp.x, wp.y - 42, '#e0ffff', 10);
+        if (!this.isValidWhirlpoolTile(wp.tx ?? Math.floor(wp.x / TILE_SIZE), wp.ty ?? Math.floor(wp.y / TILE_SIZE))) continue;
+        const fishingHere = Boolean(activeFish && dist(activeFish.wx, activeFish.wy, wp.x, wp.y) <= 68);
+        if (!fishingHere) {
+          drawWorldLabel(isEnLang ? 'Deep Fishing' : 'Pesca Profunda', wp.x, wp.y - 28, '#e0ffff', 10);
+        }
       }
 
       // 5. Wandering Ghost Merchant Ship

@@ -7604,18 +7604,33 @@
       const workspace = this.el('div', { class: 'map-workspace' });
       const boardWrap = this.el('div', { class: 'map-board-wrap' });
 
-      const MAP_WORLD_SZ = 1200;
+      const MAP_WORLD_SZ = 1216; // 19 * 64 logical units; static layer renders at 3x (3648x3648 = exact 16x16 px per tile!)
+      const STATIC_TILE_PX = 16;
+      const STATIC_PLOT_PX = PLOT_TILES * STATIC_TILE_PX; // 192px per plot
+      const STATIC_WORLD_SZ = GRID_PLOTS * STATIC_PLOT_PX; // 3648px total
       const getPlotCenterPx = (gx, gy) => {
         const plotSz = MAP_WORLD_SZ / GRID_PLOTS;
         return { x: (gx + 0.5) * plotSz, y: (gy + 0.5) * plotSz };
       };
 
-      const viewW = Math.max(640, (typeof window !== 'undefined' ? window.innerWidth : 1280) - 380);
-      const viewH = Math.max(480, (typeof window !== 'undefined' ? window.innerHeight : 800) - 70);
+      const getMapCssSizeAndDpr = () => {
+        const w = boardWrap.clientWidth || Math.max(640, (typeof window !== 'undefined' ? window.innerWidth : 1280) - 370);
+        const h = boardWrap.clientHeight || Math.max(480, (typeof window !== 'undefined' ? window.innerHeight : 800) - 62);
+        const rawDpr = (typeof window !== 'undefined' && Number.isFinite(window.devicePixelRatio)) ? window.devicePixelRatio : 1;
+        // Minimum 2x supersampling ensures razor-sharp HD map icons, portraits & text on 1080p and HiDPI displays
+        const dpr = Math.max(1.75, Math.min(2.5, rawDpr >= 1.5 ? rawDpr : rawDpr * 2));
+        return { w, h, dpr };
+      };
+      const initView = getMapCssSizeAndDpr();
+      const viewW = initView.w;
+      const viewH = initView.h;
       const mapCanvas = document.createElement('canvas');
       mapCanvas.id = 'world-map-canvas';
-      mapCanvas.width = viewW;
-      mapCanvas.height = viewH;
+      mapCanvas._cssW = viewW;
+      mapCanvas._cssH = viewH;
+      mapCanvas._dpr = initView.dpr;
+      mapCanvas.width = Math.round(viewW * initView.dpr);
+      mapCanvas.height = Math.round(viewH * initView.dpr);
 
       const fitZoom = Abyssea.Utils.clamp(Math.min((viewW - 40) / MAP_WORLD_SZ, (viewH - 40) / MAP_WORLD_SZ), 0.45, 1.35);
       if (!this.mapZoom || this.mapZoom < 0.45) this.mapZoom = Math.max(0.92, fitZoom * 1.25);
@@ -7757,7 +7772,8 @@
       const drawMapPin = (ctx, x, y, kind, opts = {}) => {
         ctx.save();
         ctx.imageSmoothingEnabled = true;
-        const r = opts.r || 6.5;
+        ctx.imageSmoothingQuality = 'high';
+        const r = opts.r || 9;
 
         // Soft drop shadow for clean map readability
         ctx.fillStyle = 'rgba(4, 10, 20, 0.55)';
@@ -8264,7 +8280,11 @@
           const aspect = fw / Math.max(1, bImg.height);
           const sW = bw * (def.visualScale || 1.15);
           const sH = sW / aspect;
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(bImg, 0, 0, fw, bImg.height, cx - sW / 2, cy - sH / 2, sW, sH);
+          ctx.restore();
         } else {
           // 3. Minecraft-style high-detail architectural isometric miniature
           const type = b.type;
@@ -8422,23 +8442,26 @@
         }
       };
 
-      // Offscreen static world-map layer cache (rebuilds only when world state changes; pan/zoom/skill FX stay locked at 60 FPS!)
+      // Offscreen high-res static world-map layer cache (3648x3648 = exact 16x16 px/tile -> crisp up to 280% zoom!)
       let mapStaticCanvas = null;
       let mapStaticKey = '';
       let mapAdjPlotsCache = [];
+      let mapPinsCache = [];
       let cachedOceanGrad = null;
       let cachedOceanW = 0;
       let cachedOceanH = 0;
 
-      const rebuildMapStaticLayer = (plotPx, tilePx) => {
+      const rebuildMapStaticLayer = () => {
+        const sTile = STATIC_TILE_PX;
         if (!mapStaticCanvas) {
           mapStaticCanvas = document.createElement('canvas');
-          mapStaticCanvas.width = MAP_WORLD_SZ;
-          mapStaticCanvas.height = MAP_WORLD_SZ;
+          mapStaticCanvas.width = STATIC_WORLD_SZ;
+          mapStaticCanvas.height = STATIC_WORLD_SZ;
         }
         const sctx = mapStaticCanvas.getContext('2d');
-        sctx.imageSmoothingEnabled = false;
-        sctx.clearRect(0, 0, MAP_WORLD_SZ, MAP_WORLD_SZ);
+        sctx.imageSmoothingEnabled = true;
+        sctx.imageSmoothingQuality = 'high';
+        sctx.clearRect(0, 0, STATIC_WORLD_SZ, STATIC_WORLD_SZ);
 
         const terraformedSet = new Set();
         const tfList = g.world.terraformedTiles || [];
@@ -8449,11 +8472,20 @@
 
         const maxTiles = (typeof WORLD_TILES !== 'undefined' ? WORLD_TILES : GRID_PLOTS * PLOT_TILES);
         const cliffColors = {
-          pradera:            { top: '#5d4037', mid: '#4e342e', shadow: 'rgba(10,30,45,0.45)' },
-          desierto:           { top: '#8d6e3f', mid: '#6d4c23', shadow: 'rgba(10,30,45,0.45)' },
-          bosque_oscuro:      { top: '#4a3f5c', mid: '#2f243d', shadow: 'rgba(8,12,24,0.48)' },
-          montanas_heladas:   { top: '#607d8b', mid: '#37474f', shadow: 'rgba(10,25,40,0.50)' },
-          tierras_volcanicas: { top: '#5c261f', mid: '#33120e', shadow: 'rgba(8,6,12,0.55)' }
+          pradera:            { top: '#5d4037', mid: '#4e342e', shadow: 'rgba(10,30,45,0.42)' },
+          desierto:           { top: '#8d6e3f', mid: '#6d4c23', shadow: 'rgba(10,30,45,0.42)' },
+          bosque_oscuro:      { top: '#4a3f5c', mid: '#2f243d', shadow: 'rgba(8,12,24,0.46)' },
+          montanas_heladas:   { top: '#607d8b', mid: '#37474f', shadow: 'rgba(10,25,40,0.48)' },
+          tierras_volcanicas: { top: '#5c261f', mid: '#33120e', shadow: 'rgba(8,6,12,0.52)' },
+          archipielago_coral: { top: '#8a4c56', mid: '#5f2d38', shadow: 'rgba(10,30,48,0.44)' },
+          cavernas_cristal:   { top: '#43386b', mid: '#281f48', shadow: 'rgba(8,10,28,0.48)' },
+          selva_esmeralda:    { top: '#3c562c', mid: '#26381c', shadow: 'rgba(8,22,26,0.46)' },
+          caldera_ceniza:     { top: '#4c2620', mid: '#2a1310', shadow: 'rgba(8,6,10,0.52)' },
+          dinastia_arena:     { top: '#7f5b28', mid: '#593d18', shadow: 'rgba(10,24,38,0.44)' },
+          glaciar_profundo:   { top: '#3f6a86', mid: '#24465e', shadow: 'rgba(6,20,38,0.48)' },
+          cienaga_putrida:    { top: '#384b2c', mid: '#212e1a', shadow: 'rgba(6,16,20,0.48)' },
+          necropolis_osea:    { top: '#434354', mid: '#282834', shadow: 'rgba(6,8,18,0.50)' },
+          tierras_malditas:   { top: '#542038', mid: '#331022', shadow: 'rgba(8,4,14,0.52)' }
         };
         const getMapVisualBiome = (tx, ty, fallbackBiome) => (
           g.world.getVisualBiomeAtTile ? g.world.getVisualBiomeAtTile(tx, ty) : fallbackBiome
@@ -8509,21 +8541,59 @@
           if (p) npcByPlot.set(p[1] * GRID_PLOTS + p[0], npc);
         }
 
-        const bridgeImg = (Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.bridge_h_mid)
+        const bridgeHImg = (Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.bridge_h_mid)
           || (Abyssea.Assets && Abyssea.Assets.get && Abyssea.Assets.get('bridge_h_mid'));
-        const bridgeReady = !!(bridgeImg && bridgeImg.complete && bridgeImg.naturalWidth > 0);
+        const bridgeVImg = (Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.bridge_v_mid)
+          || (Abyssea.Assets && Abyssea.Assets.get && Abyssea.Assets.get('bridge_v_mid'));
+        const bridgeHReady = !!(bridgeHImg && bridgeHImg.complete && bridgeHImg.naturalWidth > 0);
+        const bridgeVReady = !!(bridgeVImg && bridgeVImg.complete && bridgeVImg.naturalWidth > 0);
         const soilImg = Abyssea.Assets && Abyssea.Assets.extraImages && Abyssea.Assets.extraImages.tilled_soil;
         const soilReady = !!(soilImg && soilImg.complete && soilImg.naturalWidth > 0);
         const clearedSet = new Set(g.clearedDungeons || []);
         mapAdjPlotsCache = [];
+        mapPinsCache = [];
+        const logicalPlotPx = MAP_WORLD_SZ / GRID_PLOTS;
+        const logicalTilePx = logicalPlotPx / PLOT_TILES;
+
+        // Pass 1: Continuous shallow coastal water glow & surf rim hugging unlocked land across plot borders
+        for (let gy = 0; gy < GRID_PLOTS; gy++) {
+          for (let gx = 0; gx < GRID_PLOTS; gx++) {
+            const unlocked = g.world.isPlotUnlocked(gx, gy);
+            const checkCoast = unlocked ||
+              g.world.isPlotUnlocked(gx - 1, gy) || g.world.isPlotUnlocked(gx + 1, gy) ||
+              g.world.isPlotUnlocked(gx, gy - 1) || g.world.isPlotUnlocked(gx, gy + 1);
+            if (!checkCoast) continue;
+            for (let ly = 0; ly < PLOT_TILES; ly++) {
+              for (let lx = 0; lx < PLOT_TILES; lx++) {
+                const tx = gx * PLOT_TILES + lx;
+                const ty = gy * PLOT_TILES + ly;
+                if (isLand(tx, ty)) continue;
+                const adjN = isLand(tx, ty - 1);
+                const adjS = isLand(tx, ty + 1);
+                const adjW = isLand(tx - 1, ty);
+                const adjE = isLand(tx + 1, ty);
+                if (adjN || adjS || adjW || adjE) {
+                  const rx = tx * sTile;
+                  const ry = ty * sTile;
+                  sctx.fillStyle = 'rgba(120, 212, 240, 0.20)';
+                  sctx.fillRect(rx, ry, sTile, sTile);
+                  if (adjN) {
+                    sctx.fillStyle = 'rgba(220, 248, 255, 0.50)';
+                    sctx.fillRect(rx, ry, sTile, 3);
+                  }
+                }
+              }
+            }
+          }
+        }
 
         for (let gy = 0; gy < GRID_PLOTS; gy++) {
           for (let gx = 0; gx < GRID_PLOTS; gx++) {
             const unlocked = g.world.isPlotUnlocked(gx, gy);
             const biomeId = g.world.plotBiomes[gy][gx];
             const biome = BIOMES[biomeId];
-            const px0 = gx * plotPx;
-            const py0 = gy * plotPx;
+            const px0 = gx * logicalPlotPx;
+            const py0 = gy * logicalPlotPx;
             const pidx = gy * GRID_PLOTS + gx;
 
             if (unlocked) {
@@ -8533,37 +8603,32 @@
                   const tx = gx * PLOT_TILES + lx;
                   const ty = gy * PLOT_TILES + ly;
                   const t = g.world.tiles[ty]?.[tx] ?? 0;
-                  const rx = px0 + lx * tilePx;
-                  const ry = py0 + ly * tilePx;
-                  const rw = Math.ceil(tilePx) + 0.5;
-                  const rh = Math.ceil(tilePx) + 0.5;
+                  if (t === 0) continue;
+                  const rx = tx * sTile;
+                  const ry = ty * sTile;
 
-                  if (t === 0) {
-                    const isShallow = isLand(tx, ty - 1) || isLand(tx, ty + 1) || isLand(tx - 1, ty) || isLand(tx + 1, ty);
-                    if (isShallow) {
-                      sctx.fillStyle = 'rgba(135, 218, 240, 0.20)';
-                      sctx.fillRect(rx, ry, rw, rh);
-                      if (isLand(tx, ty - 1)) {
-                        sctx.fillStyle = 'rgba(220, 246, 255, 0.52)';
-                        sctx.fillRect(rx, ry, rw, 1.4);
-                      }
-                    }
-                  } else if (t === 3) {
-                    if (bridgeReady) {
-                      sctx.drawImage(bridgeImg, 0, 0, bridgeImg.width, bridgeImg.height, rx, ry, rw, rh);
+                  if (t === 3) {
+                    const isBrV = (g.world.tiles[ty - 1]?.[tx] === 3 || g.world.tiles[ty + 1]?.[tx] === 3) &&
+                                  !(g.world.tiles[ty]?.[tx - 1] === 3 || g.world.tiles[ty]?.[tx + 1] === 3);
+                    if (isBrV && bridgeVReady) {
+                      sctx.drawImage(bridgeVImg, 0, 0, bridgeVImg.width, bridgeVImg.height, rx, ry, sTile, sTile);
+                    } else if (!isBrV && bridgeHReady) {
+                      sctx.drawImage(bridgeHImg, 0, 0, bridgeHImg.width, bridgeHImg.height, rx, ry, sTile, sTile);
                     } else {
+                      sctx.fillStyle = '#8d5524';
+                      sctx.fillRect(rx, ry, sTile, sTile);
                       sctx.fillStyle = '#b46e3c';
-                      sctx.fillRect(rx, ry, rw, rh);
+                      sctx.fillRect(rx + 1, ry + 1, sTile - 2, sTile - 2);
                     }
                   } else if (t === 4) {
                     sctx.fillStyle = '#3b2421';
-                    sctx.fillRect(rx, ry, rw, rh);
+                    sctx.fillRect(rx, ry, sTile, sTile);
                     sctx.fillStyle = '#180a0c';
-                    sctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
+                    sctx.fillRect(rx + 1, ry + 1, sTile - 2, sTile - 2);
                     sctx.fillStyle = '#c62828';
-                    sctx.fillRect(rx + 1.5, ry + 2.2, rw - 3, rh - 3.5);
+                    sctx.fillRect(rx + 2, ry + 3, sTile - 4, sTile - 5);
                     sctx.fillStyle = '#ff8f00';
-                    sctx.fillRect(rx + rw * 0.28, ry + rh * 0.36, rw * 0.44, rh * 0.34);
+                    sctx.fillRect(rx + 4, ry + 5, sTile - 8, sTile - 9);
                   } else {
                     const tBiome = getMapVisualBiome(tx, ty, biomeId);
                     const tSheet = Abyssea.Assets && Abyssea.Assets.biomeTiles && Abyssea.Assets.biomeTiles[tBiome];
@@ -8576,132 +8641,132 @@
 
                     if (!dn) {
                       sctx.fillStyle = tcPal.mid;
-                      sctx.fillRect(rx, ry + rh - 1.5, rw, 3.2);
+                      sctx.fillRect(rx, ry + sTile - 2, sTile, 5);
                       sctx.fillStyle = tcPal.shadow;
-                      sctx.fillRect(rx, ry + rh + 1, rw, 1.8);
+                      sctx.fillRect(rx, ry + sTile + 3, sTile, 3);
                     }
 
                     if (tSheet && tSheet.width > 0 && tSheet.height > 0) {
                       const bts = Math.round(tSheet.width / 3) || 64;
                       const tsx = !lt ? 0 : !rt ? bts * 2 : bts;
                       const tsy = !up ? 0 : !dn ? bts * 2 : bts;
-                      sctx.drawImage(tSheet, tsx, tsy, bts, bts, rx, ry, rw, rh);
+                      sctx.drawImage(tSheet, tsx, tsy, bts, bts, rx, ry, sTile, sTile);
                     } else {
                       sctx.fillStyle = tbColor;
-                      sctx.fillRect(rx, ry, rw, rh);
+                      sctx.fillRect(rx, ry, sTile, sTile);
                     }
 
                     if (t === 2) {
                       if (soilReady) {
-                        sctx.drawImage(soilImg, rx, ry, rw, rh);
+                        sctx.drawImage(soilImg, rx, ry, sTile, sTile);
                       } else {
                         sctx.fillStyle = '#4e342e';
-                        sctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
+                        sctx.fillRect(rx + 2, ry + 2, sTile - 4, sTile - 4);
                         sctx.fillStyle = '#3e2723';
-                        sctx.fillRect(rx + 1, ry + rh * 0.35, rw - 2, 1.5);
-                        sctx.fillRect(rx + 1, ry + rh * 0.70, rw - 2, 1.5);
+                        sctx.fillRect(rx + 2, ry + Math.round(sTile * 0.35), sTile - 4, 2);
+                        sctx.fillRect(rx + 2, ry + Math.round(sTile * 0.70), sTile - 4, 2);
                       }
                     }
 
                     if (t === 1 && terraformedSet.has((tx & 0xfff) | ((ty & 0xfff) << 12))) {
-                      sctx.fillStyle = 'rgba(96, 125, 139, 0.75)';
-                      sctx.fillRect(rx + 1, ry + 1, rw - 2, rh - 2);
+                      sctx.fillStyle = 'rgba(96, 125, 139, 0.72)';
+                      sctx.fillRect(rx + 1, ry + 1, sTile - 2, sTile - 2);
                       sctx.fillStyle = '#455a64';
-                      sctx.fillRect(rx + 1.5, ry + 1.5, rw * 0.4, rh * 0.4);
-                      sctx.fillRect(rx + rw * 0.5, ry + rh * 0.5, rw * 0.4, rh * 0.4);
+                      sctx.fillRect(rx + 2, ry + 2, 6, 6);
+                      sctx.fillRect(rx + 8, ry + 8, 6, 6);
                     }
                   }
                 }
               }
 
-              // Detailed miniature pixel flora & resource nodes (from O(1) plot bucket)
+              // Detailed miniature pixel flora & resource nodes at 16px/tile resolution
               const bucket = nodesByPlot[pidx];
               if (bucket) {
                 for (let ni = 0; ni < bucket.length; ni++) {
                   const n = bucket[ni];
-                  const nx = (n.tx + 0.5) * tilePx;
-                  const ny = (n.ty + 0.5) * tilePx;
+                  const nx = (n.tx + 0.5) * sTile;
+                  const ny = (n.ty + 0.5) * sTile;
                   const k = n.kind || '';
 
                   if (k.includes('tree')) {
-                    sctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
-                    sctx.beginPath(); sctx.ellipse(nx, ny + 2.5, 3.2, 1.4, 0, 0, Math.PI * 2); sctx.fill();
+                    sctx.fillStyle = 'rgba(0, 0, 0, 0.34)';
+                    sctx.beginPath(); sctx.ellipse(nx, ny + 5.5, 6.2, 2.8, 0, 0, Math.PI * 2); sctx.fill();
                     sctx.fillStyle = '#5d4037';
-                    sctx.fillRect(nx - 0.9, ny + 0.8, 1.8, 2.2);
+                    sctx.fillRect(nx - 1.8, ny + 1.5, 3.6, 4.5);
 
                     if (k.includes('pine')) {
                       sctx.fillStyle = '#14421b';
                       sctx.beginPath();
-                      sctx.moveTo(nx, ny - 4.5); sctx.lineTo(nx + 3.2, ny + 1.2); sctx.lineTo(nx - 3.2, ny + 1.2);
+                      sctx.moveTo(nx, ny - 8.5); sctx.lineTo(nx + 6.2, ny + 2.5); sctx.lineTo(nx - 6.2, ny + 2.5);
                       sctx.closePath(); sctx.fill();
                       sctx.fillStyle = '#2e7d32';
                       sctx.beginPath();
-                      sctx.moveTo(nx, ny - 4.5); sctx.lineTo(nx + 2.2, ny - 0.5); sctx.lineTo(nx - 2.2, ny - 0.5);
+                      sctx.moveTo(nx, ny - 8.5); sctx.lineTo(nx + 4.4, ny - 1); sctx.lineTo(nx - 4.4, ny - 1);
                       sctx.closePath(); sctx.fill();
                     } else if (k.includes('palm')) {
                       sctx.fillStyle = '#388e3c';
-                      sctx.beginPath(); sctx.arc(nx, ny - 1.5, 3.2, 0, Math.PI * 2); sctx.fill();
+                      sctx.beginPath(); sctx.arc(nx, ny - 3, 6.2, 0, Math.PI * 2); sctx.fill();
                       sctx.fillStyle = '#81c784';
-                      sctx.fillRect(nx - 1, ny - 3, 2, 2);
+                      sctx.fillRect(nx - 2, ny - 5.5, 4, 4);
                     } else {
                       sctx.fillStyle = '#1b5e20';
-                      sctx.beginPath(); sctx.arc(nx, ny - 0.6, 3.5, 0, Math.PI * 2); sctx.fill();
+                      sctx.beginPath(); sctx.arc(nx, ny - 1.2, 6.8, 0, Math.PI * 2); sctx.fill();
                       sctx.fillStyle = '#2e7d32';
-                      sctx.beginPath(); sctx.arc(nx - 0.4, ny - 1.2, 2.7, 0, Math.PI * 2); sctx.fill();
+                      sctx.beginPath(); sctx.arc(nx - 0.8, ny - 2.2, 5.2, 0, Math.PI * 2); sctx.fill();
                       sctx.fillStyle = '#66bb6a';
-                      sctx.beginPath(); sctx.arc(nx - 0.8, ny - 1.8, 1.5, 0, Math.PI * 2); sctx.fill();
+                      sctx.beginPath(); sctx.arc(nx - 1.6, ny - 3.4, 3.0, 0, Math.PI * 2); sctx.fill();
                       if (k.includes('apple')) {
                         sctx.fillStyle = '#ef5350';
-                        sctx.fillRect(nx + 1, ny - 0.5, 1.2, 1.2); sctx.fillRect(nx - 1.5, ny - 2.2, 1.2, 1.2);
+                        sctx.fillRect(nx + 2, ny - 1, 2.2, 2.2); sctx.fillRect(nx - 3, ny - 4.2, 2.2, 2.2);
                       } else if (k.includes('orange')) {
                         sctx.fillStyle = '#ffa726';
-                        sctx.fillRect(nx + 1, ny - 0.5, 1.2, 1.2); sctx.fillRect(nx - 1.5, ny - 2.2, 1.2, 1.2);
+                        sctx.fillRect(nx + 2, ny - 1, 2.2, 2.2); sctx.fillRect(nx - 3, ny - 4.2, 2.2, 2.2);
                       }
                     }
                   } else if (k.includes('rock') || k.includes('vein') || k.includes('node')) {
                     sctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-                    sctx.beginPath(); sctx.ellipse(nx, ny + 1.8, 3.0, 1.3, 0, 0, Math.PI * 2); sctx.fill();
+                    sctx.beginPath(); sctx.ellipse(nx, ny + 3.4, 5.6, 2.4, 0, 0, Math.PI * 2); sctx.fill();
                     sctx.fillStyle = '#37474f';
-                    sctx.beginPath(); sctx.arc(nx, ny, 2.7, 0, Math.PI * 2); sctx.fill();
+                    sctx.beginPath(); sctx.arc(nx, ny, 5.2, 0, Math.PI * 2); sctx.fill();
                     sctx.fillStyle = '#78909c';
-                    sctx.beginPath(); sctx.arc(nx - 0.6, ny - 0.6, 1.8, 0, Math.PI * 2); sctx.fill();
+                    sctx.beginPath(); sctx.arc(nx - 1.1, ny - 1.1, 3.4, 0, Math.PI * 2); sctx.fill();
                     if (k.includes('gold')) {
                       sctx.fillStyle = '#ffd54f';
-                      sctx.fillRect(nx - 1, ny - 1.2, 1.5, 1.5); sctx.fillRect(nx + 0.8, ny + 0.2, 1.2, 1.2);
+                      sctx.fillRect(nx - 2, ny - 2.2, 2.8, 2.8); sctx.fillRect(nx + 1.4, ny + 0.4, 2.2, 2.2);
                     } else if (k.includes('gem') || k.includes('crystal') || k.includes('diamond') || k.includes('emerald')) {
                       sctx.fillStyle = '#00e5ff';
-                      sctx.fillRect(nx - 0.8, ny - 1.2, 1.6, 1.6);
+                      sctx.fillRect(nx - 1.6, ny - 2.2, 3.0, 3.0);
                       sctx.fillStyle = '#e040fb';
-                      sctx.fillRect(nx + 0.6, ny + 0.2, 1.2, 1.2);
+                      sctx.fillRect(nx + 1.2, ny + 0.4, 2.2, 2.2);
                     } else if (k.includes('iron')) {
                       sctx.fillStyle = '#cfd8dc';
-                      sctx.fillRect(nx - 0.8, ny - 1, 1.5, 1.5);
+                      sctx.fillRect(nx - 1.6, ny - 1.8, 2.8, 2.8);
                     } else if (k.includes('coal')) {
                       sctx.fillStyle = '#212121';
-                      sctx.fillRect(nx - 0.8, ny - 1, 1.5, 1.5);
+                      sctx.fillRect(nx - 1.6, ny - 1.8, 2.8, 2.8);
                     }
                   } else if (k === 'berry_bush' || k === 'bush') {
                     sctx.fillStyle = '#2e7d32';
-                    sctx.beginPath(); sctx.arc(nx, ny, 2.5, 0, Math.PI * 2); sctx.fill();
+                    sctx.beginPath(); sctx.arc(nx, ny, 4.6, 0, Math.PI * 2); sctx.fill();
                     sctx.fillStyle = '#e91e63';
-                    sctx.fillRect(nx - 1, ny - 1, 1.2, 1.2);
-                    sctx.fillRect(nx + 0.8, ny - 0.5, 1.2, 1.2);
-                    sctx.fillRect(nx - 0.2, ny + 0.8, 1.2, 1.2);
+                    sctx.fillRect(nx - 2, ny - 2, 2.2, 2.2);
+                    sctx.fillRect(nx + 1.4, ny - 1, 2.2, 2.2);
+                    sctx.fillRect(nx - 0.4, ny + 1.4, 2.2, 2.2);
                   } else if (k.includes('wheat')) {
                     sctx.fillStyle = '#ffd54f';
-                    sctx.fillRect(nx - 1.2, ny - 2, 0.8, 3.5); sctx.fillRect(nx + 0.4, ny - 2.5, 0.8, 4);
+                    sctx.fillRect(nx - 2.4, ny - 4, 1.6, 6.5); sctx.fillRect(nx + 0.8, ny - 4.8, 1.6, 7.2);
                     sctx.fillStyle = '#f57f17';
-                    sctx.fillRect(nx - 1.2, ny - 2.5, 1, 1.2); sctx.fillRect(nx + 0.4, ny - 3, 1, 1.2);
+                    sctx.fillRect(nx - 2.4, ny - 4.8, 1.8, 2.2); sctx.fillRect(nx + 0.8, ny - 5.6, 1.8, 2.2);
                   } else if (k.includes('carrot')) {
                     sctx.fillStyle = '#4caf50';
-                    sctx.fillRect(nx - 1, ny - 2, 2, 1.5);
+                    sctx.fillRect(nx - 2, ny - 4, 4, 2.8);
                     sctx.fillStyle = '#ff9800';
-                    sctx.fillRect(nx - 0.5, ny - 0.5, 1.2, 2);
+                    sctx.fillRect(nx - 1, ny - 1, 2.4, 4);
                   } else if (k === 'flower') {
                     sctx.fillStyle = '#ff4081';
-                    sctx.beginPath(); sctx.arc(nx, ny, 1.6, 0, Math.PI * 2); sctx.fill();
+                    sctx.beginPath(); sctx.arc(nx, ny, 2.8, 0, Math.PI * 2); sctx.fill();
                     sctx.fillStyle = '#ffe082';
-                    sctx.fillRect(nx - 0.5, ny - 0.5, 1, 1);
+                    sctx.fillRect(nx - 1, ny - 1, 2, 2);
                   }
                 }
               }
@@ -8710,42 +8775,41 @@
                 ? g.economy.isPlotAdjacentlyReachable(g, gx, gy)
                 : false;
               if (adj) mapAdjPlotsCache.push([gx, gy]);
+              const lockColor = (BIOMES[biomeId] && BIOMES[biomeId].color) || '#4c8f40';
+              const lockCliff = cliffColors[biomeId] || cliffColors.pradera;
               sctx.save();
-              sctx.globalAlpha = adj ? 0.42 : 0.28;
+              sctx.globalAlpha = adj ? 0.50 : 0.28;
               for (let ly = 0; ly < PLOT_TILES; ly++) {
-                const ry = Math.round(py0 + ly * tilePx);
-                const rh = Math.max(1, Math.round(py0 + (ly + 1) * tilePx) - ry);
                 for (let lx = 0; lx < PLOT_TILES; lx++) {
                   const tx = gx * PLOT_TILES + lx;
                   const ty = gy * PLOT_TILES + ly;
                   const t = g.world.tiles[ty]?.[tx] ?? 0;
                   if (t === 0) continue;
-                  const rx = Math.round(px0 + lx * tilePx);
-                  const rw = Math.max(1, Math.round(px0 + (lx + 1) * tilePx) - rx);
-                  const tBiome = getMapVisualBiome(tx, ty, biomeId);
+                  const rx = tx * sTile;
+                  const ry = ty * sTile;
                   const belowT = g.world.tiles[ty + 1]?.[tx] ?? 0;
                   if (belowT === 0) {
-                    const tcPal = cliffColors[tBiome] || cliffColors.pradera;
-                    sctx.fillStyle = tcPal.mid;
-                    sctx.fillRect(rx, ry + rh, rw, 2);
+                    sctx.fillStyle = lockCliff.mid;
+                    sctx.fillRect(rx, ry + sTile, sTile, 4);
                   }
-                  sctx.fillStyle = t === 4 ? '#8e240c' : ((BIOMES[tBiome] && BIOMES[tBiome].color) || biome.color);
-                  sctx.fillRect(rx, ry, rw, rh);
+                  sctx.fillStyle = t === 4 ? '#8e240c' : lockColor;
+                  sctx.fillRect(rx, ry, sTile, sTile);
                 }
               }
               sctx.restore();
             }
 
+            // Collect crisp map pins in logical world coords -> rendered at full native HiDPI resolution in drawMapCanvas()!
             const gate = g.world.getDungeonGateForPlot(gx, gy);
             if (gate) {
               const cleared = clearedSet.has(gate.id);
               if (unlocked) {
                 const gNode = gateNodeByPlot.get(pidx) || gateNodeById.get(gate.id);
                 if (gNode) {
-                  drawMapPin(sctx, (gNode.tx + 0.5) * tilePx, (gNode.ty + 0.5) * tilePx, cleared ? 'dungeon_cleared' : 'dungeon', { r: 5.8 });
+                  mapPinsCache.push({ wx: (gNode.tx + 0.5) * logicalTilePx, wy: (gNode.ty + 0.5) * logicalTilePx, kind: cleared ? 'dungeon_cleared' : 'dungeon', r: 9.2, z: 3 });
                 }
               } else {
-                drawMapPin(sctx, px0 + plotPx - 9, py0 + 9, cleared ? 'dungeon_cleared' : 'dungeon', { r: 5.2 });
+                mapPinsCache.push({ wx: px0 + logicalPlotPx - 10, wy: py0 + 10, kind: cleared ? 'dungeon_cleared' : 'dungeon', r: 7.5, z: 2 });
               }
             }
 
@@ -8754,37 +8818,51 @@
               const sNode = secretNodeByPlot.get(pidx);
               const sDone = sNode && sNode.opened;
               const sUnlocked = sNode && !sNode.puzzleLocked;
-              drawMapPin(
-                sctx,
-                sNode ? (sNode.tx + 0.5) * tilePx : px0 + plotPx / 2,
-                sNode ? (sNode.ty + 0.5) * tilePx : py0 + 10,
-                sDone ? 'secret_done' : 'secret',
-                { r: 5.2, locked: !sUnlocked }
-              );
+              mapPinsCache.push({
+                wx: sNode ? (sNode.tx + 0.5) * logicalTilePx : px0 + logicalPlotPx / 2,
+                wy: sNode ? (sNode.ty + 0.5) * logicalTilePx : py0 + 10,
+                kind: sDone ? 'secret_done' : 'secret',
+                r: 8.4,
+                z: 2,
+                opts: { locked: !sUnlocked }
+              });
             }
 
             const altarId = unlocked && g.world.altarPlots && g.world.altarPlots[`${gx},${gy}`];
             if (altarId) {
               const aNode = altarNodeByPlot.get(pidx);
-              drawMapPin(sctx, aNode ? (aNode.tx + 0.5) * tilePx : px0 + 10, aNode ? (aNode.ty + 0.5) * tilePx : py0 + plotPx - 10, 'altar', { r: 5.2 });
+              mapPinsCache.push({
+                wx: aNode ? (aNode.tx + 0.5) * logicalTilePx : px0 + 10,
+                wy: aNode ? (aNode.ty + 0.5) * logicalTilePx : py0 + logicalPlotPx - 10,
+                kind: 'altar',
+                r: 8.6,
+                z: 2
+              });
             }
 
             const eeId = unlocked && g.world.easterEggPlots && g.world.easterEggPlots[`${gx},${gy}`];
             if (eeId) {
               const eeNode = eeNodeByPlot.get(pidx);
-              drawMapPin(sctx, eeNode ? (eeNode.tx + 0.5) * tilePx : px0 + plotPx - 10, eeNode ? (eeNode.ty + 0.5) * tilePx : py0 + plotPx - 10, 'secret', { r: 5.0 });
+              mapPinsCache.push({
+                wx: eeNode ? (eeNode.tx + 0.5) * logicalTilePx : px0 + logicalPlotPx - 10,
+                wy: eeNode ? (eeNode.ty + 0.5) * logicalTilePx : py0 + logicalPlotPx - 10,
+                kind: 'secret',
+                r: 8.2,
+                z: 2
+              });
             }
 
             const npc = npcByPlot.get(pidx);
             if (npc && unlocked) {
               const nNode = npcNodeById.get(npc.id);
-              drawMapPin(
-                sctx,
-                nNode ? (nNode.tx + 0.5) * tilePx : px0 + 11,
-                nNode ? (nNode.ty + 0.5) * tilePx : py0 + 11,
-                'npc',
-                { r: 6.4, url: Abyssea.NPC_PORTRAIT_URLS && Abyssea.NPC_PORTRAIT_URLS[npc.id] }
-              );
+              mapPinsCache.push({
+                wx: nNode ? (nNode.tx + 0.5) * logicalTilePx : px0 + 12,
+                wy: nNode ? (nNode.ty + 0.5) * logicalTilePx : py0 + 12,
+                kind: 'npc',
+                r: 10.6,
+                z: 4,
+                opts: { url: Abyssea.NPC_PORTRAIT_URLS && Abyssea.NPC_PORTRAIT_URLS[npc.id] }
+              });
             }
           }
         }
@@ -8792,21 +8870,42 @@
         if (Array.isArray(g.buildings)) {
           for (let bi = 0; bi < g.buildings.length; bi++) {
             const bld = g.buildings[bi];
-            drawMapBuilding(sctx, bld, tilePx);
+            drawMapBuilding(sctx, bld, sTile);
             if (bld && (bld.type === 'portal' || bld.type === 'baliza_teletransporte')) {
-              drawMapPin(sctx, (bld.tx + 0.5) * tilePx, (bld.ty + 0.5) * tilePx, 'portal', { r: 5.0 });
+              mapPinsCache.push({
+                wx: (bld.tx + 0.5) * logicalTilePx,
+                wy: (bld.ty + 0.5) * logicalTilePx,
+                kind: 'portal',
+                r: 8.2,
+                z: 2
+              });
             }
           }
         }
+        mapPinsCache.sort((a, b) => (a.z || 0) - (b.z || 0));
       };
 
       const drawMapCanvas = () => {
+        const metrics = getMapCssSizeAndDpr();
+        const cw = metrics.w;
+        const ch = metrics.h;
+        const dpr = metrics.dpr;
+        const targetPW = Math.round(cw * dpr);
+        const targetPH = Math.round(ch * dpr);
+        if (mapCanvas.width !== targetPW || mapCanvas.height !== targetPH) {
+          mapCanvas.width = targetPW;
+          mapCanvas.height = targetPH;
+        }
+        mapCanvas._cssW = cw;
+        mapCanvas._cssH = ch;
+        mapCanvas._dpr = dpr;
+
         const ctx = mapCanvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
-        const cw = mapCanvas.width;
-        const ch = mapCanvas.height;
-        const plotPx = MAP_WORLD_SZ / GRID_PLOTS; // 120px per plot
-        const tilePx = plotPx / PLOT_TILES; // 10px per tile
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        const plotPx = MAP_WORLD_SZ / GRID_PLOTS;
+        const tilePx = plotPx / PLOT_TILES;
 
         if (!cachedOceanGrad || cachedOceanW !== cw || cachedOceanH !== ch) {
           cachedOceanGrad = ctx.createRadialGradient(cw * 0.45, ch * 0.45, 40, cw * 0.5, ch * 0.5, Math.max(cw, ch) * 0.72);
@@ -8823,7 +8922,7 @@
 
         const nextStaticKey = `${g.unlockedPlots.length}|${g.buildings.length}|${g.world.nodes.length}|${(g.world.terraformedTiles || []).length}|${(g.clearedDungeons || []).length}|${mapImgLoadGen}`;
         if (!mapStaticCanvas || mapStaticKey !== nextStaticKey) {
-          rebuildMapStaticLayer(plotPx, tilePx);
+          rebuildMapStaticLayer();
           mapStaticKey = nextStaticKey;
         }
 
@@ -8831,8 +8930,10 @@
         ctx.translate(this.mapPanX, this.mapPanY);
         ctx.scale(this.mapZoom, this.mapZoom);
 
-        // Blit entire pre-rendered 19x19 archipelago + nodes + buildings in ONE GPU drawImage!
-        ctx.drawImage(mapStaticCanvas, 0, 0);
+        // Blit 3648x3648 high-res archipelago terrain, cliffs, bridges, trees & buildings smoothly into logical space
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(mapStaticCanvas, 0, 0, STATIC_WORLD_SZ, STATIC_WORLD_SZ, 0, 0, MAP_WORLD_SZ, MAP_WORLD_SZ);
 
         // Crisp zoom-invariant border on Center Island
         const cPlot = (CENTER_PLOT !== undefined ? CENTER_PLOT : 9);
@@ -8842,79 +8943,20 @@
           ctx.strokeRect(cPlot * plotPx + 0.5, cPlot * plotPx + 0.5, plotPx - 1, plotPx - 1);
         }
 
-        // Dynamic adjacent-island price & biome-lock badges (reacts immediately to coins & zoom)
+        // Adjacent buyable border frame
         for (let ai = 0; ai < mapAdjPlotsCache.length; ai++) {
           const [gx, gy] = mapAdjPlotsCache[ai];
           if (g.world.isPlotUnlocked(gx, gy)) continue;
-          const px0 = gx * plotPx;
-          const py0 = gy * plotPx;
-          const hcx = px0 + plotPx * 0.5;
-          const hcy = py0 + plotPx * 0.5;
           const plotBiomeLock = (g.economy && typeof g.economy.getBiomeLockStatus === 'function')
             ? g.economy.getBiomeLockStatus(g, gx, gy)
             : { lockedByBiome: false };
-          const price = g.economy.getPlotPrice(g, gx, gy);
-          const canAfford = !plotBiomeLock.lockedByBiome && g.coins >= price;
-
           if (!plotBiomeLock.lockedByBiome) {
-            ctx.strokeStyle = canAfford ? 'rgba(245, 204, 102, 0.68)' : 'rgba(239, 83, 80, 0.58)';
-            ctx.lineWidth = 1.25 / this.mapZoom;
-            ctx.strokeRect(px0 + 1.5, py0 + 1.5, plotPx - 3, plotPx - 3);
+            const price = g.economy.getPlotPrice(g, gx, gy);
+            const canAfford = g.coins >= price;
+            ctx.strokeStyle = canAfford ? 'rgba(245, 204, 102, 0.72)' : 'rgba(239, 83, 80, 0.62)';
+            ctx.lineWidth = 1.4 / this.mapZoom;
+            ctx.strokeRect(gx * plotPx + 1, gy * plotPx + 1, plotPx - 2, plotPx - 2);
           }
-
-          // Compact rounded price pill strictly fitted inside plotPx (~63px) — never overflows neighboring plots
-          const pillTxt = plotBiomeLock.lockedByBiome
-            ? `${plotBiomeLock.unlocked}/${plotBiomeLock.total}`
-            : (price >= 10000 ? `${Math.round(price / 1000)}k` : `${price}`);
-          ctx.save();
-          ctx.imageSmoothingEnabled = true;
-          ctx.font = 'bold 10.5px monospace';
-          const txtW = ctx.measureText(pillTxt).width;
-          const bw = Math.min(plotPx - 10, Math.max(30, Math.round(txtW + 17)));
-          const bh = 16;
-          const bx = hcx - bw / 2;
-          const by = hcy - bh / 2;
-
-          ctx.fillStyle = 'rgba(8, 16, 30, 0.88)';
-          ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 4);
-          else ctx.rect(bx, by, bw, bh);
-          ctx.fill();
-          ctx.strokeStyle = plotBiomeLock.lockedByBiome ? 'rgba(148, 163, 184, 0.72)' : (canAfford ? 'rgba(245, 204, 102, 0.90)' : 'rgba(239, 83, 80, 0.82)');
-          ctx.lineWidth = 1.05;
-          ctx.stroke();
-
-          if (plotBiomeLock.lockedByBiome) {
-            // Minimalist vector padlock glyph
-            const lx = bx + 7.5;
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 1.1;
-            ctx.beginPath();
-            ctx.arc(lx, hcy - 1.8, 2.2, Math.PI, 0, false);
-            ctx.stroke();
-            ctx.fillStyle = '#cbd5e1';
-            ctx.fillRect(lx - 2.6, hcy - 1.4, 5.2, 4.2);
-            ctx.fillStyle = '#e2e8f0';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(pillTxt, bx + 13.5, hcy + 0.5);
-          } else {
-            // Crisp minimalist vector gold coin dot
-            const cxCoin = bx + 7.5;
-            ctx.fillStyle = canAfford ? '#fbbf24' : '#f87171';
-            ctx.beginPath();
-            ctx.arc(cxCoin, hcy, 3.4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = canAfford ? '#fef3c7' : '#fecaca';
-            ctx.beginPath();
-            ctx.arc(cxCoin - 0.8, hcy - 0.8, 1.1, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = canAfford ? '#fef08a' : '#fca5a5';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(pillTxt, bx + 13.5, hcy + 0.5);
-          }
-          ctx.restore();
         }
 
         // Square plot grid overlay (toggled by Cuadrícula button)
@@ -8928,25 +8970,13 @@
           }
         }
 
-        // Pulsating minimalist player beacon at exact world position
-        const ptx = (g.player.x / TILE_SIZE) * tilePx;
-        const pty = (g.player.y / TILE_SIZE) * tilePx;
-        const pulse = (Math.sin(Date.now() / 260) + 1) * 0.5;
-        ctx.save();
-        ctx.imageSmoothingEnabled = true;
-        ctx.strokeStyle = `rgba(52, 211, 153, ${(0.28 + pulse * 0.42).toFixed(2)})`;
-        ctx.lineWidth = 1.3;
-        ctx.beginPath();
-        ctx.arc(ptx, pty, 7.5 + pulse * 3.5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-        drawMapPin(ctx, ptx, pty, 'player', { r: 6.4 });
-
         // Selected square highlight
         const [sx, sy] = this.selectedMapPlot;
         ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
-        ctx.lineWidth = 3.2 / this.mapZoom;
-        ctx.strokeRect(sx * plotPx + 1.5, sy * plotPx + 1.5, plotPx - 3, plotPx - 3);
+        ctx.lineWidth = 2.6 / this.mapZoom;
+        ctx.strokeRect(sx * plotPx + 1, sy * plotPx + 1, plotPx - 2, plotPx - 2);
+
+        const pulse = (Math.sin(Date.now() / 260) + 1) * 0.5;
 
         // Skill-Style Live Channeling Aura on the target island while holding to conquer
         if (mapChannelState) {
@@ -9066,29 +9096,139 @@
           }
         }
 
-        // Tutorial Recommended 1st Island Golden Callout on Map Canvas
+        // Tutorial Recommended 1st Island Golden Callout border (world space)
         const tutRecPlot = getTutorialRecommendedPlot();
         if (tutRecPlot) {
           const [rgx, rgy] = tutRecPlot;
-          const recCenter = getPlotCenterPx(rgx, rgy);
-          const isEnMap = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
-          const lbl = isEnMap ? '1ST ISLAND' : '1ra ISLA';
           ctx.save();
           ctx.strokeStyle = `rgba(255, 213, 79, ${0.75 + pulse * 0.25})`;
-          ctx.lineWidth = 3.5 / this.mapZoom;
+          ctx.lineWidth = 3.2 / this.mapZoom;
           ctx.strokeRect(rgx * plotPx + 2, rgy * plotPx + 2, plotPx - 4, plotPx - 4);
-          ctx.fillStyle = 'rgba(16, 24, 39, 0.94)';
-          ctx.fillRect(recCenter.x - 42, rgy * plotPx + 8, 84, 20);
-          ctx.strokeStyle = '#ffd54f';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(recCenter.x - 42, rgy * plotPx + 8, 84, 20);
-          ctx.fillStyle = '#ffd54f';
-          ctx.font = '13px AbysseaPixel, monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(lbl, recCenter.x, rgy * plotPx + 22);
           ctx.restore();
         }
         ctx.restore();
+
+        // Crisp HiDPI Screen-Space Icons (Dungeons, Altars, Secrets, NPC Portraits, Price Pills, Player Beacon)
+        const toScreenX = (wx) => wx * this.mapZoom + this.mapPanX;
+        const toScreenY = (wy) => wy * this.mapZoom + this.mapPanY;
+        const pinScale = Abyssea.Utils.clamp(0.75 + Math.sqrt(this.mapZoom) * 0.34, 0.78, 1.32);
+
+        for (let pi = 0; pi < mapPinsCache.length; pi++) {
+          const pin = mapPinsCache[pi];
+          const pxS = toScreenX(pin.wx);
+          const pyS = toScreenY(pin.wy);
+          if (pxS < -36 || pxS > cw + 36 || pyS < -36 || pyS > ch + 36) continue;
+          drawMapPin(ctx, pxS, pyS, pin.kind, Object.assign({}, pin.opts || {}, { r: (pin.r || 8.5) * pinScale }));
+        }
+
+        // Dynamic HiDPI adjacent-island price & biome-lock badges
+        const plotScrW = plotPx * this.mapZoom;
+        for (let ai = 0; ai < mapAdjPlotsCache.length; ai++) {
+          const [gx, gy] = mapAdjPlotsCache[ai];
+          if (g.world.isPlotUnlocked(gx, gy)) continue;
+          const hcx = toScreenX((gx + 0.5) * plotPx);
+          const hcy = toScreenY((gy + 0.5) * plotPx);
+          if (hcx < -90 || hcx > cw + 90 || hcy < -40 || hcy > ch + 40) continue;
+          const plotBiomeLock = (g.economy && typeof g.economy.getBiomeLockStatus === 'function')
+            ? g.economy.getBiomeLockStatus(g, gx, gy)
+            : { lockedByBiome: false };
+          const price = g.economy.getPlotPrice(g, gx, gy);
+          const canAfford = !plotBiomeLock.lockedByBiome && g.coins >= price;
+          const pillTxt = plotBiomeLock.lockedByBiome
+            ? `${plotBiomeLock.unlocked}/${plotBiomeLock.total}`
+            : (price >= 10000 ? `${Math.round(price / 1000)}k` : `${price}`);
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          const fontPx = Math.round(Abyssea.Utils.clamp(11 * Math.max(0.9, Math.min(1.25, Math.sqrt(this.mapZoom))), 10, 14));
+          ctx.font = `bold ${fontPx}px ui-monospace, Consolas, monospace`;
+          const txtW = ctx.measureText(pillTxt).width;
+          const bw = Math.min(Math.max(36, plotScrW - 8), Math.max(38, Math.round(txtW + 24)));
+          const bh = Math.round(fontPx + 10);
+          const bx = hcx - bw / 2;
+          const by = hcy - bh / 2;
+
+          ctx.fillStyle = 'rgba(8, 16, 30, 0.90)';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 5);
+          else ctx.rect(bx, by, bw, bh);
+          ctx.fill();
+          ctx.strokeStyle = plotBiomeLock.lockedByBiome ? 'rgba(148, 163, 184, 0.78)' : (canAfford ? 'rgba(245, 204, 102, 0.95)' : 'rgba(239, 83, 80, 0.85)');
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          if (plotBiomeLock.lockedByBiome) {
+            const lx = bx + 10;
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.arc(lx, hcy - 2, 2.8, Math.PI, 0, false);
+            ctx.stroke();
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(lx - 3.2, hcy - 1.5, 6.4, 5.2);
+            ctx.fillStyle = '#f1f5f9';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pillTxt, bx + 17.5, hcy + 0.5);
+          } else {
+            const cxCoin = bx + 10;
+            ctx.fillStyle = canAfford ? '#fbbf24' : '#f87171';
+            ctx.beginPath();
+            ctx.arc(cxCoin, hcy, 4.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = canAfford ? '#fef3c7' : '#fecaca';
+            ctx.beginPath();
+            ctx.arc(cxCoin - 1.0, hcy - 1.0, 1.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = canAfford ? '#fef08a' : '#fca5a5';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pillTxt, bx + 17.5, hcy + 0.5);
+          }
+          ctx.restore();
+        }
+
+        // Crisp HiDPI 1st-Island Tutorial Tag cleanly above the plot center badge
+        if (tutRecPlot) {
+          const [rgx, rgy] = tutRecPlot;
+          const recSx = toScreenX((rgx + 0.5) * plotPx);
+          const recTopY = toScreenY(rgy * plotPx);
+          const recCenterY = toScreenY((rgy + 0.5) * plotPx);
+          const badgeY = Math.max(recTopY + 12, recCenterY - 26);
+          const isEnMap = Abyssea.I18n && Abyssea.I18n.getLanguage() === 'en';
+          const lbl = isEnMap ? '1ST ISLAND' : '1ra ISLA';
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.font = 'bold 11px ui-monospace, Consolas, monospace';
+          const tw = ctx.measureText(lbl).width;
+          const bw = Math.round(tw + 14);
+          const bh = 18;
+          ctx.fillStyle = 'rgba(16, 24, 39, 0.95)';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(recSx - bw / 2, badgeY - bh / 2, bw, bh, 4);
+          else ctx.rect(recSx - bw / 2, badgeY - bh / 2, bw, bh);
+          ctx.fill();
+          ctx.strokeStyle = '#ffd54f';
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+          ctx.fillStyle = '#ffd54f';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(lbl, recSx, badgeY + 0.5);
+          ctx.restore();
+        }
+
+        // Pulsating minimalist HiDPI player beacon at exact world position
+        const ptx = toScreenX((g.player.x / TILE_SIZE) * tilePx);
+        const pty = toScreenY((g.player.y / TILE_SIZE) * tilePx);
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.strokeStyle = `rgba(52, 211, 153, ${(0.32 + pulse * 0.44).toFixed(2)})`;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(ptx, pty, (11.5 + pulse * 5) * Math.max(0.85, Math.min(1.2, pinScale)), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+        drawMapPin(ctx, ptx, pty, 'player', { r: 9.8 * pinScale });
 
         // Crisp fixed bottom-right pixel-art compass rose in screen space
         const westCh = tr('map.westLetter') || 'W';
@@ -9102,7 +9242,11 @@
           const cy = by + chPx / 2;
           ctx.fillStyle = 'rgba(10, 14, 28, 0.80)';
           ctx.beginPath(); ctx.arc(cx, cy, Math.max(cwPx, chPx) * 0.44, 0, Math.PI * 2); ctx.fill();
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(compImg, bx, by, cwPx, chPx);
+          ctx.restore();
           ctx.font = '14px AbysseaPixel, monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -9133,7 +9277,7 @@
         }
       };
 
-      const setMapZoomAround = (nextZoom, ax = viewW / 2, ay = viewH / 2) => {
+      const setMapZoomAround = (nextZoom, ax = (mapCanvas._cssW || viewW) / 2, ay = (mapCanvas._cssH || viewH) / 2) => {
         const z = Abyssea.Utils.clamp(nextZoom, 0.55, 2.8);
         const wx = (ax - this.mapPanX) / this.mapZoom;
         const wy = (ay - this.mapPanY) / this.mapZoom;
@@ -9145,9 +9289,11 @@
 
       const focusMapPlot = (gx, gy, z = 1.45) => {
         const pt = getPlotCenterPx(gx, gy);
+        const cw = mapCanvas._cssW || viewW;
+        const ch = mapCanvas._cssH || viewH;
         this.mapZoom = Abyssea.Utils.clamp(z, 0.45, 2.8);
-        this.mapPanX = mapCanvas.width / 2 - pt.x * this.mapZoom;
-        this.mapPanY = mapCanvas.height / 2 - pt.y * this.mapZoom;
+        this.mapPanX = cw / 2 - pt.x * this.mapZoom;
+        this.mapPanY = ch / 2 - pt.y * this.mapZoom;
         drawMapCanvas();
       };
 
@@ -9184,8 +9330,12 @@
         dragActive = false;
         boardWrap.classList.remove('dragging');
       };
+      const onMapResize = () => {
+        if (this.activeModal === 'map') drawMapCanvas();
+      };
       window.addEventListener('mousemove', onMapMove);
       window.addEventListener('mouseup', onMapUp);
+      window.addEventListener('resize', onMapResize);
       this._mapCleanup = () => {
         if (mapFxRaf !== null) { cancelAnimationFrame(mapFxRaf); mapFxRaf = null; }
         if (mapHoldCleanup) { mapHoldCleanup(); mapHoldCleanup = null; }
@@ -9194,13 +9344,16 @@
         mapUnlockBursts.length = 0;
         window.removeEventListener('mousemove', onMapMove);
         window.removeEventListener('mouseup', onMapUp);
+        window.removeEventListener('resize', onMapResize);
       };
 
       mapCanvas.addEventListener('click', (ev) => {
         if (dragMoved) { dragMoved = false; return; }
         const rect = mapCanvas.getBoundingClientRect();
-        const sx = (ev.clientX - rect.left) * (mapCanvas.width / rect.width);
-        const sy = (ev.clientY - rect.top) * (mapCanvas.height / rect.height);
+        const cw = mapCanvas._cssW || rect.width;
+        const ch = mapCanvas._cssH || rect.height;
+        const sx = (ev.clientX - rect.left) * (cw / Math.max(1, rect.width));
+        const sy = (ev.clientY - rect.top) * (ch / Math.max(1, rect.height));
         const wx = (sx - this.mapPanX) / this.mapZoom;
         const wy = (sy - this.mapPanY) / this.mapZoom;
         if (wx < 0 || wy < 0 || wx > MAP_WORLD_SZ || wy > MAP_WORLD_SZ) return;
@@ -9214,11 +9367,20 @@
       mapCanvas.addEventListener('wheel', (ev) => {
         ev.preventDefault();
         const rect = mapCanvas.getBoundingClientRect();
-        const ax = (ev.clientX - rect.left) * (mapCanvas.width / rect.width);
-        const ay = (ev.clientY - rect.top) * (mapCanvas.height / rect.height);
+        const cw = mapCanvas._cssW || rect.width;
+        const ch = mapCanvas._cssH || rect.height;
+        const ax = (ev.clientX - rect.left) * (cw / Math.max(1, rect.width));
+        const ay = (ev.clientY - rect.top) * (ch / Math.max(1, rect.height));
         const step = ev.deltaY < 0 ? 1.15 : 0.87;
         setMapZoomAround(this.mapZoom * step, ax, ay);
       }, { passive: false });
+
+      const toolbarSvgIcon = (inner) => {
+        const s = document.createElement('span');
+        s.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;';
+        s.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+        return s;
+      };
 
       const toolbar = this.el('div', { class: 'map-atlas-toolbar' }, [
         this.el('button', {
@@ -9226,19 +9388,22 @@
           'data-tip-text': tr('map.zoomOutTip'),
           'aria-label': tr('map.zoomOutTip'),
           onclick: () => setMapZoomAround(this.mapZoom * 0.82)
-        }, [this.uiIcon('iconZoomOut', 18)]),
+        }, [toolbarSvgIcon('<circle cx="7" cy="7" r="4.6" stroke="#e2e8f0" stroke-width="1.6"/><line x1="10.4" y1="10.4" x2="14" y2="14" stroke="#e2e8f0" stroke-width="1.8" stroke-linecap="round"/><line x1="4.8" y1="7" x2="9.2" y2="7" stroke="#ffd54f" stroke-width="1.6" stroke-linecap="round"/>')]),
         zoomReadout,
         this.el('button', {
           class: 'btn btn-sm',
           'data-tip-text': tr('map.zoomInTip'),
           'aria-label': tr('map.zoomInTip'),
           onclick: () => setMapZoomAround(this.mapZoom * 1.22)
-        }, [this.uiIcon('iconZoomIn', 18)]),
+        }, [toolbarSvgIcon('<circle cx="7" cy="7" r="4.6" stroke="#e2e8f0" stroke-width="1.6"/><line x1="10.4" y1="10.4" x2="14" y2="14" stroke="#e2e8f0" stroke-width="1.8" stroke-linecap="round"/><line x1="4.8" y1="7" x2="9.2" y2="7" stroke="#ffd54f" stroke-width="1.6" stroke-linecap="round"/><line x1="7" y1="4.8" x2="7" y2="9.2" stroke="#ffd54f" stroke-width="1.6" stroke-linecap="round"/>')]),
         this.el('button', { class: 'btn btn-gold btn-sm', onclick: () => { this.selectedMapPlot = [pGx, pGy]; focusMapPlot(pGx, pGy, 1.45); renderInspector(); } }, tr('map.centerMe')),
         this.el('button', { class: 'btn btn-sm', onclick: () => {
-          this.mapZoom = fitZoom;
-          this.mapPanX = (mapCanvas.width - MAP_WORLD_SZ * fitZoom) / 2;
-          this.mapPanY = (mapCanvas.height - MAP_WORLD_SZ * fitZoom) / 2;
+          const cw = mapCanvas._cssW || viewW;
+          const ch = mapCanvas._cssH || viewH;
+          const curFit = Abyssea.Utils.clamp(Math.min((cw - 40) / MAP_WORLD_SZ, (ch - 40) / MAP_WORLD_SZ), 0.45, 1.35);
+          this.mapZoom = curFit;
+          this.mapPanX = (cw - MAP_WORLD_SZ * curFit) / 2;
+          this.mapPanY = (ch - MAP_WORLD_SZ * curFit) / 2;
           drawMapCanvas();
         } }, tr('map.viewAll')),
         this.el('button', {

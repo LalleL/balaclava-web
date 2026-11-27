@@ -2610,7 +2610,7 @@ body.modal-fullscreen-active #bottom-hud {
   width: 100%;
   height: 100%;
   border: none;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 #modal-box.map-atlas-fullscreen {
   border: none;
@@ -4265,7 +4265,7 @@ body.modal-fullscreen-active #bottom-hud {
   height: 430px;
   cursor: pointer;
   border: 2px solid #d4a64a;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 .map-legend {
